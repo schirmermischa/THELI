@@ -14,6 +14,8 @@ fftw3     http://fftw.org/
 
 GSL v2.5  https://www.gnu.org/software/gsl/
 
+wcslib v6.4   https://www.atnf.csiro.au/people/mcalabre/WCS/
+
 swarp v2.38   https://www.astromatic.net/software/swarp
 
 scamp v2.7    https://github.com/astromatic/scamp
