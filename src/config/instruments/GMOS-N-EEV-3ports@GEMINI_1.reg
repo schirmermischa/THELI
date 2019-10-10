@@ -1,0 +1,6 @@
+# Region file format: DS9 version 4.1
+# Filename: /home/mischa/daniela/flat/N20091004S0154_1.fits
+# Sense: in
+# Combine: and
+physical
+polygon(435,2046,691,2290,1053.5326,2296.5139,1053,12,1027,12,705,14,439,270)

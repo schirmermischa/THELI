@@ -1,0 +1,5 @@
+# Region file format: DS9 version 4.1
+# Sense: in
+# Combine: and
+physical
+polygon(15.5,4211,2033.5,4209.5,2031,179.5,1047,178,19,180)

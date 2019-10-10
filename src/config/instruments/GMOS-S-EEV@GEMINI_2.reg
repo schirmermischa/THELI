@@ -1,0 +1,6 @@
+# Region file format: DS9 version 4.1
+# Filename: S20120226S0032_2.fits
+# Sense: in
+# Combine: and
+physical
+polygon(1.25,2304.5,1024.5,2304.5,1024.5,76.5,519,102,437,62,1.5,61.5)

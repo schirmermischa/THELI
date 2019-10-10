@@ -1,0 +1,14 @@
+CRPIX1  =      2.031560826E+03 / Reference pixel on this axis                  
+CRPIX2  =      2.016204035E+03 / Reference pixel on this axis                  
+CD1_1   =     -5.232177091E-05 / Linear projection matrix                      
+CD1_2   =      1.153853116E-08 / Linear projection matrix                      
+CD2_1   =     -1.038852589E-07 / Linear projection matrix                      
+CD2_2   =      5.245133255E-05 / Linear projection matrix                      
+END     
+CRPIX1  =      2.027276541E+03 / Reference pixel on this axis                  
+CRPIX2  =     -1.282021246E+01 / Reference pixel on this axis                  
+CD1_1   =     -5.225156641E-05 / Linear projection matrix                      
+CD1_2   =      1.074800917E-07 / Linear projection matrix                      
+CD2_1   =     -8.503109529E-08 / Linear projection matrix                      
+CD2_2   =      5.231982815E-05 / Linear projection matrix                      
+END     

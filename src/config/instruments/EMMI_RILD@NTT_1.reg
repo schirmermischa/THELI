@@ -1,0 +1,7 @@
+# Region file format: DS9 version 4.1
+# Filename: EMMI.2007-01-21T00:11:23.840_1.fits
+# Sense: in
+# Combine: and
+global color=green dashlist=8 3 width=1 font="helvetica 10 normal roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+physical
+polygon(275,1940,1028.5,1954,1027.5,167,311,164,211,184,107,248,51.5,329,14.5,439,11,1596,15,1728,31,1776,81.5,1845,147,1896,208.5,1924)
