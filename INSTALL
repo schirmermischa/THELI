@@ -1,0 +1,47 @@
+Before installing THELI, the following dependencies must be met:
+
+For compilation, you need the 'devel' versions of the following packages
+(either these version numbers, or more recent ones):
+
+Qt5.9.6       https://www.qt.io/
+cfitsio       https://heasarc.gsfc.nasa.gov/fitsio/
+fftw3         http://fftw.org/
+GSL v2.5      https://www.gnu.org/software/gsl/
+wcslib v6.4   https://www.atnf.csiro.au/people/mcalabre/WCS/
+
+THELI also uses the following external packages.
+The relevant binaries must be present in your $PATH variable.
+THELI will check for their presence upon launch and report any misconfigurations.
+
+swarp v2.38        https://www.astromatic.net/software/swarp
+scamp v2.7         https://github.com/astromatic/scamp
+sextractor v2.19   https://www.astromatic.net/software/sextractor
+vizquery.py        http://cds.u-strasbg.fr/resources/doku.php?id=cdsclient
+sesame             http://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz
+
+In the following, we assume that the THELI source package was unpacked in a 'software' folder in your home
+directory:
+
+$HOME/software/THELI/
+
+You must set the THELIDIR environment variable to this path, e.g. on bash you would do
+
+export THELIDIR=$PATH:$HOME/software/THELI/
+
+To make it permanent, include this line in your ~/.bashrc
+
+Now create the 'Makefile' and build it:
+
+cd $HOME/software/THELI/src
+qmake -o Makefile THELI.pro
+make
+make clean
+
+To speed up the compilation on a multi-core system, you can replace 'make' by 'make -j x",
+where 'x' is replaced by the number of CPUs you have available.
+
+The 'qmake' executable is part of the Qt5 dependence you have installed in the beginning.
+
+
+
+
