@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ImstatsReadme</class>
+ <widget class="QDialog" name="ImstatsReadme">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>938</width>
+    <height>797</height>
+   </rect>
+  </property>
+  <property name="palette">
+   <palette>
+    <active>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>252</red>
+        <green>252</green>
+        <blue>252</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>219</red>
+        <green>219</green>
+        <blue>220</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </active>
+    <inactive>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>252</red>
+        <green>252</green>
+        <blue>252</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>219</red>
+        <green>219</green>
+        <blue>220</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </inactive>
+    <disabled>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>219</red>
+        <green>219</green>
+        <blue>220</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>219</red>
+        <green>219</green>
+        <blue>220</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </disabled>
+   </palette>
+  </property>
+  <property name="windowTitle">
+   <string>Mouse and keyboard interactions in the image statistics dialog</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>true</bool>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="2">
+    <widget class="QTextEdit" name="textEdit">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="html">
+      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Noto Sans'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The statistics module should be invoked after source catalogs and astrometry have been created. It displays the following parameters: &lt;span style=&quot; color:#ff007f;&quot;&gt;Sky background&lt;/span&gt;, &lt;span style=&quot; color:#ff007f;&quot;&gt;airmass&lt;/span&gt;, &lt;span style=&quot; color:#ff007f;&quot;&gt;seeing&lt;/span&gt;, &lt;span style=&quot; color:#ff007f;&quot;&gt;relative transparency&lt;/span&gt; (if astrometry was run), &lt;span style=&quot; color:#ff007f;&quot;&gt;PSF ellipticity&lt;/span&gt;.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600; color:#00007f;&quot;&gt;Selecting images using name filters&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Use a filter such as &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;*.fits&lt;/span&gt; to obtain statistics for all images. Narrow down the selection as you would do on the command line, e.g. &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;*_3AB.fits&lt;/span&gt; would select the third chip of a multi-chip camera, only.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600; color:#00007f;&quot;&gt;Selecting images using sky coordinates&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If both RA and DEC coordinates are provided, then only images containing these coordinates will be shown (if they also fulfil the filter criterion). Useful if you want to check the quality at the location of a particular source in multi-chip data (source appearing in different detectors with varying image quality).&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600; color:#00007f;&quot;&gt;Zooming and panning&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Left-click-drag in a plot or on the axes to pan arround. Scroll in a plot or on the axes to zoom.  &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600; color:#00007f;&quot;&gt;Browsing images in iView&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Select an image by clicking on a data point. The image will be displayed in &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;iView&lt;/span&gt; if the &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;Show image&lt;/span&gt; button is selected&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;. &lt;/span&gt;Use the &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;&amp;lt;left&amp;gt; &lt;/span&gt;or &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;&amp;lt;right&amp;gt; arrow keys&lt;/span&gt; to step through the data. You can also use the yellow selector buttons in&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt; iView&lt;/span&gt;. &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;iView&lt;/span&gt; will display the same selection as the statistics module (unless an RA/DEC filter is used).&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600; color:#00007f;&quot;&gt;Interactively rejecting and restoring images&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;Left-click &lt;/span&gt;a data point to select / deselect a single image. Consecutively &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;right-click&lt;/span&gt; to select / deselect multiple images. If you &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;right-clicked &lt;/span&gt;a data point, then subsequent &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;&amp;lt;left&amp;gt; &lt;/span&gt;and&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt; &amp;lt;right&amp;gt; &lt;/span&gt;key strokes can be used to quickly include more data points in the vicinity. Following a left-click, the same keys will select single images only.&lt;br /&gt;Press &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;&amp;lt;Delete&amp;gt;&lt;/span&gt; to &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;park&lt;/span&gt; the selected images (single chips) in a &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;badStats/ &lt;/span&gt;subdirectory. Press the &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;&amp;lt;A&amp;gt; key&lt;/span&gt; (not &amp;lt;ALT&amp;gt;) to park &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;all&lt;/span&gt; selected images (all chips) from the associated multi-chip exposure. The graphics will update immediately.&lt;br /&gt;Clicking on &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;Restore data&lt;/span&gt; will move the images back to their original place. You might have to replot the graphics to reflect the change after restoring the data.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600; color:#00007f;&quot;&gt;Numerically rejecting images&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;In addition to mouse-clicks, you can provide lower and upper limits to all parameters (y-axis) and also to the number of images (x-axis). Make the selective active by hitting &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;&amp;lt;return&amp;gt;&lt;/span&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>832</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="closePushButton">
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>closePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ImstatsReadme</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>817</x>
+     <y>756</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>765</x>
+     <y>745</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

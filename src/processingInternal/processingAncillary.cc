@@ -1,0 +1,189 @@
+#include "controller.h"
+#include "../mainwindow.h"
+#include "../tools/tools.h"
+#include "../query/query.h"
+#include "dockwidgets/confdockwidget.h"
+#include "ui_confdockwidget.h"
+
+#include <QMetaObject>
+#include <QVector>
+#include <QStringList>
+#include <QProgressBar>
+
+void Controller::taskInternalGetCatalogFromWEB()
+{
+    QString scienceDir = instructions.split(" ").at(1);
+    Data *scienceData = getData(DT_SCIENCE, scienceDir);
+
+    pushBeginMessage(taskBasename, scienceDir);
+    pushConfigGetCatalogFromWeb();
+
+    Query *query = new Query(&verbosity);
+    connect(query, &Query::bulkMotionObtained, cdw, &ConfDockWidget::updateGaiaBulkMotion);
+    connect(query, &Query::messageAvailable, monitor, &Monitor::displayMessage);
+    connect(query, &Query::critical, this, &Controller::criticalReceived);
+    query->mainDirName = mainDirName;
+    query->refcatName = cdw->ui->ARCcatalogComboBox->currentText();
+    query->alpha_manual = cdw->ui->ARCraLineEdit->text();
+    query->delta_manual = cdw->ui->ARCdecLineEdit->text();
+    query->radius_manual = cdw->ui->ARCradiusLineEdit->text();
+    query->magLimit_string = cdw->ui->ARCminmagLineEdit->text();
+    query->maxProperMotion_string = cdw->ui->ARCmaxpmLineEdit->text();
+    query->scienceData = scienceData;
+    query->naxis1 = instData->sizex[0];
+    query->naxis2 = instData->sizey[0];
+    query->pixscale = instData->pixscale;
+    query->doAstromQueryFromWeb();
+    delete query;
+
+//    pushEndMessage(taskBasename, scienceDir);
+}
+
+void Controller::provideHeaderInfo(Data *scienceData)
+{
+    if (verbosity>1) emit messageAvailable("Collecting metadata from FITS files ...", "controller");
+
+    for (int chip=0; chip<instData->numChips; ++chip) {
+        for (auto &it : scienceData->myImageList[chip]) {
+            it->provideHeaderInfo();
+        }
+    }
+}
+
+void Controller::downloadGaiaCatalog(Data *scienceData)
+{
+    int verbosity = 0;
+    gaiaQuery = new Query(&verbosity);
+    connect(gaiaQuery, &Query::messageAvailable, this, &Controller::messageAvailableReceived);
+    connect(gaiaQuery, &Query::critical, this, &Controller::criticalReceived);
+    gaiaQuery->mainDirName = mainDirName;
+    gaiaQuery->scienceData = scienceData;
+    gaiaQuery->naxis1 = instData->sizex[0];
+    gaiaQuery->naxis2 = instData->sizey[0];
+    gaiaQuery->pixscale = instData->pixscale;
+    gaiaQuery->suppressCatalogWarning = true;
+
+    emit messageAvailable("Querying point source catalog from GAIA ...", "ignore");
+    gaiaQuery->doGaiaQuery();
+    emit messageAvailable(QString::number(gaiaQuery->numSources) + " point sources retrieved for analysis of image quality ...", "ignore");
+}
+
+void Controller::collectGaiaRaDec(QVector<double> &dec, QVector<double> &ra, QVector<QVector<double>> &output)
+{
+    long dim = dec.length();
+    output.reserve(dim);
+    for (long i=0; i<dim; ++i) {
+        QVector<double> result(3);
+        result[0] = dec[i];
+        result[1] = ra[i];
+        result[2] = 0.0;   // dummy magnitude
+        output << result;
+    }
+}
+
+void Controller::taskInternalGetCatalogFromIMAGE()
+{
+    QString scienceDir = instructions.split(" ").at(1);
+    Data *scienceData = getData(DT_SCIENCE, scienceDir);
+
+    pushBeginMessage(taskBasename, scienceDir);
+    pushConfigGetCatalogFromImage();
+
+    QString DT = cdw->ui->ARCDTLineEdit->text();
+    QString DMIN = cdw->ui->ARCDMINLineEdit->text();
+    if (DT == "") DT = cdw->defaultMap["ARCDTLineEdit"];
+    if (DMIN == "") DMIN = cdw->defaultMap["ARCMINLineEdit"];
+
+    QString image = cdw->ui->ARCselectimageLineEdit->text();
+    QFileInfo fi;
+    fi.setFile(image);
+    QString imagePath = fi.absolutePath();
+    QString imageName = fi.fileName();
+    MyImage *detectionImage = new MyImage(imagePath, imageName, "", 1, QVector<bool>(), false, &verbosity, false);
+    detectionImage->setupCoaddMode();    // Read image, add a dummy global mask, and add a weight map if any
+    detectionImage->backgroundModel(256, "interpolate");
+    detectionImage->segmentImage(DT, DMIN, true);
+    connect(detectionImage, &MyImage::critical, this, &Controller::criticalReceived);
+    connect(detectionImage, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
+
+    Query *query = new Query(&verbosity);
+    connect(query, &Query::messageAvailable, monitor, &Monitor::displayMessage);
+    connect(query, &Query::critical, this, &Controller::criticalReceived);
+    query->mainDirName = mainDirName;
+    query->scienceData = scienceData;
+    for (auto &object : detectionImage->objectList) {
+        query->ra_out.append(object->ALPHA_J2000);
+        query->de_out.append(object->DELTA_J2000);
+        query->mag1_out.append(object->MAG_AUTO);
+    }
+    query->writeAstromScamp();
+    query->writeAstromANET();
+    query->writeAstromIview();
+    query->pushNumberOfSources();
+    delete query;
+    detectionImage->releaseAllDetectionMemory();
+    detectionImage->releaseBackgroundMemory("entirely");
+
+    delete detectionImage;
+
+//    pushEndMessage(taskBasename, scienceDir);
+}
+
+void Controller::taskInternalResolveTarget()
+{
+    QString targetName = cdw->ui->ARCtargetresolverLineEdit->text();
+    if (targetName.isEmpty()) return;
+
+    Query *query = new Query(&verbosity);
+    connect(query, &Query::messageAvailable, monitor, &Monitor::displayMessage);
+    connect(query, &Query::critical, this, &Controller::criticalReceived);
+    QString check = query->resolveTarget(targetName);
+    if (check == "Resolved") emit targetResolved(query->targetAlpha, query->targetDelta);
+    else if (check == "Nothing found") emit showMessageBox("Controller::TARGET_UNRESOLVED", targetName, "");
+    else if (check == "Unknown host") emit showMessageBox("Controller::UNKNOWN_HOST", targetName, "");
+    else {
+        // nothing yet.
+    }
+
+    delete query;
+}
+
+void Controller::taskInternalRestoreHeader()
+{
+    QString scienceDir = instructions.split(" ").at(1);
+    Data *scienceData = getData(DT_SCIENCE, scienceDir);
+
+    pushBeginMessage(taskBasename, scienceDir);
+
+    QDir headerDir;
+    headerDir.setPath(mainDirName+"/"+scienceDir+"/headers/");
+    if (!headerDir.exists()) {
+        emit messageAvailable("Could not restore the original WCS solution. The headers/ subdirectory does not exist in<br>"+scienceDir, "error");
+        successProcessing = false;
+        monitor->raise();
+        return;
+    }
+
+    QDir origDir;
+    origDir.setPath(mainDirName+"/"+scienceDir+"/.origheader_backup/");
+    if (!origDir.exists()) {
+        emit messageAvailable("Cannot restore headers. The backup copy was not found.", "error");
+        successProcessing = false;
+        monitor->raise();
+        return;
+    }
+
+#pragma omp parallel for num_threads(maxExternalThreads)
+    for (int chip=0; chip<instData->numChips; ++chip) {
+        for (auto &it : scienceData->myImageList[chip]) {
+            it->provideHeaderInfo();
+            // Restore the header if a backup exists
+            if (it->scanAstromHeader(chip, "inBackupDir")) {
+                it->updateZeroOrderOnDrive("restore");
+                it->updateZeroOrderInMemory();
+            }
+        }
+    }
+    successProcessing = true;
+//    pushEndMessage(taskBasename, scienceDir);
+}

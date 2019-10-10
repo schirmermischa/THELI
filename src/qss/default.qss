@@ -1,0 +1,54 @@
+QPushButton:hover {
+   background-color: #bbccff;
+}
+
+QRadioButton:hover, QCheckBox:hover {
+   background-color: #eeffff;
+}
+
+QComboBox:hover {
+   background-color: #99ccff;
+}
+
+QStatusBar {
+   border: 1px solid #555555;
+   background: #bbbbbb;
+}
+
+QDockWidget > QWidget {
+   border-top: none;
+   border-bottom: none;
+   border-right: 1px solid #555555;
+   border-left: 1px solid #555555;
+   background: #dadadd
+}
+
+QDockWidget::title {
+   text-align: left;
+   background: #ffe5ce;
+   border-top: 1px solid #555555;
+   border-bottom: none;
+   border-right: 1px solid #555555;
+   border-left: 1px solid #555555;
+   background: qlineargradient(x0:1, y2:1, x0:1, y2:1,
+                stop:0 #eec3aa, stop:1 #faf9d7);
+}
+
+QMenuBar {
+   border-bottom: 1px solid #555555;
+   border-top: none;
+   border-right: 1px solid #555555;
+   border-left: 1px solid #555555;
+   background: qlineargradient(x0:1, y2:1, x0:1, y2:1,
+                stop:0 #5588dd, stop:1 #99ccff);
+}
+
+QStatusBar {
+    background: qlineargradient(x0:1, y1:2, x0:1, y1:2,
+                stop:0 #4477cc, stop:1 white)
+}
+
+/*
+background: qlineargradient(x1:0, y1:0.5, x2:0, y2:1,
+                stop:0 #ffe5ce, stop:1 white);
+*/

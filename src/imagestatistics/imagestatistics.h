@@ -1,0 +1,115 @@
+#ifndef IMAGESTATISTICS_H
+#define IMAGESTATISTICS_H
+
+#include "../readmes/imstatsreadme.h"
+#include "../iview/iview.h"
+#include "../qcustomplot.h"
+#include "../instrumentdata.h"
+
+#include <QMainWindow>
+#include <myimage/myimage.h>
+
+#include <QVector>
+
+namespace Ui {
+class ImageStatistics;
+}
+
+class ImageStatistics : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    // Constructor passing a list of MyImages
+    explicit ImageStatistics(QVector<QList<MyImage *> > &imlist, QString main, QString sciencedir,
+                             instrumentDataType *instrumentData, QWidget *parent);
+    ~ImageStatistics();
+
+    void keyReleaseEvent(QKeyEvent *event);
+
+    bool iViewOpen = false;
+
+signals:
+    void imageSelected(int index);
+
+public slots:
+
+private slots:
+    void dataPointClicked(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event);
+    void numericSelection();
+    void on_selectDirPushButton_clicked();
+    void on_statisticsPushButton_clicked();
+    void on_exportPushButton_clicked();
+    void on_showPushButton_clicked();
+    void on_ClearPlotPushButton_clicked();
+    void on_restoreDataPushButton_clicked();
+    void on_dirLineEdit_textChanged(const QString &arg1);
+    void on_clearSelectionPushButton_clicked();
+    void on_invertSelectionPushButton_clicked();
+    void on_readmePushButton_clicked();
+    void on_connectDataPointsCheckBox_clicked();
+    void uncheckIviewPushButton();
+    void validate();
+
+    void currentlyDisplayedIndexReceived(int currentId);
+private:
+    QString mainDir;
+    QString statusString;
+    Ui::ImageStatistics *ui;
+    QString thelidir;
+    QString userdir;
+    QString tmpdir;
+    instrumentDataType *instData;
+    QVector<QList<MyImage*>> myImageList;
+    QList<MyImage*> allMyImages;
+    QStringList dataName;
+    QStringList badStatsList;
+    QString scienceDirName;
+    QDir scienceDir;
+    QVector<double> dataImageNr = QVector<double>();
+    QVector<double> dataSky = QVector<double>();
+    QVector<double> dataAirmass = QVector<double>();
+    QVector<double> dataFWHM = QVector<double>();
+    QVector<double> dataRZP = QVector<double>();
+    QVector<double> dataEllipticity = QVector<double>();
+    bool seeingData = true;
+    bool airmassData = true;
+    bool rzpData = true;
+    bool ellipticityData = true;
+    bool imgSelected = false;
+    bool statisticsDataDisplayed = false;
+    QString imgSelectedName = "";
+    int numObj = 0;
+    int lastDataPointClicked = -1;
+    enum Qt::MouseButton lastButtonClicked = Qt::LeftButton;
+    enum Qt::Key lastKeyPressed = Qt::Key_Left;
+    bool initKeySelection = false;
+    QString directionSwitched = "noSwitch";
+    IView *iView;
+    QCPGraph *skyGraph;
+    QCPGraph *seeingGraph;
+    QCPGraph *airmassGraph;
+    QCPGraph *rzpGraph;
+    QCPGraph *ellipticityGraph;
+    QCPDataSelection selection;    // data points selected by mouse clicks or key presses
+    QCPDataSelection numSelection; // data points selected by manually entered numeric thresholds
+    QList<QCPGraph*> graphList;
+    QStringList coordImageList;
+    QList<QLineEdit*> numericThresholdList;
+    ImstatsReadme *imstatsReadme;
+    QCPGraph::LineStyle myLineStyle;
+
+    bool initFromList = false;   // whether the constructor directly passed a QList<MyImage*> or not
+
+    void clearAll();
+    void clearData();
+    void clearSelection();
+    void makeConnections();
+    void plot(QString init = "");
+    void plotSelection(int index);
+    void readStatisticsData();
+    void showNoData(QCPGraph *graph, float xpos, float ypos);
+    void makeListOfBadImages();
+};
+
+#endif // IMAGESTATISTICS_H
