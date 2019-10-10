@@ -53,7 +53,7 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
 
     initEnvironment(thelidir, userdir, tmpdir);
     instrument_userDir = userdir+"/instruments_user/";
-    instrument_dir = thelidir+"/config/instruments/";
+    instrument_dir = thelidir+"/src/config/instruments/";
 
     // Setup hardware
     QSysInfo *sysInfo = new QSysInfo;
@@ -837,7 +837,7 @@ void MainWindow::fill_setupInstrumentComboBox()
     // UNCOMMENT to see how the GUI is initialized
     // qDebug() << "fill_setupInstrumentComboBox";
     QStringList instDirList;
-    instDirList << thelidir+"/config/instruments/"
+    instDirList << thelidir+"/src/config/instruments/"
                 << QDir::homePath()+"/.theli/instruments_user/";
 
     // Loop over pre-defined and user-defined instruments
@@ -857,10 +857,11 @@ void MainWindow::fill_setupInstrumentComboBox()
         if (instDirName.contains("instruments_user")) instrument_model->instrument_userDir = instDirName;
         else instrument_model->instrument_dir = instDirName;
     }
-    // Capturing a pathological case
+
     if (allInstrumentList.isEmpty()) {
         QMessageBox::critical(this, tr("THELI"),
-                              tr("No instrument configurations were found! Is the installation corrupted?"),
+                              tr("No instrument configurations were found! Did you set the THELIDIR environment variable correctly?")
+                              +tr("THELIDIR points to the installation directory (where you find the src/ sub-directory)."),
                               QMessageBox::Ok);
         return;
     }
