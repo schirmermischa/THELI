@@ -5,12 +5,20 @@ THELI is a data processing pipeline for astronomical images. Version 3 is a comp
 The following dependencies must be met. They are all common use:
 
 Qt5.9.6   https://www.qt.io/
+
 cfitsio   https://heasarc.gsfc.nasa.gov/fitsio/
+
 fftw3     http://fftw.org/
+
 GSL v2.5  https://www.gnu.org/software/gsl/
+
 swarp v2.38   https://www.astromatic.net/software/swarp
+
 scamp v2.7    https://github.com/astromatic/scamp
+
 sextractor v2.19     https://www.astromatic.net/software/sextractor
+
 vizquery.py  http://cds.u-strasbg.fr/resources/doku.php?id=cdsclient
+
 sesame   http://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz
 
