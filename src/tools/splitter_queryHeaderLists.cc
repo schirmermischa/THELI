@@ -64,6 +64,18 @@ bool Splitter::searchKeyValue(const QStringList &possibleKeyNames, float &value)
     else return true;
 }
 
+// Retrieve the double value of a key, don't update output header
+bool Splitter::searchKeyValue(const QStringList &possibleKeyNames, double &value)
+{
+    bool inPrimaryHeader = false;
+    bool inExtHeader = false;
+    inPrimaryHeader = searchKeyInHeaderValue(possibleKeyNames, primaryHeader, value);
+    if (!inPrimaryHeader) inExtHeader = searchKeyInHeaderValue(possibleKeyNames, extHeader, value);
+
+    if (!inExtHeader && !inPrimaryHeader) return false;
+    else return true;
+}
+
 // Retrieve the QString value of a key, don't update output header
 bool Splitter::searchKeyValue(const QStringList &possibleKeyNames, QString &value)
 {

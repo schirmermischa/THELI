@@ -211,16 +211,15 @@ void Splitter::extractImagesFITS()
                     }
                 }
             }
+#pragma omp atomic
+            *progress += progressStepSize;
         }
         fits_movrel_hdu(rawFptr, 1, &hduType, &rawStatus);
 
-//#pragma omp atomic
-//        *progress += progressStepSize;
+        //#pragma omp atomic
+        //        *progress += progressStepSize;
         ++chip;
     }
-#pragma omp atomic
-        *progress += progressStepSize;
-
 
     // Reset status (if indicating we moved past end of file, as intended)
     if (rawStatus == END_OF_FILE) rawStatus = 0;

@@ -724,6 +724,8 @@ void Controller::coaddSwarpfilter()
     swarpFilter.runCosmicFilter();
 
     // TODO: introduce successProcessing to swarpfilter();
+
+    // TODO: swarpfilter blocks the update of the CPU and memory progress bar (normal progress bar increases as intended). Check timers?
     checkSuccessProcessing(coaddScienceData);
     if (successProcessing) {
         emit progressUpdate(100);

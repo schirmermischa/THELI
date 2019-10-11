@@ -350,7 +350,7 @@ void Instrument::on_loadConfigPushButton_clicked()
     QAbstractButton* userdefined = msgBox.addButton(tr("User defined"), QMessageBox::YesRole);
     QAbstractButton* cancel = msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
     msgBox.exec();
-    if (msgBox.clickedButton() == observatory) instrumentDir = thelidir+"/config/instruments/";
+    if (msgBox.clickedButton() == observatory) instrumentDir = thelidir+"/src/config/instruments/";
     else if (msgBox.clickedButton() == userdefined) instrumentDir = QDir::homePath()+"/.theli/instruments_user/";
     else if (msgBox.clickedButton() == cancel) return;
 

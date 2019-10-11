@@ -27,6 +27,8 @@ void MyImage::buildSexCommand()
     sexCommand += " -CATALOG_NAME " + path+"/cat/" + chipName + ".cat";
     sexCommand += " -WEIGHT_IMAGE " + weightPath + "/" + chipName + ".weight.fits";
 
+    // NOTE: further options are appended in controller::detectionSExtractor()
+
     // Check if weight exists
     QFile weight(weightPath+"/"+chipName+".weight.fits");
     if (!weight.exists()) {
@@ -53,7 +55,9 @@ void MyImage::createSextractorCatalog()
 {
     if (!successProcessing) return;
 
-    // Run the Scamp command
+    if (*verbosity >= 2) emit messageAvailable("Running the following command in " + path + " : <br>"+sexCommand, "image");
+
+    // Run the SExtractor command
     workerThread = new QThread();
     sexWorker = new SexWorker(sexCommand, path);
     sexWorker->moveToThread(workerThread);

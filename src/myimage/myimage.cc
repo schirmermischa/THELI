@@ -210,7 +210,7 @@ void MyImage::readImage(bool determineMode)
     // Leave if image is already loaded
     if (imageInMemory) {
         updateProcInfo("Already in memory");
-        if (*verbosity > 2) emit messageAvailable(baseName+" : Already in memory", "image");
+        if (*verbosity > 2) emit messageAvailable(chipName+" : Already in memory", "image");
         return;
     }
     else {
@@ -233,10 +233,10 @@ void MyImage::readImage(bool determineMode)
             successProcessing = true;
             headerInfoProvided = true;
             updateProcInfo("Loaded");
-            if (*verbosity > 2) emit messageAvailable(baseName+" : Loaded", "image");
+            if (*verbosity > 2) emit messageAvailable(chipName+" : Loaded", "image");
         }
         else {
-            emit messageAvailable("MyImage::readImage(): Could not load " + baseName, "error");
+            emit messageAvailable("MyImage::readImage(): Could not load " + baseName + ".fits", "error");
             emit critical();
             successProcessing = false;
         }
@@ -497,7 +497,7 @@ void MyImage::transferWCS()
     (void) wcsset(wcs);
     wcsInit = true;
     if (*verbosity > 2) {
-        emit messageAvailable(baseName + " : RA / DEC = "
+        emit messageAvailable(chipName + " : RA / DEC = "
                               + QString::number(wcs->crval[0], 'f', 6) + " "
                 + QString::number(wcs->crval[1], 'f', 6), "image");
     }
@@ -534,7 +534,7 @@ void MyImage::updateMode()
     skyValue = modeMask(dataCurrent, "stable", globalMask)[0];
     modeDetermined = true;
     QString skyvalue = "SKYVALUE= "+QString::number(skyValue);
-    if (*verbosity > 1) emit messageAvailable(baseName + " : " + skyvalue, "image");
+    if (*verbosity > 1) emit messageAvailable(chipName + " : " + skyvalue, "image");
     skyvalue.resize(80,' ');
     // header is empty when running equalizeBayerFlat
     if (!header.contains("SKYVALUE=") && !header.isEmpty()) {
@@ -830,6 +830,7 @@ void MyImage::illuminationCorrection(int chip, QString thelidir, QString instNam
     // because it is applied to the master flat, and therefore executed only once.
     // If we applied it to every science frame, then it would be better to implement it in Controller
     // so it gets executed only once
+    // TODO: must provide in distribution?
     QString illumcorrPath = thelidir+"/ExtCal/"+instName+"/illumcorr/";
     QString illumcorrFileName = "illumcorr_"+filter+"_"+QString::number(chip)+".fits";
     if (QFile(illumcorrPath+illumcorrFileName).exists()) {

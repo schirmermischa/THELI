@@ -29,7 +29,7 @@ void Controller::taskInternalHDUreformat()
     filter << "*.*";
     QStringList files = dir.entryList(filter, QDir::Files);
     numActiveImages = files.length();
-    progressStepSize = 100./(float(numActiveImages));
+    progressStepSize = 100./(float(numActiveImages) * instData->numChips);
     progress = 0.;
 
     // Retrieve nonlinearity information (checks internally if available, otherwise returns empty list)
@@ -72,7 +72,7 @@ void Controller::taskInternalHDUreformat()
         splitter->dummyKeys = &dummyKeys;
         splitter->combineOverscan_ptr = combineOverscan_ptr;       // set by MainWindow::updateControllerFunctors()
         splitter->nonlinearityCoefficients = nonlinearityCoefficients;
-        splitter->progressStepSize = progressStepSize / float(instData->numChips);
+        splitter->progressStepSize = progressStepSize;
         splitter->progressLock = &progressLock;
         splitter->genericLock = &genericLock;
         splitter->progress = &progress;

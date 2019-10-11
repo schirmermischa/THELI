@@ -151,6 +151,7 @@ private:
     bool searchKeyInHeaderValue(const QStringList &possibleKeyNames, const QStringList &inputHeader, double &value);
     bool searchKeyInHeaderValue(const QStringList &possibleKeyNames, const QStringList &inputHeader, QString &keyValue);
     bool searchKeyValue(const QStringList &possibleKeyNames, float &value);
+    bool searchKeyValue(const QStringList &possibleKeyNames, double &value);
     bool searchKeyValue(const QStringList &possibleKeyNames, QString &value);
     double dateobsToMJD();
     double dateobsToLST();
@@ -180,6 +181,17 @@ private:
     void sliceCube(long slice);
     void writeImageSlice(int chip, long slice);
     void stackCube();
+    void manualWCSfix(int chip);
+
+    void WCSbuildCRVAL();
+    void WCSbuildCDmatrix(int chip);
+    void WCSbuildRADESYS();
+    void WCSbuildEQUINOX();
+    void WCSbuildCRPIX(int chip);
+    void WCSbuildCTYPE();
+
+    void individualFixCDmatrix(int chip);
+    void individualFixCRVAL();
 
 signals:
     void messageAvailable(QString message, QString type);

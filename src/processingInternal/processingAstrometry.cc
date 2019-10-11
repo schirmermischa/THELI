@@ -267,9 +267,9 @@ void Controller::buildSexCommandOptions()
 
     if (!successProcessing) return;
 
-    sexCommandOptions = " -PARAMETERS_NAME " + thelidir + "/config/default.param";
-    sexCommandOptions += " -FILTER_NAME "     + thelidir + "/config/default.conv";
-    sexCommandOptions += " -STARNNW_NAME "    + thelidir + "/config/default.nnw";
+    sexCommandOptions = " -PARAMETERS_NAME " + thelidir + "/src/config/default.param";
+    sexCommandOptions += " -FILTER_NAME "     + thelidir + "/src/config/default.conv";
+    sexCommandOptions += " -STARNNW_NAME "    + thelidir + "/src/config/default.nnw";
     sexCommandOptions += " -DETECT_MINAREA "  + getUserParamLineEdit(cdw->ui->CSCDMINLineEdit);
     sexCommandOptions += " -DETECT_THRESH "   + getUserParamLineEdit(cdw->ui->CSCDTLineEdit);
     sexCommandOptions += " -ANALYSIS_THRESH " + getUserParamLineEdit(cdw->ui->CSCDTLineEdit);
@@ -702,8 +702,6 @@ void Controller::copyZeroOrder()
         successProcessing = true;
         return;
     }
-
-    qDebug() << "P2";
 
 #pragma omp parallel for num_threads(maxExternalThreads)
     for (int chip=0; chip<instData->numChips; ++chip) {

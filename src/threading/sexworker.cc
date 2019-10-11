@@ -41,9 +41,10 @@ void SexWorker::processExternalStderr()
     QString stderr(process->readAllStandardError());
 
     stderr.replace("> *Error*:", "<br><br>> *Error*:");
+    stderr.replace("> *ERROR*:", "<br><br>> *ERROR*:");
 
     QStringList errors;
-    errors << "*Error*:";
+    errors << "*Error*:" << "*ERROR*:";
 
     for (auto &error : errors) {
         if (stderr.contains(error)) {

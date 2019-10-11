@@ -2301,12 +2301,14 @@ void Data::restoreBackupLevel(QString backupDirName)
     QDir dc(dirName+"/"+backupDirName);
     bool success = true;
     QString newStatusRAM = "";
-    qDebug() << d1.absolutePath() << dc.absolutePath();
+
+    //    qDebug() << d1.absolutePath() << dc.absolutePath();
+
     if (d1.absolutePath() == dc.absolutePath()) success *= restoreFromBackupLevel("L1", newStatusRAM);
     else if (d2.absolutePath() == dc.absolutePath()) success *= restoreFromBackupLevel("L2", newStatusRAM);
     else if (d3.absolutePath() == dc.absolutePath()) success *= restoreFromBackupLevel("L3", newStatusRAM);
 
-    qDebug() << "success = " << success << newStatusRAM;
+//    qDebug() << "success = " << success << newStatusRAM;
 
     // Leave if there was an error during file operations
     if (!success) {
@@ -2324,7 +2326,8 @@ void Data::restoreBackupLevel(QString backupDirName)
         }
     }
 
-    qDebug() << "BLEVEL CASE3";
+//    qDebug() << "BLEVEL CASE3";
+
     // CASE 3: We are still here. That means the user selected a backup dir on disk that is not mapped in one of the backup levels
     restoreFromDirectory(backupDirName);
 }

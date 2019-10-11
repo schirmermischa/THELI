@@ -93,36 +93,87 @@ void Splitter::buildTheliHeaderMJDOBS()
     }
 }
 
-// Extract CRVAL, CRPIX and CD matrix
-// Include fallback if WCS is not found
 void Splitter::buildTheliHeaderWCS(int chip)
 {
     if (!successProcessing) return;
 
+    // Each of the following handles their own exceptions for specific instruments
+    // (which don't carry a proper and consistent FITS header)
+
+    WCSbuildCTYPE();
+
+    WCSbuildCRVAL();
+
+    WCSbuildCRPIX(chip);
+
+    WCSbuildCDmatrix(chip);
+
+    WCSbuildRADESYS();
+
+    WCSbuildEQUINOX();
+}
+
+void Splitter::WCSbuildCRPIX(int chip)
+{
     QStringList headerWCS;
-    QString fallback = "";
 
-    // CTYPE are fixed no matter what!
-    QString ctype1 = "CTYPE1  = 'RA---TAN'";
-    QString ctype2 = "CTYPE2  = 'DEC--TAN'";
-    ctype1.resize(80, ' ');
-    ctype2.resize(80, ' ');
-    headerWCS.append(ctype1);
-    headerWCS.append(ctype2);
+    // CRPIXi: Rely on instrument.ini (Todo: scan .ahead files directly for multi-chip cameras)
+    QString crpix1_card = "CRPIX1  = "+QString::number(instData->crpix1[chip]);
+    QString crpix2_card = "CRPIX2  = "+QString::number(instData->crpix2[chip]);
+    crpix1_card.resize(80, ' ');
+    crpix2_card.resize(80, ' ');
+    headerWCS.append(crpix1_card);
+    headerWCS.append(crpix2_card);
 
-    // CRVAL1/2
+    headerTHELI.append(headerWCS);
+}
+
+// Instrument dependent
+void Splitter::WCSbuildCRVAL()
+{
+    // Exceptions
+    if (instData->name == "WFC@INT") {
+        individualFixCRVAL();
+        return;
+    }
+
+    QStringList headerWCS;
+
+    // Use dedicated lookup
     searchKeyCRVAL("CRVAL1", headerDictionary->value("CRVAL1"), headerWCS);
     searchKeyCRVAL("CRVAL2", headerDictionary->value("CRVAL2"), headerWCS);
 
-    // Rely on the camera.ini for the reference pixel
-    // Todo: scan .ahead files directly for multi-chip cameras
-    QString crpix1 = "CRPIX1  = "+QString::number(instData->crpix1[chip]);
-    QString crpix2 = "CRPIX2  = "+QString::number(instData->crpix2[chip]);
-    headerWCS.append(crpix1);
-    headerWCS.append(crpix2);
+    headerTHELI.append(headerWCS);
+}
 
-    // Remaining WCS entries
-    QStringList wcsKeys = {"RADESYS", "EQUINOX", "CD1_1", "CD1_2", "CD2_1", "CD2_2"};
+void Splitter::WCSbuildCTYPE()
+{
+    QStringList headerWCS;
+
+    // CTYPEi are fixed no matter what!
+    QString ctype1_card = "CTYPE1  = 'RA---TAN'";
+    QString ctype2_card = "CTYPE2  = 'DEC--TAN'";
+    ctype1_card.resize(80, ' ');
+    ctype2_card.resize(80, ' ');
+    headerWCS.append(ctype1_card);
+    headerWCS.append(ctype2_card);
+
+    headerTHELI.append(headerWCS);
+}
+
+// Instrument dependent
+void Splitter::WCSbuildCDmatrix(int chip)
+{
+    // Exceptions
+    if (instData->name == "WFC@INT") {
+        individualFixCDmatrix(chip);
+        return;
+    }
+
+    QStringList headerWCS;
+    QString fallback = "";
+
+    QStringList wcsKeys = {"CD1_1", "CD1_2", "CD2_1", "CD2_2"};
 
     for (auto &wcsKey : wcsKeys) {
         bool keyFound = searchKey(wcsKey, headerDictionary->value(wcsKey), headerWCS);
@@ -135,12 +186,8 @@ void Splitter::buildTheliHeaderWCS(int chip)
             bool found = searchKey("CDELT2", headerDictionary->value(wcsKey), headerWCS);
             if (!found) fallback = "CD2_2   = "+QString::number(instData->pixscale/3600., 'g', 6);
         }
-        if (!keyFound && wcsKey == "CD1_2")   fallback = "CD1_2   = 0.0";
-        if (!keyFound && wcsKey == "CD2_1")   fallback = "CD2_1   = 0.0";
-        //        if (!keyFound && wcsKey == "CRPIX1")  fallback = "CRPIX1  = "+QString::number(naxis1/2);
-        //        if (!keyFound && wcsKey == "CRPIX2")  fallback = "CRPIX2  = "+QString::number(naxis1/2);
-        if (!keyFound && wcsKey == "RADESYS") fallback = "RADESYS = 'ICRS'";
-        if (!keyFound && wcsKey == "EQUINOX") fallback = "EQUINOX = 2000.0";
+        if (!keyFound && wcsKey == "CD1_2") fallback = "CD1_2   = 0.0";
+        if (!keyFound && wcsKey == "CD2_1") fallback = "CD2_1   = 0.0";
 
         if (!keyFound) {
             fallback.resize(80, ' ');
@@ -148,6 +195,112 @@ void Splitter::buildTheliHeaderWCS(int chip)
             if (*verbosity > 1) emit messageAvailable(fileName + " : Could not determine keyword: "+wcsKey+", using default value", "ignore");
         }
     }
+
+    headerTHELI.append(headerWCS);
+}
+
+void Splitter::WCSbuildRADESYS()
+{
+    QStringList headerWCS;
+    QString wcsKey = "RADESYS";
+    bool keyFound = searchKey(wcsKey, headerDictionary->value(wcsKey), headerWCS);
+    if (!keyFound) {
+        QString card = "RADESYS = 'ICRS'";
+        card.resize(80, ' ');
+        headerWCS.append(card);
+        if (*verbosity > 1) emit messageAvailable(fileName + " : Could not determine keyword: "+wcsKey+", using default value", "ignore");
+    }
+    headerTHELI.append(headerWCS);
+}
+
+void Splitter::WCSbuildEQUINOX()
+{
+    QStringList headerWCS;
+    QString wcsKey = "EQUINOX";
+    bool keyFound = searchKey(wcsKey, headerDictionary->value(wcsKey), headerWCS);
+    if (!keyFound) {
+        QString card = "EQUINOX = 2000.0";
+        card.resize(80, ' ');
+        headerWCS.append(card);
+        if (*verbosity > 1) emit messageAvailable(fileName + " : Could not determine keyword: "+wcsKey+", using default value", "ignore");
+    }
+    headerTHELI.append(headerWCS);
+}
+
+void Splitter::individualFixCRVAL()
+{
+    QStringList headerWCS;
+
+    QString crval1_card = "";
+    QString crval2_card = "";
+
+    QString crval1;
+    QString crval2;
+    searchKeyValue(headerDictionary->value("CRVAL1"), crval1);
+    searchKeyValue(headerDictionary->value("CRVAL2"), crval2);
+
+    // Fix format (sometimes we have 'HH MM SS' instead of 'HH:MM:SS')
+    crval1.replace(' ', ':');
+    crval2.replace(' ', ':');
+
+    // Convert to decimal format if necessary
+    if (crval1.contains(':')) crval1 = hmsToDecimal(crval1);
+    if (crval2.contains(':')) crval2 = dmsToDecimal(crval2);
+
+    if (instData->name == "WFC@INT") {
+        double alpha = crval1.toDouble();
+        double delta = crval2.toDouble();
+        // reset the coordinates such that scamp does not get confused (optical axis != crpix by ~4 arcminutes)
+        alpha = alpha - 0.0733/cos(delta*3.14159/180.);
+        if (alpha > 360.) alpha -= 360.;
+        if (alpha < 0.) alpha += 360.;
+        delta = delta - 0.02907;
+        crval1_card = "CRVAL1  = "+QString::number(alpha, 'f', 6);
+        crval2_card = "CRVAL2  = "+QString::number(delta, 'f', 6);
+    }
+
+    crval1_card.resize(80, ' ');
+    crval2_card.resize(80, ' ');
+
+    headerWCS.append(crval1_card);
+    headerWCS.append(crval2_card);
+
+    headerTHELI.append(headerWCS);
+}
+
+void Splitter::individualFixCDmatrix(int chip)
+{
+    QStringList headerWCS;
+
+    QString cd11_card = "";
+    QString cd12_card = "";
+    QString cd21_card = "";
+    QString cd22_card = "";
+
+    if (instData->name == "WFC@INT") {
+        if (chip == 0 || chip == 2 || chip == 3) {
+            cd11_card = "CD1_1   = 0.0";
+            cd12_card = "CD1_2   = -0.0000919444";
+            cd21_card = "CD2_1   = -0.0000919444";
+            cd22_card = "CD2_2   = 0.0";
+        }
+        else {
+            cd11_card = "CD1_1   = -0.0000919444";
+            cd12_card = "CD1_2   = 0.0";
+            cd21_card = "CD2_1   = 0.0";
+            cd22_card = "CD2_2   = -0.0000919444";
+        }
+    }
+
+    cd11_card.resize(80, ' ');
+    cd12_card.resize(80, ' ');
+    cd21_card.resize(80, ' ');
+    cd22_card.resize(80, ' ');
+
+    headerWCS.append(cd11_card);
+    headerWCS.append(cd12_card);
+    headerWCS.append(cd21_card);
+    headerWCS.append(cd22_card);
 
     headerTHELI.append(headerWCS);
 }
