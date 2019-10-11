@@ -1,28 +1,14 @@
 # THELI v3
 
-THELI is a data processing pipeline for astronomical images. Version 3 is a complete rewrite in C++ / Qt5 (compared to version 2 in Qt3), eliminating a large number of dependencies and overcoming installation issues. Using a hybrid memory/drive data model and full parallelization, v3 offers a vast gain in processing speed. It also fully scales with the amount of available RAM and CPUs on your machine. 
+THELI is a data processing pipeline for optical, near-infrared and mid-infrared astronomical images. Version 3 is a complete rewrite in C++ / Qt5 (compared to version 2 in Qt3), eliminating a large number of dependencies and overcoming installation issues. Using a hybrid memory/drive data model and full parallelization, v3 offers a vast gain in processing speed. It also fully scales with the amount of available RAM and CPUs on your machine. 
 
-With its own integrated 'iView' FITS browser, image data processing has never been easier. THELI v3 should also run on MacOS.
+With its own integrated 'iView' FITS browser, image data processing has never been easier. 
 
-The following dependencies must be met. They are all common use:
+THELI v3 should also run on MacOS, but the current beta-release has not been tested on it.
 
-Qt5.9.6   https://www.qt.io/
+Even though the current beta-release includes all instruments that were supported in THELI v2, this is not yet the case for v3. In fact, only a few instruments have been tested. In principle, all instruments with a single detector should work out of the box. Instruments with multiple detectors should work if their data is stored in MEF FITS format, and if THELI can construct a unique DATE-OBS key for all chips.
 
-cfitsio   https://heasarc.gsfc.nasa.gov/fitsio/
+Instruments with detectors where the overscan region from multiple readout channels is dividing up the image area are not yet supported (such as the Hamamatsu GMOS CCDs, or SurpimeCam).
 
-fftw3     http://fftw.org/
-
-GSL v2.5  https://www.gnu.org/software/gsl/
-
-wcslib v6.4   https://www.atnf.csiro.au/people/mcalabre/WCS/
-
-swarp v2.38   https://www.astromatic.net/software/swarp
-
-scamp v2.7    https://github.com/astromatic/scamp
-
-sextractor v2.19     https://www.astromatic.net/software/sextractor
-
-vizquery.py  http://cds.u-strasbg.fr/resources/doku.php?id=cdsclient
-
-sesame   http://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz
+Mid-infrared cameras are currently not supported, but support is foreseen as soon as THELI v3 emerges from its beta-testing phase.
 
