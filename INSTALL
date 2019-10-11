@@ -22,11 +22,11 @@ sesame             http://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz
 In the following, we assume that the THELI source package was unpacked in a 'software' folder in your home
 directory:
 
-$HOME/software/THELI/
+$HOME/software/THELI-master/
 
 You must set the THELIDIR environment variable to this path, e.g. on bash you would do
 
-export THELIDIR=$PATH:$HOME/software/THELI/
+export THELIDIR=$PATH:$HOME/software/THELI-master/
 
 To make it permanent, include this line in your ~/.bashrc
 
