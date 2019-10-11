@@ -860,7 +860,7 @@ void MainWindow::fill_setupInstrumentComboBox()
 
     if (allInstrumentList.isEmpty()) {
         QMessageBox::critical(this, tr("THELI"),
-                              tr("No instrument configurations were found! Did you set the THELIDIR environment variable correctly?")
+                              tr("No instrument configurations were found! Did you set the THELIDIR environment variable correctly?\n")
                               +tr("THELIDIR points to the installation directory (where you find the src/ sub-directory)."),
                               QMessageBox::Ok);
         return;
