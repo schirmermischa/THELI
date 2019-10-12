@@ -16,7 +16,7 @@ class Splitter : public QObject
 {
     Q_OBJECT
 public:
-    explicit Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Data *someData, QString datayype,
+    explicit Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Data *someData, QString datatype,
                       ConfDockWidget *confDockWidget, QString maindirname,
                       QString subdirname, QString filename, int *verbose, QObject *parent = nullptr);
 

@@ -18,7 +18,7 @@
 #include <QFile>
 #include <QDir>
 
-Splitter::Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Data *someData, QString datayype,
+Splitter::Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Data *someData, QString datatype,
                    ConfDockWidget *confDockWidget, QString maindirname,
                    QString subdirname, QString filename, int *verbose,
                    QObject *parent) : QObject(parent)
