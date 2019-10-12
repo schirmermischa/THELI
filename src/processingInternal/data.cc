@@ -707,8 +707,8 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
     //#pragma omp parallel for num_threads(maxCPU) if (instData->numChips == 1)
 
     //int localMaxThreads = maxCPU/instData->numChips;
-   // if (instData->numChips > maxCPU) localMaxThreads = 1;
-   //  QList<MyImage*> imglist = myImageList[chip];
+    // if (instData->numChips > maxCPU) localMaxThreads = 1;
+    //  QList<MyImage*> imglist = myImageList[chip];
     omp_set_nested(false);  // somehow not yet threadsafe!
     // we still parallelise though for single-chip cameras:
     int localMaxThreads = 1;
@@ -832,13 +832,16 @@ void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const 
     }
 
     QString goodImages;
-    int k = 0;
-    for (auto &gi : goodIndex) {
-        MyImage *it = backgroundList[gi];
-        goodImages.append(it->chipName + ": " + QString::number(it->skyValue,'f',3) + " ADU, rescaled with "
-                          + QString::number(rescaleFactors[k],'f',3));
-        if (k<goodIndex.length()-1) goodImages.append("<br>");
-        ++k;
+# pragma omp critical         // QString thread safety  it->chipname could be accessed simultaneously
+    {
+        int k = 0;
+        for (auto &gi : goodIndex) {
+            MyImage *it = backgroundList[gi];
+            goodImages.append(it->chipName + ": " + QString::number(it->skyValue,'f',3) + " ADU, rescaled with "
+                              + QString::number(rescaleFactors[k],'f',3));
+            if (k<goodIndex.length()-1) goodImages.append("<br>");
+            ++k;
+        }
     }
 
     if (*verbosity > 0) emit messageAvailable(goodImages, "image");
@@ -1110,7 +1113,7 @@ QVector<float> Data::getNormalizedRescaleFactors(int chip, QVector<long> &goodIn
                 goodIndex.append(j);
             }
             else {
-                if (*verbosity > 0) emit messageAvailable(it->baseName + " : Not used because mode is outside user limits : "
+                if (*verbosity > 0) emit messageAvailable(it->chipName + " : Not used because mode is outside user limits : "
                                                           + QString::number(it->skyValue), "data");
             }
             ++j;
@@ -1127,7 +1130,7 @@ QVector<float> Data::getNormalizedRescaleFactors(int chip, QVector<long> &goodIn
                 goodIndex.append(j);
             }
             else {
-                if (*verbosity > 0) emit messageAvailable(it->baseName + " : Not used because mode is outside user limits : "
+                if (*verbosity > 0) emit messageAvailable(it->chipName + " : Not used because mode is outside user limits : "
                                                           + QString::number(it->skyValue), "data");
             }
             ++j;
@@ -2309,7 +2312,7 @@ void Data::restoreBackupLevel(QString backupDirName)
     else if (d2.absolutePath() == dc.absolutePath()) success *= restoreFromBackupLevel("L2", newStatusRAM);
     else if (d3.absolutePath() == dc.absolutePath()) success *= restoreFromBackupLevel("L3", newStatusRAM);
 
-//    qDebug() << "success = " << success << newStatusRAM;
+    //    qDebug() << "success = " << success << newStatusRAM;
 
     // Leave if there was an error during file operations
     if (!success) {
@@ -2327,7 +2330,7 @@ void Data::restoreBackupLevel(QString backupDirName)
         }
     }
 
-//    qDebug() << "BLEVEL CASE3";
+    //    qDebug() << "BLEVEL CASE3";
 
     // CASE 3: We are still here. That means the user selected a backup dir on disk that is not mapped in one of the backup levels
     restoreFromDirectory(backupDirName);

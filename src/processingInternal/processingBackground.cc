@@ -444,7 +444,6 @@ void Controller::maskObjectsInSkyImagesPass2(Data *skyData, Data *scienceData, c
                                              const int chip, const bool rescaleModel)
 {
     bool doSourceDetection = false;
-    qDebug() << "rescalemodel" << rescaleModel;
     QVector<QString> thresholds = getBackgroundThresholds(1, twoPass, dt, dmin, doSourceDetection);
     QString DT = thresholds[0];
     QString DMIN = thresholds[1];
