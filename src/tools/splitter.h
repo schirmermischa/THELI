@@ -16,7 +16,7 @@ class Splitter : public QObject
 {
     Q_OBJECT
 public:
-    explicit Splitter(instrumentDataType *instrumentData, Mask *detectorMask, Data *someData,
+    explicit Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Data *someData,
                       ConfDockWidget *confDockWidget, QString maindirname,
                       QString subdirname, QString filename, int *verbose, QObject *parent = nullptr);
 
@@ -81,7 +81,7 @@ private:
     QVector<QVector<long>> overscanY;
     QVector<QVector<long>> dataSection;
 
-    instrumentDataType *instData;
+    instrumentDataType instData;   // No pointer, because it is not thread safe (QVectors, QStrings)
     ConfDockWidget *cdw;
     QString name;
     QString fileName;

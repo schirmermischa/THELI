@@ -52,7 +52,7 @@ void Splitter::buildTheliHeaderMJDOBS()
     // List of instruments for which MJD-OBS is not reliable and should be constructed from DATE-OBS
     QStringList instruments = {"GSAOI@GEMINI", "GSAOI_CHIP1@GEMINI", "GSAOI_CHIP2@GEMINI", "GSAOI_CHIP3@GEMINI", "GSAOI_CHIP4@GEMINI",
                                "FLAMINGOS2@GEMINI"};
-    if (instruments.contains(instData->name)) {
+    if (instruments.contains(instData.name)) {
         if (!dateObsValue.isEmpty()) {
             mjdobsValue = dateobsToMJD();
             QString mjdCard = "MJD-OBS = "+QString::number(mjdobsValue,'f',7);
@@ -118,8 +118,8 @@ void Splitter::WCSbuildCRPIX(int chip)
     QStringList headerWCS;
 
     // CRPIXi: Rely on instrument.ini (Todo: scan .ahead files directly for multi-chip cameras)
-    QString crpix1_card = "CRPIX1  = "+QString::number(instData->crpix1[chip]);
-    QString crpix2_card = "CRPIX2  = "+QString::number(instData->crpix2[chip]);
+    QString crpix1_card = "CRPIX1  = "+QString::number(instData.crpix1[chip]);
+    QString crpix2_card = "CRPIX2  = "+QString::number(instData.crpix2[chip]);
     crpix1_card.resize(80, ' ');
     crpix2_card.resize(80, ' ');
     headerWCS.append(crpix1_card);
@@ -132,7 +132,7 @@ void Splitter::WCSbuildCRPIX(int chip)
 void Splitter::WCSbuildCRVAL()
 {
     // Exceptions
-    if (instData->name == "WFC@INT") {
+    if (instData.name == "WFC@INT") {
         individualFixCRVAL();
         return;
     }
@@ -165,7 +165,7 @@ void Splitter::WCSbuildCTYPE()
 void Splitter::WCSbuildCDmatrix(int chip)
 {
     // Exceptions
-    if (instData->name == "WFC@INT") {
+    if (instData.name == "WFC@INT") {
         individualFixCDmatrix(chip);
         return;
     }
@@ -180,11 +180,11 @@ void Splitter::WCSbuildCDmatrix(int chip)
         // default values if failed
         if (!keyFound && wcsKey == "CD1_1") {
             bool found = searchKey("CDELT1", headerDictionary->value(wcsKey), headerWCS);
-            if (!found) fallback = "CD1_1   = "+QString::number(-1.*instData->pixscale/3600., 'g', 6);
+            if (!found) fallback = "CD1_1   = "+QString::number(-1.*instData.pixscale/3600., 'g', 6);
         }
         if (!keyFound && wcsKey == "CD2_2") {
             bool found = searchKey("CDELT2", headerDictionary->value(wcsKey), headerWCS);
-            if (!found) fallback = "CD2_2   = "+QString::number(instData->pixscale/3600., 'g', 6);
+            if (!found) fallback = "CD2_2   = "+QString::number(instData.pixscale/3600., 'g', 6);
         }
         if (!keyFound && wcsKey == "CD1_2") fallback = "CD1_2   = 0.0";
         if (!keyFound && wcsKey == "CD2_1") fallback = "CD2_1   = 0.0";
@@ -247,7 +247,7 @@ void Splitter::individualFixCRVAL()
     if (crval1.contains(':')) crval1 = hmsToDecimal(crval1);
     if (crval2.contains(':')) crval2 = dmsToDecimal(crval2);
 
-    if (instData->name == "WFC@INT") {
+    if (instData.name == "WFC@INT") {
         double alpha = crval1.toDouble();
         double delta = crval2.toDouble();
         // reset the coordinates such that scamp does not get confused (optical axis != crpix by ~4 arcminutes)
@@ -277,7 +277,7 @@ void Splitter::individualFixCDmatrix(int chip)
     QString cd21_card = "";
     QString cd22_card = "";
 
-    if (instData->name == "WFC@INT") {
+    if (instData.name == "WFC@INT") {
         if (chip == 0 || chip == 2 || chip == 3) {
             cd11_card = "CD1_1   = 0.0";
             cd12_card = "CD1_2   = -0.0000919444";
@@ -319,7 +319,7 @@ void Splitter::buildTheliHeaderEXPTIME()
     QString exptimeKey;
 
     // Instruments for which we don't have to do anything special
-    if (!nditInstruments.contains(instData->name)) {
+    if (!nditInstruments.contains(instData.name)) {
         bool keyFound = searchKey("EXPTIME", headerDictionary->value("EXPTIME"), headerTHELI);
         if (!keyFound) {
             exptimeKey = "EXPTIME = 1.0";
@@ -353,7 +353,7 @@ void Splitter::buildTheliHeaderEXPTIME()
         ndit = 1.0;
     }
     if (!foundDIT || !foundNDIT) {
-        emit messageAvailable("This is a serious issue with data from "+instData->name+" .<br>The true exposure time is unknown."+
+        emit messageAvailable("This is a serious issue with data from "+instData.name+" .<br>The true exposure time is unknown."+
                               "You can continue, but a correct calibration of the stacked image is not guaranteed.", "warning");
         emit warning();
     }
@@ -376,7 +376,7 @@ void Splitter::buildTheliHeaderEXPTIME()
     QStringList directCoaddition = {"IRCS_HIGHRES@SUBARU", "IRCS_LOWRES@SUBARU", "ISPI@CTIO", "MOSFIRE@KECK", "NIRC2@KECK",
                                     "NIRI@GEMINI", "PISCES@LBT", "VIRCAM@VISTA"};
 
-    if (!directCoaddition.contains(instData->name)) {
+    if (!directCoaddition.contains(instData.name)) {
         if (ndit > 1.) {
             for (auto &pixel : dataCurrent) pixel *= ndit;
         }
@@ -603,7 +603,7 @@ double Splitter::dateobsToLST()
     double dfrac = ut / 24.;
     double d = dwhole + dfrac;
 
-    double lst = 100.46 + 0.985647*d + instData->obslong + 15.*ut;
+    double lst = 100.46 + 0.985647*d + instData.obslong + 15.*ut;
 
     // LST must be between 0 and 360 degrees
     int idummy = (int)(lst/360.);
@@ -646,8 +646,8 @@ double Splitter::calcAirmass(double ahourangle)
     double ch = cos(ahourangle);
     double sd = sin(crval2 * RAD);
     double cd = cos(crval2 * RAD);
-    double sp = sin(instData->obslat * RAD);
-    double cp = cos(instData->obslat * RAD);
+    double sp = sin(instData.obslat * RAD);
+    double cp = cos(instData.obslat * RAD);
     double x = ch*cd*sp - sd*cp;
     double y = sh*cd;
     double z = ch*cd*cp + sd*sp;

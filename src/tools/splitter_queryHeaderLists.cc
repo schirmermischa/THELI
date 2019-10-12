@@ -157,12 +157,12 @@ bool Splitter::searchKeyInHeaderCRVAL(const QString searchKey, const QStringList
                 }
                 // Some instruments store CRVAL1 in decimal hours, oh well ...
                 if (possibleKey == "RA-HOURS"
-                        || instData->name == "SITe@TLS") {
+                        || instData.name == "SITe@TLS") {
                     crval = QString::number(15.*crval.toDouble(), 'f', 12);
                 }
 
                 // The William Herschel Telescope has its own funny "apertures" ...
-                if (instData->name.contains("@WHT")) {
+                if (instData.name.contains("@WHT")) {
                     double ra_off1 = 0.;
                     double ra_off2 = 0.;
                     double dec_off1 = 0.;

@@ -20,7 +20,7 @@ void Splitter::correctOverscan(float (*combineFunction_ptr) (const QVector<float
     if (!cdw->ui->overscanCheckBox->isChecked()) return;
 
     // Overscan correction is done only for optical CCDs
-    if (instData->type != "OPT") return;
+    if (instData.type != "OPT") return;
 
     long i, j, k;
     long n = naxis1Raw;

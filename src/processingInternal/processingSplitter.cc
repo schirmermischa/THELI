@@ -66,7 +66,7 @@ void Controller::taskInternalHDUreformat()
         // Setup the splitter class for the current file
         QString fileName = files.at(i);
         emit messageAvailable(fileName + " : Splitting and low level processing ...", "image");
-        Splitter *splitter = new Splitter(instData, mask, data, cdw, mainDirName, dataDir, fileName, &verbosity);
+        Splitter *splitter = new Splitter(*instData, mask, data, cdw, mainDirName, dataDir, fileName, &verbosity);
         splitter->headerDictionary = &headerDictionary;
         splitter->filterDictionary = &filterDictionary;
         splitter->dummyKeys = &dummyKeys;

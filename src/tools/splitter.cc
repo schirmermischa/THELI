@@ -18,7 +18,7 @@
 #include <QFile>
 #include <QDir>
 
-Splitter::Splitter(instrumentDataType *instrumentData, Mask *detectorMask, Data *someData,
+Splitter::Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Data *someData,
                    ConfDockWidget *confDockWidget, QString maindirname,
                    QString subdirname, QString filename, int *verbose,
                    QObject *parent) : QObject(parent)
@@ -97,8 +97,8 @@ void Splitter::consistencyChecks()
 
     fits_get_num_hdus(rawFptr, &numExt, &rawStatus);
     if (fitsType == "SINGLE" || fitsType == "MEF") {
-        if (numHDU < instData->numChips) {
-            emit messageAvailable(fileName + " : "+QString::number(numHDU)+" HDUs found, "+QString::number(instData->numChips)
+        if (numHDU < instData.numChips) {
+            emit messageAvailable(fileName + " : "+QString::number(numHDU)+" HDUs found, "+QString::number(instData.numChips)
                                   +" expected.<br>File is moved to "+subDirName+"/INCONSISTENT/", "warning");
             emit warning();
             QDir inconsistentFile(path+"/INCONSISTENT");
@@ -188,7 +188,7 @@ void Splitter::extractImagesFITS()
 
                 // For these instruments we want to stack (mean) the cube, not slice it
                 QStringList instruments = {"TRECS@GEMINI"};
-                if (instruments.contains(instData->name)) {
+                if (instruments.contains(instData.name)) {
                     stackCube();
                     correctOverscan(combineOverscan_ptr, overscanX[chip], overscanY[chip]);
                     cropDataSection(dataSection[chip]);
@@ -374,16 +374,16 @@ void Splitter::getDetectorSections()
     overscanY.clear();
     dataSection.clear();
 
-    overscanX.resize(instData->numChips);
-    overscanY.resize(instData->numChips);
-    dataSection.resize(instData->numChips);
+    overscanX.resize(instData.numChips);
+    overscanY.resize(instData.numChips);
+    dataSection.resize(instData.numChips);
 
-    QVector<int> xmin = instData->overscan_xmin;
-    QVector<int> xmax = instData->overscan_xmax;
-    QVector<int> ymin = instData->overscan_ymin;
-    QVector<int> ymax = instData->overscan_ymax;
+    QVector<int> xmin = instData.overscan_xmin;
+    QVector<int> xmax = instData.overscan_xmax;
+    QVector<int> ymin = instData.overscan_ymin;
+    QVector<int> ymax = instData.overscan_ymax;
 
-    for (int chip=0; chip<instData->numChips; ++chip) {
+    for (int chip=0; chip<instData.numChips; ++chip) {
         // Overscan X
         QVector<long> overscanxRegion;
         if (!xmin.isEmpty() && !xmax.isEmpty()) overscanxRegion << xmin[chip] << xmax[chip];
@@ -396,10 +396,10 @@ void Splitter::getDetectorSections()
 
         // Data Section
         QVector<long> section;
-        section << instData->cutx[chip];
-        section << instData->cutx[chip] + instData->sizex[chip] - 1; // sizex is not a coordinate, but the number of pixels along this axis. Hence -1
-        section << instData->cuty[chip];
-        section << instData->cuty[chip] + instData->sizey[chip] - 1; // sizey is not a coordinate, but the number of pixels along this axis. Hence -1
+        section << instData.cutx[chip];
+        section << instData.cutx[chip] + instData.sizex[chip] - 1; // sizex is not a coordinate, but the number of pixels along this axis. Hence -1
+        section << instData.cuty[chip];
+        section << instData.cuty[chip] + instData.sizey[chip] - 1; // sizey is not a coordinate, but the number of pixels along this axis. Hence -1
         dataSection[chip] << section;
     }
 }
@@ -429,10 +429,10 @@ void Splitter::writeImage(int chip)
     if (cdw->ui->theliRenamingCheckBox->isChecked() && dateObsValue != "2020-01-01T00:00:00.000") {
         if (dataFormat == "RAW") {
             // No filter name for bayer matrix images
-            outName = "!"+path+"/"+instData->shortName+"."+dateObsValue+"_"+QString::number(chip+1)+"P.fits";
+            outName = "!"+path+"/"+instData.shortName+"."+dateObsValue+"_"+QString::number(chip+1)+"P.fits";
         }
         else {
-            outName = "!"+path+"/"+instData->shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chip+1)+"P.fits";
+            outName = "!"+path+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chip+1)+"P.fits";
         }
     }
     fits_create_file(&fptr, outName.toUtf8().data(), &status);
@@ -475,12 +475,12 @@ void Splitter::writeImageSlice(int chip, long slice)
     if (cdw->ui->theliRenamingCheckBox->isChecked() && dateObsValue != "2020-01-01T00:00:00.000") {
         if (dataFormat == "RAW") {
             // No filter name for bayer matrix images
-            if (naxis3Raw == 1) outName = "!"+path+"/"+instData->shortName+"."+dateObsValue+"_"+QString::number(chip+1)+"P.fits";
-            else outName = "!"+path+"/"+instData->shortName+"."+dateObsValue+"_sl"+QString::number(slice)+"_"+QString::number(chip+1)+"P.fits";
+            if (naxis3Raw == 1) outName = "!"+path+"/"+instData.shortName+"."+dateObsValue+"_"+QString::number(chip+1)+"P.fits";
+            else outName = "!"+path+"/"+instData.shortName+"."+dateObsValue+"_sl"+QString::number(slice)+"_"+QString::number(chip+1)+"P.fits";
         }
         else {
-            if (naxis3Raw == 1) outName = "!"+path+"/"+instData->shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chip+1)+"P.fits";
-            else outName = "!"+path+"/"+instData->shortName+"."+filter+"."+dateObsValue+"_sl"+QString::number(slice)+"_"+QString::number(chip+1)+"P.fits";
+            if (naxis3Raw == 1) outName = "!"+path+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chip+1)+"P.fits";
+            else outName = "!"+path+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_sl"+QString::number(slice)+"_"+QString::number(chip+1)+"P.fits";
         }
     }
     fits_create_file(&fptr, outName.toUtf8().data(), &status);

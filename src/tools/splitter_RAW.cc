@@ -99,9 +99,9 @@ bool Splitter::checkChipGeometry()
 {
     if (!successProcessing) return false;
 
-    for (int chip=0; chip<instData->numChips; ++chip) {
-        if (instData->sizex[chip] != naxis1 || instData->sizey[chip] != naxis2) {
-            emit showMessageBox("Splitter::IncompatibleSizeRAW", instData->name, QString::number(naxis1)+" "+QString::number(naxis2));
+    for (int chip=0; chip<instData.numChips; ++chip) {
+        if (instData.sizex[chip] != naxis1 || instData.sizey[chip] != naxis2) {
+            emit showMessageBox("Splitter::IncompatibleSizeRAW", instData.name, QString::number(naxis1)+" "+QString::number(naxis2));
             return false;
         }
     }
@@ -120,10 +120,10 @@ void Splitter::buildHeaderRAW()
     cards.append("CRVAL2  = 0.0");
     cards.append("CRPIX1  = "+QString::number(naxis1/2));
     cards.append("CRPIX2  = "+QString::number(naxis2/2));
-    cards.append("CD1_1   = "+QString::number(-1.*instData->pixscale/3600.));
+    cards.append("CD1_1   = "+QString::number(-1.*instData.pixscale/3600.));
     cards.append("CD1_2   = 0.0");
     cards.append("CD2_1   = 0.0");
-    cards.append("CD2_2   = "+QString::number(instData->pixscale/3600.));
+    cards.append("CD2_2   = "+QString::number(instData.pixscale/3600.));
     cards.append("EQUINOX = 2000.0");
     cards.append("RADESYS = 'ICRS'");
     cards.append("EXPTIME = "+QString::number(exptimeValue));
@@ -150,7 +150,7 @@ void Splitter::extractImagesRAW()
     if (!successProcessing) return;
 
     // Keeping multi-chip code structure for consistency, even though we have just a single chip
-    for (int chip=0; chip<instData->numChips; ++chip) {
+    for (int chip=0; chip<instData.numChips; ++chip) {
         importRAW();
         overwriteCameraIniRAW();
         getDetectorSections();
@@ -176,30 +176,30 @@ void Splitter::overwriteCameraIniRAW()
     // Trusting that metadata in RAW files are correct
 
     // No overscan correction if less than 5 pixels wide
-    for (int chip=0; chip<instData->numChips; ++chip) {
+    for (int chip=0; chip<instData.numChips; ++chip) {
         // If overscan == 0 in camera.ini, the overscan_xmin etc vectors are set to empty to indicate no overscan shall be done for FITS files.
         // However, for RAW files, we do want an overscan if available.
-        instData->overscan_xmin.resize(1);
-        instData->overscan_xmax.resize(1);
-        instData->overscan_ymin.resize(1);
-        instData->overscan_ymax.resize(1);
-        instData->overscan_xmin[chip] = 0;
-        instData->overscan_xmax[chip] = S.left_margin < 5 ? 0 : S.left_margin - 1;
-        instData->overscan_ymin[chip] = 0;
-        instData->overscan_ymax[chip] = S.top_margin < 5 ? 0 : S.top_margin - 1;
+        instData.overscan_xmin.resize(1);
+        instData.overscan_xmax.resize(1);
+        instData.overscan_ymin.resize(1);
+        instData.overscan_ymax.resize(1);
+        instData.overscan_xmin[chip] = 0;
+        instData.overscan_xmax[chip] = S.left_margin < 5 ? 0 : S.left_margin - 1;
+        instData.overscan_ymin[chip] = 0;
+        instData.overscan_ymax[chip] = S.top_margin < 5 ? 0 : S.top_margin - 1;
         // Deactivate overscan if area is less than 5 pixels wide
-        if (instData->overscan_xmin[chip] == 0 && instData->overscan_xmax[chip] == 0) {
-            instData->overscan_xmin[chip] = -1;
-            instData->overscan_xmax[chip] = -1;
+        if (instData.overscan_xmin[chip] == 0 && instData.overscan_xmax[chip] == 0) {
+            instData.overscan_xmin[chip] = -1;
+            instData.overscan_xmax[chip] = -1;
         }
-        if (instData->overscan_ymin[chip] == 0 && instData->overscan_ymax[chip] == 0) {
-            instData->overscan_ymin[chip] = -1;
-            instData->overscan_ymax[chip] = -1;
+        if (instData.overscan_ymin[chip] == 0 && instData.overscan_ymax[chip] == 0) {
+            instData.overscan_ymin[chip] = -1;
+            instData.overscan_ymax[chip] = -1;
         }
-        instData->cutx[chip] = S.left_margin;
-        instData->cuty[chip] = S.top_margin;
-        instData->sizex[chip] = S.iwidth;
-        instData->sizey[chip] = S.iheight;
+        instData.cutx[chip] = S.left_margin;
+        instData.cuty[chip] = S.top_margin;
+        instData.sizex[chip] = S.iwidth;
+        instData.sizey[chip] = S.iheight;
     }
 
     // Don't need RAW data and metadata anymore

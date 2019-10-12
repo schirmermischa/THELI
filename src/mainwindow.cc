@@ -718,17 +718,18 @@ void MainWindow::updateFont(QFont font)
 
 void MainWindow::initInstrumentData(QString instrumentNameFullPath)
 {
-    instData.file.setFileName(instrumentNameFullPath);
+    QFile instDataFile(instrumentNameFullPath);
+    instDataFile.setFileName(instrumentNameFullPath);
     instData.nameFullPath = instrumentNameFullPath;
 
     // read the instrument specific data
-    if( !instData.file.open(QIODevice::ReadOnly)) {
-        qDebug() << "QDEBUG: initInstrumentData: "+instrumentNameFullPath+" "+instData.file.errorString();
+    if( !instDataFile.open(QIODevice::ReadOnly)) {
+        qDebug() << "QDEBUG: initInstrumentData: "+instrumentNameFullPath+" "+instDataFile.errorString();
         return;
     }
 
     bool bayerFound = false;
-    QTextStream in(&(instData.file));
+    QTextStream in(&(instDataFile));
     while(!in.atEnd()) {
         QString line = in.readLine().simplified();
         if (line.isEmpty() || line.contains("#")) continue;
@@ -788,7 +789,7 @@ void MainWindow::initInstrumentData(QString instrumentNameFullPath)
     if (instData.type.isEmpty()) instData.type = "OPT";
     if (instData.shortName.isEmpty()) instData.shortName = instData.name;
 
-    instData.file.close();
+    instDataFile.close();
 
     // The overscan needs special treatment:
     // if it is consistently -1, or the string wasn't found,
