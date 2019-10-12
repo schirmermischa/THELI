@@ -96,7 +96,7 @@ void Controller::skysubPolynomialFit(Data *scienceData)
     releaseMemory(nimg*instData->storage*maxCPU, 1);
     scienceData->protectMemory();
 
-#pragma omp parallel for num_threads(maxCPU)
+#pragma omp parallel for num_threads(maxCPU) firstprivate(backupDirName)
     for (long i=0; i<numExposures; ++i) {
         if (abortProcess || !successProcessing) continue;
 
@@ -186,7 +186,7 @@ void Controller::skysubConstantFromArea(Data *scienceData)
     scienceData->protectMemory();
 
     // In principle this could be done in nicer form by including it in the last for-loop above
-#pragma omp parallel for num_threads(maxCPU)
+#pragma omp parallel for num_threads(maxCPU) firstprivate(backupDirName)
     for (long i=0; i<listOfAllImages.length(); ++i) {
         if (abortProcess || !successProcessing) continue;
 
@@ -246,7 +246,7 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
     releaseMemory(nimg*instData->storage*maxCPU, 1);
     scienceData->protectMemory();
 
-#pragma omp parallel for num_threads(maxCPU)
+#pragma omp parallel for num_threads(maxCPU) firstprivate(DT, DMIN, expFactor)
     for (long i=0; i<scienceData->exposureList.length(); ++i) {
         if (abortProcess || !successProcessing) continue;
 
@@ -278,7 +278,7 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
 
     // Subtract sky (does change pixels)
     progressStepSize = 50. / float(listOfAllImages.length());
-#pragma omp parallel for num_threads(maxCPU)
+#pragma omp parallel for num_threads(maxCPU) firstprivate(backupDirName)
     for (long i=0; i<listOfAllImages.length(); ++i) {
         if (abortProcess || !successProcessing) continue;
         auto &it = listOfAllImages[i];
@@ -346,7 +346,7 @@ void Controller::skysubConstantEachChip(Data *scienceData, QString DT, QString D
     releaseMemory(nimg*instData->storage*maxCPU, 1);
     scienceData->protectMemory();
 
-#pragma omp parallel for num_threads(maxCPU)
+#pragma omp parallel for num_threads(maxCPU) firstprivate(DT, DMIN, expFactor, backupDirName)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
 
@@ -453,7 +453,7 @@ void Controller::skysubModel(Data *scienceData, QString DT, QString DMIN, QStrin
 
     emit messageAvailable(" Calculating sky models ...", "controller");
 
-#pragma omp parallel for num_threads(maxCPU)
+#pragma omp parallel for num_threads(maxCPU) firstprivate(DT, DMIN, expFactor, backupDirName)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
 
@@ -552,7 +552,7 @@ QList<MyImage*> Controller::measureSkyInBlankRegions(Data *scienceData, QString 
             }
         }
 
-#pragma omp parallel for num_threads(maxCPU)
+#pragma omp parallel for num_threads(maxCPU) firstprivate(backupDirName, alpha, delta, radius)
         for (int i=0; i<listOfAllImages.length(); ++i) {
             listOfAllImages[i]->setupData(scienceData->isTaskRepeated, true, true, backupDirName);
             listOfAllImages[i]->evaluateSkyNodes(alpha, delta, radius);

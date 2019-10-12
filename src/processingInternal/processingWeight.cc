@@ -190,7 +190,9 @@ void Controller::taskInternalIndividualweight()
     releaseMemory(nimg*instData->storage*maxCPU, 1);
     scienceData->protectMemory();
 
-#pragma omp parallel for num_threads(maxCPU)
+    QString instType = instData->type;
+
+#pragma omp parallel for num_threads(maxCPU) firstprivate(instType, mainDirName)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
 
@@ -207,7 +209,7 @@ void Controller::taskInternalIndividualweight()
         }
         it->thresholdWeight(imageMin, imageMax);
         it->applyPolygons(chip);
-        it->maskBloomingSpike(instData->type, range, minVal, cdw->ui->CIWmaskbloomingCheckBox->isChecked());
+        it->maskBloomingSpike(instType, range, minVal, cdw->ui->CIWmaskbloomingCheckBox->isChecked());
 #pragma omp atomic
         progress += progressHalfStepSize;
         it->cosmicsFilter(aggressiveness);
@@ -253,12 +255,14 @@ void Controller::taskInternalSeparate()
     if (verbosity >= 0) emit messageAvailable("Moving images ...", "controller");
 
     QStringList newSubDirNames;
+    QString dataSubDirName = scienceData->subDirName;
+    QString statusString = scienceData->processingStatus->statusString;
 
-#pragma omp parallel for num_threads(maxExternalThreads)
+#pragma omp parallel for num_threads(maxExternalThreads) firstprivate(dataSubDirName, mainDirName, statusString)
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : scienceData->myImageList[chip]) {
             QString pathOld = it->path;
-            QString subDirName = scienceData->subDirName+"_"+QString::number(it->groupNumber);
+            QString subDirName = dataSubDirName+"_"+QString::number(it->groupNumber);
 #pragma omp critical
             {
                 if (!newSubDirNames.contains(subDirName)) newSubDirNames.append(subDirName);
@@ -270,7 +274,7 @@ void Controller::taskInternalSeparate()
             it->provideHeaderInfo();
             // Always write the new image, even if until now it was kept in memory.
             if (it->imageOnDrive) {
-                moveFile(it->chipName+scienceData->processingStatus->statusString+".fits", pathOld, it->path);
+                moveFile(it->chipName+statusString+".fits", pathOld, it->path);
             }
             else {
                 it->writeImage();

@@ -97,7 +97,7 @@ void Controller::coaddSmoothEdge()
     releaseMemory(nimg*instData->storage*maxCPU, 1);
     coaddScienceData->protectMemory();
 
-#pragma omp parallel for num_threads(maxCPU)
+#pragma omp parallel for num_threads(maxCPU) firstprivate(mainDirName)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
 
@@ -648,7 +648,7 @@ void Controller::coaddResample()
     // We can use at most as many threads as we have files in listname:
     localMaxCPU = maxCPU > listNames.length() ? listNames.length() : maxCPU;
 
-#pragma omp parallel for num_threads(localMaxCPU)
+#pragma omp parallel for num_threads(localMaxCPU) firstprivate(coaddDirName)
     for (int i=0; i<localMaxCPU; ++i) {
         coaddResampleBuildSwarpCommand(listNames[i], i);
 
