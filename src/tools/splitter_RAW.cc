@@ -142,7 +142,7 @@ void Splitter::buildHeaderRAW()
 
     headerTHELI.clear();
     headerTHELI.append(cards);
-    headerTHELI.append(*dummyKeys);
+    headerTHELI.append(dummyKeys);
 }
 
 void Splitter::extractImagesRAW()

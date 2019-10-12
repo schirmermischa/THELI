@@ -46,9 +46,9 @@ public:
     Mask *mask;
     Data *data;
 
-    QMap<QString,QStringList> *headerDictionary;   // Defined once in the controller, we just link to it
-    QMap<QString,QString> *filterDictionary;   // Defined once in the controller, we just link to it
-    QStringList *dummyKeys;                        // Defined once in the controller, we just link to it
+    QMap<QString, QStringList> headerDictionary;   // Defined once in the controller, we just link to it; NOPE! Local copy, thread safety!
+    QMap<QString, QString> filterDictionary;       // Defined once in the controller, we just link to it
+    QStringList dummyKeys;                         // Defined once in the controller, we just link to it
 
     QStringList headerTHELI;
 

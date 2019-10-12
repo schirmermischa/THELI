@@ -59,7 +59,7 @@ void Controller::taskInternalHDUreformat()
     }
 
     // Loop over all chips
-#pragma omp parallel for num_threads(maxCPU)
+#pragma omp parallel for num_threads(maxCPU) firstprivate(mainDirName, dataDir, dummyKeys, nonlinearityCoefficients, headerDictionary, filterDictionary)
     for (int i=0; i<numActiveImages; ++i) {
         if (!successProcessing) continue;
         if (userStop || userKill || abortProcess) continue;  // Only place we do it this way, because Data class is not yet instantiated
@@ -67,9 +67,9 @@ void Controller::taskInternalHDUreformat()
         QString fileName = files.at(i);
         emit messageAvailable(fileName + " : Splitting and low level processing ...", "image");
         Splitter *splitter = new Splitter(*instData, mask, data, cdw, mainDirName, dataDir, fileName, &verbosity);
-        splitter->headerDictionary = &headerDictionary;
-        splitter->filterDictionary = &filterDictionary;
-        splitter->dummyKeys = &dummyKeys;
+        splitter->headerDictionary = headerDictionary;
+        splitter->filterDictionary = filterDictionary;
+        splitter->dummyKeys = dummyKeys;
         splitter->combineOverscan_ptr = combineOverscan_ptr;       // set by MainWindow::updateControllerFunctors()
         splitter->nonlinearityCoefficients = nonlinearityCoefficients;
         splitter->progressStepSize = progressStepSize;

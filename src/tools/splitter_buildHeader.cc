@@ -26,7 +26,7 @@ void Splitter::buildTheliHeader()
     QString fallback = "";
     for (auto &mandatoryKey : mandatoryKeys) {
         // Search key in primary and extension header, and append it to 'headerTHELI' if found
-        bool keyFound = searchKey(mandatoryKey, headerDictionary->value(mandatoryKey), headerTHELI);
+        bool keyFound = searchKey(mandatoryKey, headerDictionary.value(mandatoryKey), headerTHELI);
 
         // Default fallback values
         if (mandatoryKey == "OBJECT" && !keyFound)  fallback = "OBJECT  = 'Unknown'";
@@ -42,7 +42,7 @@ void Splitter::buildTheliHeader()
     }
 
     // Append DUMMY keywords
-    headerTHELI.append(*dummyKeys);
+    headerTHELI.append(dummyKeys);
 }
 
 void Splitter::buildTheliHeaderMJDOBS()
@@ -72,7 +72,7 @@ void Splitter::buildTheliHeaderMJDOBS()
     }
 
     // Search key in primary and extension header, and append it to 'headerTHELI' if found
-    bool keyFound = searchKey("MJD-OBS", headerDictionary->value("MJD-OBS"), headerTHELI);
+    bool keyFound = searchKey("MJD-OBS", headerDictionary.value("MJD-OBS"), headerTHELI);
     if (keyFound) return;
 
     // Calculate MJD-OBS from DATE-OBS if not found
@@ -140,8 +140,8 @@ void Splitter::WCSbuildCRVAL()
     QStringList headerWCS;
 
     // Use dedicated lookup
-    searchKeyCRVAL("CRVAL1", headerDictionary->value("CRVAL1"), headerWCS);
-    searchKeyCRVAL("CRVAL2", headerDictionary->value("CRVAL2"), headerWCS);
+    searchKeyCRVAL("CRVAL1", headerDictionary.value("CRVAL1"), headerWCS);
+    searchKeyCRVAL("CRVAL2", headerDictionary.value("CRVAL2"), headerWCS);
 
     headerTHELI.append(headerWCS);
 }
@@ -176,14 +176,14 @@ void Splitter::WCSbuildCDmatrix(int chip)
     QStringList wcsKeys = {"CD1_1", "CD1_2", "CD2_1", "CD2_2"};
 
     for (auto &wcsKey : wcsKeys) {
-        bool keyFound = searchKey(wcsKey, headerDictionary->value(wcsKey), headerWCS);
+        bool keyFound = searchKey(wcsKey, headerDictionary.value(wcsKey), headerWCS);
         // default values if failed
         if (!keyFound && wcsKey == "CD1_1") {
-            bool found = searchKey("CDELT1", headerDictionary->value(wcsKey), headerWCS);
+            bool found = searchKey("CDELT1", headerDictionary.value(wcsKey), headerWCS);
             if (!found) fallback = "CD1_1   = "+QString::number(-1.*instData.pixscale/3600., 'g', 6);
         }
         if (!keyFound && wcsKey == "CD2_2") {
-            bool found = searchKey("CDELT2", headerDictionary->value(wcsKey), headerWCS);
+            bool found = searchKey("CDELT2", headerDictionary.value(wcsKey), headerWCS);
             if (!found) fallback = "CD2_2   = "+QString::number(instData.pixscale/3600., 'g', 6);
         }
         if (!keyFound && wcsKey == "CD1_2") fallback = "CD1_2   = 0.0";
@@ -203,7 +203,7 @@ void Splitter::WCSbuildRADESYS()
 {
     QStringList headerWCS;
     QString wcsKey = "RADESYS";
-    bool keyFound = searchKey(wcsKey, headerDictionary->value(wcsKey), headerWCS);
+    bool keyFound = searchKey(wcsKey, headerDictionary.value(wcsKey), headerWCS);
     if (!keyFound) {
         QString card = "RADESYS = 'ICRS'";
         card.resize(80, ' ');
@@ -217,7 +217,7 @@ void Splitter::WCSbuildEQUINOX()
 {
     QStringList headerWCS;
     QString wcsKey = "EQUINOX";
-    bool keyFound = searchKey(wcsKey, headerDictionary->value(wcsKey), headerWCS);
+    bool keyFound = searchKey(wcsKey, headerDictionary.value(wcsKey), headerWCS);
     if (!keyFound) {
         QString card = "EQUINOX = 2000.0";
         card.resize(80, ' ');
@@ -236,8 +236,8 @@ void Splitter::individualFixCRVAL()
 
     QString crval1;
     QString crval2;
-    searchKeyValue(headerDictionary->value("CRVAL1"), crval1);
-    searchKeyValue(headerDictionary->value("CRVAL2"), crval2);
+    searchKeyValue(headerDictionary.value("CRVAL1"), crval1);
+    searchKeyValue(headerDictionary.value("CRVAL2"), crval2);
 
     // Fix format (sometimes we have 'HH MM SS' instead of 'HH:MM:SS')
     crval1.replace(' ', ':');
@@ -320,7 +320,7 @@ void Splitter::buildTheliHeaderEXPTIME()
 
     // Instruments for which we don't have to do anything special
     if (!nditInstruments.contains(instData.name)) {
-        bool keyFound = searchKey("EXPTIME", headerDictionary->value("EXPTIME"), headerTHELI);
+        bool keyFound = searchKey("EXPTIME", headerDictionary.value("EXPTIME"), headerTHELI);
         if (!keyFound) {
             exptimeKey = "EXPTIME = 1.0";
             exptimeKey.resize(80, ' ');
@@ -340,8 +340,8 @@ void Splitter::buildTheliHeaderEXPTIME()
     float dit = -1.0;
     float ndit = -1.0;
 
-    foundDIT = searchKeyValue(headerDictionary->value("DIT"), dit);
-    foundNDIT = searchKeyValue(headerDictionary->value("NDIT"), ndit);
+    foundDIT = searchKeyValue(headerDictionary.value("DIT"), dit);
+    foundNDIT = searchKeyValue(headerDictionary.value("NDIT"), ndit);
 
     // default values if failed
     if (!foundDIT) {
@@ -388,14 +388,14 @@ void Splitter::buildTheliHeaderDATEOBS()
 {
     if (!successProcessing) return;
 
-    bool keyFound = searchKey("DATE-OBS", headerDictionary->value("DATE-OBS"), headerTHELI);
+    bool keyFound = searchKey("DATE-OBS", headerDictionary.value("DATE-OBS"), headerTHELI);
     if (keyFound && checkFormatDATEOBS()) return;
 
     // Fallback: Try and reconstruct DATE-OBS keyword from other keywords
     QString dateValue;
     QString timeValue;
-    bool foundDATE = searchKeyValue(headerDictionary->value("DATE"), dateValue);
-    bool foundTIME = searchKeyValue(headerDictionary->value("TIME"), timeValue);
+    bool foundDATE = searchKeyValue(headerDictionary.value("DATE"), dateValue);
+    bool foundTIME = searchKeyValue(headerDictionary.value("TIME"), timeValue);
     if (foundDATE && foundTIME) {
         if (dateValue.contains("-") && timeValue.contains(":")) {
             dateObsValue = dateValue+"T"+timeValue;
@@ -418,11 +418,11 @@ void Splitter::buildTheliHeaderAIRMASS()
 {
     if (!successProcessing) return;
 
-    bool keyFound = searchKey("AIRMASS", headerDictionary->value("AIRMASS"), headerTHELI);
+    bool keyFound = searchKey("AIRMASS", headerDictionary.value("AIRMASS"), headerTHELI);
     if (keyFound) return;
 
     // Fallback: Calculate airmass from RA, DEC, OBSLAT and LST
-    bool foundLST = searchKeyLST(headerDictionary->value("LST"));
+    bool foundLST = searchKeyLST(headerDictionary.value("LST"));
     if (!foundLST) lstValue = dateobsToLST();
 
     double airmass = 1.0;
@@ -440,7 +440,7 @@ void Splitter::buildTheliHeaderAIRMASS()
 void Splitter::buildTheliHeaderFILTER()
 {
     QStringList filterKeywordList;
-    QStringList possibleKeyNames = headerDictionary->value("FILTER");
+    QStringList possibleKeyNames = headerDictionary.value("FILTER");
 
     QList<QStringList> headers = {primaryHeader, extHeader};
 
@@ -502,7 +502,7 @@ void Splitter::buildTheliHeaderFILTER()
         filterKeywordList.removeDuplicates();
         filter = filterKeywordList.join("+");
         // Replace by short filter name (if mapped)
-        QString replacement = filterDictionary->value(filter);
+        QString replacement = filterDictionary.value(filter);
         if (!replacement.isEmpty()) filter = replacement;
         filterCard = "FILTER  = '"+filter+"'";
     }
