@@ -743,7 +743,7 @@ void Controller::doImageQualityAnalysis()
     QList<MyImage*> allMyImages;
     long numMyImages = makeListofAllImages(allMyImages, scampScienceData);
 
-#pragma omp parallel for num_threads(maxCPU)
+#pragma omp parallel for num_threads(maxCPU) firstprivate(mainDirName, gaiaQuery, instData)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
         auto &it = allMyImages[k];

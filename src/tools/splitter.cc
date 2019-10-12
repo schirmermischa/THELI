@@ -18,7 +18,7 @@
 #include <QFile>
 #include <QDir>
 
-Splitter::Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Data *someData,
+Splitter::Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Data *someData, QString datayype,
                    ConfDockWidget *confDockWidget, QString maindirname,
                    QString subdirname, QString filename, int *verbose,
                    QObject *parent) : QObject(parent)
@@ -30,6 +30,7 @@ Splitter::Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Data 
     subDirName = subdirname;
     path = mainDirName + "/" + subDirName;
     name = path+"/"+fileName;
+    dataType = datatype;
     QFileInfo fi(name);
     baseName = fi.completeBaseName();
     verbosity = verbose;

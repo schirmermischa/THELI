@@ -16,7 +16,7 @@ class Splitter : public QObject
 {
     Q_OBJECT
 public:
-    explicit Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Data *someData,
+    explicit Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Data *someData, QString datayype,
                       ConfDockWidget *confDockWidget, QString maindirname,
                       QString subdirname, QString filename, int *verbose, QObject *parent = nullptr);
 
@@ -32,6 +32,7 @@ public:
     int xtalkNsection = 32;
     QString xtalkNorAmpString = "";
     QString xtalkRowAmpString = "";
+    QString dataType = "";
     bool doXtalkNor = false;
     bool doXtalkRow = false;
     int xtalkNorMethod = -1;

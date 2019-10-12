@@ -58,15 +58,17 @@ void Controller::taskInternalHDUreformat()
         dummyKeys.append(newCard);
     }
 
+    QString dataType = data->dataType;
+
     // Loop over all chips
-#pragma omp parallel for num_threads(maxCPU) firstprivate(mainDirName, dataDir, dummyKeys, nonlinearityCoefficients, headerDictionary, filterDictionary)
+#pragma omp parallel for num_threads(maxCPU) firstprivate(mainDirName, dataDir, dummyKeys, nonlinearityCoefficients, headerDictionary, filterDictionary, dataType)
     for (int i=0; i<numActiveImages; ++i) {
         if (!successProcessing) continue;
         if (userStop || userKill || abortProcess) continue;  // Only place we do it this way, because Data class is not yet instantiated
         // Setup the splitter class for the current file
         QString fileName = files.at(i);
         emit messageAvailable(fileName + " : Splitting and low level processing ...", "image");
-        Splitter *splitter = new Splitter(*instData, mask, data, cdw, mainDirName, dataDir, fileName, &verbosity);
+        Splitter *splitter = new Splitter(*instData, mask, data, dataType, cdw, mainDirName, dataDir, fileName, &verbosity);
         splitter->headerDictionary = headerDictionary;
         splitter->filterDictionary = filterDictionary;
         splitter->dummyKeys = dummyKeys;

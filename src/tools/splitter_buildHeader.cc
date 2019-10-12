@@ -433,7 +433,11 @@ void Splitter::buildTheliHeaderAIRMASS()
     headerTHELI.append(card);
 
     if (!foundLST || lstValue != 58849.0000) {
-        emit messageAvailable(fileName + " : Insufficient data to determine AIRMASS, set to 1.0", "warning");
+        if (dataType == "SCIENCE"
+                || dataType == "SKY"
+                || dataType == "STD") {
+            emit messageAvailable(fileName + " : Insufficient data to determine AIRMASS, set to 1.0", "warning");
+        }
     }
 }
 
@@ -494,7 +498,9 @@ void Splitter::buildTheliHeaderFILTER()
     if (!keyFound && darkFound) filterCard = "FILTER  = 'Dark'";
     else if (!keyFound && !darkFound && clearFound) filterCard = "FILTER  = 'Clear'";
     else if (!keyFound && !darkFound && !clearFound) {
-        if (*verbosity > 1) emit messageAvailable(fileName + " : Could not determine keyword: FILTER, set to 'Unknown'", "warning");
+        if (dataType != "BIAS" && dataType != "DARK") {
+            if (*verbosity > 1) emit messageAvailable(fileName + " : Could not determine keyword: FILTER, set to 'Unknown'", "warning");
+        }
         filter = "Unknown";
         filterCard = "FILTER  = '"+filter+"'";
     }
