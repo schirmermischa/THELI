@@ -168,8 +168,9 @@ void Controller::taskInternalBinnedpreview()
     releaseMemory(nimg*instData->storage*maxCPU, 1);
     scienceData->protectMemory();
 
+    QString statusString = scienceData->processingStatus->statusString;
     // Loop over all exposures
-#pragma omp parallel for num_threads(maxCPU)
+#pragma omp parallel for num_threads(maxCPU) firstprivate(statusString)
     for (int img=0; img<numExp; ++img) {
         if (abortProcess || !successProcessing) continue;
 
@@ -199,7 +200,7 @@ void Controller::taskInternalBinnedpreview()
             progress += progressStepSize;
         }
         QString outName = scienceData->myImageList[0][img]->rootName;
-        outName.append("_"+scienceData->processingStatus->statusString+".mosaic.fits");
+        outName.append("_"+statusString+".mosaic.fits");
         QString outDirName = scienceData->dirName+"/BINNED/";
         QDir outDir(outDirName);
         if (!outDir.exists()) outDir.mkdir(outDirName);

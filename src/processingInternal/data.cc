@@ -614,7 +614,7 @@ void Data::decrementCurrentThreads(int &currentThreads, omp_lock_t &lock)
 
 // Used for creating master calibrators
 void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVector<float> &, const QVector<bool> &, long),
-                              QString nlowString, QString nhighString)
+                              QString nlowString, QString nhighString, QString dirName, QString subDirName, QString dataType)
 {
     if (!successProcessing) return;
 
@@ -770,7 +770,8 @@ void Data::resetStaticModel()
 
 // Used for creating a background model
 void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const QString nlowString,
-                         const QString nhighString, const QString currentImage, const QString mode)
+                         const QString nhighString, const QString currentImage, const QString mode,
+                         const QString dirName, const QString subDirName)
 {
     if (!successProcessing) return;
 
@@ -883,7 +884,7 @@ void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const 
 
 // Used for creating a background model
 void Data::combineImages_newParallel(int chip, MyImage *masterCombined, QList<MyImage*> &backgroundList, QString nlowString,
-                                     QString nhighString, QString currentImage, QString mode)
+                                     QString nhighString, QString currentImage, QString mode, const QString subDirName)
 {
     if (!successProcessing) return;
 

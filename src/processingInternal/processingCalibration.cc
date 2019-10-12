@@ -41,9 +41,13 @@ void Controller::taskInternalProcessbias()
     releaseMemory(nimg*instData->storage*maxExternalThreads, 1, "calibrator");
     // Protect the rest, will be unprotected as needed
     biasData->protectMemory();
+    QString dataDirName = biasData->dirName;             // copies for thread safety
+    QString dataSubDirName = biasData->subDirName;       // copies for thread safety
+    QString dataDataType = biasData->dataType;
 
     // Loop over all chips
-#pragma omp parallel for num_threads(maxExternalThreads)
+    // NOTE: QString is not threadsafe, must create copies for threads!
+#pragma omp parallel for num_threads(maxExternalThreads) firstprivate(nlow, nhigh, min, max, dataDirName, dataSubDirName)
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (abortProcess || !successProcessing) continue;
         float nimg = biasData->myImageList[chip].length() + 1;  // The number of images we must keep in memory
@@ -59,7 +63,7 @@ void Controller::taskInternalProcessbias()
 #pragma omp atomic
             progress += progressHalfStepSize;
         }
-        biasData->combineImagesCalib(chip, combineBias_ptr, nlow, nhigh);  // Combine images
+        biasData->combineImagesCalib(chip, combineBias_ptr, nlow, nhigh, dataDirName, dataSubDirName, dataDataType);  // Combine images
         biasData->getModeCombineImages(chip);
         biasData->writeCombinedImage(chip);
         biasData->unprotectMemory(chip);
@@ -130,9 +134,12 @@ void Controller::taskInternalProcessdark()
     releaseMemory(nimg*instData->storage*maxExternalThreads, 1, "calibrator");
     // Protect the rest, will be unprotected as needed
     darkData->protectMemory();
+    QString dataDirName = darkData->dirName;             // copies for thread safety
+    QString dataSubDirName = darkData->subDirName;       // copies for thread safety
+    QString dataDataType = darkData->dataType;
 
     // Loop over all chips
-#pragma omp parallel for num_threads(maxExternalThreads)
+#pragma omp parallel for num_threads(maxExternalThreads) firstprivate(nlow, nhigh, min, max, dataDirName, dataSubDirName)
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (abortProcess || !successProcessing) continue;
 
@@ -146,7 +153,7 @@ void Controller::taskInternalProcessdark()
 #pragma omp atomic
             progress += progressHalfStepSize;
         }
-        darkData->combineImagesCalib(chip, combineDark_ptr, nlow, nhigh);
+        darkData->combineImagesCalib(chip, combineDark_ptr, nlow, nhigh, dataDirName, dataSubDirName, dataDataType);
         darkData->getModeCombineImages(chip);
         darkData->writeCombinedImage(chip);
         darkData->unprotectMemory(chip);
@@ -192,9 +199,12 @@ void Controller::taskInternalProcessflatoff()
     releaseMemory(nimg*instData->storage*maxExternalThreads, 1, "calibrator");
     // Protect the rest, will be unprotected as needed
     flatoffData->protectMemory();
+    QString dataDirName = flatoffData->dirName;             // copies for thread safety
+    QString dataSubDirName = flatoffData->subDirName;       // copies for thread safety
+    QString dataDataType = flatoffData->dataType;
 
     // Loop over all chips
-#pragma omp parallel for num_threads(maxExternalThreads)
+#pragma omp parallel for num_threads(maxExternalThreads) firstprivate(nlow, nhigh, min, max, dataDirName, dataSubDirName)
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (abortProcess || !successProcessing) continue;
 
@@ -208,7 +218,7 @@ void Controller::taskInternalProcessflatoff()
 #pragma omp atomic
             progress += progressHalfStepSize;
         }
-        flatoffData->combineImagesCalib(chip, combineFlatoff_ptr, nlow, nhigh);
+        flatoffData->combineImagesCalib(chip, combineFlatoff_ptr, nlow, nhigh, dataDirName, dataSubDirName, dataDataType);
         flatoffData->getModeCombineImages(chip);
         flatoffData->writeCombinedImage(chip);
         flatoffData->unprotectMemory(chip);
@@ -298,11 +308,16 @@ void Controller::taskInternalProcessflat()
     releaseMemory(nimg*instData->storage*maxExternalThreads, 1, "calibrator");
     // Protect the rest, will be unprotected as needed
     flatData->protectMemory();
+    QString dataDirName = flatData->dirName;             // copies for thread safety
+    QString dataSubDirName = flatData->subDirName;       // copies for thread safety
+    QString dataDataType = flatData->dataType;
+    QString biasDataType;
+    if (biasData != nullptr) biasDataType = biasData->dataType;
 
     if (biasData != nullptr) biasData->protectMemory();
 
     // Loop over all chips
-#pragma omp parallel for num_threads(maxExternalThreads)
+#pragma omp parallel for num_threads(maxExternalThreads) firstprivate(nlow, nhigh, min, max, dataDirName, dataSubDirName)
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (abortProcess || !successProcessing) continue;
 
@@ -317,16 +332,16 @@ void Controller::taskInternalProcessflat()
             // careful with the booleans, they make sure the data is correctly reread from disk or memory if task is repeated
             it->setupCalibDataInMemory(true, false, true);    // read from backupL1, if not then from disk. Makes backup copy if not yet done
             if (biasData != nullptr && biasData->successProcessing) { // cannot pass nullptr to subtractBias()
-                it->subtractBias(biasData->combinedImage[chip], biasData->dataType);
+                it->subtractBias(biasData->combinedImage[chip], biasDataType);
             }
             it->getMode(true);
             it->setModeFlag(min, max);
-            if (!it->successProcessing) flatData->successProcessing = false;
+            if (!it->successProcessing) flatData->successProcessing = false;  // does not need to be threadsafe
 # pragma omp atomic
             progress += progressHalfStepSize;
         }
         if (biasData != nullptr) biasData->unprotectMemory(chip);
-        flatData->combineImagesCalib(chip, combineFlat_ptr, nlow, nhigh);
+        flatData->combineImagesCalib(chip, combineFlat_ptr, nlow, nhigh, dataDirName, dataSubDirName, dataDataType);
         // Remove Bayer intensity variations within a 2x2 superpixel
         if (instData->bayer == "Y") equalizeBayerFlat(flatData->combinedImage[chip]);
         flatData->getModeCombineImages(chip);
@@ -515,7 +530,11 @@ void Controller::taskInternalProcessscience()
     if (biasData != nullptr) biasData->protectMemory();
     if (flatData != nullptr) flatData->protectMemory();
 
-#pragma omp parallel for num_threads(maxCPU)
+    QString dataDirName = scienceData->dirName;             // copies for thread safety
+    QString biasDataType;
+    if (biasData != nullptr) biasDataType = biasData->dataType;
+
+#pragma omp parallel for num_threads(maxCPU) firstprivate(dataDirName, biasDataType)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
 
@@ -541,7 +560,7 @@ void Controller::taskInternalProcessscience()
         // and test internally for nullptr and 'successProcessing'.
         // Then the "if" could go away
         if (biasData != nullptr && biasData->successProcessing) {
-            it->subtractBias(biasData->combinedImage[chip], biasData->dataType);
+            it->subtractBias(biasData->combinedImage[chip], biasDataType);
         }
         if (flatData != nullptr && flatData->successProcessing) {
             it->divideFlat(flatData->combinedImage[chip]);
@@ -560,9 +579,9 @@ void Controller::taskInternalProcessscience()
         }
         else {
             // Create 3 new MyImages for R, G, and B
-            MyImage *debayerR = new MyImage(scienceData->dirName, it->baseName, "", chip+1, QVector<bool>(), false, &verbosity);
-            MyImage *debayerG = new MyImage(scienceData->dirName, it->baseName, "", chip+1, QVector<bool>(), false, &verbosity);
-            MyImage *debayerB = new MyImage(scienceData->dirName, it->baseName, "", chip+1, QVector<bool>(), false, &verbosity);
+            MyImage *debayerR = new MyImage(dataDirName, it->baseName, "", chip+1, QVector<bool>(), false, &verbosity);
+            MyImage *debayerG = new MyImage(dataDirName, it->baseName, "", chip+1, QVector<bool>(), false, &verbosity);
+            MyImage *debayerB = new MyImage(dataDirName, it->baseName, "", chip+1, QVector<bool>(), false, &verbosity);
             debayer(chip, it, debayerR, debayerG, debayerB);
             QList<MyImage*> list; // Contains the current 3 debayered images
 

@@ -128,9 +128,11 @@ public:
     QString getMasterFilename(QString type, int chip);
 
     // Processing functions
-    void combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVector<float> &, const QVector<bool> &, long), QString nlow, QString nhigh);
-    void combineImages(const int chip, QList<MyImage*> &backgroundList, const QString nlowString, const QString nhighString, const QString currentImage, const QString mode);
-    void combineImages_newParallel(int chip, MyImage *masterCombined, QList<MyImage *> &backgroundList, QString nlow, QString nhigh, QString currentImage, QString mode);
+    void combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVector<float> &, const QVector<bool> &, long), QString nlow, QString nhigh,
+                            QString dirName, QString subDirName, QString dataType);
+    void combineImages(const int chip, QList<MyImage*> &backgroundList, const QString nlowString, const QString nhighString, const QString currentImage, const QString mode,
+                       const QString dirName, const QString subDirName);
+    void combineImages_newParallel(int chip, MyImage *masterCombined, QList<MyImage *> &backgroundList, QString nlow, QString nhigh, QString currentImage, QString mode, const QString subDirName);
     void deleteMyImageList();
     void forceStatus(int chip, QString status);
     void loadCombinedImage(int chip);

@@ -138,7 +138,10 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
                                    const bool twoPass, const bool convolution, const bool rescaleModel,
                                    const int nGroups, const int nLength, QString mode, QVector<bool> &staticImagesWritten)
 {
-#pragma omp parallel for num_threads(maxExternalThreads) firstprivate(numBackExpList, dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2, mode)
+
+    QString dataDirName = scienceData->dirName;
+    QString dataSubDirName = scienceData->subDirName;
+#pragma omp parallel for num_threads(maxExternalThreads) firstprivate(numBackExpList, dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2, mode, dataDirName, dataSubDirName)
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (abortProcess || !successProcessing) continue;
         int currentExposure = 0;   // only relevant for LIRIS@WHT-type detectors where we need to select specific images
@@ -162,14 +165,14 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
             // PASS 1:
             sendBackgroundMessage(chip, mode, skyData, it->chipName, 1);
             maskObjectsInSkyImagesPass1(skyData, scienceData, backgroundList, twoPass, dt, dmin, convolution, expFactor);
-            skyData->combineImages(chip, backgroundList, nlow1, nhigh1, it->chipName, mode);
+            skyData->combineImages(chip, backgroundList, nlow1, nhigh1, it->chipName, mode, dataDirName, dataSubDirName);
             skyData->getModeCombineImages(chip);
 
             // PASS 2:
             if (twoPass) {
                 sendBackgroundMessage(chip, mode, skyData, it->chipName, 2);
                 maskObjectsInSkyImagesPass2(skyData, scienceData, backgroundList, twoPass, dt, dmin, convolution, expFactor, chip, rescaleModel);
-                skyData->combineImages(chip, backgroundList, nlow2, nhigh2, it->chipName, mode);
+                skyData->combineImages(chip, backgroundList, nlow2, nhigh2, it->chipName, mode, dataDirName, dataSubDirName);
                 skyData->getModeCombineImages(chip);
             }
 
@@ -229,7 +232,9 @@ void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const
     QList<MyImage*> allMyImages;
     long numMyImages = makeListofAllImages(allMyImages, scienceData);
 
-#pragma omp parallel for num_threads(maxCPU) firstprivate(numBackExpList, dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2)
+    QString dataSubDirName = scienceData->subDirName;
+
+#pragma omp parallel for num_threads(maxCPU) firstprivate(numBackExpList, dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2, dataSubDirName)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
         int threadID = omp_get_thread_num();
@@ -256,7 +261,7 @@ void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const
         // do this only once per chip
         omp_set_lock(&backgroundLock);
         if (!staticImagesCombined[chip]) {
-            skyData->combineImages_newParallel(chip, masterCombined, backgroundList, nlow1, nhigh1, it->chipName, "static");
+            skyData->combineImages_newParallel(chip, masterCombined, backgroundList, nlow1, nhigh1, it->chipName, "static", dataSubDirName);
             skyData->combinedImage[chip] = masterCombined;
             skyData->combinedImage[chip]->naxis1 = it->naxis1;
             skyData->combinedImage[chip]->naxis2 = it->naxis2;
@@ -274,7 +279,7 @@ void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const
             // do this only once per chip
             omp_set_lock(&backgroundLock);
             if (!staticImagesCombined[chip]) {
-                skyData->combineImages_newParallel(chip, skyData->combinedImage[chip], backgroundList, nlow2, nhigh2, it->chipName, "static");
+                skyData->combineImages_newParallel(chip, skyData->combinedImage[chip], backgroundList, nlow2, nhigh2, it->chipName, "static", dataSubDirName);
                 skyData->getModeCombineImages(chip);
             }
             omp_unset_lock(&backgroundLock);
@@ -334,7 +339,9 @@ void Controller::processBackgroundDynamic(Data *scienceData, Data *skyData, cons
     QList<MyImage*> allMyImages;
     long numMyImages = makeListofAllImages(allMyImages, scienceData);
 
-#pragma omp parallel for num_threads(maxCPU) firstprivate(numBackExpList, dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2, backExpList, allMyImages)
+    QString dataSubDirName = scienceData->subDirName;
+
+#pragma omp parallel for num_threads(maxCPU) firstprivate(numBackExpList, dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2, backExpList, allMyImages, dataSubDirName)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
         int threadID = omp_get_thread_num();
@@ -358,7 +365,7 @@ void Controller::processBackgroundDynamic(Data *scienceData, Data *skyData, cons
         maskObjectsInSkyImagesPass1_newParallel(skyData, scienceData, backgroundList, twoPass, dt, dmin, convolution, expFactor, threadID);
 
         MyImage *masterCombined = new MyImage(dirName, "dummy.fits", "", chip+1, skyData->mask->globalMask[chip], skyData->mask->isChipMasked[chip], &verbosity);
-        skyData->combineImages_newParallel(chip, masterCombined, backgroundList, nlow1, nhigh1, it->chipName, "dynamic");
+        skyData->combineImages_newParallel(chip, masterCombined, backgroundList, nlow1, nhigh1, it->chipName, "dynamic", dataSubDirName);
         skyData->getModeCombineImagesBackground(chip, masterCombined);
         masterCombined->naxis1 = it->naxis1;
         masterCombined->naxis2 = it->naxis2;
@@ -369,7 +376,7 @@ void Controller::processBackgroundDynamic(Data *scienceData, Data *skyData, cons
             sendBackgroundMessage(chip, "dynamic", skyData, it->baseName, 2);
             maskObjectsInSkyImagesPass2_newParallel(skyData, scienceData, masterCombined, backgroundList, twoPass, dt, dmin,
                                                     convolution, expFactor, chip, rescaleModel, threadID, "dynamic");
-            skyData->combineImages_newParallel(chip, combinedBackgroundImages[threadID], backgroundList, nlow2, nhigh2, it->chipName, "dynamic");
+            skyData->combineImages_newParallel(chip, combinedBackgroundImages[threadID], backgroundList, nlow2, nhigh2, it->chipName, "dynamic", dataSubDirName);
             skyData->getModeCombineImagesBackground(chip, combinedBackgroundImages[threadID]);
         }
         skyData->writeBackgroundModel_newParallel(chip, combinedBackgroundImages[threadID], "dynamic", it->baseName, threadID, backgroundLock, staticImagesWritten[chip]);
