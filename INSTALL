@@ -26,13 +26,13 @@ $HOME/software/THELI-master/
 
 You must set the THELIDIR environment variable to this path, e.g. on bash you would do
 
-export THELIDIR=$PATH:$HOME/software/THELI-master/
+export THELIDIR=$HOME/software/THELI-master/
 
 To make it permanent, include this line in your ~/.bashrc
 
 Now create the 'Makefile' and build it:
 
-cd $HOME/software/THELI/src
+cd $HOME/software/THELI-master/src
 qmake -o Makefile THELI.pro
 make
 make clean
