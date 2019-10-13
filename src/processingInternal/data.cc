@@ -202,6 +202,7 @@ bool Data::checkStatusConsistency()
         QStringList expectedFileList = dir.entryList(QStringList() << "*_1"+processingStatus->statusString+".fits");
         QStringList observedFileList = dir.entryList(QStringList() << "*_1*.fits");
 
+        // write found status to disk. Controller will then retry of necessary
         if (expectedFileList.isEmpty() && !observedFileList.isEmpty()) {
             processingStatus->inferStatusFromFilenames();
             processingStatus->statusToBoolean(processingStatus->statusString);
@@ -713,7 +714,7 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
     // we still parallelise though for single-chip cameras:
     int localMaxThreads = 1;
     if (instData->numChips == 1) localMaxThreads = maxCPU;
-#pragma omp parallel for num_threads(localMaxThreads) // firstprivate(imglist, goodIndex, rescaleFactors)
+#pragma omp parallel for num_threads(localMaxThreads) firstprivate(rescaleFactors) // firstprivate(imglist, goodIndex, rescaleFactors)
     for (long i=0; i<dim; ++i) {
         QVector<float> stack;
         stack.reserve(ngood);
@@ -1884,7 +1885,7 @@ void Data::populate(QString statusString)
     // Read either raw or processed images (master calibs are handled in the c'tor)
 
     numImages = 0;
-#pragma omp parallel for num_threads(maxCPU)
+#pragma omp parallel for num_threads(maxCPU) firstprivate(dirName, subDirName, statusString)
     for (int chip=0; chip<instData->numChips; ++chip) {
         QStringList filter;
         filter << "*_"+QString::number(chip+1)+statusString+".fits";
@@ -1990,7 +1991,7 @@ bool Data::collectMJD()
     // The MJD is the same for all chips, hence we could just test it for chip 1.
     // But if one of the images of chip 1 was removed because it was bad, then this would break down;
     // Therefore, read it for every chip in every exposure
-#pragma omp parallel for num_threads(maxExternalThreads)
+#pragma omp parallel for num_threads(maxExternalThreads) firstprivate(subDirName)
     for (int chip=0; chip<instData->numChips; ++chip) {
         QVector<double> mjdData;
         mjdData.reserve(myImageList[chip].length());
@@ -2001,7 +2002,7 @@ bool Data::collectMJD()
                 it->mjdobs = it->imageFITS->mjdobs;
                 it->hasMJDread = true;
             }
-            if (*verbosity == 3) emit messageAvailable(it->baseName + " : MJD-OBS = " +QString::number(it->mjdobs, 'f', 12), "image");
+            if (*verbosity == 3) emit messageAvailable(it->chipName + " : MJD-OBS = " +QString::number(it->mjdobs, 'f', 12), "image");
             mjdData.append(it->mjdobs);
         }
         if (!duplicateFound && hasDuplicates_T(mjdData)) {
@@ -2095,6 +2096,18 @@ void Data::resetProcessbackground()
             it->backupCopyBackgroundMade = false;
             it->leftBackgroundWindow = false;
             // possibly squeeze some of the data vectors, but then we'd just need to reserve them again [...]
+        }
+    }
+}
+
+void Data::cleanBackgroundModelStatus()
+{
+    for (int chip=0; chip<instData->numChips; ++chip) {
+        for (auto &it : myImageList[chip]) {
+            it->resetObjectMasking();
+            it->backgroundModelDone = false;
+            it->segmentationDone = false;
+            it->maskExpansionDone = false;
         }
     }
 }

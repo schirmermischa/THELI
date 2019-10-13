@@ -200,7 +200,7 @@ void Controller::taskInternalIndividualweight()
 
         auto &it = allMyImages[k];
         int chip = it->chipNumber - 1;
-        if (verbosity >= 0) emit messageAvailable(it->baseName + " : Creating weight map ...", "image");
+        if (verbosity >= 0) emit messageAvailable(it->chipName + " : Creating weight map ...", "image");
         it->setupDataInMemorySimple(false);
         // Locking, otherwise the same globalweight will be initialized several times (image geometry not threadsafe)
 #pragma omp critical

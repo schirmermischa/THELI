@@ -37,6 +37,8 @@ void Controller::taskInternalSkysub()
 
     getNumberOfActiveImages(scienceData);
 
+    scienceData->cleanBackgroundModelStatus();
+
     scienceData->checkTaskRepeatStatus(taskBasename);
 
     if (cdw->ui->skyModelRadioButton->isChecked()) {

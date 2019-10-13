@@ -46,12 +46,12 @@ void Controller::taskInternalBackground()
     backupDirName = scienceData->processingStatus->getStatusString() + "_IMAGES";
 
     // Static or dynamic mode ?
+    scienceData->resetStaticModel();
+    skyData->resetStaticModel();
     QString window = cdw->ui->BACwindowLineEdit->text();
     QString mode = "dynamic";
     if (window.isEmpty() || window.toInt() == 0) {
         mode = "static";
-        scienceData->resetStaticModel();
-        skyData->resetStaticModel();
     }
 
     // Flag images with bright stars, leave if definitely too few images left
@@ -117,6 +117,10 @@ void Controller::taskInternalBackground()
     checkSuccessProcessing(scienceData);
     satisfyMaxMemorySetting();
 
+    // Clean-up, otherwise interference with any source detection / masking task
+    scienceData->cleanBackgroundModelStatus();
+    skyData->cleanBackgroundModelStatus();
+
     if (successProcessing) {
         scienceData->processingStatus->Background = true;
         scienceData->processingStatus->writeToDrive();
@@ -138,10 +142,10 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
                                    const bool twoPass, const bool convolution, const bool rescaleModel,
                                    const int nGroups, const int nLength, QString mode, QVector<bool> &staticImagesWritten)
 {
-
     QString dataDirName = scienceData->dirName;
     QString dataSubDirName = scienceData->subDirName;
-#pragma omp parallel for num_threads(maxExternalThreads) firstprivate(numBackExpList, dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2, mode, dataDirName, dataSubDirName)
+    QVector<bool> dataStaticModelDone = skyData->staticModelDone;
+#pragma omp parallel for num_threads(maxExternalThreads) firstprivate(numBackExpList, dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2, mode, dataDirName, dataSubDirName, dataStaticModelDone)
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (abortProcess || !successProcessing) continue;
         int currentExposure = 0;   // only relevant for LIRIS@WHT-type detectors where we need to select specific images
@@ -163,21 +167,21 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
             }
 
             // PASS 1:
-            sendBackgroundMessage(chip, mode, skyData, it->chipName, 1);
+                sendBackgroundMessage(chip, mode, dataStaticModelDone[chip], it->chipName, 1);
             maskObjectsInSkyImagesPass1(skyData, scienceData, backgroundList, twoPass, dt, dmin, convolution, expFactor);
             skyData->combineImages(chip, backgroundList, nlow1, nhigh1, it->chipName, mode, dataDirName, dataSubDirName);
             skyData->getModeCombineImages(chip);
 
             // PASS 2:
             if (twoPass) {
-                sendBackgroundMessage(chip, mode, skyData, it->chipName, 2);
+                    sendBackgroundMessage(chip, mode, dataStaticModelDone[chip], it->chipName, 2);
                 maskObjectsInSkyImagesPass2(skyData, scienceData, backgroundList, twoPass, dt, dmin, convolution, expFactor, chip, rescaleModel);
                 skyData->combineImages(chip, backgroundList, nlow2, nhigh2, it->chipName, mode, dataDirName, dataSubDirName);
                 skyData->getModeCombineImages(chip);
             }
 
             skyData->writeBackgroundModel(chip, mode, it->baseName, staticImagesWritten[chip]);
-            if (mode == "static") skyData->staticModelDone[chip] = true;
+            if (mode == "static") dataStaticModelDone[chip] = true;
             it->applyBackgroundModel(skyData->combinedImage[chip], cdw->ui->BACapplyComboBox->currentText(), rescaleModel);
 
             updateImageAndData(it, scienceData);
@@ -214,8 +218,8 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
 //                                         const bool &twoPass, const bool &convolution, const bool &rescaleModel,
 //                                         const int &nGroups, const int &nLength, QVector<bool> &staticImagesWritten)
 void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const float nimg, QVector<QString> &numBackExpList,
-                                          QString dt,  QString dmin,  QString expFactor,  QString nlow1,
-                                          QString nhigh1,  QString nlow2,  QString nhigh2,
+                                         QString dt,  QString dmin,  QString expFactor,  QString nlow1,
+                                         QString nhigh1,  QString nlow2,  QString nhigh2,
                                          const bool twoPass, const bool convolution, const bool rescaleModel,
                                          const int nGroups, const int nLength, QVector<bool> &staticImagesWritten)
 {
@@ -254,7 +258,7 @@ void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const
         }
 
         // PASS 1:
-        sendBackgroundMessage(chip, "static", skyData, it->chipName, 1);
+        sendBackgroundMessage(chip, "static", skyData->staticModelDone[chip], it->chipName, 1);
         maskObjectsInSkyImagesPass1_newParallel(skyData, scienceData, backgroundList, twoPass, dt, dmin, convolution, expFactor, threadID);
 
         MyImage *masterCombined = new MyImage(dirName, "dummy.fits", "", chip+1, skyData->mask->globalMask[chip], skyData->mask->isChipMasked[chip], &verbosity);
@@ -273,7 +277,7 @@ void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const
 
         // PASS 2:
         if (twoPass) {
-            sendBackgroundMessage(chip, "static", skyData, it->chipName, 2);
+            sendBackgroundMessage(chip, "static", skyData->staticModelDone[chip], it->chipName, 2);
             maskObjectsInSkyImagesPass2_newParallel(skyData, scienceData, masterCombined, backgroundList, twoPass, dt, dmin,
                                                     convolution, expFactor, chip, rescaleModel, threadID, "static");
             // do this only once per chip
@@ -321,8 +325,8 @@ void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const
 //                                          const bool &twoPass, const bool &convolution, const bool &rescaleModel,
 //                                          const int &nGroups, const int &nLength, QVector<bool> &staticImagesWritten)
 void Controller::processBackgroundDynamic(Data *scienceData, Data *skyData, const float nimg, QVector<QString> &numBackExpList,
-                                           QString dt,  QString dmin,  QString expFactor,  QString nlow1,
-                                           QString nhigh1,  QString nlow2,  QString nhigh2,
+                                          QString dt,  QString dmin,  QString expFactor,  QString nlow1,
+                                          QString nhigh1,  QString nlow2,  QString nhigh2,
                                           const bool twoPass, const bool convolution, const bool rescaleModel,
                                           const int nGroups, const int nLength, QVector<bool> &staticImagesWritten)
 {
@@ -561,10 +565,10 @@ void Controller::maskObjectsInSkyImagesPass2_newParallel(Data *skyData, Data *sc
     }
 }
 
-void Controller::sendBackgroundMessage(const int &chip, const QString &mode, const Data *skyData, const QString &basename, const int pass)
+void Controller::sendBackgroundMessage(const int chip, const QString mode, const bool staticmodeldone, const QString basename, const int pass)
 {
     if (verbosity >= 0) {
-        if ( (mode == "static" && !skyData->staticModelDone[chip])
+        if ( (mode == "static" && !staticmodeldone)
              || mode == "dynamic") {
             if (pass == 1) emit messageAvailable(basename + " : Image combination 1st pass ...", "image");
             if (pass == 2) emit messageAvailable(basename + " : Image combination 2nd pass ...", "image");
@@ -740,7 +744,7 @@ void Controller::selectImagesStatically(QList<MyImage*> backgroundList, const do
         // Image must have been taken within the sky sequence
 
         // science image between two sky exposures
-//        if (mjd_ref > mjd_obs1 && mjd_ref < mjd_obs2) {               // excluding the science image from the model
+        //        if (mjd_ref > mjd_obs1 && mjd_ref < mjd_obs2) {               // excluding the science image from the model
         if (mjd_ref >= mjd_obs1 && mjd_ref <= mjd_obs2) {               // including the science image from the model
             // within a block or between blocks
             if (blockID1 == blockID2) scienceBlockId = blockID1;

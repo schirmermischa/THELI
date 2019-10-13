@@ -1057,6 +1057,7 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
     }
     else zeroheadString.fromLatin1(zerohead);
 
+    // TODO: sometimes we crash here!!
     fits_update_key_dbl(fptr, "CRVAL1", astromCRVAL1, 9, nullptr, &status);
     fits_update_key_dbl(fptr, "CRVAL2", astromCRVAL2, 9, nullptr, &status);
     fits_update_key_flt(fptr, "CRPIX1", astromCRPIX1, 3, nullptr, &status);

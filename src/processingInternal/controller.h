@@ -218,7 +218,7 @@ private:
                                                  const bool twoPass, const QString dt, const QString dmin, const bool convolution,
                                                  const QString expFactor, const int chip, const bool rescaleModel,
                                                  const int threadID, const QString mode);
-    void sendBackgroundMessage(const int &chip, const QString &mode, const Data *skyData, const QString &basename, const int pass);
+    void sendBackgroundMessage(const int chip, const QString mode, const bool staticmodeldone, const QString basename, const int pass);
     void processBackgroundStatic(Data *scienceData, Data *skyData, const float nimg, QVector<QString> &numBackExpList,
                                  QString dt, QString dmin, QString expFactor, QString nlow1,
                                  QString nhigh1, QString nlow2, QString nhigh2,

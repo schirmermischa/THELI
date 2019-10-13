@@ -228,14 +228,20 @@ void Controller::mapDataTree()
     omp_set_lock(&memoryLock);
     emit clearMemoryView();
 
-    recurseCounter = 0;
     mainDirName = mainGUI->ui->setupMainLineEdit->text();
+    recurseCounter = 0;
     parseDataDir(mainGUI->ui->setupBiasLineEdit, DT_BIAS);
+    recurseCounter = 0;
     parseDataDir(mainGUI->ui->setupDarkLineEdit, DT_DARK);
+    recurseCounter = 0;
     parseDataDir(mainGUI->ui->setupFlatoffLineEdit, DT_FLATOFF);
+    recurseCounter = 0;
     parseDataDir(mainGUI->ui->setupFlatLineEdit, DT_FLAT);
+    recurseCounter = 0;
     parseDataDir(mainGUI->ui->setupScienceLineEdit, DT_SCIENCE);
+    recurseCounter = 0;
     parseDataDir(mainGUI->ui->setupSkyLineEdit, DT_SKY);
+    recurseCounter = 0;
     parseDataDir(mainGUI->ui->setupStandardLineEdit, DT_STANDARD);
     recurseCounter = 0;
 
@@ -328,31 +334,30 @@ void Controller::parseDataDir(QLineEdit *le, QList<Data *> &DT_x)
     if (!successFileScan) {
         emit messageAvailable(badDirName + " : Inconsistency detected between FITS file names and recorded processing status.<br>Inferring status from file names ...", "warning");
 
-        if (recurseCounter >= 1) {
+        /*
+        if (recurseCounter > 1) {
             qDebug() << badDirName << ": The FITS files found do not match the recorded status";
             qDebug() << "Either restore the files manually, or use the memory viewer to set the correct status.";
             qDebug() << "Restart recommended.";
-            /*
+
                 // TODO: the signal emitted is received by the controller and re-emitted, but not received by MainWindow. very odd. hence the message Available();
                 // Edit: even that signal is not received!
-                emit messageAvailable("<br>" + subDirName + tr(": The FITS files found do not match the recorded status (*") + status +".fits).\n"+
+                emit messageAvailable("<br>" + badDirName + tr(": The FITS files found do not match the recorded status.\n")+
                                       tr("Either restore the files manually, or use the 'Processing status' menu to reflect the current status.<br> Restart recommended."), "error");
                 emit criticalReceived();
-                emit showMessageBox("Data::INCONSISTENT_DATA_STATUS", subDirName, status);
-                return false;
-                */
+                emit showMessageBox("Data::INCONSISTENT_DATA_STATUS", badDirName, "status");
+                return;
+
         }
+        */
         // RECURSIVE
         // must repeat everything (simplest implementation), at max once
 
-        /*
         if (recurseCounter == 0) {
+            ++recurseCounter;   // Must set before entering same function again!
             parseDataDir(le, DT_x);
-            ++recurseCounter;
         }
-        */
     }
-    recurseCounter = 0;
 }
 
 void Controller::updateMasterList()

@@ -43,7 +43,7 @@ void MyImage::initWeightfromGlobalWeight(QList<MyImage*> gwList)
 {
     if (!successProcessing) return;
 
-    if (*verbosity > 1) emit messageAvailable(baseName + " : Init weight from global weight ...", "image");
+    if (*verbosity > 1) emit messageAvailable(chipName + " : Init weight from global weight ...", "image");
 
     // Load the matching global weight
     bool loadSuccess = false;
@@ -65,7 +65,7 @@ void MyImage::initWeightfromGlobalWeight(QList<MyImage*> gwList)
         }
     }
     if (!loadSuccess) {
-        emit messageAvailable(baseName + " : MyImage::initWeightFromGlobalWeight(): Did not find the globalweight for filter " + filter, "error");
+        emit messageAvailable(chipName + " : MyImage::initWeightFromGlobalWeight(): Did not find the globalweight for filter " + filter, "error");
         emit critical();
         successProcessing = false;
     }
@@ -76,7 +76,7 @@ void MyImage::thresholdWeight(QString imageMin, QString imageMax)
     if (imageMin.isEmpty() && imageMax.isEmpty()) return;
     if (imageMin == imageMax) return;
 
-    if (*verbosity > 1) emit messageAvailable(baseName + " : Thresholding weight if image is outside ["+imageMin+","+imageMax+"] ...", "image");
+    if (*verbosity > 1) emit messageAvailable(chipName + " : Thresholding weight if image is outside ["+imageMin+","+imageMax+"] ...", "image");
     float minVal = imageMin.toFloat();
     float maxVal = imageMax.toFloat();
     if (imageMin.isEmpty()) minVal = -1.e9;
@@ -125,7 +125,7 @@ void MyImage::applyPolygons(int chip)
     QFile regionFile(regionFileName);
     if (!regionFile.exists()) return;
 
-    if (*verbosity > 1) emit messageAvailable(baseName + " : Mask found, applying mask to weight ...", "image");
+    if (*verbosity > 1) emit messageAvailable(chipName + " : Mask found, applying mask to weight ...", "image");
     addRegionFilesToWeight(naxis1, naxis2, regionFileName, dataWeight);
 }
 
@@ -185,7 +185,7 @@ void MyImage::maskBloomingSpike(QString instType, QString range, QString minVal,
     if (!requested) return;
     if (instType != "OPT") return;
 
-    if (*verbosity > 1) emit messageAvailable(baseName + " : Detecting blooming spikes ...", "image");
+    if (*verbosity > 1) emit messageAvailable(chipName + " : Detecting blooming spikes ...", "image");
 
     float histstep = 1000.;
     float maxval = maxVec_T(dataCurrent);
@@ -208,7 +208,7 @@ void MyImage::maskBloomingSpike(QString instType, QString range, QString minVal,
 
     long npix1 = l;  // number of potentially bloomed pixels
     if (npix1 == 0) {
-        if (*verbosity > 1) emit messageAvailable(baseName + " : No pixels found above blooming threshold ...", "image");
+        if (*verbosity > 1) emit messageAvailable(chipName + " : No pixels found above blooming threshold ...", "image");
         return;
     }
 
@@ -320,7 +320,7 @@ void MyImage::maskBloomingSpike(QString instType, QString range, QString minVal,
     }
 
     QString bloomRange = "["+QString::number(long(bloommin))+","+QString::number(long(bloommax))+"]";
-    if (*verbosity > 1) emit messageAvailable(baseName + " : Bloomed pixels masked. Dynamic range: "+bloomRange, "image");
+    if (*verbosity > 1) emit messageAvailable(chipName + " : Bloomed pixels masked. Dynamic range: "+bloomRange, "image");
 }
 
 void MyImage::laplaceFilter(QVector<float> &dataFiltered)
@@ -393,7 +393,7 @@ void MyImage::cosmicsFilter(QString aggressiveness)
     float aggressiveFactor = aggressiveness.toFloat();
     if (aggressiveFactor == 0.) return;
 
-    if (*verbosity > 1) emit messageAvailable(baseName + " : Filtering spurious pixels ...", "image");
+    if (*verbosity > 1) emit messageAvailable(chipName + " : Filtering spurious pixels ...", "image");
 
     long n = naxis1;
     long m = naxis2;

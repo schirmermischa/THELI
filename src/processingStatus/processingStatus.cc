@@ -129,6 +129,7 @@ QString ProcessingStatus::extractStatusFromFilename(QString &filename)
 {
     QString id = getLastWord(filename, '_');
     QString status = id.remove(".fits");
+    status.remove(QRegExp("[0123456789]"));
     return status;
 }
 
