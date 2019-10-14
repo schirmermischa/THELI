@@ -454,6 +454,14 @@ void Data::resetDataCurrentToBackup(int chip)
 void Data::resetSuccessProcessing()
 {
     successProcessing = true;
+
+    if (!dataInitialized) return;
+
+    for (int chip=0; chip<instData->numChips; ++chip) {
+        for (auto &it : myImageList[chip]) {
+            it->successProcessing = true;
+        }
+    }
 }
 
 void Data::getFixedHeaderKeys(QString filename, QStringList &badImages)
@@ -885,7 +893,7 @@ void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const 
     // Single chip: we can use inner parallelization!
     else {
         // NOPE! we cannot, still crashing sometimes
-// #pragma omp parallel for num_threads(localMaxThreads) firstprivate(rescaleFactors)
+        // #pragma omp parallel for num_threads(localMaxThreads) firstprivate(rescaleFactors)
         for (long i=0; i<dim; ++i) {
             QList<float> stack;
             long k = 0;
