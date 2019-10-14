@@ -194,7 +194,7 @@ private:
 
     //    void updateMyImagesWithScampSolution(Data *scienceData);
     void doImageQualityAnalysis();
-    void collectGaiaRaDec(QVector<double> &dec, QVector<double> &ra, QVector<QVector<double> > &output);
+    void collectGaiaRaDec(MyImage *image, QVector<double> &dec, QVector<double> &ra, QVector<QVector<double> > &output);
     void releaseMemory(float RAMneeded, int numThreads, QString mode = "");
     long getNumObjectsScampCat(QString cat);
     void satisfyMaxMemorySetting();

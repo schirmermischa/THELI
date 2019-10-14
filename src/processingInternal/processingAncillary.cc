@@ -36,7 +36,7 @@ void Controller::taskInternalGetCatalogFromWEB()
     query->doAstromQueryFromWeb();
     delete query;
 
-//    pushEndMessage(taskBasename, scienceDir);
+    //    pushEndMessage(taskBasename, scienceDir);
 }
 
 void Controller::provideHeaderInfo(Data *scienceData)
@@ -68,16 +68,31 @@ void Controller::downloadGaiaCatalog(Data *scienceData)
     emit messageAvailable(QString::number(gaiaQuery->numSources) + " point sources retrieved for analysis of image quality ...", "ignore");
 }
 
-void Controller::collectGaiaRaDec(QVector<double> &dec, QVector<double> &ra, QVector<QVector<double>> &output)
+void Controller::collectGaiaRaDec(MyImage *image, QVector<double> &dec, QVector<double> &ra, QVector<QVector<double>> &output)
 {
     long dim = dec.length();
     output.reserve(dim);
+    QVector<double> alpha;
+    QVector<double> delta;
+    alpha.reserve(4);
+    delta.reserve(4);
+    alpha << image->alpha_ll << image->alpha_lr << image->alpha_ul<< image->alpha_ur;
+    delta << image->delta_ll << image->delta_lr << image->delta_ul<< image->delta_ur;
+    double alpha_min = minVec_T(alpha);
+    double alpha_max = maxVec_T(alpha);
+    double delta_min = minVec_T(delta);
+    double delta_max = maxVec_T(delta);
+
     for (long i=0; i<dim; ++i) {
-        QVector<double> result(3);
-        result[0] = dec[i];
-        result[1] = ra[i];
-        result[2] = 0.0;   // dummy magnitude
-        output << result;
+        // Only include refcat sources that are within the footprint of the image.
+        // Othwerwise, with very large multichip cameras, there is a severe overhead for every chip
+        if (ra[i] >= alpha_min && ra[i] <= alpha_max && dec[i] >= delta_min && dec[i] <= delta_max) {
+            QVector<double> result(3);
+            result[0] = dec[i];
+            result[1] = ra[i];
+            result[2] = 0.0;   // dummy magnitude
+            output << result;
+        }
     }
 }
 
@@ -126,7 +141,7 @@ void Controller::taskInternalGetCatalogFromIMAGE()
 
     delete detectionImage;
 
-//    pushEndMessage(taskBasename, scienceDir);
+    //    pushEndMessage(taskBasename, scienceDir);
 }
 
 void Controller::taskInternalResolveTarget()
@@ -185,5 +200,5 @@ void Controller::taskInternalRestoreHeader()
         }
     }
     successProcessing = true;
-//    pushEndMessage(taskBasename, scienceDir);
+    //    pushEndMessage(taskBasename, scienceDir);
 }

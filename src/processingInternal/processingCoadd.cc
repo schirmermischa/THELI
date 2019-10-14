@@ -866,7 +866,7 @@ void Controller::coaddUpdate()
         imageQuality->baseName = "coadd.fits";
         connect(imageQuality, &ImageQuality::messageAvailable, this, &Controller::messageAvailableReceived);
         // pass the reference data
-        collectGaiaRaDec(gaiaQuery->de_out, gaiaQuery->ra_out, imageQuality->refCat);
+        collectGaiaRaDec(coadd, gaiaQuery->de_out, gaiaQuery->ra_out, imageQuality->refCat);
         // pass the source data (dec, ra, fwhm, ell on one hand, and mag separately)
         coadd->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag);
         // match

@@ -738,6 +738,7 @@ void Controller::doImageQualityAnalysis()
 
     pushBeginMessage("ImageQuality", scampScienceDir);
 
+    // Todo: replace with GAIA catalog if that was the reference catalog already!
     downloadGaiaCatalog(scampScienceData); // Point sources
 
     QList<MyImage*> allMyImages;
@@ -753,7 +754,7 @@ void Controller::doImageQualityAnalysis()
         ImageQuality *imageQuality = new ImageQuality(scampScienceData, instData, mainDirName);
         imageQuality->matchingTolerance = it->matchingTolerance;
         // pass the reference data
-        collectGaiaRaDec(gaiaQuery->de_out, gaiaQuery->ra_out, imageQuality->refCat);
+        collectGaiaRaDec(it, gaiaQuery->de_out, gaiaQuery->ra_out, imageQuality->refCat);
         // pass the source data (dec, ra, fwhm, ell on one hand, and mag separately)
         it->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag);
         // match
