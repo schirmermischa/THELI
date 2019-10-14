@@ -309,6 +309,8 @@ public:
     bool segmentationDone = false;
     bool maskExpansionDone = false;
     bool objectMaskDone = false;
+    bool objectMaskDonePass1 = false;
+    bool objectMaskDonePass2 = false;
     bool leftBackgroundWindow = false;      // used to mark the memory for deletion
     bool enteredBackgroundWindow = false;
     // =================================================================

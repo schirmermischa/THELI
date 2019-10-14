@@ -772,13 +772,13 @@ void Data::resetStaticModel()
 // Used for creating a background model
 void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const QString nlowString,
                          const QString nhighString, const QString currentImage, const QString mode,
-                         const QString dirName, const QString subDirName)
+                         const QString dirName, const QString subDirName, QVector<bool> &dataStaticModelDone)
 {
     if (!successProcessing) return;
 
     if (userStop || userKill) return;
 
-    if (mode == "static" && staticModelDone[chip]) return;
+    if (mode == "static" && dataStaticModelDone[chip]) return;
 
     QString rescaled = "";
     if (!rescaleFlag) rescaled = ", without rescaling, ";
@@ -856,31 +856,55 @@ void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const 
     int localMaxThreads = maxCPU/instData->numChips;
     if (instData->numChips > maxCPU) localMaxThreads = 1;
 
-    // parallelization not yet thread safe (t members not threadsafe)
-    QList<float> stack;
-    //    long ngood = goodIndex.length();
-    //    stack.reserve(ngood);
-    // #pragma omp parallel for num_threads(localMaxThreads)
-    for (long i=0; i<dim; ++i) {
-        //        QVector<float> stack;
-        //        stack.reserve(ngood);
-        long k = 0;
-        for (auto &gi : goodIndex) {
-            // Crash caused by dataBackgroundL1. Stack, rescaleFactors, backgroundList[gi] MyImages are all fine.
-            // It appears to be the actual data vectors, but the debugger shows that everything gets mixed up.
-            if (backgroundList[gi]->objectMaskDone) {         // needed because objectmask can be empty and the lookup will segfault
-                if (!backgroundList[gi]->objectMask[i]) {
+    if (instData->numChips > 1) {
+        // parallelization not yet thread safe (Qt5 classes not threadsafe)
+        QList<float> stack;
+        //    long ngood = goodIndex.length();
+        //    stack.reserve(ngood);
+        // #pragma omp parallel for num_threads(localMaxThreads)
+        for (long i=0; i<dim; ++i) {
+            //        QVector<float> stack;
+            //        stack.reserve(ngood);
+            long k = 0;
+            for (auto &gi : goodIndex) {
+                if (backgroundList[gi]->objectMaskDone) {         // needed because objectmask can be empty and the lookup will segfault
+                    if (!backgroundList[gi]->objectMask[i]) {
+                        stack.append(backgroundList[gi]->dataBackupL1[i] * rescaleFactors[k]);
+                    }
+                }
+                else {
                     stack.append(backgroundList[gi]->dataBackupL1[i] * rescaleFactors[k]);
                 }
+                ++k;
             }
-            else {
-                stack.append(backgroundList[gi]->dataBackupL1[i] * rescaleFactors[k]);
-            }
-            ++k;
+            combinedImage[chip]->dataCurrent[i] = straightMedian_MinMax(stack, nlow, nhigh);
+            stack.clear();
         }
-        combinedImage[chip]->dataCurrent[i] = straightMedian_MinMax(stack, nlow, nhigh);
-        stack.clear();
     }
+
+    // Single chip: we can use inner parallelization!
+    else {
+        // NOPE! we cannot, still crashing sometimes
+// #pragma omp parallel for num_threads(localMaxThreads) firstprivate(rescaleFactors)
+        for (long i=0; i<dim; ++i) {
+            QList<float> stack;
+            long k = 0;
+            for (auto &gi : goodIndex) {
+                if (backgroundList[gi]->objectMaskDone) {         // needed because objectmask can be empty and the lookup will segfault
+                    if (!backgroundList[gi]->objectMask[i]) {
+                        stack.append(backgroundList[gi]->dataBackupL1[i] * rescaleFactors[k]);
+                    }
+                }
+                else {
+                    stack.append(backgroundList[gi]->dataBackupL1[i] * rescaleFactors[k]);
+                }
+                ++k;
+            }
+            combinedImage[chip]->dataCurrent[i] = straightMedian_MinMax(stack, nlow, nhigh);
+        }
+    }
+
+    if (mode == "static") dataStaticModelDone[chip] = true;
 
     combinedImage[chip]->imageInMemory = true;
     successProcessing = true;

@@ -199,7 +199,7 @@ void MyImage::updateProcInfo(QString text)
 
 void MyImage::showProcInfo()
 {
-    if (*verbosity > 1) emit messageAvailable(baseName + " : " + procInfo, "image");
+    if (*verbosity > 1) emit messageAvailable(chipName + " : " + procInfo, "image");
 }
 
 void MyImage::readImage(bool determineMode)
@@ -616,7 +616,7 @@ void MyImage::getMode(bool determineMode)
         skyValue = modeMask(dataCurrent, "stable", globalMask)[0];
         modeDetermined = true;
         QString skyvalue = "SKYVALUE= "+QString::number(skyValue);
-        if (*verbosity > 1) emit messageAvailable(baseName + " : " + skyvalue, "image");
+        if (*verbosity > 1) emit messageAvailable(chipName + " : " + skyvalue, "image");
         skyvalue.resize(80,' ');
         if (!header.isEmpty()) {
             if (!header.contains("SKYVALUE=")) {
@@ -697,7 +697,7 @@ void MyImage::setModeFlag(QString min, QString max)
         if (!min.isEmpty() && skyValue < min.toFloat()) validMode = false;
         if (!max.isEmpty() && skyValue > max.toFloat()) validMode = false;
         if (!validMode) {
-            if (*verbosity > 1) emit messageAvailable(baseName + " : Mode = " + QString::number(skyValue,'f',3)
+            if (*verbosity > 1) emit messageAvailable(chipName + " : Mode = " + QString::number(skyValue,'f',3)
                                                       + " outside user-defined limits ["+min+","+max+"]", "output");
         }
         successProcessing = true;
@@ -744,7 +744,7 @@ void MyImage::subtractBias(MyImage *biasImage, QString dataType)
         // nothing
     }
 
-    if (*verbosity > 1) emit messageAvailable(baseName + " : "+mode, "image");
+    if (*verbosity > 1) emit messageAvailable(chipName + " : "+mode, "image");
     successProcessing = true;
 }
 
@@ -764,7 +764,7 @@ void MyImage::divideFlat(MyImage *flatImage)
         ++i;
     }
 
-    if (*verbosity > 1) emit messageAvailable(baseName + " : Flat fielded", "image");
+    if (*verbosity > 1) emit messageAvailable(chipName + " : Flat fielded", "image");
     successProcessing = true;
 }
 
@@ -788,7 +788,7 @@ void MyImage::applyBackgroundModel(MyImage *backgroundImage, QString mode, bool 
         QString img = " IMG = "+QString::number(skyValue, 'f', 3) + ";";
         QString back = " BACK = "+QString::number(backgroundImage->skyValue, 'f', 3) + ";";
         QString fac = " rescale = "+QString::number(rescale, 'f', 3);
-        if (*verbosity > 1) emit messageAvailable(baseName + " : Background model subtracted;"+img+back+fac, "image");
+        if (*verbosity > 1) emit messageAvailable(chipName + " : Background model subtracted;"+img+back+fac, "image");
     }
     else if (mode == "Divide model") {
         // rescaling switched off. Background image is always normalized to its own mode
@@ -803,7 +803,7 @@ void MyImage::applyBackgroundModel(MyImage *backgroundImage, QString mode, bool 
         }
         QString img = " IMG = "+QString::number(skyValue, 'f', 3) + ";";
         QString back = " BACK = "+QString::number(backgroundImage->skyValue, 'f', 3) + ";";
-        if (*verbosity > 1) emit messageAvailable(baseName + " : Divided by normalized background model;"+img+back, "image");
+        if (*verbosity > 1) emit messageAvailable(chipName + " : Divided by normalized background model;"+img+back, "image");
     }
     successProcessing = true;
 }
@@ -813,7 +813,7 @@ void MyImage::normalizeFlat()
 {
     if (!successProcessing) return;
 
-    if (*verbosity > 1) emit messageAvailable(baseName + " : Normalizing flat field, dividing by "+QString::number(skyValue, 'f', 3), "image");
+    if (*verbosity > 1) emit messageAvailable(chipName + " : Normalizing flat field, dividing by "+QString::number(skyValue, 'f', 3), "image");
     for (auto &pixel : dataCurrent) {
         pixel /= skyValue;
     }
@@ -834,7 +834,7 @@ void MyImage::illuminationCorrection(int chip, QString thelidir, QString instNam
     QString illumcorrPath = thelidir+"/ExtCal/"+instName+"/illumcorr/";
     QString illumcorrFileName = "illumcorr_"+filter+"_"+QString::number(chip)+".fits";
     if (QFile(illumcorrPath+illumcorrFileName).exists()) {
-        if (*verbosity > 1) emit messageAvailable(baseName + " : External illumination correction : <br>" + illumcorrPath+illumcorrFileName, "image");
+        if (*verbosity > 1) emit messageAvailable(chipName + " : External illumination correction : <br>" + illumcorrPath+illumcorrFileName, "image");
         MyImage *illumCorrFlat = new MyImage(illumcorrPath, illumcorrFileName, "", chip+1, QVector<bool>(), false, verbosity);
         illumCorrFlat->readImage();
         if (naxis1 != illumCorrFlat->naxis1 || naxis2 != illumCorrFlat->naxis2 ) {
@@ -858,7 +858,7 @@ void MyImage::collapseCorrection(QString threshold, QString direction)
 {
     if (!successProcessing) return;
 
-    if (*verbosity > 1) emit messageAvailable(baseName + " : Collapse correction along " + direction, "image");
+    if (*verbosity > 1) emit messageAvailable(chipName + " : Collapse correction along " + direction, "image");
 
     if (direction == "x") {
         static_cast<void> (collapse_x(dataCurrent, globalMask, objectMask, threshold.toFloat(), naxis1, naxis2, "2Dsubtract"));
@@ -1069,7 +1069,7 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
     if (isnan(RZP)) {
         RZP = 0.;
         FLXSCALE = 0.;
-        emit messageAvailable(baseName + " : Scamp could not determine the relative zeropoint. Set to 0!", "warning");
+        emit messageAvailable(chipName + " : Scamp could not determine the relative zeropoint. Set to 0!", "warning");
     }
     fits_update_key_flt(fptr, "RZP", RZP, 3, nullptr, &status);
     fits_update_key_flt(fptr, "FLXSCALE", FLXSCALE, 3, nullptr, &status);
@@ -1103,16 +1103,16 @@ void MyImage::updateZeroOrderInMemory()
     // WCSLIB threading issue (probably solved by wcsLock in transferWCS()
     // Can be removed if we don't see this again
     if (wcs->naxis != 2) {
-        emit messageAvailable(baseName + " : MyImage::updateZeroOrder(): Incompatible NAXIS WCS dimension: "
+        emit messageAvailable(chipName + " : MyImage::updateZeroOrder(): Incompatible NAXIS WCS dimension: "
                               + QString::number(wcs->naxis) + ", attempting reload (actually, this is a bug!)", "warning");
         imageInMemory = false;
         readImage(false);
         if (wcs->naxis  != 2) {
-            emit messageAvailable(baseName + " : Reload failed!", "error");
+            emit messageAvailable(chipName + " : Reload failed!", "error");
             return;
         }
         else {
-            emit messageAvailable(baseName + " : Reload success!", "note");
+            emit messageAvailable(chipName + " : Reload success!", "note");
         }
     }
 

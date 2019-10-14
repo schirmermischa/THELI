@@ -16,6 +16,8 @@ void MyImage::resetObjectMasking()
     segmentationDone = false;
     maskExpansionDone = false;
     objectMaskDone = false;
+    objectMaskDonePass1 = false;
+    objectMaskDonePass2 = false;
     for (auto object : objectList) {
         object->pixels_flux.clear();
         object->pixels_x.clear();
@@ -295,9 +297,10 @@ QVector<float> MyImage::directConvolve(QVector<float> &data)
 void MyImage::transferObjectsToMask()
 {
     if (!successProcessing) return;
+    objectMask.fill(false, naxis1*naxis2);
+
     if (objectList.isEmpty()) return;
 
-    objectMask.fill(false, naxis1*naxis2);
     long i=0;
     for (auto &segment : dataSegmentation) {
         if (segment > 0.) objectMask[i] = true;
@@ -503,8 +506,10 @@ void MyImage::maskExpand(QString expFactor, bool writeObjectmaskImage)
     long m = naxis2;
     // Loop over all objects
     for (auto &object : objectList) {
-        // Do not mask extremely small objects (hot pixels etc)
+        // Do not mask expand extremely small objects (hot pixels etc)
         if (object->B < 1.0) continue;
+        // Do not mask expand very large and extremely elongated objects (bad columns, saturation spikes)
+        if (object->ELLIPTICITY > 0.9 && object->A > 50) continue;
         float oX = object->X;
         float oY = object->Y;
         float oAf = object->A * factor;
@@ -614,6 +619,8 @@ void MyImage::releaseDetectionPixelMemory()
     objectMask.clear();
     objectMask.squeeze();
     objectMaskDone = false;
+    objectMaskDonePass1 = false;
+    objectMaskDonePass2 = false;
     segmentationDone = false;
     emit setMemoryLock(false);
 }

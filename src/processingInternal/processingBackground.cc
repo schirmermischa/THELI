@@ -94,7 +94,6 @@ void Controller::taskInternalBackground()
     processBackground(scienceData, skyData, nimg, numBackExpList, dt, dmin, expFactor, nlow1, nhigh1,
                       nlow2, nhigh2, twoPass, convolution, rescaleModel, nGroups, nLength, mode, staticImagesWritten);
 
-
     // ****************************************
     // NEW PARALLELIZATION SCHEME (good if numCPU > numChips);    still not thread-safe
     // ****************************************
@@ -150,7 +149,7 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
         if (abortProcess || !successProcessing) continue;
         int currentExposure = 0;   // only relevant for LIRIS@WHT-type detectors where we need to select specific images
         QString backExpList = "";
-
+        bool pass2staticDone = false;
         for (auto &it : scienceData->myImageList[chip]) {
             if (abortProcess) break;
             releaseMemory(nimg*instData->storage, maxExternalThreads);
@@ -167,16 +166,18 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
             }
 
             // PASS 1:
-                sendBackgroundMessage(chip, mode, dataStaticModelDone[chip], it->chipName, 1);
+            sendBackgroundMessage(chip, mode, dataStaticModelDone[chip], it->chipName, 1);
             maskObjectsInSkyImagesPass1(skyData, scienceData, backgroundList, twoPass, dt, dmin, convolution, expFactor);
-            skyData->combineImages(chip, backgroundList, nlow1, nhigh1, it->chipName, mode, dataDirName, dataSubDirName);
+            skyData->combineImages(chip, backgroundList, nlow1, nhigh1, it->chipName, mode, dataDirName, dataSubDirName, dataStaticModelDone);
             skyData->getModeCombineImages(chip);
 
             // PASS 2:
             if (twoPass) {
-                    sendBackgroundMessage(chip, mode, dataStaticModelDone[chip], it->chipName, 2);
+                sendBackgroundMessage(chip, mode, dataStaticModelDone[chip], it->chipName, 2);
                 maskObjectsInSkyImagesPass2(skyData, scienceData, backgroundList, twoPass, dt, dmin, convolution, expFactor, chip, rescaleModel);
-                skyData->combineImages(chip, backgroundList, nlow2, nhigh2, it->chipName, mode, dataDirName, dataSubDirName);
+                if (mode == "static" && !pass2staticDone) dataStaticModelDone[chip] = false;    // must recalculate static model (dynamic model will always be recalculated)
+                skyData->combineImages(chip, backgroundList, nlow2, nhigh2, it->chipName, mode, dataDirName, dataSubDirName, dataStaticModelDone);
+                pass2staticDone = true;
                 skyData->getModeCombineImages(chip);
             }
 
@@ -429,12 +430,13 @@ void Controller::maskObjectsInSkyImagesPass1(Data *skyData, Data *scienceData, c
         //        }
         // reads from dataBackupL1; if not then from disk and creates backup in L1, measures the mode if not yet available
         back->setupBackgroundData(isTaskRepeated, backupDirName);       // Already in memory if skyData == scienceData
-        if (doSourceDetection && !twoPass && !back->objectMaskDone) {   // only detect if requested and not yet done; objectMaskDone set to false in skydata outside loops
-            if (verbosity >= 2) emit messageAvailable(back->baseName + " : Detecting and masking sources ...", "image");
+        if (doSourceDetection && !twoPass && !back->objectMaskDonePass1) {   // only detect if requested and not yet done; objectMaskDone set to false in skydata outside loops
+            if (verbosity >= 2) emit messageAvailable(back->chipName + " : Detecting and masking sources ...", "image");
             back->backgroundModel(256, "interpolate");
             back->segmentImage(DT, DMIN, convolution, false);
             back->transferObjectsToMask();
             back->maskExpand(expFactor, false);
+            back->objectMaskDonePass1 = true;
         }
         if (!back->successProcessing) {
             skyData->successProcessing = false;
@@ -454,8 +456,8 @@ void Controller::maskObjectsInSkyImagesPass2(Data *skyData, Data *scienceData, c
     for (auto &back : backgroundList) {
         if (!back->successProcessing) break;
         if (!back->useForBackground) continue;
-        if (doSourceDetection && !back->objectMaskDone) {
-            if (verbosity >= 2) emit messageAvailable(back->baseName + " : Detecting and masking sources ...", "image");
+        if (doSourceDetection && !back->objectMaskDonePass2) {
+            if (verbosity >= 2) emit messageAvailable(back->chipName + " : Detecting and masking sources ...", "image");
             // Mask objects if not yet done for this sky (science) image
             // No masking has taken place in PASS 1 if we are in twopass mode!
             // Subtract 1st pass model: dataCurrent = dataBackupL1 - 1stPassModel
@@ -464,6 +466,7 @@ void Controller::maskObjectsInSkyImagesPass2(Data *skyData, Data *scienceData, c
             back->segmentImage(DT, DMIN, convolution, false);   // detect sources (if requested), do not write seg image
             back->transferObjectsToMask();                      // sets objectMaskDone to true
             back->maskExpand(expFactor, false);                 // expand the object mask (if requested)
+            back->objectMaskDonePass2 = true;
         }
         if (!back->successProcessing) {
             skyData->successProcessing = false;
