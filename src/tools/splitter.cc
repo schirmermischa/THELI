@@ -63,6 +63,7 @@ void Splitter::determineFileFormat()
 
     if (!rawStatus) {
         dataFormat = "FITS";
+        uncompress();
         consistencyChecks();
         getDetectorSections(); // Read overscan and data sections for the current instrument
     }
@@ -87,6 +88,45 @@ void Splitter::determineFileFormat()
         unknownFile.mkpath(path+"/UnknownFormat/");
         moveFile(name, path, path+"/UnknownFormat");
         emit messageAvailable(fileName+" : Unknown format. Moved to "+subDirName+"/UnknownFormat/", "ignore");
+    }
+}
+
+void Splitter::uncompress()
+{
+    if (!successProcessing) return;
+
+    // Unpack tile-compressed image and write new fits file to disk
+    if (fits_is_compressed_image(rawFptr, &rawStatus)) {
+        if (*verbosity > 1) emit messageAvailable(baseName + " : Uncompressing ...", "image");
+        fitsfile *outRawPtr;
+        int outRawStatus = 0;
+        QFileInfo fi(name);
+        QString outName = "!" + path + fi.completeBaseName();
+        if (!outName.contains(".fits") || !outName.contains(".fit") || !outName.contains(".fts")) outName.append(".fits");
+        fits_create_file(&outRawPtr, outName.toUtf8().data(), &outRawStatus);
+        fits_img_decompress(rawFptr, outRawPtr, &rawStatus);
+        // delete compressed file if uncompression was successful, create new fits pointer to uncompressed file
+        // CHECK : No uncompressed FITS files appear after splitting. Where are they? The raw file does not get removed either.
+        if (!rawStatus && !outRawStatus) {
+            fits_close_file(rawFptr, &rawStatus);
+            //QFile compressedFile(name);
+            //compressedFile.remove();
+            name = outName;
+            name.remove('!');
+            QFileInfo fi2(name);
+            baseName = fi2.completeBaseName();
+            fits_open_file(&rawFptr, name.toUtf8().data(), READONLY, &rawStatus);
+            if (rawStatus) {
+                emit messageAvailable(baseName + " : Could not open uncompressed FITS file!", "error");
+                printCfitsioError("uncompress()", rawStatus);
+            }
+        }
+        else {
+            emit messageAvailable(fi.fileName() + " : Uncompression did not work as expected!", "error");
+            printCfitsioError("uncompress()", rawStatus);
+            printCfitsioError("uncompress()", outRawStatus);
+            successProcessing = false;
+        }
     }
 }
 

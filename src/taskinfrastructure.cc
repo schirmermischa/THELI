@@ -570,7 +570,6 @@ void MainWindow::on_startPushButton_clicked()
 
         // show the process monitor, for normal processing tasks, only
         if (taskBasename != "ResolveTarget"
-                && taskBasename != "GetCatalogFromIMAGE"
                 && taskBasename != "GetCatalogFromWEB") {
             if (switchProcessMonitorPreference) monitor->raise();
             ui->processProgressBar->setValue(0);

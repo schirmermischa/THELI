@@ -193,6 +193,7 @@ private:
 
     void individualFixCDmatrix(int chip);
     void individualFixCRVAL();
+    void uncompress();
 
 signals:
     void messageAvailable(QString message, QString type);

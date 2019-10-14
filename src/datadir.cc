@@ -49,17 +49,16 @@ void DataDir::setPaths(QString data, QString main)
         QStringList fileList;
 
         // How many FITS files do we have in total
-        QStringList filterFITS;
-        QStringList filterRAW;
-        filterFITS << "*.fits" << "*.fit" << "*.FIT" << "*.FITS";
-        dir.setNameFilters(filterFITS);
+        QStringList filter;
+        filter << "*.fits" << "*.fit" << "*.FIT" << "*.FITS" << "*.fits.fz" << "*.fit.fz" << "*.FIT.fz" << "*.FITS.fz";
+        dir.setNameFilters(filter);
         fileList = dir.entryList();
         numFITS = fileList.length();
         if (numFITS == 0) {
             // Check for RAW files instead
-            filterFITS.clear();
-            filterFITS << "*.cr2" << "*.CR2";
-            dir.setNameFilters(filterFITS);
+            filter.clear();
+            filter << "*.cr2" << "*.CR2" << "*.arw" << "*.ARW" << "*.dng" << "*.DNG" ;
+            dir.setNameFilters(filter);
             fileList = dir.entryList();
             numFITS = fileList.length();
         }
