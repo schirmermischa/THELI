@@ -15,6 +15,8 @@ void Controller::populateHeaderDictionary()
     headerDictionary.insert("CD1_2", {"CD1_2"});
     headerDictionary.insert("CD2_1", {"CD2_1"});
     headerDictionary.insert("CD2_2", {"CD2_2"});
+    headerDictionary.insert("CDELT1", {"CDELT1"});
+    headerDictionary.insert("CDELT2", {"CDELT2"});
     headerDictionary.insert("CRVAL1", {"CRVAL1", "RA", "OBJCTRA", "MEANRA", "OBSRA", "CRVAL1A", "RA-D", "RA_DEG", "RA-HOURS"});
     headerDictionary.insert("CRVAL2", {"CRVAL2", "DEC", "OBJCTDEC", "MEANDEC", "OBSDEC", "CRVAL2A", "DEC-D", "DEC_DEG"});
     headerDictionary.insert("RADESYS", {"RADESYS", "RADECSYS"});

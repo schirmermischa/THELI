@@ -179,11 +179,11 @@ void Splitter::WCSbuildCDmatrix(int chip)
         bool keyFound = searchKey(wcsKey, headerDictionary.value(wcsKey), headerWCS);
         // default values if failed
         if (!keyFound && wcsKey == "CD1_1") {
-            bool found = searchKey("CDELT1", headerDictionary.value(wcsKey), headerWCS);
+            bool found = searchKey("CD1_1", headerDictionary.value("CDELT1"), headerWCS);  // first argument, CD1_1, is taken to form the new header card. Value is taken from CDELT1
             if (!found) fallback = "CD1_1   = "+QString::number(-1.*instData.pixscale/3600., 'g', 6);
         }
         if (!keyFound && wcsKey == "CD2_2") {
-            bool found = searchKey("CDELT2", headerDictionary.value(wcsKey), headerWCS);
+            bool found = searchKey("CD2_2", headerDictionary.value("CDELT2"), headerWCS);
             if (!found) fallback = "CD2_2   = "+QString::number(instData.pixscale/3600., 'g', 6);
         }
         if (!keyFound && wcsKey == "CD1_2") fallback = "CD1_2   = 0.0";
