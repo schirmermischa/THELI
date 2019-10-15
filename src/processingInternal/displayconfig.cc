@@ -65,14 +65,25 @@ void Controller::pushConfigCreatesourcecat()
 void Controller::pushConfigGetCatalogFromWeb()
 {
     QString config;
+    QString pm;
+    QString ra;
+    QString dec;
+    QString mag;
+    QString rad;
+    if (cdw->ui->ARCmaxpmLineEdit->text().isEmpty()) pm = "unconstrained";
+    if (cdw->ui->ARCraLineEdit->text().isEmpty()) ra = "automatic";
+    if (cdw->ui->ARCdecLineEdit->text().isEmpty()) dec = "automatic";
+    if (cdw->ui->ARCminmagLineEdit->text().isEmpty()) mag = "unconstrained";
+    if (cdw->ui->ARCradiusLineEdit->text().isEmpty()) rad = "automatic";
+
     config = "<tt>";
     config += "Catalog = " + cdw->ui->ARCcatalogComboBox->currentText() + "<br>";
-    config += "Max allowed pm = " + cdw->ui->ARCmaxpmLineEdit->text() + "<br>";
-    config += "Field center RA = " + cdw->ui->ARCraLineEdit->text() + "<br>";
-    config += "Field center DEC = " + cdw->ui->ARCdecLineEdit->text() + "<br>";
+    config += "Max allowed pm = " + pm + "<br>";
+    config += "Field center RA = " + ra + "<br>";
+    config += "Field center DEC = " + dec + "<br>";
     config += "Target name = " + cdw->ui->ARCtargetresolverLineEdit->text() + "<br>";
-    config += "Magnitude limit = " + cdw->ui->ARCminmagLineEdit->text() + "<br>";
-    config += "Radius = " + cdw->ui->ARCradiusLineEdit->text() + "<br>";
+    config += "Magnitude limit = " + mag + "<br>";
+    config += "Radius = " + rad + "<br>";
     emit messageAvailable(config, "config");
 }
 

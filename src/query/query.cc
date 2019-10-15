@@ -970,6 +970,9 @@ void Query::provideheaderInfo()
 
 void Query::writeAstromScamp()
 {
+    // Don't write an empty catalog (so that tasks checking for failure (non-existence of the catalog) can succeed)
+    if (ra_out.length() == 0) return;
+
     char xworld[100] = "X_WORLD";
     char yworld[100] = "Y_WORLD";
     char mag[100] = "MAG";
@@ -1145,7 +1148,8 @@ void Query::writeAstromIview()
     QFile outcat_iview(outpath+"/theli_mystd.iview");
     QTextStream stream_iview(&outcat_iview);
     if( !outcat_iview.open(QIODevice::WriteOnly)) {
-        qDebug() << "QDEBUG: Query::writeRefCatxxx(): ERROR writing "+outpath+outcat_iview.fileName()+" : "+outcat_iview.errorString();
+        emit messageAvailable("Query::writeRefCatxxx(): ERROR writing "+outpath+outcat_iview.fileName()+" : "+outcat_iview.errorString(), "error");
+        emit critical();
         return;
     }
 

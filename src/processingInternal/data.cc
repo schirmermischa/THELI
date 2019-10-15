@@ -2607,3 +2607,8 @@ bool Data::hasMatchingPartnerFiles(QString testDirName, QString suffix)
         return false;
     }
 }
+
+void Data::criticalFromQueryReceived()
+{
+    successProcessing = false;
+}

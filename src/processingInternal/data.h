@@ -213,6 +213,7 @@ public slots:
     void pushMessageAvailable(QString message, QString type);
     void pushWarning();
     void pushCritical();
+    void criticalFromQueryReceived();
 
 private:
     QString thelidir;

@@ -22,6 +22,7 @@ void Controller::taskInternalGetCatalogFromWEB()
     connect(query, &Query::bulkMotionObtained, cdw, &ConfDockWidget::updateGaiaBulkMotion);
     connect(query, &Query::messageAvailable, monitor, &Monitor::displayMessage);
     connect(query, &Query::critical, this, &Controller::criticalReceived);
+    connect(query, &Query::critical, scienceData, &Data::criticalFromQueryReceived);
     query->mainDirName = mainDirName;
     query->refcatName = cdw->ui->ARCcatalogComboBox->currentText();
     query->alpha_manual = cdw->ui->ARCraLineEdit->text();

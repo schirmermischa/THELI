@@ -374,6 +374,8 @@ void Controller::taskInternalAstromphotom()
     currentData = scienceData;
     currentDirName = scienceDir;
 
+    if (!scienceData->successProcessing) return;
+
     mainGUI->ui->processProgressBar->setDisabled(true);
 
     scampScienceDir = mainDirName+"/"+scienceDir;
