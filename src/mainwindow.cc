@@ -971,6 +971,7 @@ void MainWindow::on_setupInstrumentComboBox_clicked()
     updateInstrumentComboBoxBackgroundColor();
 
     if (!readingSettings) {
+        // TODO: rather, look into the image headers and calculate the most likely pixel scale (dropping into 1x1 or 2x2 binning mode)
         cdw->ui->COApixscaleLineEdit->setText(get_fileparameter(&instrument_file, "PIXSCALE"));
     }
 

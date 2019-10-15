@@ -368,8 +368,8 @@ void Controller::coaddPrepareProjectPM(QFile &headerFileOld, QString newHeaderNa
             QString value = line.split("=").at(1);
             int slashPosition = value.lastIndexOf('/');  // (can be -1 if not found, treated as 0 by truncate(), i.e. entire string is set to empty
             if (slashPosition > 10) value.truncate(slashPosition);
-            crval1New = value.simplified().toDouble() - timeDiff * crval1Speed;
-            crval2New = value.simplified().toDouble() - timeDiff * crval2Speed;
+            double crval1New = value.simplified().toDouble() - timeDiff * crval1Speed;
+            double crval2New = value.simplified().toDouble() - timeDiff * crval2Speed;
             QString crval1String = "CRVAL1  = " + QString::number(crval1New, 'f', 12);
             QString crval2String = "CRVAL2  = " + QString::number(crval2New, 'f', 12);
             crval1String.resize(79, ' ');  // Must be 80 chars long to conform with FITS standard.
