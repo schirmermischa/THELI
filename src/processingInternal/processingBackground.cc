@@ -144,7 +144,7 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
     QString dataDirName = scienceData->dirName;
     QString dataSubDirName = scienceData->subDirName;
     QVector<bool> dataStaticModelDone = skyData->staticModelDone;
-#pragma omp parallel for num_threads(maxExternalThreads) firstprivate(numBackExpList, dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2, mode, dataDirName, dataSubDirName, dataStaticModelDone)
+#pragma omp parallel for num_threads(maxExternalThreads) firstprivate(dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2, mode, dataDirName, dataSubDirName, dataStaticModelDone)
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (abortProcess || !successProcessing) continue;
         int currentExposure = 0;   // only relevant for LIRIS@WHT-type detectors where we need to select specific images
@@ -239,7 +239,7 @@ void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const
 
     QString dataSubDirName = scienceData->subDirName;
 
-#pragma omp parallel for num_threads(maxCPU) firstprivate(numBackExpList, dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2, dataSubDirName)
+#pragma omp parallel for num_threads(maxCPU) firstprivate(dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2, dataSubDirName)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
         int threadID = omp_get_thread_num();
@@ -283,6 +283,8 @@ void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const
                                                     convolution, expFactor, chip, rescaleModel, threadID, "static");
             // do this only once per chip
             omp_set_lock(&backgroundLock);
+            // CHECK: must recalculate 2nd-pass static model (?)
+            // also, in pass2_newparalell, must check for maskObjectsDonePass2
             if (!staticImagesCombined[chip]) {
                 skyData->combineImages_newParallel(chip, skyData->combinedImage[chip], backgroundList, nlow2, nhigh2, it->chipName, "static", dataSubDirName);
                 skyData->getModeCombineImages(chip);
@@ -346,7 +348,7 @@ void Controller::processBackgroundDynamic(Data *scienceData, Data *skyData, cons
 
     QString dataSubDirName = scienceData->subDirName;
 
-#pragma omp parallel for num_threads(maxCPU) firstprivate(numBackExpList, dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2, backExpList, allMyImages, dataSubDirName)
+#pragma omp parallel for num_threads(maxCPU) firstprivate(dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2, backExpList, allMyImages, dataSubDirName)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
         int threadID = omp_get_thread_num();
