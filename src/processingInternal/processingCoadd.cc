@@ -334,8 +334,8 @@ void Controller::coaddPrepareProjectPM(QFile &headerFileOld, QString newHeaderNa
     double timeDiff = (mjdobsNow - mjdobsZero) * 1440.;
 
     // New CRVAL1/2 for the current exposure
-    double crval1New = crval1 + timeDiff * crval1Speed;
-    double crval2New = crval2 + timeDiff * crval2Speed;
+//    double crval1New = crval1 + timeDiff * crval1Speed;
+//    double crval2New = crval2 + timeDiff * crval2Speed;
 
     // Update CRVAL1/2 (and write to a new header file)
     QTextStream streamIn(&headerFileOld);
@@ -356,14 +356,24 @@ void Controller::coaddPrepareProjectPM(QFile &headerFileOld, QString newHeaderNa
         return;
     }
 
+
+    // CHECK CHECK CHECK:
+    // MPC: what is the difference between coordinate motion and sky motion?
+    // It seems I got it right, but for a target at DEC=3. Higher declinations? don't need to divide crval1speed by cosine dec(?)
+
     while(!streamIn.atEnd()) {
         QString line = streamIn.readLine();
-        if (!line.contains("CRVAL")) streamOut << line;
+        if (!line.contains("CRVAL")) streamOut << line << "\n";
         else {
+            QString value = line.split("=").at(1);
+            int slashPosition = value.lastIndexOf('/');  // (can be -1 if not found, treated as 0 by truncate(), i.e. entire string is set to empty
+            if (slashPosition > 10) value.truncate(slashPosition);
+            crval1New = value.simplified().toDouble() - timeDiff * crval1Speed;
+            crval2New = value.simplified().toDouble() - timeDiff * crval2Speed;
             QString crval1String = "CRVAL1  = " + QString::number(crval1New, 'f', 12);
             QString crval2String = "CRVAL2  = " + QString::number(crval2New, 'f', 12);
-            crval1String.resize(80, ' ');  // Must be 80 chars long to conform with FITS standard
-            crval2String.resize(80, ' ');
+            crval1String.resize(79, ' ');  // Must be 80 chars long to conform with FITS standard.
+            crval2String.resize(79, ' ');  // We use 79 here because the read in stream also contains a carriage return!
             if (line.contains("CRVAL1")) streamOut << crval1String << "\n";
             if (line.contains("CRVAL2")) streamOut << crval2String << "\n";
         }
@@ -834,6 +844,8 @@ void Controller::coaddUpdate()
     emit resetProgressBar();
 
     emit messageAvailable("coadd.fits : Downloading GAIA point sources ...", "image");
+
+    emit loadViewer(coaddDirName, "coadd.fits", "DragMode");
 
     downloadGaiaCatalog(coaddScienceData); // Point sources
 
