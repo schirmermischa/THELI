@@ -472,7 +472,7 @@
        <number>1</number>
       </property>
       <property name="currentIndex">
-       <number>6</number>
+       <number>8</number>
       </property>
       <widget class="QWidget" name="HDUpage">
        <layout class="QGridLayout" name="gridLayout_22">
@@ -32198,7 +32198,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                 </size>
                </property>
                <property name="statusTip">
-                <string>Proper motion vector in RA. Image coaddition will be with respect to the moving target.</string>
+                <string>Proper motion vector in RA (coordinate motion). Image coaddition will be with respect to the moving target.</string>
                </property>
               </widget>
              </item>
@@ -32227,7 +32227,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                 </size>
                </property>
                <property name="statusTip">
-                <string>Proper motion vector in DEC. Image coaddition will be with respect to the moving target.</string>
+                <string>Proper motion vector in DEC (coordinate motion). Image coaddition will be with respect to the moving target.</string>
                </property>
               </widget>
              </item>
