@@ -1,5 +1,5 @@
 # Region file format: DS9 version 4.1
 # Sense: in
 # Combine: and
-physical
-polygon(8.0718521,951.92815,1663,953,1665,16,6,16)
+image
+polygon(3.0852696,955.91473,1668,957,1669,2,4,4)

@@ -269,6 +269,31 @@ void Splitter::extractImagesFITS()
     printCfitsioError("extractImagesFITS()", rawStatus);
 }
 
+int Splitter::inferChipID(int chip)
+{
+    // Data from some cameras, such as SuprimeCam and FORS, come in separate FITS files instead of a MEF file.
+    // We need to identify the chip number correctly:
+    int chipID = chip+1;    // external counting starts with zero
+    if (instData.name.contains("FORS1_2CCD")
+            || instData.name.contains("FORS2_2CCD")) {
+        QString value = "";
+        searchKeyValue(QStringList() << "ORIGFILE", value);       // FORS2_IMG141.43.CHIP1.fits or FORS2_IMG141.43.CHIP2.fits
+        QStringList valueList = value.split("CHIP");
+        if (valueList.length() == 2) {
+            value = valueList.at(1);
+            chipID = value.remove(".fits").toInt();
+            return chipID;
+        }
+        else {
+            emit messageAvailable("Could not determine chip number for " + instData.name, "error");
+            emit critical();
+            return 0;
+        }
+    }
+
+    return chipID;
+}
+
 void Splitter::getCurrentExtensionData()
 {
     if (!successProcessing) return;
@@ -464,16 +489,19 @@ void Splitter::writeImage(int chip)
     long naxis = 2;
     long naxes[2] = { naxis1, naxis2 };
 
+    // Infer true chip number:
+    int chipID = inferChipID(chip);
+
     // Output file name
-    QString outName = "!"+path+"/"+baseName+"_"+QString::number(chip+1)+"P.fits";
+    QString outName = "!"+path+"/"+baseName+"_"+QString::number(chipID)+"P.fits";
     // If renaming active, and dateobs was determined successfully
     if (cdw->ui->theliRenamingCheckBox->isChecked() && dateObsValue != "2020-01-01T00:00:00.000") {
         if (dataFormat == "RAW") {
             // No filter name for bayer matrix images
-            outName = "!"+path+"/"+instData.shortName+"."+dateObsValue+"_"+QString::number(chip+1)+"P.fits";
+            outName = "!"+path+"/"+instData.shortName+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
         }
         else {
-            outName = "!"+path+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chip+1)+"P.fits";
+            outName = "!"+path+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
         }
     }
     fits_create_file(&fptr, outName.toUtf8().data(), &status);
@@ -508,20 +536,23 @@ void Splitter::writeImageSlice(int chip, long slice)
     long naxis = 2;
     long naxes[2] = { naxis1, naxis2 };
 
+    // Infer true chip number:
+    int chipID = inferChipID(chip);
+
     // Output file name
     QString outName;
-    if (naxis3Raw == 1) outName = "!"+path+"/"+baseName+"_"+QString::number(chip+1)+"P.fits";
-    else outName = "!"+path+"/"+baseName+"_sl"+QString::number(slice)+"_"+QString::number(chip+1)+"P.fits";
+    if (naxis3Raw == 1) outName = "!"+path+"/"+baseName+"_"+QString::number(chipID)+"P.fits";
+    else outName = "!"+path+"/"+baseName+"_sl"+QString::number(slice)+"_"+QString::number(chipID)+"P.fits";
     // If renaming active, and dateobs was determined successfully
     if (cdw->ui->theliRenamingCheckBox->isChecked() && dateObsValue != "2020-01-01T00:00:00.000") {
         if (dataFormat == "RAW") {
             // No filter name for bayer matrix images
-            if (naxis3Raw == 1) outName = "!"+path+"/"+instData.shortName+"."+dateObsValue+"_"+QString::number(chip+1)+"P.fits";
-            else outName = "!"+path+"/"+instData.shortName+"."+dateObsValue+"_sl"+QString::number(slice)+"_"+QString::number(chip+1)+"P.fits";
+            if (naxis3Raw == 1) outName = "!"+path+"/"+instData.shortName+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
+            else outName = "!"+path+"/"+instData.shortName+"."+dateObsValue+"_sl"+QString::number(slice)+"_"+QString::number(chipID)+"P.fits";
         }
         else {
-            if (naxis3Raw == 1) outName = "!"+path+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chip+1)+"P.fits";
-            else outName = "!"+path+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_sl"+QString::number(slice)+"_"+QString::number(chip+1)+"P.fits";
+            if (naxis3Raw == 1) outName = "!"+path+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
+            else outName = "!"+path+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_sl"+QString::number(slice)+"_"+QString::number(chipID)+"P.fits";
         }
     }
     fits_create_file(&fptr, outName.toUtf8().data(), &status);
@@ -550,6 +581,8 @@ void Splitter::writeImageSlice(int chip, long slice)
 void Splitter::initMyImage(int chip)
 {
     if (!successProcessing) return;
+
+    // TODO: must use chipID instead of "chip", e.g. for FORS2
 
     MyImage *myImage = new MyImage(path, baseName+"_"+QString::number(chip+1)+"P.fits", "P", chip+1,
                                    mask->globalMask[chip], mask->isChipMasked[chip], verbosity);

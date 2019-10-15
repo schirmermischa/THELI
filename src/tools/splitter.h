@@ -194,6 +194,7 @@ private:
     void individualFixCDmatrix(int chip);
     void individualFixCRVAL();
     void uncompress();
+    int inferChipID(int chip);
 
 signals:
     void messageAvailable(QString message, QString type);
