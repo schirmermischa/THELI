@@ -11,6 +11,20 @@
 #include <QFile>
 #include <QDir>
 
+
+/*
+// TODO
+
+Instrument slike FORS1/2 come with different collimators, changing the plate scale but not the detector geometries.
+What to do with PIXSCALE in this respect/ Do we still need it in the instrument.ini files, or is it better derived from the CD matrix directly?
+
+Binning: include as separate option? need to check various instruments whether their overscan and gain stay the same or not.
+Could alternatively offer separate overscan / size vectors in the .ini files. Or even better: automatic detection of the binning mode
+
+Take CRPIX from .ahead file for multi-chip cameras. Don't take CD matrix from ahead file because of changing position angles ...
+*/
+
+
 void Splitter::buildTheliHeader()
 {
     if (!successProcessing) return;
