@@ -1,13 +1,14 @@
 Before installing THELI, the following dependencies must be met:
 
 For compilation, you need the 'devel' versions of the following packages
-(either these version numbers, or more recent ones):
+(either these version numbers, or more recent ones). Older versions might work but have not been tested.
 
-Qt5.9.6       https://www.qt.io/
-cfitsio       https://heasarc.gsfc.nasa.gov/fitsio/
-fftw3         http://fftw.org/
-GSL v2.5      https://www.gnu.org/software/gsl/
-wcslib v6.4   https://www.atnf.csiro.au/people/mcalabre/WCS/
+Qt5.9.6         https://www.qt.io/
+cfitsio         https://heasarc.gsfc.nasa.gov/fitsio/
+fftw3           http://fftw.org/
+GSL v2.5        https://www.gnu.org/software/gsl/
+wcslib v6.4     https://www.atnf.csiro.au/people/mcalabre/WCS/
+libraw v0.19.4  https://www.libraw.org/
 
 THELI also uses the following external packages.
 The relevant binaries must be present in your $PATH variable.
