@@ -299,17 +299,29 @@ void Splitter::individualFixCDmatrix(int chip)
     QString cd22_card = "";
 
     if (instData.name == "WFC@INT") {
-        if (chip == 0 || chip == 2 || chip == 3) {
-            cd11_card = "CD1_1   = 0.0";
-            cd12_card = "CD1_2   = -0.0000919444";
-            cd21_card = "CD2_1   = -0.0000919444";
-            cd22_card = "CD2_2   = 0.0";
+        if (chip == 0) {
+            cd11_card = "CD1_1   =  -1.186589131599E-06";
+            cd12_card = "CD1_2   =  -9.208350034543E-05";
+            cd21_card = "CD2_1   =  -9.202558574925E-05";
+            cd22_card = "CD2_2   =   9.373099270996E-07";
         }
-        else {
-            cd11_card = "CD1_1   = -0.0000919444";
-            cd12_card = "CD1_2   = 0.0";
-            cd21_card = "CD2_1   = 0.0";
-            cd22_card = "CD2_2   = -0.0000919444";
+        if (chip == 1) {
+            cd11_card = "CD1_1   =   9.158969785153E-05";
+            cd12_card = "CD1_2   =   1.000429584977E-07";
+            cd21_card = "CD2_1   =  -8.707577386754E-08";
+            cd22_card = "CD2_2   =  -9.204121646891E-05";
+        }
+        if (chip == 2) {
+            cd11_card = "CD1_1   =  -1.101867868104E-06";
+            cd12_card = "CD1_2   =  -9.186460105657E-05";
+            cd21_card = "CD2_1   =  -9.119982231051E-05";
+            cd22_card = "CD2_2   =   1.393090409586E-06";
+        }
+        if (chip == 3) {
+            cd11_card = "CD1_1   =  -9.862265741128E-07";
+            cd12_card = "CD1_2   =  -9.221689418834E-05";
+            cd21_card = "CD2_1   =  -9.224461667406E-05";
+            cd22_card = "CD2_2   =   1.077599414761E-06";
         }
     }
 
