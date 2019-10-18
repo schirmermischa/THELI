@@ -324,11 +324,15 @@ void Controller::taskInternalProcessflat()
         float nimg = flatData->myImageList[chip].length() + 2;  // The number of images we must keep in memory
         releaseMemory(nimg*instData->storage, maxExternalThreads, "calibrator");
 
-        if (biasData != nullptr) biasData->loadCombinedImage(chip);
+        QString message = "";
+        if (biasData != nullptr) {
+            biasData->loadCombinedImage(chip);
+            message = biasData->subDirName;
+        }
 
         for (auto &it : flatData->myImageList[chip]) {
             if (abortProcess) break;
-            if (verbosity >= 0) emit messageAvailable(it->chipName + " : Applying bias (or dark) correction ...", "image");
+            if (verbosity >= 0 && !message.isEmpty()) emit messageAvailable(it->chipName + " : Correcting with "+message, "image");
             // careful with the booleans, they make sure the data is correctly reread from disk or memory if task is repeated
             it->setupCalibDataInMemory(true, false, true);    // read from backupL1, if not then from disk. Makes backup copy if not yet done
             if (biasData != nullptr && biasData->successProcessing) { // cannot pass nullptr to subtractBias()

@@ -495,6 +495,9 @@ void Splitter::writeImage(int chip)
     // Infer true chip number:
     int chipID = inferChipID(chip);
 
+    // Replace blanks in file names
+    baseName.replace(' ','_');
+
     // Output file name
     QString outName = "!"+path+"/"+baseName+"_"+QString::number(chipID)+"P.fits";
     // If renaming active, and dateobs was determined successfully
