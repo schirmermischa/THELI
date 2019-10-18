@@ -210,6 +210,9 @@ void MyImage::getGridStatistics()
     for (long jg=1; jg<m_grid-1; ++jg) {
         for (long ig=1; ig<n_grid-1; ++ig) {
             long index = ig+n_grid*jg;
+            // TODO: crashes here in cr22test if we procss directly all the way from raw data.
+            // Does not crash if we start the gui with this task (source detection)
+//            qDebug() << index << ig << jg << n_grid << m_grid;
             // Select data points in a square around the current grid point
             for (long j=grid[1][index]-gridStep/2; j<grid[1][index]+gridStep/2; ++j) {
                 for (long i=grid[0][index]-gridStep/2; i<grid[0][index]+gridStep/2; ++i) {

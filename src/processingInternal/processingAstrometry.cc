@@ -112,7 +112,7 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
         it->backgroundModel(256, "interpolate");
         it->updateSaturation(saturation);
         if (it->dataBackground.capacity() == 0) {
-            emit messageAvailable(it->chipName + " : Background vector has zero capacity. This is a bug!", "error");
+            if (successProcessing) emit messageAvailable(it->chipName + " : Background vector has zero capacity!", "error");
             criticalReceived();
             successProcessing = false;
         }
