@@ -71,7 +71,12 @@ void MyImage::evaluateSkyNodes(const QVector<double> alpha, const QVector<double
         sample.reserve((xmax-xmin+1)*(ymax-ymin+1));
         for (long j=ymin; j<=ymax; ++j) {
             for (long i=xmin; i<=xmax; ++i) {
-                if (!globalMask[i+naxis1*j]) sample.append(dataCurrent[i+naxis1*j]);
+                if (globalMaskAvailable) {
+                    if (!globalMask[i+naxis1*j]) sample.append(dataCurrent[i+naxis1*j]);
+                }
+                else {
+                    sample.append(dataCurrent[i+naxis1*j]);
+                }
             }
         }
         float sky;

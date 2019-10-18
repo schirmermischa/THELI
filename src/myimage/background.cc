@@ -680,7 +680,12 @@ void MyImage::subtractBackgroundModel()
 {
     long i=0;
     for (auto &pixel : dataCurrent) {
-        if (!globalMask[i]) pixel -= dataBackground[i];
+        if (!globalMask.isEmpty()) {
+            if (!globalMask[i]) pixel -= dataBackground[i];
+        }
+        else {
+            pixel -= dataBackground[i];
+        }
         ++i;
     }
 }
