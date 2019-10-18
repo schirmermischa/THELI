@@ -60,6 +60,8 @@ void MyImage::backgroundModel(int filtersize, QString splinemode)
 
 void MyImage::writeBackgroundModel()
 {
+    if (!successProcessing) return;
+
     mkAbsDir(path + "/SKY_IMAGES");
     MyFITS out(path + "/SKY_IMAGES/" + baseName+".sky.fits", naxis1, naxis2, dataBackground);
     out.write("");
@@ -67,6 +69,8 @@ void MyImage::writeBackgroundModel()
 
 void MyImage::getMeanBackground()
 {
+    if (!successProcessing) return;
+
     float skysum = 0.;
     for (auto &pixel : dataBackground) {
         skysum += pixel;
@@ -151,6 +155,8 @@ void MyImage::fitBackgroundSPLINTER()
 
 void MyImage::fitBackgroundGSL()
 {
+    if (!successProcessing) return;
+
     double *xa = new double[n_grid];
     double *ya = new double[m_grid];
     double *za = new double[nGridPoints];
@@ -196,6 +202,8 @@ void MyImage::fitBackgroundGSL()
 
 void MyImage::getGridStatistics()
 {
+    if (!successProcessing) return;
+
     // Calculate modes by stepping through grid points
     backStatsGrid.clear();
     backStatsGrid.fill(-1e9, nGridPoints);
@@ -284,6 +292,8 @@ void MyImage::getGridStatistics()
 // replace a grid point that could not be evaluated with the mean of its closest neighbors
 void MyImage::replaceBlankGridStatistics()
 {
+    if (!successProcessing) return;
+
     QVector<float> backup = backStatsGrid;
 
     long gmax = n_grid < m_grid ? m_grid : n_grid;
@@ -326,6 +336,8 @@ void MyImage::replaceBlankGridStatistics()
 
 void MyImage::filterGridStatistics()
 {
+    if (!successProcessing) return;
+
     // WARNING: this function alters the values of 'backStatsGrid'
     // Create a copy
     QVector<float> backStatsGridOrig = backStatsGrid;
@@ -354,6 +366,8 @@ void MyImage::filterGridStatistics()
 
 void MyImage::getPadDimensions()
 {
+    if (!successProcessing) return;
+
     // The actual padding width is twice as large as the gridStep
     // to ensure we have enough space to evaluate the grid without having to care for boundaries
     int w = 2 * gridStep;
@@ -609,6 +623,8 @@ void MyImage::padCorner(int width, QString corner, long ipadmin, long ipadmax, l
 // The grid "starts" gridSize inside each dimension (so we don't have to consider boundaries)
 void MyImage::planGrid()
 {
+    if (!successProcessing) return;
+
     // Reset the grid
     grid.clear();
 
@@ -681,6 +697,8 @@ void MyImage::releaseBackgroundMemoryBackgroundModel()
 
 void MyImage::subtractBackgroundModel()
 {
+    if (!successProcessing) return;
+
     long i=0;
     for (auto &pixel : dataCurrent) {
         if (!globalMask.isEmpty()) {
