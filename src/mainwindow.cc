@@ -754,7 +754,7 @@ void MainWindow::initInstrumentData(QString instrumentNameFullPath)
 
     // read the instrument specific data
     if( !instDataFile.open(QIODevice::ReadOnly)) {
-        qDebug() << "QDEBUG: initInstrumentData: "+instrumentNameFullPath+" "+instDataFile.errorString();
+        emit messageAvailable("MainWindow::initInstrumentData(): "+instrumentNameFullPath+" "+instDataFile.errorString(), "error");
         return;
     }
 
@@ -770,7 +770,7 @@ void MainWindow::initInstrumentData(QString instrumentNameFullPath)
         if (line.contains("NCHIPS=")) instData.numChips = line.split("=")[1].toInt();
         if (line.contains("TYPE=")) instData.type = line.split("=")[1];
         if (line.contains("BAYER=")) {
-            // BAYER is not mandatory; if not found, we must set it to blank or "N" explicitly
+            // BAYER is not mandatory; if not found, we must set it to blank
             instData.bayer = line.split("=")[1];
             bayerFound = true;
         }
@@ -992,7 +992,7 @@ void MainWindow::on_setupInstrumentComboBox_clicked()
     cdw->instrument_dir = matchingInstDir;
     cdw->instrument_name = instrument_name;
     cdw->instrument_type = instrument_type;
-    cdw->instrument_bayer = instrument_bayer;
+    cdw->instrument_bayer = instrument_bayer;   // UNUSED?
     cdw->instrument_nchips = instrument_nchips;
     cdw->instrument_file.setFileName(matchingInstDir+instrument_name+".ini");
 

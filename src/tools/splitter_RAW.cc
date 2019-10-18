@@ -131,7 +131,7 @@ void Splitter::buildHeaderRAW()
     cards.append("MJD-OBS = "+QString::number(mjdobsValue, 'f', 12));
     cards.append("FILTER  = 'RGB'");
     cards.append("AIRMASS = 1.0");
-    cards.append("BAYERPAT= '"+bayerPattern+"'");
+    cards.append("BAYER   = '"+bayerPattern+"'");
     if (sensorTemp > -1000.) cards.append("DET_TEMP= "+QString::number(sensorTemp, 'f', 2));
     if (cameraTemp > -1000.) cards.append("CAM_TEMP= "+QString::number(cameraTemp, 'f', 2));
     if (!isoSpeed.isEmpty()) cards.append("ISOSPEED= "+isoSpeed);

@@ -55,6 +55,13 @@ void Splitter::buildTheliHeader()
         }
     }
 
+    // Propagate bayer matrix ID for color CCD chips
+    if (!instData.bayer.isEmpty()) {
+        QString card = "BAYER   = '"+instData.bayer+"'";
+        card.resize(80, ' ');
+        headerTHELI.append(card);
+    }
+
     // Append DUMMY keywords
     headerTHELI.append(dummyKeys);
 }

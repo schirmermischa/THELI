@@ -32,7 +32,7 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
 {
     if (!image->successProcessing) return;
 
-    QString pattern = image->getKeyword("BAYERPAT");
+    QString pattern = image->getKeyword("BAYER");
     if ( pattern != "RGGB"
          && pattern != "GRBG"
          && pattern != "GBRG"

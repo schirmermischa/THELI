@@ -1409,7 +1409,7 @@ void Data::writeGlobalWeights(int chip, QString filter)
 
     if (*verbosity > 0) emit messageAvailable("Writing globalweight for chip " + QString::number(chip+1), "data");
 
-    if (instData->bayer != "Y") {
+    if (instData->bayer.isEmpty()) {
         for (auto &gw: myImageList[chip]) {
             if (filter == gw->filter) {
                 gw->writeImage(gw->path + "/" + gw->name, filter);

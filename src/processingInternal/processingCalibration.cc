@@ -343,7 +343,7 @@ void Controller::taskInternalProcessflat()
         if (biasData != nullptr) biasData->unprotectMemory(chip);
         flatData->combineImagesCalib(chip, combineFlat_ptr, nlow, nhigh, dataDirName, dataSubDirName, dataDataType);
         // Remove Bayer intensity variations within a 2x2 superpixel
-        if (instData->bayer == "Y") equalizeBayerFlat(flatData->combinedImage[chip]);
+        if (!instData->bayer.isEmpty()) equalizeBayerFlat(flatData->combinedImage[chip]);
         flatData->getModeCombineImages(chip);
         // Individual images may be released; must keep master calib for further below
         flatData->memorySetDeletable(chip, "dataCurrent", true);
@@ -463,7 +463,7 @@ void Controller::taskInternalProcessscience()
             }
             it->bitpix = -32;  // so that mode calculations later on use the right algorithm
             // Without Bayer pattern
-            if (instData->bayer != "Y") {
+            if (instData->bayer.isEmpty()) {
                 it->getMode(true);
                 it->applyMask();
                 it->imageOnDrive = false;
@@ -527,7 +527,7 @@ void Controller::taskInternalProcessscience()
 
     // Release as much memory as maximally necessary
     float nimg;
-    if (instData->bayer != "Y") nimg = 4;  // old, new, bias, flat
+    if (instData->bayer.isEmpty()) nimg = 4;  // old, new, bias, flat
     else nimg = 6;  // old, 3 new, bias, flat
 
     releaseMemory(nimg*instData->storage*maxCPU, 1);
@@ -580,7 +580,7 @@ void Controller::taskInternalProcessscience()
         }
         it->bitpix = -32;  // so that mode calculations later on use the right algorithm
         // Without Bayer pattern
-        if (instData->bayer != "Y") {
+        if (instData->bayer.isEmpty()) {
             it->getMode(true);
             it->applyMask();
             it->backupOrigHeader(chip);             // Write out the zero order solution (before everything is kept in memory). This requires a FITS file
@@ -640,7 +640,7 @@ void Controller::taskInternalProcessscience()
 
     for (int chip=0; chip<instData->numChips; ++chip) {
         // Update image list; remove bayer images, insert debayered images
-        if (instData->bayer == "Y") scienceData->repopulate(chip, bayerList[chip]);
+        if (!instData->bayer.isEmpty()) scienceData->repopulate(chip, bayerList[chip]);
         /*
         if (scienceData->successProcessing) {
             for (auto &it : scienceData->myImageList[chip]) {
