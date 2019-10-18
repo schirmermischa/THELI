@@ -28,7 +28,7 @@ int direction(float N, float E, float W, float S)
 // Thx @Carsten Moos for initial coding.
 // PPG algorithm, https://sites.google.com/site/chklin/demosaic  (Chuan-Kai Lin)
 // The input image becomes the R-band channel
-void debayer(int chip, MyImage *image, MyImage *imageR, MyImage *imageG, MyImage *imageB)
+void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage *imageR)
 {
     if (!image->successProcessing) return;
 
@@ -50,7 +50,7 @@ void debayer(int chip, MyImage *image, MyImage *imageR, MyImage *imageG, MyImage
 
     // Setup the debayered channels
     QList<MyImage*> list;
-    list << imageR << imageG << imageB;
+    list << imageB << imageG << imageR;
     double mjdOffset = 0.;
     for (auto &it: list) {
         it->naxis1 = n;
@@ -71,18 +71,18 @@ void debayer(int chip, MyImage *image, MyImage *imageR, MyImage *imageG, MyImage
         it->mjdobs = image->mjdobs + mjdOffset;
         mjdOffset += 1.e-6;
     }
-    imageR->baseName.append("_R_"+QString::number(chip+1));  // status 'PA' will be appended externally
+    imageB->baseName.append("_B_"+QString::number(chip+1));  // status 'PA' will be appended externally
     imageG->baseName.append("_G_"+QString::number(chip+1));
-    imageB->baseName.append("_B_"+QString::number(chip+1));
-    imageR->rootName.append("_R");
-    imageG->rootName.append("_G");
+    imageR->baseName.append("_R_"+QString::number(chip+1));
     imageB->rootName.append("_B");
-    imageR->chipName = imageR->baseName;
-    imageG->chipName = imageG->baseName;
+    imageG->rootName.append("_G");
+    imageR->rootName.append("_R");
     imageB->chipName = imageB->baseName;
-    imageR->filter = "R";
-    imageG->filter = "G";
+    imageG->chipName = imageG->baseName;
+    imageR->chipName = imageR->baseName;
     imageB->filter = "B";
+    imageG->filter = "G";
+    imageR->filter = "R";
 
     // cut all patterns to RGGB
     int xoffset;
@@ -112,9 +112,9 @@ void debayer(int chip, MyImage *image, MyImage *imageR, MyImage *imageG, MyImage
       gBgBgBgBg
     */
 
-    imageR->dataCurrent.resize(n*m);
-    imageG->dataCurrent.resize(n*m);
     imageB->dataCurrent.resize(n*m);
+    imageG->dataCurrent.resize(n*m);
+    imageR->dataCurrent.resize(n*m);
 
     // correct Offset & correct colors
     // for bayerfilter RGBG colorbalance:

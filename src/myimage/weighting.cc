@@ -370,13 +370,22 @@ void MyImage::median2D(const QVector<float> &data_in, QVector<float> &data_out, 
 
     for (int j=0; j<m; ++j) {
         for (int i=0; i<n; ++i) {
-            if (globalMask[i+n*j]) continue;
+            if (!globalMask.isEmpty()) {
+                if (globalMask[i+n*j]) continue;
+            }
             long k = 0;
             for (int jt=j-filtersize; jt<=j+filtersize; ++jt) {
                 for (int it=i-filtersize; it<=i+filtersize; ++it) {
                     long t = it+n*jt;
-                    if (it>=0 && jt>=0 && it<n && jt<m && !globalMask[t]) {
-                        chunk[k++] = data_in[t];
+                    if (!globalMask.isEmpty()) {
+                        if (it>=0 && jt>=0 && it<n && jt<m && !globalMask[t]) {
+                            chunk[k++] = data_in[t];
+                        }
+                    }
+                    else {
+                        if (it>=0 && jt>=0 && it<n && jt<m) {
+                            chunk[k++] = data_in[t];
+                        }
                     }
                 }
             }

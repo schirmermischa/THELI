@@ -390,6 +390,7 @@ void Controller::taskInternalProcessscience()
     else {
         return;
     }
+
     Data *biasData = nullptr;  // Can also point to a dark
     Data *flatData = nullptr;
     currentData = scienceData;
@@ -408,6 +409,11 @@ void Controller::taskInternalProcessscience()
     // Same for the flat
     if (!mainGUI->ui->setupFlatLineEdit->text().isEmpty()) {
         flatData = getData(DT_FLAT, flatDir);
+    }
+
+    if (biasData == nullptr && flatData == nullptr) {
+        emit messageAvailable("No Bias / Dark or Flat calibrators defined. Nothing will be done.", "warning");
+        return;
     }
 
     // Check if calib data exist (at least chip 1)
@@ -545,13 +551,20 @@ void Controller::taskInternalProcessscience()
 
         // Don't remember why we need a lock here. I think it had to do with the headers. Will crash otherwise
         // TODO: probably not needed anymore with latest memory scheme
+        QString message;
 #pragma omp critical
         {
-            if (biasData != nullptr) biasData->loadCombinedImage(chip);  // skipped if already in memory
-            if (flatData != nullptr) flatData->loadCombinedImage(chip);  // skipped if already in memory
+            if (biasData != nullptr) {
+                biasData->loadCombinedImage(chip);  // skipped if already in memory
+                message.append(biasData->subDirName);
+            }
+            if (flatData != nullptr) {
+                flatData->loadCombinedImage(chip);  // skipped if already in memory
+                if (message.isEmpty()) message.append(flatData->subDirName);
+                else message.append(" and " + flatData->subDirName);
+            }
         }
-
-        if (verbosity >= 0) emit messageAvailable(it->chipName + " : Applying bias/dark/flat correction ...", "image");
+        if (verbosity >= 0 && !message.isEmpty()) emit messageAvailable(it->chipName + " : Correcting with "+message, "image");
         it->processingStatus->Processscience = false;
 
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
@@ -579,13 +592,13 @@ void Controller::taskInternalProcessscience()
         }
         else {
             // Create 3 new MyImages for R, G, and B
-            MyImage *debayerR = new MyImage(dataDirName, it->baseName, "", chip+1, QVector<bool>(), false, &verbosity);
-            MyImage *debayerG = new MyImage(dataDirName, it->baseName, "", chip+1, QVector<bool>(), false, &verbosity);
-            MyImage *debayerB = new MyImage(dataDirName, it->baseName, "", chip+1, QVector<bool>(), false, &verbosity);
-            debayer(chip, it, debayerR, debayerG, debayerB);
+            MyImage *debayerB = new MyImage(dataDirName, it->baseName, "P", chip+1, QVector<bool>(), false, &verbosity);
+            MyImage *debayerG = new MyImage(dataDirName, it->baseName, "P", chip+1, QVector<bool>(), false, &verbosity);
+            MyImage *debayerR = new MyImage(dataDirName, it->baseName, "P", chip+1, QVector<bool>(), false, &verbosity);
+            debayer(chip, it, debayerB, debayerG, debayerR);
             QList<MyImage*> list; // Contains the current 3 debayered images
 
-            list << debayerR << debayerG << debayerB;
+            list << debayerB << debayerG << debayerR;
             for (auto &it: list) {
                 if (abortProcess) break;
                 connect(it, &MyImage::modelUpdateNeeded, scienceData, &Data::modelUpdateReceiver);
@@ -598,6 +611,7 @@ void Controller::taskInternalProcessscience()
                 it->backupOrigHeader(chip);
                 it->imageInMemory = true;
                 it->backupL1InMemory = true;
+                it->processingStatus->HDUreformat = true;
 
                 updateImageAndData(it, scienceData);
 
@@ -609,7 +623,8 @@ void Controller::taskInternalProcessscience()
             }
 #pragma omp critical
             {
-                bayerList[chip] << debayerR << debayerG << debayerB;  // contains ALL debayered images
+                // The order in which we insert the images here is important for data::writeGlobalWeights()!
+                bayerList[chip] << debayerB << debayerG << debayerR;  // contains ALL debayered images
             }
         }
 #pragma omp atomic

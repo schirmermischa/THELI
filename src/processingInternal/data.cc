@@ -1418,6 +1418,8 @@ void Data::writeGlobalWeights(int chip, QString filter)
     }
     else {
         QString name;
+        // WARNING! The following assumes that "B" is the filter of the first image in scienceData->myImageList.
+        // The order in which we insert the images in processingCalibration is therefore important!
         for (auto &gw: myImageList[chip]) {
             // Create 3 FITS files
             name = "globalweight_"+instData->name+"_B_"+QString::number(chip+1)+".fits";
