@@ -9,7 +9,7 @@
 void binData(const QVector<float> &data, QVector<float> &dataBinned, int n, int m,
               int nb, int mb, int binX, int binY);
 QVector<int> CDmatrixToTransformationMatrix(QVector<double> CD);
-void debayer(int chip, MyImage *image, MyImage *imageR, MyImage *imageG, MyImage *imageB);
+void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage *imageR);
 int direction(float N, float E, float W, float S);
 void equalizeBayerFlat(MyImage *image);
 void getBinnedSize(instrumentDataType *instData, QVector<QVector<int> > Tmatrices,

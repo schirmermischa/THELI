@@ -61,7 +61,7 @@ void Splitter::determineFileFormat()
     // Try opening as FITS
     fits_open_file(&rawFptr, name.toUtf8().data(), READONLY, &rawStatus);
 
-    if (!rawStatus) {
+   if (!rawStatus) {
         dataFormat = "FITS";
         uncompress();
         consistencyChecks();
@@ -77,12 +77,15 @@ void Splitter::determineFileFormat()
             if (unpack != LIBRAW_SUCCESS) {
                 emit messageAvailable(fileName + " : Could not unpack file: " + libraw_strerror(unpack), "warning");
                 dataFormat = "Unknown";
+                return;
             }
         }
         else dataFormat = "Unknown";
     }
 
     if (dataFormat == "Unknown") {
+        // FITS opening error?
+        printCfitsioError("determineFileFormat()", rawStatus);
         successProcessing = false;
         QDir unknownFile(path+"/UnknownFormat");
         unknownFile.mkpath(path+"/UnknownFormat/");
