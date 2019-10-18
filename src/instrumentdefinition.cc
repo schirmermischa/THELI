@@ -240,8 +240,7 @@ void Instrument::on_saveConfigPushButton_clicked()
     if (!compareChipNumbers()) {
         QMessageBox::warning( this, "Mismatch in detector numbers",
                               "<b>Warning:</b><br> The number of entries in one or more of the\n"
-                              "detector geometries does not match the number of chips declared for the camera.<br>\n"
-                              "The HDU reformatting script will not be written.\n");
+                              "detector geometries does not match the number of chips declared for the camera.<br>\n");
         return;
     }
 
@@ -289,10 +288,10 @@ void Instrument::on_saveConfigPushButton_clicked()
         outputStream << "TYPE=" << type << "\n";
         if (ui->bayerCheckBox->isChecked()) {
             int checkedId = bayerButtonGroup->checkedId();
+            if (checkedId == -1) checkedId = 1;
             QString bayerPattern = bayerButtonGroup->button(checkedId)->objectName().remove("bayer").remove("ToolButton");
             outputStream << "BAYER=" << bayerPattern << "\n";
         }
-        else outputStream << "BAYER=N\n";
         configfile.close();
 
         // change the text label of the pushbutton for a short while
@@ -524,7 +523,10 @@ void Instrument::on_clearPushButton_clicked()
 
 void Instrument::on_bayerCheckBox_clicked(bool checked)
 {
-    if (checked) ui->buttonFrame->show();
+    if (checked) {
+        ui->bayerRGGBToolButton->setDown(true);    // not effective?
+        ui->buttonFrame->show();
+    }
     else ui->buttonFrame->hide();
 }
 

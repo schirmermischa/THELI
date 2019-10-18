@@ -1135,6 +1135,9 @@
                  <property name="checkable">
                   <bool>true</bool>
                  </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
                  <property name="autoExclusive">
                   <bool>true</bool>
                  </property>
@@ -3629,6 +3632,8 @@
   <tabstop>gainLineEdit</tabstop>
   <tabstop>overscanxMinLineEdit</tabstop>
   <tabstop>overscanxMaxLineEdit</tabstop>
+  <tabstop>overscanyMinLineEdit</tabstop>
+  <tabstop>overscanyMaxLineEdit</tabstop>
   <tabstop>startxLineEdit</tabstop>
   <tabstop>startyLineEdit</tabstop>
   <tabstop>sizexLineEdit</tabstop>
