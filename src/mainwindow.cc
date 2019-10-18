@@ -716,8 +716,38 @@ void MainWindow::updateFont(QFont font)
     this->setFont(font);
 }
 
+void MainWindow::resetInstrumentData()
+{
+    instData.numChips = 1;
+    instData.name = "";
+    instData.shortName = "";
+    instData.nameFullPath = "";
+    instData.obslat = 0.;
+    instData.obslong = 0.;
+    instData.bayer = "";
+    instData.type = "OPT";
+    instData.pixscale = 1.0; // in arcsec
+    instData.gain = 1.0;
+    instData.radius = 0.1;   // exposure coverage radius in degrees
+    instData.storage = 0;    // MB used for a single image
+    instData.storageExposure = 0.; // MB used for the entire (multi-chip) exposure
+
+    instData.overscan_xmin.clear();
+    instData.overscan_xmax.clear();
+    instData.overscan_ymin.clear();
+    instData.overscan_ymax.clear();
+    instData.cutx.clear();
+    instData.cuty.clear();
+    instData.sizex.clear();
+    instData.sizey.clear();
+    instData.crpix1.clear();
+    instData.crpix2.clear();
+}
+
 void MainWindow::initInstrumentData(QString instrumentNameFullPath)
 {
+    resetInstrumentData();
+
     QFile instDataFile(instrumentNameFullPath);
     instDataFile.setFileName(instrumentNameFullPath);
     instData.nameFullPath = instrumentNameFullPath;
@@ -787,7 +817,8 @@ void MainWindow::initInstrumentData(QString instrumentNameFullPath)
     if (!bayerFound) instData.bayer = "";
     // Backwards compatibility:
     if (instData.type.isEmpty()) instData.type = "OPT";
-    if (instData.shortName.isEmpty()) instData.shortName = instData.name;
+    QString shortstring = instData.name.split('@').at(0);
+    if (instData.shortName.isEmpty()) instData.shortName = shortstring;
 
     instDataFile.close();
 

@@ -303,6 +303,7 @@ private:
     void displayMessage(QString messagestring, QString type);
     void checkMemoryConstraints();
     void addProgressBars();
+    void resetInstrumentData();
 };
 
 // Subclassing QStringListModel to allow certain entries being shown with different colors
