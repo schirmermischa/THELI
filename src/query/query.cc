@@ -109,21 +109,25 @@ void Query::getCatalogSearchLocationAstrom()
     }
     double crval1_radius = 60.*(crval1_max - crval1_min)*0.5*cos(delta*3.14159/180.);
 
-    // Include a 10% safety margin in the search radius
-    radius = 1.1*sqrt(crval1_radius*crval1_radius + crval2_radius*crval2_radius);
+    if (!radius_manual.isEmpty()) radius_string = radius_manual;
+    else {
+        // Include a 10% safety margin in the search radius
+        radius = 1.1*sqrt(crval1_radius*crval1_radius + crval2_radius*crval2_radius);
 
-    // safeguarding against a potential threading issue with wcslib:
-    if (radius > 5.*scienceData->instData->radius*60) {
-        radius = 2.*scienceData->instData->radius*60;
-        // TODO: this is probably not necessary anymore because of the wcslock in MyImage::transferWCS()
-        emit messageAvailable("WCSLIB safeguard: Truncating the search radius to "+QString::number(radius, 'f', 1) + " arcmin", "warning");
-        emit critical();
+        // safeguarding against a potential threading issue with wcslib:
+        if (radius > 5.*scienceData->instData->radius*60) {
+            radius = 2.*scienceData->instData->radius*60;
+            // TODO: this is probably not necessary anymore because of the wcslock in MyImage::transferWCS()
+            emit messageAvailable("WCSLIB safeguard: Truncating the search radius to "+QString::number(radius, 'f', 1) + " arcmin", "warning");
+            qDebug() << corners_crval1;
+            qDebug() << corners_crval2;
+        }
+        radius_string = QString::number(radius, 'f', 3);
     }
 
     // Convert to string (because we pass this to 'vizquery'
     alpha_string = QString::number(alpha, 'f', 6);
     delta_string = QString::number(delta, 'f', 6);
-    radius_string = QString::number(radius, 'f', 3);
 }
 
 void Query::getCatalogSearchLocationPhotom()
@@ -187,7 +191,6 @@ void Query::initAstromQuery()
         alpha_string = alpha_manual;
         delta_string = delta_manual;
     }
-    if (!radius_manual.isEmpty()) radius_string = radius_manual;
 
     // Make declination explicitly positive (sometimes the cdsclient wants that, or wanted that)
     if (!delta_string.contains('-') && !delta_string.contains('+') ) delta_string.prepend('+');
@@ -648,9 +651,9 @@ void Query::pushNumberOfSources()
     else {
         if (!suppressCatalogWarning) {
             messageString = "WARNING: No reference sources retrieved! <br>"
-                    "-- try a different catalog <br>"
-                    "-- check your internet connection <br>"
-                    "-- adjust mag limit and radius";
+                            "-- try a different catalog <br>"
+                            "-- check your internet connection <br>"
+                            "-- adjust mag limit and radius";
             emit messageAvailable(messageString, "stop");
             emit critical();
         }
