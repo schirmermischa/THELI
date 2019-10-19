@@ -229,12 +229,17 @@ QVector<double> DetectedObject::calcFluxAper(float aperture)
         aperFlagSetAlready = true;
     }
 
+    // correct for subsampling of aperture
+    fluxAper = fluxAper / (s*s);
+    fluxErrAper = fluxErrAper / (s*s);
+
     fluxErrAper = sqrt(fluxErrAper);
     double magAper = -2.5*log10(fluxAper) + ZP;
     double magErrAper = 99.;
     if (fluxAper > 0) magErrAper = 2.5*log10(1.+fluxErrAper/fluxAper);
     QVector<double> result;
     result << fluxAper << fluxErrAper << magAper << magErrAper;
+    if (magErrAper == 99. || std::isnan(magErrAper)) FLAGS += 2;
     return result;
 }
 
