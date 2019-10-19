@@ -380,26 +380,37 @@ void MyFITS::checkTHELIheader(int *status)
 
 void MyFITS::extractKeywordDouble(QString card, QString key, double &value)
 {
+    // Make keys unique (e.g. EXPTIME vs TEXPTIME) by constructing full keyword
+    key.resize(8, ' ');
+    key.append("=");
     if (card.contains(key)) value = card.split("=")[1].split("/")[0].simplified().remove("'").toDouble();
 }
 
 void MyFITS::extractKeywordFloat(QString card, QString key, float &value)
 {
+    key.resize(8, ' ');
+    key.append("=");
     if (card.contains(key)) value = card.split("=")[1].split("/")[0].simplified().remove("'").toFloat();
 }
 
 void MyFITS::extractKeywordLong(QString card, QString key, long &value)
 {
+    key.resize(8, ' ');
+    key.append("=");
     if (card.contains(key)) value = card.split("=")[1].split("/")[0].simplified().remove("'").toLong();
 }
 
 void MyFITS::extractKeywordInt(QString card, QString key, int &value)
 {
+    key.resize(8, ' ');
+    key.append("=");
     if (card.contains(key)) value = card.split("=")[1].split("/")[0].simplified().remove("'").toInt();
 }
 
 void MyFITS::extractKeywordString(QString card, QString key, QString &value)
 {
+    key.resize(8, ' ');
+    key.append("=");
     if (card.contains(key)) value = card.split("=")[1].split("/")[0].simplified().remove("'");
 }
 
