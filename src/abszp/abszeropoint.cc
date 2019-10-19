@@ -255,6 +255,7 @@ void AbsZeroPoint::taskInternalAbszeropoint()
     QVector<QVector<double>> refDat;
     QVector<QVector<double>> objDat;
     // DEC comes first in the catalogs, because the matching alg sorts the vectors for DEC
+
     for (auto &object : myImage->objectList) {
         QVector<double> objdata;
         if (object->FLAGS == 0) {
@@ -270,6 +271,7 @@ void AbsZeroPoint::taskInternalAbszeropoint()
         refDat.append(refdata);
     }
 
+
     // Estimate the matching tolerance
     myImage->estimateMatchingTolerance();
 
@@ -277,6 +279,15 @@ void AbsZeroPoint::taskInternalAbszeropoint()
     int multiple1 = 0;
     int multiple2 = 0;
     match2D(objDat, refDat, matched, myImage->matchingTolerance, multiple1, multiple2, maxCPU);
+
+    QFile test("/home/mischa/test.dat");
+    test.open(QIODevice::ReadWrite);
+    QTextStream in(&test);
+    in.setRealNumberPrecision(9);
+    for (auto &it : matched) {
+        in << it[0] << " " << it[1] << " "<< it[2] << " " << it[3] << " "<< it[4] << " " << it[5] << " "<< it[6] << " " << it[7] << " "<< it[8] << " " << it[9] << " "<< it[10] << " " << it[11] << " " << it[12] << " " << it[13] << " "<< it[14] << " " << it[15] << "\n";
+    }
+    test.close();
 
     if (matched.length() == 0) {
         emit messageAvailable("No matches found!", "error");
@@ -341,7 +352,9 @@ void AbsZeroPoint::buildAbsPhot()
     // RA DEC Mag1REF Mag2REF Mag1ERR_REF Mag2ERR_REF MAG_AUTO MAGERR_AUTO MAG_APER(vector) MAGERR_APER(vector)
 
     // Object magnitudes are calculated for a fiducial ZP = 0, and need to be exposure time normalized
-    float normalization = 2.5*log10(myImage->exptime);
+    // CHECK: this would go wrong if someone calibrates an image that is not normalized to one second!
+//    float normalization = 2.5*log10(myImage->exptime);
+    float normalization = 0.;
     for (auto &match : matched) {
         absPhot->qv_RA.append(match[0]);
         absPhot->qv_DEC.append(match[1]);
@@ -668,6 +681,7 @@ void AbsZeroPoint::plot()
     ui->zpPlot->plotLayout()->addElement(1, 0, AxisRectAper);
     ui->zpPlot->plotLayout()->addElement(2, 0, AxisRectColor);
 
+    /*
     // The Auto mag Rectangle in the growth curve. Must plot first, so other clickable data points end up on top
     QCPItemRect *magAuto = new QCPItemRect(ui->zpPlot);
     magAuto->topLeft->setType(QCPItemPosition::PositionType::ptPlotCoords);
@@ -694,6 +708,7 @@ void AbsZeroPoint::plot()
     magAutoText->setFont(QFont(font().family(), 9));
     magAutoText->setPadding(QMargins(4, 0, 4, 0));
     magAutoText->setPen(QPen(Qt::black));
+    */
 
     // The graph for the ZP growth curve
     QCPGraph *aperZPGraph = ui->zpPlot->addGraph(AxisRectAper->axis(QCPAxis::atBottom), AxisRectAper->axis(QCPAxis::atLeft));
@@ -872,6 +887,8 @@ void AbsZeroPoint::updateCoaddHeader()
     absPhot->ColorErr2Selected = QString::number(absPhot->fitParamsErr[2], 'f', 4);
     absPhot->ColorErr3Selected = QString::number(absPhot->fitParamsErr[3], 'f', 4);
 
+    float fluxConv = 1.e6 * pow(10, -0.4 * (absPhot->ZPSelected.toFloat() - 8.90));    // Converting ZP to microJy
+
     // The coadded FITS file
     fitsfile *fptr;
     int status = 0;
@@ -889,6 +906,7 @@ void AbsZeroPoint::updateCoaddHeader()
     fits_update_key_str(fptr, "ZPD_INDX", ui->zpColorComboBox->currentText().toUtf8().data(), "Color index in ZPD_SURV", &status);
     fits_update_key_str(fptr, "ZPD_SYST", "ABmag", "Magnitude system", &status);
     fits_update_key_str(fptr, "ZPD_SURV", ui->zpRefcatComboBox->currentText().toUtf8().data(), "Survey and filter system", &status);
+    fits_update_key_flt(fptr, "FLUXCONV", fluxConv, 6, "Factor to convert image to microJansky", &status);
     fits_close_file(fptr, &status);
 
     ui->zpHeaderLabel->setText("FITS header entries were updated:");
@@ -915,4 +933,6 @@ void AbsZeroPoint::updateCoaddHeader()
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_INDX= '"+ui->zpColorComboBox->currentText()+"'</tt>");
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag'</tt>");
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SURV= '"+ui->zpRefcatComboBox->currentText()+"'</tt>");
+    ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SURV= '"+ui->zpRefcatComboBox->currentText()+"'</tt>");
+    ui->zpPlainTextEdit->appendHtml("<tt>FLUXCONV= "+QString::number(fluxConv, 'f', 4)+" (Conversion factor to microJy)</tt>");
 }
