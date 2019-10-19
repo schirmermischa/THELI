@@ -280,15 +280,6 @@ void AbsZeroPoint::taskInternalAbszeropoint()
     int multiple2 = 0;
     match2D(objDat, refDat, matched, myImage->matchingTolerance, multiple1, multiple2, maxCPU);
 
-    QFile test("/home/mischa/test.dat");
-    test.open(QIODevice::ReadWrite);
-    QTextStream in(&test);
-    in.setRealNumberPrecision(9);
-    for (auto &it : matched) {
-        in << it[0] << " " << it[1] << " "<< it[2] << " " << it[3] << " "<< it[4] << " " << it[5] << " "<< it[6] << " " << it[7] << " "<< it[8] << " " << it[9] << " "<< it[10] << " " << it[11] << " " << it[12] << " " << it[13] << " "<< it[14] << " " << it[15] << "\n";
-    }
-    test.close();
-
     if (matched.length() == 0) {
         emit messageAvailable("No matches found!", "error");
         emit finished();
@@ -323,6 +314,22 @@ void AbsZeroPoint::queryRefCat()
     mag1errRefCat.swap(query->mag1err_out);
     mag2errRefCat.swap(query->mag2err_out);
     numRefSources = query->numSources;
+
+    // Convert 2MASS VEGA mags to AB mags
+    // http://www.astronomy.ohio-state.edu/~martini/usefuldata.html
+    if (query->refcatName == "2MASS") {
+        float corr1 = 0.;
+        float corr2 = 0.;
+        if (filter1 == "J") corr1 = 0.91;
+        else if (filter1 == "H") corr1 = 1.39;
+        else if (filter1 == "Ks") corr1 = 1.85;
+        if (filter2 == "J") corr1 = 0.91;
+        else if (filter2 == "H") corr1 = 1.39;
+        else if (filter2 == "Ks") corr1 = 1.85;
+
+        for (auto &mag : mag1RefCat) mag += corr1;
+        for (auto &mag : mag2RefCat) mag += corr2;
+    }
 
     delete query;
     emit messageAvailable(QString::number(numRefSources) + " photometric reference sources found.", "ignore");
@@ -904,7 +911,12 @@ void AbsZeroPoint::updateCoaddHeader()
     fits_update_key_flt(fptr, "ZPD_CER2", absPhot->ColorErr2Selected.toFloat(), 6, "Error quadratic color term in ZPD_SURV", &status);
     fits_update_key_flt(fptr, "ZPD_CER3", absPhot->ColorErr3Selected.toFloat(), 6, "Error cubic color term in ZPD_SURV", &status);
     fits_update_key_str(fptr, "ZPD_INDX", ui->zpColorComboBox->currentText().toUtf8().data(), "Color index in ZPD_SURV", &status);
-    fits_update_key_str(fptr, "ZPD_SYST", "ABmag", "Magnitude system", &status);
+    if (ui->zpRefcatComboBox->currentText() == "2MASS") {
+        fits_update_key_str(fptr, "ZPD_SYST", "ABmag", "Mag. system (converted from 2MASS VEGA mags)", &status);
+    }
+    else {
+        fits_update_key_str(fptr, "ZPD_SYST", "ABmag", "Magnitude system", &status);
+    }
     fits_update_key_str(fptr, "ZPD_SURV", ui->zpRefcatComboBox->currentText().toUtf8().data(), "Survey and filter system", &status);
     fits_update_key_flt(fptr, "FLUXCONV", fluxConv, 6, "Factor to convert image to microJansky", &status);
     fits_close_file(fptr, &status);
@@ -931,8 +943,12 @@ void AbsZeroPoint::updateCoaddHeader()
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_CER2= "+absPhot->ColorErr2Selected+"</tt>");
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_CER3= "+absPhot->ColorErr3Selected+"</tt>");
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_INDX= '"+ui->zpColorComboBox->currentText()+"'</tt>");
-    ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag'</tt>");
-    ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SURV= '"+ui->zpRefcatComboBox->currentText()+"'</tt>");
+    if (ui->zpRefcatComboBox->currentText() == "2MASS") {
+        ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag' (converted from 2MASS VEGA mags)</tt>");
+    }
+    else {
+        ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag'</tt>");
+    }
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SURV= '"+ui->zpRefcatComboBox->currentText()+"'</tt>");
     ui->zpPlainTextEdit->appendHtml("<tt>FLUXCONV= "+QString::number(fluxConv, 'f', 4)+" (Conversion factor to microJy)</tt>");
 }
