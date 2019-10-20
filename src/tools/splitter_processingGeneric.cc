@@ -120,6 +120,29 @@ void Splitter::correctNonlinearity(int chip)
     }
 }
 
+void Splitter::convertToElectrons(int chip)
+{
+    if (!successProcessing) return;
+
+    for (auto &pixel : dataCurrent) {
+        pixel *= gain[chip];
+    }
+}
+
+// Calculate the effective gain for a detector with different readout channels.
+// When we divide the data by the flat field, the effective gain is the geometric mean
+float Splitter::geometricGain(QVector<float> detectorGains)
+{
+    float geoGain = 0.;
+    for (auto &gain : detectorGains) {
+        geoGain += 1./gain;
+    }
+    geoGain = float(instData.numChips) / geoGain;
+
+    return geoGain;
+}
+
+
 float Splitter::polynomialSum(float x, QVector<float> coefficients)
 {
     // Coefficients contains the coeffs of a polynomial, starting with the lowest term

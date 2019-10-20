@@ -215,7 +215,7 @@ public:
     float FLXSCALE = 0.;           // SCAMP output
     float skyValue = -1e9;         // previously set to zero
     float skySigma = -1;
-    float gain = 1.0;              // To be taken from instrument config file
+    float gain = 1.0;              // Read from raw fits header; fallback: taken from instrument config file
     float plateScale = 0.;
     float gainNormalization = 1.0;
     int bitpix = -32;

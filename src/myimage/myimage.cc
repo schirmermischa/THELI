@@ -372,6 +372,7 @@ void MyImage::transferMetadataToMyImage()
     exptime = imageFITS->exptime;
     airmass = imageFITS->airmass;
     fwhm = imageFITS->fwhm;
+    gain = imageFITS->gain;
     ellipticity = imageFITS->ellipticity;
     RZP = imageFITS->RZP;
     dateobs = imageFITS->dateobs;
@@ -759,7 +760,7 @@ void MyImage::divideFlat(MyImage *flatImage)
         // Divide by flat, and correct for gain differences
         pixel /= (flatImage->dataCurrent[i] * flatImage->gainNormalization);
         // NaN pixels slow down sextractor enourmously (and make it fail).
-        // we can probably get rid of this once we are done with sextractor
+        // we can probably get rid of this once we have completely thrown out sextractor
         if (isnan(pixel) || isinf(pixel)) pixel = 0.;
         ++i;
     }

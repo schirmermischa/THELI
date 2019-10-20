@@ -66,6 +66,7 @@ void Splitter::determineFileFormat()
         uncompress();
         consistencyChecks();
         getDetectorSections(); // Read overscan and data sections for the current instrument
+        gain.resize(instData.numChips);
     }
     else {
         // Try opening as RAW
@@ -210,6 +211,7 @@ void Splitter::extractImagesFITS()
             buildTheliHeaderDATEOBS();  // must be done before MJD-OBS
             buildTheliHeaderMJDOBS();
             buildTheliHeaderAIRMASS();
+            buildTheliHeaderGAIN(chip);
             buildTheliHeader();
 
             // 2D image
@@ -220,6 +222,7 @@ void Splitter::extractImagesFITS()
                 cropDataSection(dataSection[chip]);
                 correctXtalk();
                 correctNonlinearity(chip);
+                convertToElectrons(chip);
                 writeImage(chip);
                 //       initMyImage(chip);
             }
@@ -238,6 +241,7 @@ void Splitter::extractImagesFITS()
                     cropDataSection(dataSection[chip]);
                     correctXtalk();                 // TODO: how valid is that operation for the stack?
                     correctNonlinearity(chip);      // TODO: how valid is that operation for the stack?
+                    convertToElectrons(chip);
                     writeImage(chip);
                     //   initMyImage(chip);
                     // TODO: how is the exposure time defined for these data? Probably requires individual solution
@@ -250,6 +254,7 @@ void Splitter::extractImagesFITS()
                         cropDataSection(dataSection[chip]);
                         correctXtalk();
                         correctNonlinearity(chip);
+                        convertToElectrons(chip);
                         writeImageSlice(chip, i);
                         //      initMyImage(chip);
                     }

@@ -26,6 +26,7 @@ void Controller::populateHeaderDictionary()
     headerDictionary.insert("EQUINOX", {"EQUINOX", "EPOCH", "RADECEQ"});
     headerDictionary.insert("DATE-OBS", {"DATE-OBS", "DATEOBS", "DATE", "UTSHUT"});
     headerDictionary.insert("MJD-OBS", {"MJD-OBS"});
+    headerDictionary.insert("GAIN", {"GAIN", "HIERARCH ESO DET OUT1 GAIN", "HIERARCH ESO DET OUT1 GAIN", "EGAIN"});
     headerDictionary.insert("FILTER", {"FILTER", "FILTER1", "FILTER2", "FILTER01", "FILTERID", "FILTERS", "FILTNAME",
                                        "HIERARCH ESO INS FILT1 NAME", "HIERARCH ESO INS FILT2 NAME",
                                        "AFT", "ALFLTNM", "FAFLTNM", "FBFLTNM", "FILTRE", "FLTRNAME", "PFMFNAME", "WFFBAND"});
@@ -40,6 +41,12 @@ void Controller::populateHeaderDictionary()
     //    headerDictionary.insert("GABODSID", {});
     //    headerDictionary.insert("ZP", {});
     //    headerDictionary.insert("COEFF", {});
+
+    /*
+     * ABOUT GAIN:
+     * FourStart has a GAIN keyword, but the correct one is EGAIN"
+    */
+
 }
 
 // Used to replace long filter names by short ones

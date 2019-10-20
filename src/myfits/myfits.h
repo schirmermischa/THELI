@@ -43,6 +43,7 @@ public:
     double cd1_2 = 0.0;
     double cd2_1 = 0.0;
     double cd2_2 = 0.0;
+    float gain = 1.0;
     float equinox = 0.;
     double plateScale = 0.0;
     float exptime = -1.0;

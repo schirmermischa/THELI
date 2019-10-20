@@ -30,7 +30,7 @@ class DetectedObject : public QObject
 public:
     explicit DetectedObject(const QList<long> &objectIndices, const QVector<float> &data, const QVector<float> &background,
                             const QVector<float> &weight, const QVector<bool> &mask, bool weightinmemory,
-                            const long naxis1, const long naxis2, const long objid, const float satVal,
+                            const long naxis1, const long naxis2, const long objid, const float satVal, const float gainval,
                             wcsprm &wcsImage, QObject *parent = nullptr);
     ~DetectedObject();
 

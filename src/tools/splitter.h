@@ -81,6 +81,7 @@ private:
     QVector<QVector<long>> overscanX;
     QVector<QVector<long>> overscanY;
     QVector<QVector<long>> dataSection;
+    QVector<float> gain;
 
     instrumentDataType instData;   // No pointer, because it is not thread safe (QVectors, QStrings)
     ConfDockWidget *cdw;
@@ -146,6 +147,8 @@ private:
     void buildTheliHeaderMJDOBS();
     void buildTheliHeaderAIRMASS();
     void buildTheliHeaderDATEOBS();
+    void buildTheliHeaderGAIN(int chip);
+
     bool searchKey(const QString &searchKeyName, const QStringList &possibleKeyNames, QStringList &outputHeader);
     bool searchKeyInHeader(const QString &searchKey, const QStringList &possibleKeyNames, const QStringList &inputHeader, QStringList &outputHeader);
     bool searchKeyInHeaderValue(const QStringList &possibleKeyNames, const QStringList &inputHeader, float &value);
@@ -195,6 +198,7 @@ private:
     void individualFixCRVAL();
     void uncompress();
     int inferChipID(int chip);
+    void convertToElectrons(int chip);
 
 signals:
     void messageAvailable(QString message, QString type);

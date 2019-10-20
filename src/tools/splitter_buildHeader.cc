@@ -446,6 +446,33 @@ void Splitter::buildTheliHeaderDATEOBS()
     headerTHELI.append(card);
 }
 
+// Build the GAIN keyword
+void Splitter::buildTheliHeaderGAIN(int chip)
+{
+    if (!successProcessing) return;
+
+    // List of instruments that require special treatment (ambiguous GAIN keyword; or gain must be constructed from more readout channels)
+    QStringList gainInstruments = {"NIRI@GEMINI"};
+
+    // treat special cases here
+    // return;
+
+    // normal cases
+    float chipGain = 1.0;
+    if (!searchKeyValue(headerDictionary.value("GAIN"), chipGain)) {
+        emit messageAvailable(fileName + " : Could not determine keyword: GAIN, set to 1.0. Contact the author about this.", "warning");
+        emit warning();
+        chipGain = 1.0;
+    }
+
+    QString card = "GAINRAW = "+QString::number(chipGain, 'f', 6) + " / Effective gain in raw data";
+    QString card = "GAIN    = 1.0     / ADUs were converted to e- in this image using GAINRAW";
+    card.resize(80, ' ');
+    headerTHELI.append(card);
+
+    gain[chip] = chipGain;   // used to convert the pixel data from ADU to electrons
+}
+
 // Build the AIRMASS keyword
 void Splitter::buildTheliHeaderAIRMASS()
 {

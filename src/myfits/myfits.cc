@@ -345,6 +345,7 @@ void MyFITS::initTHELIheader(int *status)
         extractKeywordFloat(it, "SKYVALUE", skyValue);
         extractKeywordFloat(it, "AIRMASS", airmass);
         extractKeywordFloat(it, "FWHM", fwhm);
+        extractKeywordFloat(it, "GAIN", gain);
         extractKeywordFloat(it, "ELLIP", ellipticity);
         extractKeywordFloat(it, "RZP", RZP);
     }
@@ -368,6 +369,7 @@ void MyFITS::checkTHELIheader(int *status)
             && fullHeaderString.contains("EQUINOX =")
             && fullHeaderString.contains("EXPTIME =")
             && fullHeaderString.contains("FILTER  =")
+            && fullHeaderString.contains("GAIN    =")
             && fullHeaderString.contains("OBJECT  =")
             && fullHeaderString.contains("MJD-OBS =")) {
         hasTHELIheader = true;

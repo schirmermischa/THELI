@@ -9,14 +9,15 @@
 
 DetectedObject::DetectedObject(const QList<long> &objectIndices, const QVector<float> &data, const QVector<float> &background, const QVector<float> &weight,
                                const QVector<bool> &_mask, bool weightinmemory, const long nax1, const long nax2, const long objid,
-                               const float satVal, wcsprm &wcsImage, QObject *parent) : QObject(parent),
+                               const float satVal, const float gainval, wcsprm &wcsImage, QObject *parent) : QObject(parent),
     dataMeasure(data),
     dataBackground(background),
     dataWeight(weight),
     mask(_mask),
     weightInMemory(weightinmemory),
     wcs(wcsImage),
-    saturationValue(satVal)
+    saturationValue(satVal),
+    gain(gainval)
 {
     area = objectIndices.length();
     objID = objid;
