@@ -199,7 +199,9 @@ private:
     void uncompress();
     int inferChipID(int chip);
     void convertToElectrons(int chip);
+    float geometricGain(QVector<float> detectorGains);
 
+    void individualFixGAIN(int chip);
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

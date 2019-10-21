@@ -452,10 +452,12 @@ void Splitter::buildTheliHeaderGAIN(int chip)
     if (!successProcessing) return;
 
     // List of instruments that require special treatment (ambiguous GAIN keyword; or gain must be constructed from more readout channels)
-    QStringList gainInstruments = {"NIRI@GEMINI"};
+    QStringList gainInstruments = {"HAWKI@VLT", "NIRI@GEMINI"};
 
-    // treat special cases here
-    // return;
+    for (auto &inst : gainInstruments) {
+        individualFixGAIN(chip);
+        return;
+    }
 
     // normal cases
     float chipGain = 1.0;
@@ -465,12 +467,34 @@ void Splitter::buildTheliHeaderGAIN(int chip)
         chipGain = 1.0;
     }
 
-    QString card = "GAINRAW = "+QString::number(chipGain, 'f', 6) + " / Effective gain in raw data";
-    QString card = "GAIN    = 1.0     / ADUs were converted to e- in this image using GAINRAW";
-    card.resize(80, ' ');
-    headerTHELI.append(card);
+    QString card1 = "GAINRAW = "+QString::number(chipGain, 'f', 6) + " / Effective gain in raw data";
+    QString card2 = "GAIN    = 1.0     / ADUs were converted to e- in this image using GAINRAW";
+    card1.resize(80, ' ');
+    card2.resize(80, ' ');
+    headerTHELI.append(card1);
+    headerTHELI.append(card2);
 
     gain[chip] = chipGain;   // used to convert the pixel data from ADU to electrons
+}
+
+void Splitter::individualFixGAIN(int chip)
+{
+    float chipGain = 1.0;
+    if (instData.name == "HAWKI@VLT") {           // https://www.eso.org/sci/facilities/paranal/instruments/hawki/inst.html
+        if (chip == 0) chipGain = 1.705;
+        if (chip == 1) chipGain = 1.870;
+        if (chip == 2) chipGain = 1.735;
+        if (chip == 3) chipGain = 2.110;
+    }
+
+    QString card1 = "GAINRAW = "+QString::number(chipGain, 'f', 6) + " / Effective gain in raw data";
+    QString card2 = "GAIN    = 1.0     / ADUs were converted to e- in this image using GAINRAW";
+    card1.resize(80, ' ');
+    card2.resize(80, ' ');
+    headerTHELI.append(card1);
+    headerTHELI.append(card2);
+
+    gain[chip] = chipGain;
 }
 
 // Build the AIRMASS keyword

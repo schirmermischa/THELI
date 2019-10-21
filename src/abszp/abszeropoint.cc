@@ -323,9 +323,9 @@ void AbsZeroPoint::queryRefCat()
         if (filter1 == "J") corr1 = 0.91;
         else if (filter1 == "H") corr1 = 1.39;
         else if (filter1 == "Ks") corr1 = 1.85;
-        if (filter2 == "J") corr1 = 0.91;
-        else if (filter2 == "H") corr1 = 1.39;
-        else if (filter2 == "Ks") corr1 = 1.85;
+        if (filter2 == "J") corr2 = 0.91;
+        else if (filter2 == "H") corr2 = 1.39;
+        else if (filter2 == "Ks") corr2 = 1.85;
 
         for (auto &mag : mag1RefCat) mag += corr1;
         for (auto &mag : mag2RefCat) mag += corr2;
@@ -360,7 +360,7 @@ void AbsZeroPoint::buildAbsPhot()
 
     // Object magnitudes are calculated for a fiducial ZP = 0, and need to be exposure time normalized
     // CHECK: this would go wrong if someone calibrates an image that is not normalized to one second!
-//    float normalization = 2.5*log10(myImage->exptime);
+    //    float normalization = 2.5*log10(myImage->exptime);
     float normalization = 0.;
     for (auto &match : matched) {
         absPhot->qv_RA.append(match[0]);
@@ -950,5 +950,5 @@ void AbsZeroPoint::updateCoaddHeader()
         ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag'</tt>");
     }
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SURV= '"+ui->zpRefcatComboBox->currentText()+"'</tt>");
-    ui->zpPlainTextEdit->appendHtml("<tt>FLUXCONV= "+QString::number(fluxConv, 'f', 4)+" (Conversion factor to microJy)</tt>");
+    ui->zpPlainTextEdit->appendHtml("<tt>FLUXCONV= "+QString::number(fluxConv, 'f', 4)+" (conversion factor to microJy)</tt>");
 }
