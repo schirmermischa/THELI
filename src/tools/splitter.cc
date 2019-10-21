@@ -205,6 +205,10 @@ void Splitter::extractImagesFITS()
             // Build the header. Must clear before processing new chip
             headerTHELI.clear();
             readExtHeader();
+            if (isDetectorAlive(chip)) {
+                ++chip;
+                continue;
+            }
             buildTheliHeaderFILTER();
             buildTheliHeaderWCS(chip);
             buildTheliHeaderEXPTIME();
@@ -277,11 +281,23 @@ void Splitter::extractImagesFITS()
     printCfitsioError("extractImagesFITS()", rawStatus);
 }
 
+// skip over bad detectors
+bool Splitter::isDetectorAlive(int chip)
+{
+    if (instData.name == "SuprimeCam_200101-200104@SUBARU") {
+        if (inferChipID(chip) == 7) return false;
+    }
+
+    return true;
+}
+
 int Splitter::inferChipID(int chip)
 {
     // Data from some cameras, such as SuprimeCam and FORS, come in separate FITS files instead of a MEF file.
     // We need to identify the chip number correctly:
-    int chipID = chip+1;    // external counting starts with zero
+    int chipID = chip+1;    // external counting starts with zero; This is the number we return for most instruments
+
+    // These need special treatment. The 'chip' variable is not necessarily used for all of them
     if (instData.name.contains("FORS1_2CCD")
             || instData.name.contains("FORS2_2CCD")) {
         QString value = "";
@@ -297,6 +313,24 @@ int Splitter::inferChipID(int chip)
             emit critical();
             return 0;
         }
+    }
+
+    if (instData.name == "SuprimeCam_200105-200807@SUBARU") {
+        int value = 0;
+        searchKeyValue(QStringList() << "DET-ID", value);    // running from 0 to 9
+        chipID = value + 1;
+        return chipID;
+    }
+
+    if (instData.name == "SuprimeCam_200101-200104@SUBARU") {
+        int value = 0;
+        searchKeyValue(QStringList() << "DET-ID", value);    // running from 0 to 9;  #6 is DEAD
+        if (value < 6) chipID = value + 1;
+        else if (value > 6) chipID = value;
+        else {
+            // bad det skipped in extractFITS()
+        }
+        return chipID;
     }
 
     return chipID;

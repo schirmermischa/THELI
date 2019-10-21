@@ -151,9 +151,11 @@ private:
 
     bool searchKey(const QString &searchKeyName, const QStringList &possibleKeyNames, QStringList &outputHeader);
     bool searchKeyInHeader(const QString &searchKey, const QStringList &possibleKeyNames, const QStringList &inputHeader, QStringList &outputHeader);
+    bool searchKeyInHeaderValue(const QStringList &possibleKeyNames, const QStringList &inputHeader, int &value);
     bool searchKeyInHeaderValue(const QStringList &possibleKeyNames, const QStringList &inputHeader, float &value);
     bool searchKeyInHeaderValue(const QStringList &possibleKeyNames, const QStringList &inputHeader, double &value);
     bool searchKeyInHeaderValue(const QStringList &possibleKeyNames, const QStringList &inputHeader, QString &keyValue);
+    bool searchKeyValue(const QStringList &possibleKeyNames, int &value);
     bool searchKeyValue(const QStringList &possibleKeyNames, float &value);
     bool searchKeyValue(const QStringList &possibleKeyNames, double &value);
     bool searchKeyValue(const QStringList &possibleKeyNames, QString &value);
@@ -202,6 +204,7 @@ private:
     float geometricGain(QVector<float> detectorGains);
 
     void individualFixGAIN(int chip);
+    bool isDetectorAlive(int chip);
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

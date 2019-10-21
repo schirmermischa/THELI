@@ -52,6 +52,18 @@ bool Splitter::searchKeyLST(const QStringList &possibleKeyNames)
     else return true;
 }
 
+// Retrieve the int value of a key, don't update output header
+bool Splitter::searchKeyValue(const QStringList &possibleKeyNames, int &value)
+{
+    bool inPrimaryHeader = false;
+    bool inExtHeader = false;
+    inPrimaryHeader = searchKeyInHeaderValue(possibleKeyNames, primaryHeader, value);
+    if (!inPrimaryHeader) inExtHeader = searchKeyInHeaderValue(possibleKeyNames, extHeader, value);
+
+    if (!inExtHeader && !inPrimaryHeader) return false;
+    else return true;
+}
+
 // Retrieve the floating point value of a key, don't update output header
 bool Splitter::searchKeyValue(const QStringList &possibleKeyNames, float &value)
 {
@@ -227,6 +239,32 @@ bool Splitter::searchKeyInHeaderLST(const QStringList &possibleKeyNames, const Q
         if (keyFound) break;
     }
 
+    return keyFound;
+}
+
+// int version
+bool Splitter::searchKeyInHeaderValue(const QStringList &possibleKeyNames, const QStringList &inputHeader, int &value)
+{
+    bool keyFound = false;
+    // Loop over possible keywords
+    for (auto &possibleKey : possibleKeyNames) {
+        // Loop over header
+        for (auto &card : inputHeader) {
+            QString keyName = card.split("=")[0].simplified();
+            // Loop over list of possible key names to find match
+            if (keyName == possibleKey) {
+                QString keyValue = card.split("=")[1];
+                // We are looking for a numeric value: remove quotes, simplify white space
+                keyValue.remove("'");
+                keyValue = keyValue.simplified();
+                // Split (/, and potential comment), take the first element
+                value = keyValue.split(' ').at(0).toInt();
+                keyFound = true;
+                break;
+            }
+        }
+        if (keyFound) break;
+    }
     return keyFound;
 }
 
