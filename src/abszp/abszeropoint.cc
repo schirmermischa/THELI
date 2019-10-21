@@ -315,6 +315,19 @@ void AbsZeroPoint::queryRefCat()
     mag2errRefCat.swap(query->mag2err_out);
     numRefSources = query->numSources;
 
+    // Convert APASS VEGA mags to AB mags
+    // http://www.astronomy.ohio-state.edu/~martini/usefuldata.html
+    if (query->refcatName.contains("APASS")) {
+        float corr1 = 0.;
+        float corr2 = 0.;
+        if (filter1 == "B") corr1 = -0.09;
+        else if (filter1 == "V") corr1 = 0.02;
+        if (filter2 == "B") corr2 = -0.09;
+        else if (filter2 == "V") corr2 = 0.02;
+
+        for (auto &mag : mag1RefCat) mag += corr1;
+        for (auto &mag : mag2RefCat) mag += corr2;
+    }
     // Convert 2MASS VEGA mags to AB mags
     // http://www.astronomy.ohio-state.edu/~martini/usefuldata.html
     if (query->refcatName == "2MASS") {
@@ -326,6 +339,21 @@ void AbsZeroPoint::queryRefCat()
         if (filter2 == "J") corr2 = 0.91;
         else if (filter2 == "H") corr2 = 1.39;
         else if (filter2 == "Ks") corr2 = 1.85;
+
+        for (auto &mag : mag1RefCat) mag += corr1;
+        for (auto &mag : mag2RefCat) mag += corr2;
+    }
+    // Convert UKIDSS VEGA mags to AB mags
+    // Hewett et al. 2006, MNRAS, 367, 454
+    if (query->refcatName == "UKIDSS") {
+        float corr1 = 0.;
+        float corr2 = 0.;
+        if (filter1 == "J") corr1 = 0.938;
+        else if (filter1 == "H") corr1 = 1.379;
+        else if (filter1 == "Ks") corr1 = 1.900;
+        if (filter2 == "J") corr2 = 0.938;
+        else if (filter2 == "H") corr2 = 1.379;
+        else if (filter2 == "Ks") corr2 = 1.900;
 
         for (auto &mag : mag1RefCat) mag += corr1;
         for (auto &mag : mag2RefCat) mag += corr2;
@@ -914,6 +942,12 @@ void AbsZeroPoint::updateCoaddHeader()
     if (ui->zpRefcatComboBox->currentText() == "2MASS") {
         fits_update_key_str(fptr, "ZPD_SYST", "ABmag", "Mag. system (converted from 2MASS VEGA mags)", &status);
     }
+    else if (ui->zpRefcatComboBox->currentText() == "UKIDSS") {
+        fits_update_key_str(fptr, "ZPD_SYST", "ABmag", "Mag. system (converted from 2MASS UKIDSS mags)", &status);
+    }
+    else if (ui->zpRefcatComboBox->currentText().contains("APASS")) {
+        fits_update_key_str(fptr, "ZPD_SYST", "ABmag", "Mag. system (B and V VEGA mags converted to AB)", &status);
+    }
     else {
         fits_update_key_str(fptr, "ZPD_SYST", "ABmag", "Magnitude system", &status);
     }
@@ -945,6 +979,12 @@ void AbsZeroPoint::updateCoaddHeader()
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_INDX= '"+ui->zpColorComboBox->currentText()+"'</tt>");
     if (ui->zpRefcatComboBox->currentText() == "2MASS") {
         ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag' (converted from 2MASS VEGA mags)</tt>");
+    }
+    else if (ui->zpRefcatComboBox->currentText() == "2MASS") {
+        ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag' (converted from UKIDSS VEGA mags)</tt>");
+    }
+    else if (ui->zpRefcatComboBox->currentText().contains("APASS")) {
+        ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag' (B and V VEGA mags converted to AB mag)</tt>");
     }
     else {
         ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag'</tt>");
