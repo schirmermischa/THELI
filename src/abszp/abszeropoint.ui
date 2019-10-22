@@ -1608,6 +1608,11 @@
           </item>
           <item>
            <property name="text">
+            <string>VHS</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
             <string>UKIDSS</string>
            </property>
           </item>
