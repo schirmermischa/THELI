@@ -17,6 +17,8 @@
 // same as pushdown(), without file movement
 void MyImage::makeMemoryBackup()
 {
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
     // TODO: implement a finer granularity memory check (sufficient RAM available?)
     if (!minimizeMemoryUsage) {
         dataBackupL3 = dataBackupL2;
@@ -38,6 +40,8 @@ void MyImage::makeMemoryBackup()
 void MyImage::makeDriveBackup(QString backupDirName, QString statusOld)
 {
     if (!successProcessing) return;
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
 
     // Current and backup paths
     QString currentPath = path;
@@ -53,6 +57,8 @@ void MyImage::makeDriveBackup(QString backupDirName, QString statusOld)
 
 void MyImage::makeBackgroundBackup()
 {
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
     // make backup file (if the FITS file exists)
     mkAbsDir(pathBackupL1);
     moveFile(baseNameBackupL1+".fits", path, pathBackupL1, true);
@@ -64,6 +70,8 @@ void MyImage::makeBackgroundBackup()
 // Push data one step into the backup structure
 void MyImage::pushDown(QString backupDir)
 {
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
     // MEMORY
     pushDownToL3();
     pushDownToL2();
@@ -81,6 +89,8 @@ void MyImage::pushDown(QString backupDir)
 // Push dataCurrent to backupL1
 void MyImage::pushDownToL1(QString backupDir)
 {
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
     // MEMORY
     dataBackupL1 = dataCurrent;
     backupL1InMemory = imageInMemory;
@@ -93,6 +103,8 @@ void MyImage::pushDownToL1(QString backupDir)
 // Push dataCurrent to backupL2
 void MyImage::pushDownToL2()
 {
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
     if (!minimizeMemoryUsage) {
         dataBackupL2 = dataBackupL1;
         backupL2InMemory = backupL1InMemory;
@@ -106,6 +118,8 @@ void MyImage::pushDownToL2()
 // Push dataCurrent to backupL3
 void MyImage::pushDownToL3()
 {
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
     if (!minimizeMemoryUsage) {
         dataBackupL3 = dataBackupL2;
         backupL3InMemory = backupL2InMemory;
@@ -119,6 +133,8 @@ void MyImage::pushDownToL3()
 // Pull data up one step from the backup structure
 void MyImage::pullUp()
 {
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
     // DRIVE
     deleteFile(baseName+".fits", path);
     // restore backup FITS file
@@ -135,6 +151,8 @@ void MyImage::pullUp()
 // Pull data up one step from the backup structure
 bool MyImage::makeL1Current()
 {
+    if (activeState != ACTIVE) return true;    // Don't change location of deactivated images; don't trigger error
+
     bool success = true;
     // DRIVE
     success *= deleteFile(baseName+".fits", path);
@@ -164,6 +182,8 @@ bool MyImage::makeL1Current()
 // Make L2 current
 bool MyImage::makeL2Current()
 {
+    if (activeState != ACTIVE) return true;    // Don't change location of deactivated images; don't trigger error
+
     bool success = true;
     // DRIVE
     success *= deleteFile(baseName+".fits", path);
@@ -194,6 +214,8 @@ bool MyImage::makeL2Current()
 // make L3 current
 bool MyImage::makeL3Current()
 {
+    if (activeState != ACTIVE) return true;    // Don't change location of deactivated images; don't trigger error
+
     bool success = true;
     // DRIVE
     success *= deleteFile(baseName+".fits", path);
@@ -220,6 +242,8 @@ bool MyImage::makeL3Current()
 
 void MyImage::pullUpFromL3()
 {
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
     dataBackupL2 = dataBackupL3;
     statusBackupL2 = statusBackupL3;
     pathBackupL2 = pathBackupL3;
@@ -233,6 +257,8 @@ void MyImage::pullUpFromL3()
 
 void MyImage::pullUpFromL2()
 {
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
     dataBackupL1 = dataBackupL2;
     statusBackupL1 = statusBackupL2;
     pathBackupL1 = pathBackupL2;
@@ -243,6 +269,8 @@ void MyImage::pullUpFromL2()
 
 void MyImage::pullUpFromL1()
 {
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
     dataCurrent = dataBackupL1;
     processingStatus->statusString = statusBackupL1;
     processingStatus->statusToBoolean(processingStatus->statusString);
@@ -254,6 +282,8 @@ void MyImage::pullUpFromL1()
 
 void MyImage::wipeL1()
 {
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
     dataBackupL1.clear();
     dataBackupL1.squeeze();
     statusBackupL1 = "";
@@ -265,6 +295,8 @@ void MyImage::wipeL1()
 
 void MyImage::wipeL2()
 {
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
     dataBackupL2.clear();
     dataBackupL2.squeeze();
     statusBackupL2 = "";
@@ -276,6 +308,8 @@ void MyImage::wipeL2()
 
 void MyImage::wipeL3()
 {
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
     dataBackupL3.clear();
     dataBackupL3.squeeze();
     statusBackupL3 = "";
@@ -288,6 +322,8 @@ void MyImage::wipeL3()
 // For some tasks (e.g. source cat creation) we do not need to push down data into the backup levels
 void MyImage::setupDataInMemorySimple(bool determineMode)
 {
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
     // Load the image if not in yet memory
     readImage(determineMode);
 
@@ -298,7 +334,8 @@ void MyImage::setupDataInMemorySimple(bool determineMode)
 void MyImage::setupData(bool isTaskRepeated, bool createBackup, bool determineMode, QString backupDir)
 {
     if (!successProcessing) return;
-    if (activeState != ACTIVE) return;
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
 
     // Protect dataCurrent
     dataCurrent_deletable = false;
@@ -339,6 +376,8 @@ void MyImage::setupBackgroundData(const bool &isTaskRepeated, const QString &bac
 {
     if (!successProcessing) return;
     if (backgroundPushedDown) return;
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
 
     dataCurrent_deletable = false;
     dataBackupL1_deletable = false;
@@ -377,6 +416,8 @@ void MyImage::setupBackgroundData_newParallel(const bool &isTaskRepeated, const 
 {
     if (!successProcessing) return;
     if (backgroundPushedDown) return;
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
 
     omp_set_lock(&backgroundLock);  // Must not be done simultaneously
 
@@ -420,6 +461,8 @@ void MyImage::setupBackgroundData_newParallel(const bool &isTaskRepeated, const 
 void MyImage::setupCalibDataInMemory(bool createBackup, bool determineMode, bool mustRereadFromDisk)
 {
     if (!successProcessing) return;
+    if (activeState != ACTIVE) return;    // Don't change location of deactivated images
+
 
     // Restore level 1 backup (in case we reprocess the data).
     // Either get it from memory, or read it from disk

@@ -371,7 +371,7 @@ void Controller::processBackgroundDynamic(Data *scienceData, Data *skyData, cons
         }
 
         // PASS 1:
-        sendBackgroundMessage(chip, "dynamic", skyData, it->baseName, 1);
+        sendBackgroundMessage(chip, "dynamic", skyData, it->chipName, 1);
         maskObjectsInSkyImagesPass1_newParallel(skyData, scienceData, backgroundList, twoPass, dt, dmin, convolution, expFactor, threadID);
 
         MyImage *masterCombined = new MyImage(dirName, "dummy.fits", "", chip+1, skyData->mask->globalMask[chip], skyData->mask->isChipMasked[chip], &verbosity);
@@ -383,7 +383,7 @@ void Controller::processBackgroundDynamic(Data *scienceData, Data *skyData, cons
 
         // PASS 2:
         if (twoPass) {
-            sendBackgroundMessage(chip, "dynamic", skyData, it->baseName, 2);
+            sendBackgroundMessage(chip, "dynamic", skyData, it->chipName, 2);
             maskObjectsInSkyImagesPass2_newParallel(skyData, scienceData, masterCombined, backgroundList, twoPass, dt, dmin,
                                                     convolution, expFactor, chip, rescaleModel, threadID, "dynamic");
             skyData->combineImages_newParallel(chip, combinedBackgroundImages[threadID], backgroundList, nlow2, nhigh2, it->chipName, "dynamic", dataSubDirName);
@@ -490,10 +490,11 @@ bool Controller::filterBackgroundList(const int chip, const Data *skyData, MyIma
     backgroundList = skyData->myImageList[chip];
     selectImagesFromSequence(backgroundList, nGroups, nLength, currentExposure);   // Update flag: Select every n-th image if required
     if (mode == "dynamic") selectImagesDynamically(backgroundList, it->mjdobs, it->chipName);    // Update flag: dynamic or static mode
-    else selectImagesStatically(backgroundList, it);                               // Already sets BADBACK flag if necessary
-    flagImagesWithBrightStars(backgroundList);                                     // Update flag: Exclude images affected by bright stars
+    else selectImagesStatically(backgroundList, it);                 // Already sets BADBACK flag if necessary
+    flagImagesWithBrightStars(backgroundList);                       // Update flag: Exclude images affected by bright stars
+    if (!it->successProcessing) return false;                        // Leave if not sufficiently many images found for background modeling
 
-    int nback = countBackgroundImages(backgroundList, it->baseName);
+    int nback = countBackgroundImages(backgroundList, it->chipName);
     QString outstring = it->chipName + " : " + QString::number(nback) + "<br>";
     if (nback < 4) backExpList.append("<font color=#ee5500>" + outstring + "</font>");   // color coding to highlight potentially poor images
     else backExpList.append(outstring);
@@ -800,7 +801,7 @@ void Controller::selectImagesStatically(QList<MyImage*> backgroundList, MyImage 
         scienceImage->activeState = MyImage::BADBACK;
         scienceImage->successProcessing = false;
         if (scienceImage->imageOnDrive) {
-            moveFile(scienceImage->name, scienceImage->path, scienceImage->path+"/inactive/badBackground/");
+            moveFile(scienceImage->baseName+".fits", scienceImage->path, scienceImage->path+"/inactive/badBackground/");
             scienceImage->path = scienceImage->path+"/inactive/badBackground/";
             scienceImage->emitModelUpdateNeeded();
         }
@@ -813,7 +814,7 @@ void Controller::selectImagesStatically(QList<MyImage*> backgroundList, MyImage 
         scienceImage->activeState = MyImage::BADBACK;
         scienceImage->successProcessing = false;
         if (scienceImage->imageOnDrive) {
-            moveFile(scienceImage->name, scienceImage->path, scienceImage->path+"/inactive/badBackground/");
+            moveFile(scienceImage->baseName+".fits", scienceImage->path, scienceImage->path+"/inactive/badBackground/");
             scienceImage->path = scienceImage->path+"/inactive/badBackground/";
             scienceImage->emitModelUpdateNeeded();
         }
@@ -1016,14 +1017,17 @@ int Controller::countBackgroundImages(QList<MyImage*> list, QString baseName)
     }
 
     if (count < 2) {
-        emit messageAvailable(baseName + "Controller::countBackgroundImages() : Less than two images ("
-                              + QString::number(count) + ") were found to create the background model.", "error");
-        criticalReceived();
+        emit messageAvailable(baseName + " : Less than two images ("
+                              + QString::number(count) + ") were found to create the background model.", "warning");
+        warningReceived();
         successProcessing = false;
+        return count;
     }
     if (count < 4) {
         emit messageAvailable(baseName + " : Only " + QString::number(count)
                               + " images contribute to the background model, expecting poor performance.", "warning");
+        warningReceived();
+        return count;
     }
 
     return count;

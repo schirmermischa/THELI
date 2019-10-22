@@ -1435,12 +1435,15 @@ void MyImage::setActiveState(active_type state)
     // Always us this function when setting the active status
     activeState = state;
 
+    // TODO: DOES NOT WORK if restoring images. CurrentPath is already the full path including the "inactive" part.
+    // file is moved on top of itself (and deleted beforehand).
     // Move the image accordingly
     QString currentPath = path;                      // The path where the image is currently located (if on disk)
     updateInactivePath();                            // Update the inactive path component according to the set state
     QString newPath = currentPath + pathExtension;   // The path where the image should go
     if (!imageOnDrive) return;
     moveFile(baseName+".fits", currentPath, newPath);
+    // TODO: must do a modelUpdate
 }
 
 void MyImage::printCfitsioError(QString funcName, int status)
