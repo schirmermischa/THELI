@@ -205,7 +205,8 @@ void Splitter::extractImagesFITS()
             // Build the header. Must clear before processing new chip
             headerTHELI.clear();
             readExtHeader();
-            if (isDetectorAlive(chip)) {
+            if (!isDetectorAlive(chip)) {
+                fits_movrel_hdu(rawFptr, 1, &hduType, &rawStatus);
                 ++chip;
                 continue;
             }
