@@ -543,7 +543,14 @@ void Splitter::buildTheliHeaderFILTER()
                 // Loop over list of possible key names to find match
                 if (keyName == possibleKey) {
                     QString filterName = card.split("=")[1];
-                    filterName.truncate(filterName.lastIndexOf('/'));  // Some filter names contain a slash
+                    if (filterName.contains("'")) {
+                        filterName = filterName.split("'").at(1);
+                    }
+                    else {
+                        int slashPosition = filterName.lastIndexOf('/');
+                        // TODO: the slash might occur further in front! In particular for HIERARCH ESO cards
+                        if (slashPosition > 12) filterName.truncate(slashPosition);
+                    }
                     filterName = filterName.simplified();
                     // Clean the string
                     filterName.remove("'");

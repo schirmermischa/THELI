@@ -334,15 +334,22 @@ bool Splitter::searchKeyInHeaderValue(const QStringList &possibleKeyNames, const
             QString keyName = card.split("=")[0].simplified();
             if (keyName == possibleKey) {
                 QString keyValue = card.split("=")[1];
-                int slashPosition = keyValue.lastIndexOf('/');
-                // TODO: the slash might occur further in front! In particular for HIERARCH ESO cards
-                if (slashPosition > 12) keyValue.truncate(slashPosition);
-                keyValue.replace('/', '_');      // Some filter names contain a slash
-                keyValue.remove("'");                          // Remove potential quotes from string value
+                // Correct header: string value enclosed in single quotes
+                if (keyValue.contains("'")) {
+                    keyValue = keyValue.split("'").at(1);
+                }
+                else {
+                    int slashPosition = keyValue.lastIndexOf('/');
+                    // TODO: the slash might occur further in front! In particular for HIERARCH ESO cards
+                    if (slashPosition > 12) keyValue.truncate(slashPosition);
+                }
+                keyValue.replace('/', '_');            // Some filter names contain a slash
+                keyValue.remove("'");                  // Remove potential quotes from string value
                 keyValue = keyValue.simplified();
                 value = keyValue;
                 keyFound = true;
                 break;
+
             }
         }
         if (keyFound) break;

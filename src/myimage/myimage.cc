@@ -951,7 +951,7 @@ void MyImage::writeImage(QString fileName, QString filter, float exptime, bool a
     else {
         imageOnDrive = false;
         successProcessing = false;
-        emit messageAvailable("MyImage::writeImage(): " + baseName + " : Could not write file to drive!", "error");
+        emit messageAvailable(baseName + " : Could not write file to drive!", "error");
         emit critical();
         return;
     }

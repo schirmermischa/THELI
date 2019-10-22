@@ -568,7 +568,7 @@ bool MyFITS::write(QString history, float exptime, QString filter, QVector<QStri
 
     printerror(status);
     if (status) {
-        qDebug() << "MyFITS::write(): Error writing " << name;
+        emit messageAvailable(name + " : MyFITS::write(): Error writing file.", "error");
         return false;
     }
     else return true;
@@ -662,7 +662,7 @@ bool MyFITS::writeConstImage(QString history, float exptime, QString filter, QVe
 
     printerror(status);
     if (status) {
-        qDebug() << "QDEBUG::MyFITS::write(): Error writing " << name;
+        emit messageAvailable(name + " : MyFITS::writeConstImage(): Error writing file.", "error");
         return false;
     }
     else return true;
@@ -715,7 +715,7 @@ bool MyFITS::writeDebayer(QString history, float exptime, QString filter, double
 
     printerror(status);
     if (status) {
-        qDebug() << "QDEBUG::MyFITS::write(): Error writing " << name;
+        emit messageAvailable(name + " : MyFITS::writeDebayer(): Error writing file.", "error");
         return false;
     }
     else return true;
@@ -749,7 +749,7 @@ bool MyFITS::writeLong()
 
     printerror(status);
     if (status) {
-        qDebug() << "QDEBUG::MyFITS::write(): Error writing " << name;
+        emit messageAvailable(name + " : MyFITS::writeLong(): Error writing file.", "error");
         return false;
     }
     else return true;
@@ -899,6 +899,6 @@ void MyFITS::printerror(int status)
 {
     if (status) {
         CfitsioErrorCodes *errorCodes = new CfitsioErrorCodes(this);
-        emit messageAvailable("cfitsio: " + errorCodes->errorKeyMap.value(status), "error");
+        emit messageAvailable("MyFITS: " + errorCodes->errorKeyMap.value(status), "error");
     }
 }

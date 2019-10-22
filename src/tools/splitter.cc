@@ -161,6 +161,12 @@ void Splitter::extractImages()
 {
     if (!successProcessing) return;
 
+    // adjust progress step size for multi-chip cameras whose detectors are stored in single extension FITS files
+    QStringList instruments = {"SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808@SUBARU",
+                               "SuprimeCam_200808_SDFRED@SUBARU", "FORS2_2CCD_BLUE_2x2@VLT", "FORS2_2CCD_RED_2x2@VLT",
+                               "FourStar@LCO"};
+    if (instruments.contains(instData.name)) progressStepSize *= instData.numChips;
+
     if (dataFormat == "FITS") extractImagesFITS();
     else if (dataFormat == "RAW") extractImagesRAW();
     else {
