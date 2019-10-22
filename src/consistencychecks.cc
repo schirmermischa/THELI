@@ -220,7 +220,7 @@ void MainWindow::check_taskProcessflat(DataDir datadir, QString taskBasename, bo
         stop = true;
     }
     if (!stop
-            && datadir.numCHIP1 < 3
+            && datadir.numCHIP1 < 2
             && !ui->applyHDUreformatCheckBox->isChecked()) {
         message(ui->plainTextEdit, "STOP: Need at least 3 exposures in '"+datadir.subdirname+"'.");
         stop = true;
