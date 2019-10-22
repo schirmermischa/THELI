@@ -107,6 +107,7 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
         releaseMemory(nimg*instData->storage, maxCPU);
 
         auto &it = allMyImages[k];
+        if (!it->successProcessing) continue;
         if (verbosity > 1 ) emit messageAvailable(it->chipName + " : Creating source catalog ...", "image");
         it->setupDataInMemorySimple(true);
         it->backgroundModel(256, "interpolate");
@@ -169,6 +170,7 @@ void Controller::detectionSExtractor(Data *scienceData, QString minFWHM, QString
         releaseMemory(nimg*instData->storage, maxCPU);
 
         auto &it = allMyImages[k];
+        if (!it->successProcessing) continue;
         if (verbosity > 1 ) emit messageAvailable(it->chipName + " : Creating source catalog ...", "image");
         it->setupDataInMemorySimple(true);
         it->buildSexCommand();
@@ -339,6 +341,7 @@ bool Controller::manualCoordsUpdate(Data *scienceData, QString mode)
 #pragma omp parallel for num_threads(maxCPU)
     for (int k=0; k<numMyImages; ++k) {
         auto &it = allMyImages[k];
+        if (!it->successProcessing) continue;
         it->setupDataInMemorySimple(false);
         // TODO: should be sufficient, but crashes when executed right after launch
         // it->provideHeaderInfo();
@@ -750,6 +753,7 @@ void Controller::doImageQualityAnalysis()
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
         auto &it = allMyImages[k];
+        if (!it->successProcessing) continue;
         it->setupDataInMemorySimple(false);
         // Setup seeing measurement
         it->estimateMatchingTolerance();
@@ -794,6 +798,7 @@ void Controller::doCrossCorrelation(Data *scienceData)
         if (abortProcess || !successProcessing) continue;
         for (auto &it : scienceData->myImageList[chip]) {
             if (abortProcess) break;
+            if (!it->successProcessing) continue;
             emit messageAvailable(it->baseName + " : Building xcorrelation pixel map ...", "controller");
             it->setupDataInMemorySimple(false);
             it->readWeight();

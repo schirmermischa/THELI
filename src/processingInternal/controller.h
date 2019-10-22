@@ -115,8 +115,8 @@ private:
     int reserveAvailableThreads(omp_lock_t &lock);
     void retrieveBrightStars(Data *data, QList<QVector<double>> &brightStarList);
     void makeThreadsAvailable(omp_lock_t &lock, int numberThreadsBlocked);
-    void selectImagesDynamically(QList<MyImage *> backgroundList, const double &mjd_ref);
-    void selectImagesStatically(QList<MyImage *> backgroundList, const double &mjd_ref);
+    void selectImagesDynamically(QList<MyImage *> backgroundList, const double &mjd_ref, const QString chipName);
+    void selectImagesStatically(QList<MyImage *> backgroundList, MyImage *scienceImage);
     void selectImagesFromSequence(QList<MyImage *> backgroundList, const int &nGroups, const int &nLength, const int &currentExp);
 
     // Data handling
@@ -209,7 +209,7 @@ private:
     void maskObjectsInSkyImagesPass2(Data *skyData, Data *scienceData, const QList<MyImage*> &backgroundList,
                                      const bool twoPass, const QString dt, const QString dmin, const bool convolution,
                                      const QString expFactor, const int chip, const bool rescaleModel);
-    bool filterBackgroundList(const int chip, const Data *skyData, const MyImage *it, QString &backExpList, QList<MyImage*> &backgroundList,
+    bool filterBackgroundList(const int chip, const Data *skyData, MyImage *it, QString &backExpList, QList<MyImage*> &backgroundList,
                               const int nGroups, const int nLength, const int currentExposure, const QString mode);
     void maskObjectsInSkyImagesPass1_newParallel(Data *skyData, Data *scienceData, const QList<MyImage *> &backgroundList,
                                                  const bool twoPass, const QString dt, const QString dmin, const bool convolution,

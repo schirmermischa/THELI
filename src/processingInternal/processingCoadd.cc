@@ -104,6 +104,7 @@ void Controller::coaddSmoothEdge()
         releaseMemory(nimg*instData->storage, maxCPU);
 
         auto &it = allMyImages[k];
+        if (!it->successProcessing) continue;
         emit messageAvailable(it->baseName + " : Smoothing weight edge ...", "controller");
         it->readWeight();
         it->roundEdgeOfWeight(edge, roundEdge);
@@ -158,6 +159,7 @@ void Controller::coaddPrepare(QString filterArg)
         QVector<double> delta;
         for (int chip=0; chip<instData->numChips; ++chip) {
             for (auto &it : coaddScienceData->myImageList[chip]) {
+                if (!it->successProcessing) continue;
                 alpha.append(it->alpha_ctr);
                 delta.append(it->delta_ctr);
             }
@@ -175,6 +177,7 @@ void Controller::coaddPrepare(QString filterArg)
     // For proper motion correction we need the MJD-OBS of the first exposure, taken from the first chip
     QVector<double> mjdobsData;
     for (auto &it : coaddScienceData->myImageList[0]) {
+        if (!it->successProcessing) continue;
         it->provideHeaderInfo();
         mjdobsData.append(it->mjdobs);
     }
@@ -195,6 +198,7 @@ void Controller::coaddPrepare(QString filterArg)
     QList<QString> filterNames;
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : coaddScienceData->myImageList[chip]) {
+            if (!it->successProcessing) continue;
             it->provideHeaderInfo();
             QFile image(it->path + "/" + it->baseName + ".fits");
             QFile weight(it->weightPath + "/" + it->weightName + ".fits");

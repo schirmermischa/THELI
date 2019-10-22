@@ -298,6 +298,7 @@ void MyImage::setupDataInMemorySimple(bool determineMode)
 void MyImage::setupData(bool isTaskRepeated, bool createBackup, bool determineMode, QString backupDir)
 {
     if (!successProcessing) return;
+    if (activeState != ACTIVE) return;
 
     // Protect dataCurrent
     dataCurrent_deletable = false;

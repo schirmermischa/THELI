@@ -83,6 +83,7 @@ void Controller::taskInternalCollapse()
         releaseMemory(nimg*instData->storage, maxCPU);
 
         auto &it = allMyImages[k];
+        if (!it->successProcessing) continue;
         if (verbosity >= 0) emit messageAvailable(it->chipName + " : Collapse correction ...", "image");
         it->processingStatus->Collapse = false;
         it->setupData(scienceData->isTaskRepeated, true, true, backupDirName);  // CHECK: why do we determine the mode here?
@@ -183,6 +184,7 @@ void Controller::taskInternalBinnedpreview()
         for (int chip=0; chip<instData->numChips; ++chip) {
             if (abortProcess) break;
             scienceData->myImageList[chip][img]->setupDataInMemorySimple(false);
+            if (!scienceData->myImageList[chip][img]->successProcessing) continue;
             int n = scienceData->myImageList[chip][img]->naxis1;
             int m = scienceData->myImageList[chip][img]->naxis2;
             int crpix1 = scienceData->myImageList[chip][img]->getKeyword("CRPIX1").toFloat() / binFactor;

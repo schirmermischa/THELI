@@ -58,6 +58,7 @@ void Controller::taskInternalProcessbias()
 
         for (auto &it : biasData->myImageList[chip]) {
             if (abortProcess) break;
+            if (!it->successProcessing) continue;
             it->setupCalibDataInMemory(false, true, false);   // Read image (if not already in memory), do not create backup, do get mode
             it->setModeFlag(min, max);                        // Flag the image if its mode is outside acceptable ranges
 #pragma omp atomic
@@ -148,6 +149,7 @@ void Controller::taskInternalProcessdark()
 
         for (auto &it : darkData->myImageList[chip]) {
             if (abortProcess) break;
+            if (!it->successProcessing) continue;
             it->setupCalibDataInMemory(false, true, false);
             it->setModeFlag(min, max);
 #pragma omp atomic
@@ -213,6 +215,7 @@ void Controller::taskInternalProcessflatoff()
 
         for (auto &it : flatoffData->myImageList[chip]) {
             if (abortProcess) break;
+            if (!it->successProcessing) continue;
             it->setupCalibDataInMemory(false, true, false);
             it->setModeFlag(min, max);
 #pragma omp atomic
@@ -332,6 +335,7 @@ void Controller::taskInternalProcessflat()
 
         for (auto &it : flatData->myImageList[chip]) {
             if (abortProcess) break;
+            if (!it->successProcessing) continue;
             if (verbosity >= 0 && !message.isEmpty()) emit messageAvailable(it->chipName + " : Correcting with "+message, "image");
             // careful with the booleans, they make sure the data is correctly reread from disk or memory if task is repeated
             it->setupCalibDataInMemory(true, false, true);    // read from backupL1, if not then from disk. Makes backup copy if not yet done
@@ -549,6 +553,7 @@ void Controller::taskInternalProcessscience()
         if (abortProcess || !successProcessing) continue;
 
         auto &it = allMyImages[k];
+        if (!it->successProcessing) continue;
         int chip = it->chipNumber - 1;
 
         releaseMemory(nimg*instData->storage, maxCPU);

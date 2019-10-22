@@ -107,6 +107,7 @@ void Controller::skysubPolynomialFit(Data *scienceData)
         QList<QVector<double>> skyPolyfitNodes;
         // Collect sky nodes from all images belonging to that exposure
         for (auto &it : scienceData->exposureList[i]) {
+            if (!it->successProcessing) continue;
             skyPolyfitNodes.append(it->skyPolyfitNodes);
         }
         // Fit a polynomial to the nodes, subtract the model from the images
@@ -116,6 +117,7 @@ void Controller::skysubPolynomialFit(Data *scienceData)
         // I THINK a simple '#pragma omp for' would take care of this automatically
         for (auto &it : scienceData->exposureList[i]) {
             if (abortProcess) break;
+            if (!it->successProcessing) continue;
 
             releaseMemory(nimg*instData->storage, maxCPU);
 
@@ -157,6 +159,7 @@ void Controller::skysubConstantFromArea(Data *scienceData)
         // Calculate the mean sky background for the exposure
         QVector<float> skyBackground;
         for (auto &it : scienceData->exposureList[i]) {
+            if (!it->successProcessing) continue;
             for (auto &position : it->skyPolyfitNodes) {
                 skyBackground.append(position[2]);
             }
@@ -173,6 +176,7 @@ void Controller::skysubConstantFromArea(Data *scienceData)
             meanExposureBackground = meanMask(skyBackground);
         }
         for (auto &it : scienceData->exposureList[i]) {
+            if (!it->successProcessing) continue;
             it->meanExposureBackground = meanExposureBackground;
             // sky subtraction outsourced below for faster parallelisation
         }
@@ -195,6 +199,7 @@ void Controller::skysubConstantFromArea(Data *scienceData)
         releaseMemory(nimg*instData->storage, maxCPU);
 
         auto &it = listOfAllImages[i];
+        if (!it->successProcessing) continue;
         // Already done in measureSkyInBlankRegions;
         // Does nothing if image is still in memory.
         // If not in memory, will just read it again from drive
@@ -256,6 +261,7 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
 
         // Measure the sky background from the reference chip
         auto &it = scienceData->exposureList[i][referenceChip];
+        if (!it->successProcessing) continue;
         // Already done in measureSkyInBlankRegions;
         // Does nothing if image is still in memory.
         // If not in memory, will just read it again from drive
@@ -284,6 +290,7 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
     for (long i=0; i<listOfAllImages.length(); ++i) {
         if (abortProcess || !successProcessing) continue;
         auto &it = listOfAllImages[i];
+        if (!it->successProcessing) continue;
         emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2), "image");
         it->processingStatus->Skysub = false;
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
@@ -355,6 +362,7 @@ void Controller::skysubConstantEachChip(Data *scienceData, QString DT, QString D
         releaseMemory(nimg*instData->storage, maxCPU);
 
         auto &it = allMyImages[k];
+        if (!it->successProcessing) continue;
         it->processingStatus->Skysub = false;
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
         it->resetObjectMasking();
@@ -462,6 +470,7 @@ void Controller::skysubModel(Data *scienceData, QString DT, QString DMIN, QStrin
         releaseMemory(nimg*instData->storage, maxCPU);
 
         auto &it = allMyImages[k];
+        if (!it->successProcessing) continue;
         //        emit messageAvailable(it->baseName + " : Modeling the sky ...", "controller");
         it->processingStatus->Skysub = false;
         it->setupData(scienceData->isTaskRepeated, true, true, backupDirName);
@@ -528,6 +537,7 @@ QList<MyImage*> Controller::measureSkyInBlankRegions(Data *scienceData, QString 
     // (one could use a 'continue' statement, though, but would have to determine the max number of exposures per chip
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : scienceData->myImageList[chip]) {
+            if (!it->successProcessing) continue;
             listOfAllImages.append(it);
         }
     }
