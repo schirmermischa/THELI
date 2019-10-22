@@ -152,6 +152,7 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
         bool pass2staticDone = false;
         for (auto &it : scienceData->myImageList[chip]) {
             if (abortProcess) break;
+            if (!it->successProcessing) continue;
             releaseMemory(nimg*instData->storage, maxExternalThreads);
             if (verbosity >= 0) emit messageAvailable(it->chipName + " : Modeling background ...", "image");
 
@@ -244,6 +245,7 @@ void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const
         if (abortProcess || !successProcessing) continue;
         int threadID = omp_get_thread_num();
         auto &it = allMyImages[k];
+        if (!it->successProcessing) continue;
         int chip = it->chipNumber - 1;
         releaseMemory(nimg*instData->storage, maxExternalThreads);
 
@@ -353,6 +355,7 @@ void Controller::processBackgroundDynamic(Data *scienceData, Data *skyData, cons
         if (abortProcess || !successProcessing) continue;
         int threadID = omp_get_thread_num();
         auto &it = allMyImages[k];
+        if (!it->successProcessing) continue;
         int chip = it->chipNumber - 1;
         releaseMemory(nimg*instData->storage, maxExternalThreads);
 
@@ -477,16 +480,17 @@ void Controller::maskObjectsInSkyImagesPass2(Data *skyData, Data *scienceData, c
     }
 }
 
-bool Controller::filterBackgroundList(const int chip, const Data *skyData, const MyImage *it, QString &backExpList, QList<MyImage*> &backgroundList,
+bool Controller::filterBackgroundList(const int chip, const Data *skyData, MyImage *it, QString &backExpList, QList<MyImage*> &backgroundList,
                                       const int nGroups, const int nLength, const int currentExposure, const QString mode)
 {
     if (!successProcessing) return false;
+    if (!it->successProcessing) return false;
 
     // The initial list of background images. Each image has a flag whether it should contribute to the model or not.
     backgroundList = skyData->myImageList[chip];
     selectImagesFromSequence(backgroundList, nGroups, nLength, currentExposure);   // Update flag: Select every n-th image if required
-    if (mode == "dynamic") selectImagesDynamically(backgroundList, it->mjdobs);    // Update flag: dynamic or static mode
-    else selectImagesStatically(backgroundList, it->mjdobs);
+    if (mode == "dynamic") selectImagesDynamically(backgroundList, it->mjdobs, it->chipName);    // Update flag: dynamic or static mode
+    else selectImagesStatically(backgroundList, it);                               // Already sets BADBACK flag if necessary
     flagImagesWithBrightStars(backgroundList);                                     // Update flag: Exclude images affected by bright stars
 
     int nback = countBackgroundImages(backgroundList, it->baseName);
@@ -494,8 +498,10 @@ bool Controller::filterBackgroundList(const int chip, const Data *skyData, const
     if (nback < 4) backExpList.append("<font color=#ee5500>" + outstring + "</font>");   // color coding to highlight potentially poor images
     else backExpList.append(outstring);
 
-    if (!successProcessing || nback < 2) {
-        emit messageAvailable("No (or not sufficiently many) suitable background images found for " + it->chipName, "stop");
+    if (!successProcessing || nback < 2 || !it->successProcessing) {
+        emit messageAvailable(it->chipName + " : No (or not sufficiently many) suitable background images found", "warning");
+        it->activeState = MyImage::BADBACK;
+        it->successProcessing = false;
         return false;
     }
 
@@ -503,6 +509,7 @@ bool Controller::filterBackgroundList(const int chip, const Data *skyData, const
 
     return true;
 }
+
 void Controller::maskObjectsInSkyImagesPass1_newParallel(Data *skyData, Data *scienceData, const QList<MyImage*> &backgroundList, const bool twoPass,
                                                          const QString dt, const QString dmin, const bool convolution, const QString expFactor,
                                                          const int threadID)
@@ -582,7 +589,7 @@ void Controller::sendBackgroundMessage(const int chip, const QString mode, const
 }
 
 // Select the 'windowSize' images that are closest in time to the targetMJD
-void Controller::selectImagesDynamically(QList<MyImage*> backgroundList, const double &mjd_ref)
+void Controller::selectImagesDynamically(QList<MyImage*> backgroundList, const double &mjd_ref, const QString chipName)
 {
     if (!successProcessing) return;
 
@@ -618,7 +625,7 @@ void Controller::selectImagesDynamically(QList<MyImage*> backgroundList, const d
     for (auto &it : imageListAbs) {
         // Do not use the current image to contribute to its own background model
         if (it.second > 0.) {
-            if (count < windowSize) {
+            if (count < windowSize && it.first->activeState == MyImage::ACTIVE) {
                 it.first->useForBackground = true;
                 it.first->enteredBackgroundWindow = true;
                 ++selected;
@@ -681,9 +688,12 @@ void Controller::selectImagesDynamically(QList<MyImage*> backgroundList, const d
 }
 
 // Select the images that are closest in time to the targetMJD and within a valid block defined by gap sizes
-void Controller::selectImagesStatically(QList<MyImage*> backgroundList, const double &mjd_ref)
+void Controller::selectImagesStatically(QList<MyImage*> backgroundList, MyImage *scienceImage)
 {
     if (!successProcessing) return;
+    if (!scienceImage->successProcessing) return;
+
+    double mjd_ref = scienceImage->mjdobs;
 
     if (verbosity == 3) emit messageAvailable("Entering static image selection ...", "image");
 
@@ -691,7 +701,7 @@ void Controller::selectImagesStatically(QList<MyImage*> backgroundList, const do
     // Reset, and map data onto a list
     for (auto &it : backgroundList) {
         it->useForBackground = false;
-        imageListDiff.append(qMakePair(it,it->mjdobs-mjd_ref));
+        imageListDiff.append(qMakePair(it, it->mjdobs - mjd_ref));
     }
 
     // Sort with respect to mjd difference
@@ -749,7 +759,7 @@ void Controller::selectImagesStatically(QList<MyImage*> backgroundList, const do
         // Image must have been taken within the sky sequence
 
         // science image between two sky exposures
-        //        if (mjd_ref > mjd_obs1 && mjd_ref < mjd_obs2) {               // excluding the science image from the model
+        //        if (mjd_ref > mjd_obs1 && mjd_ref < mjd_obs2) {       // excluding the science image from the model
         if (mjd_ref >= mjd_obs1 && mjd_ref <= mjd_obs2) {               // including the science image from the model
             // within a block or between blocks
             if (blockID1 == blockID2) scienceBlockId = blockID1;
@@ -767,7 +777,7 @@ void Controller::selectImagesStatically(QList<MyImage*> backgroundList, const do
     // are indeed updating the flags in the backgroundList
     int countSky = 0;  // the number of sky images used for correction
     for (auto &it : imageListDiff) {
-        if (it.first->backgroundBlock == scienceBlockId) {
+        if (it.first->backgroundBlock == scienceBlockId && it.first->activeState == MyImage::ACTIVE) {
             it.first->useForBackground = true;
             ++countSky;
         }
@@ -785,17 +795,28 @@ void Controller::selectImagesStatically(QList<MyImage*> backgroundList, const do
     */
 
     if (scienceBlockId == -1) {
-        emit messageAvailable("Controller::selectImagesStatically(): Could not identify block!", "error");
-        // TODO: error handling for current exposure; print error? just park exposure and continue in controller?
-        successProcessing = false;
+        emit messageAvailable(scienceImage->chipName + " : Could not identify suitable sky images. Image deactivated.", "warning");
+        emit warningReceived();
+        scienceImage->activeState = MyImage::BADBACK;
+        scienceImage->successProcessing = false;
+        if (scienceImage->imageOnDrive) {
+            moveFile(scienceImage->name, scienceImage->path, scienceImage->path+"/inactive/badBackground/");
+            scienceImage->path = scienceImage->path+"/inactive/badBackground/";
+            scienceImage->emitModelUpdateNeeded();
+        }
         return;
     }
 
     if (countSky < 3) {
-        emit messageAvailable("Controller::selectImagesStatically(): less than three images found!", "error");
-        // too few exposures
-        // TODO: error handling for current exposure; print error? just park exposure and continue in controller?
-        successProcessing = false;
+        emit messageAvailable(scienceImage->chipName + " : Less than three images found for background modeling. Image deactivated.", "warning");
+        emit warningReceived();
+        scienceImage->activeState = MyImage::BADBACK;
+        scienceImage->successProcessing = false;
+        if (scienceImage->imageOnDrive) {
+            moveFile(scienceImage->name, scienceImage->path, scienceImage->path+"/inactive/badBackground/");
+            scienceImage->path = scienceImage->path+"/inactive/badBackground/";
+            scienceImage->emitModelUpdateNeeded();
+        }
         return;
     }
 
