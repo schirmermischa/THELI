@@ -118,7 +118,8 @@ void Query::getCatalogSearchLocationAstrom()
         if (radius > 5.*scienceData->instData->radius*60) {
             radius = 2.*scienceData->instData->radius*60;
             // TODO: this is probably not necessary anymore because of the wcslock in MyImage::transferWCS()
-            emit messageAvailable("WCSLIB safeguard: Truncating the search radius to "+QString::number(radius, 'f', 1) + " arcmin", "warning");
+            emit messageAvailable("Truncating the search radius to "+QString::number(radius, 'f', 1) + " arcmin", "warning");
+            emit messageAvailable("Do you have different targets collected in the same directory?", "warning");
             qDebug() << corners_crval1;
             qDebug() << corners_crval2;
         }
