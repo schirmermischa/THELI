@@ -197,6 +197,11 @@ void Splitter::extractImagesFITS()
     while (rawStatus != END_OF_FILE && successProcessing) {
         if (hduType == IMAGE_HDU) {
 
+            // some multi-chip cams (FORS, etc) come with separate FITS files. For them, 'chip' would always be zero,
+            // and thus the correct overscan regions etc not identified correctly.
+            // hence this mapping
+            int chipMapped = inferChipID(chip) - 1;   // same value as chip for normal 'MEF' files
+
             // do we have an "image" (as compared to a data unit that is simply a nullptr)
             int naxis = -1;
             fits_get_img_dim(rawFptr, &naxis, &rawStatus);
@@ -211,30 +216,29 @@ void Splitter::extractImagesFITS()
             // Build the header. Must clear before processing new chip
             headerTHELI.clear();
             readExtHeader();
-            if (!isDetectorAlive(chip)) {
+            if (!isDetectorAlive(chipMapped)) {
                 fits_movrel_hdu(rawFptr, 1, &hduType, &rawStatus);
                 ++chip;
                 continue;
             }
             buildTheliHeaderFILTER();
-            buildTheliHeaderWCS(chip);
+            buildTheliHeaderWCS(chipMapped);
             buildTheliHeaderEXPTIME();
             buildTheliHeaderDATEOBS();  // must be done before MJD-OBS
             buildTheliHeaderMJDOBS();
             buildTheliHeaderAIRMASS();
-            buildTheliHeaderGAIN(chip);
+            buildTheliHeaderGAIN(chipMapped);
             buildTheliHeader();
 
             // 2D image
             if (naxis == 2) {
                 getCurrentExtensionData();
-
-                correctOverscan(combineOverscan_ptr, overscanX[chip], overscanY[chip]);
-                cropDataSection(dataSection[chip]);
+                correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
+                cropDataSection(dataSection[chipMapped]);
                 correctXtalk();
-                correctNonlinearity(chip);
-                convertToElectrons(chip);
-                writeImage(chip);
+                correctNonlinearity(chipMapped);
+                convertToElectrons(chipMapped);
+                writeImage(chipMapped);
                 //       initMyImage(chip);
             }
 
@@ -248,12 +252,12 @@ void Splitter::extractImagesFITS()
                 QStringList instruments = {"TRECS@GEMINI"};
                 if (instruments.contains(instData.name)) {
                     stackCube();
-                    correctOverscan(combineOverscan_ptr, overscanX[chip], overscanY[chip]);
-                    cropDataSection(dataSection[chip]);
+                    correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
+                    cropDataSection(dataSection[chipMapped]);
                     correctXtalk();                 // TODO: how valid is that operation for the stack?
-                    correctNonlinearity(chip);      // TODO: how valid is that operation for the stack?
-                    convertToElectrons(chip);
-                    writeImage(chip);
+                    correctNonlinearity(chipMapped);      // TODO: how valid is that operation for the stack?
+                    convertToElectrons(chipMapped);
+                    writeImage(chipMapped);
                     //   initMyImage(chip);
                     // TODO: how is the exposure time defined for these data? Probably requires individual solution
                 }
@@ -261,11 +265,11 @@ void Splitter::extractImagesFITS()
                     // Loop over slices, extract each of them
                     for (long i=0; i<naxis3Raw; ++i) {
                         sliceCube(i);
-                        correctOverscan(combineOverscan_ptr, overscanX[chip], overscanY[chip]);
-                        cropDataSection(dataSection[chip]);
+                        correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
+                        cropDataSection(dataSection[chipMapped]);
                         correctXtalk();
-                        correctNonlinearity(chip);
-                        convertToElectrons(chip);
+                        correctNonlinearity(chipMapped);
+                        convertToElectrons(chipMapped);
                         writeImageSlice(chip, i);
                         //      initMyImage(chip);
                     }
