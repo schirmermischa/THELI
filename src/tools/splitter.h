@@ -117,6 +117,8 @@ private:
     QStringList extHeader;      // The header of the currently read extension
     QStringList primaryHeader;
 
+    QString uniqueID = "";     // If dateobs cannot be determined unambiguously
+
     // Processing parameters
 
     void consistencyChecks();
@@ -205,6 +207,7 @@ private:
 
     void individualFixGAIN(int chip);
     bool isDetectorAlive(int chip);
+    void individualFixOutName(QString &outname, const int chipID);
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

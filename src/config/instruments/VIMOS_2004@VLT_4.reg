@@ -1,6 +1,0 @@
-# Region file format: DS9 version 4.0
-# Filename: VIMOS.2004-04-20T08:28:32.541_4OFC.fits
-#global color=green font="helvetica 10 normal" select=1 highlite=1 edit=1 move=1 delete=1 include=1 fixed=0 source
-#image
-POLYGON(-10,2341,1998,2337,2022,2285,-58,2293)
-POLYGON(-29.71573,120.71573,122,53,129.71573,-38.71573,-29.71573,-38.71573)

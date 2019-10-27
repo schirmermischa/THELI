@@ -29,6 +29,7 @@ void Controller::populateHeaderDictionary()
     headerDictionary.insert("GAIN", {"GAIN", "HIERARCH ESO DET CHIP GAIN", "HIERARCH ESO DET OUT1 GAIN", "EGAIN"});
     headerDictionary.insert("FILTER", {"FILTER", "FILTER1", "FILTER2", "FILTER01", "FILTERID", "FILTERS", "FILTNAME",
                                        "HIERARCH ESO INS FILT1 NAME", "HIERARCH ESO INS FILT2 NAME",
+                                       "HIERARCH ESO INS FILT3 NAME", "HIERARCH ESO INS FILT4 NAME",
                                        "AFT", "ALFLTNM", "FAFLTNM", "FBFLTNM", "FILTRE", "FLTRNAME", "PFMFNAME", "WFFBAND"});
 
     // Other keywords of interest (to calculate others, or preserve information)

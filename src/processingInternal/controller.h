@@ -235,6 +235,7 @@ private:
                            const bool twoPass, const bool convolution, const bool rescaleModel,
                            const int nGroups, const int nLength, QString mode, QVector<bool> &staticImagesWritten);
 
+    void uniformMJDOBS(QDir &dir);
 private slots:
     // The following can also be under 'private', but then the declaration must be preceeded like this:
     // Q_INVOKABLE QString taskHDUreformat();

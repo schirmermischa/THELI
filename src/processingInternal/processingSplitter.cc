@@ -4,6 +4,7 @@
 #include "../tools/splitter.h"
 #include "ui_confdockwidget.h"
 
+#include "fitsio.h"
 #include <QMetaObject>
 #include <QVector>
 #include <QStringList>
@@ -94,6 +95,7 @@ void Controller::taskInternalHDUreformat()
     checkSuccessProcessing(data);
 
     if (successProcessing) {
+        uniformMJDOBS(dir);       // rename file and update MJDOBS for a few specific instruments, only
         data->processingStatus->HDUreformat = true;
         data->processingStatus->writeToDrive();
         if (!data->dataInitialized) {
@@ -108,5 +110,54 @@ void Controller::taskInternalHDUreformat()
         data->emitStatusChanged();
         emit populateMemoryView();
         emit progressUpdate(100);
+    }
+}
+
+// Multi-chip cameras must have uniform MJD-OBS, otherwise "exposures" cannot be identified unambiguously
+// The following instruments do not have this
+void Controller::uniformMJDOBS(QDir &dir)
+{
+    if (instData->name == "VIMOS@VLT") {    // VIMOS has no unique DATE-OBS
+        QString path = dir.absolutePath();
+        QStringList filter = {instData->shortName+"*.fits"};
+        dir.setNameFilters(filter);
+        dir.setSorting(QDir::Name);
+        QStringList fileNames = dir.entryList();
+        char filterChip1[80];
+        char dateObsChip1[80];
+        double mjdObsChip1 = 0.;
+        for (auto &fileName : fileNames) {
+            QFileInfo fi(path+"/"+fileName);
+            QString baseName = fi.completeBaseName();
+            int pos = baseName.lastIndexOf('_');
+            QString chipNumber = baseName.remove(0,pos).remove('_').remove("P");
+            fitsfile *fptr;
+            int status = 0;
+            QString completeName = path+"/"+fileName;
+            fits_open_file(&fptr, completeName.toUtf8().data(), READWRITE, &status);
+            // Extract DATE-OBS and MJD-OBS from chip 1
+            if (chipNumber == "1") {
+                fits_read_key_str(fptr, "DATE-OBS", dateObsChip1, nullptr, &status);
+                fits_read_key_str(fptr, "FILTER", filterChip1, nullptr, &status);
+                fits_read_key_dbl(fptr, "MJD-OBS", &mjdObsChip1, nullptr, &status);
+            }
+            // Project DATE-OBS and MJD-OBS from chip 1 onto other chips
+            else {
+                fits_update_key_str(fptr, "DATE-OBS", dateObsChip1, nullptr, &status);
+                fits_update_key_dbl(fptr, "MJD-OBS", mjdObsChip1, -13, nullptr, &status);
+            }
+            if (chipNumber == "1") {
+                // make double sure that in chip one we have exactly the same format and number of digits as in the other chips!
+                fits_update_key_dbl(fptr, "MJD-OBS", mjdObsChip1, -13, nullptr, &status);
+            }
+            fits_close_file(fptr, &status);
+            printCfitsioError("uniformMJDOBS()", status);
+
+            // Rename image file to THELI standard
+            QString dateObsString(dateObsChip1);
+            QString filterString(filterChip1);
+            QFile file(path+"/"+fileName);
+            file.rename(path+"/"+instData->shortName+"."+filterString+"."+dateObsString+"_"+chipNumber+"P.fits");
+        }
     }
 }

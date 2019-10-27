@@ -219,9 +219,17 @@ void Controller::mergeInternal(Data *scienceData, QString minFWHM, QString maxFl
         QString filename = scienceData->dirName+"/cat/"+scienceData->exposureList[i][0]->rootName+".scamp";
         filename = "!"+filename;
         fits_create_file(&fptr, filename.toUtf8().data(), &status);
+        int counter=0;
         for (auto &it : scienceData->exposureList[i]) {
             it->appendToScampCatalogInternal(fptr, minFWHM, maxFlag);
+            ++counter;
         }
+        if (counter != instData->numChips) {
+            emit messageAvailable(scienceData->exposureList[i][0]->rootName + " : Merged only " + QString::number(counter)
+                    + " out of " + QString::number(instData->numChips) + " catalogs for scamp!", "error");
+            emit criticalReceived();
+        }
+
         fits_close_file(fptr, &status);
 
         printCfitsioError("mergeInternal()", status);

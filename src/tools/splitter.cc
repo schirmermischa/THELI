@@ -61,7 +61,7 @@ void Splitter::determineFileFormat()
     // Try opening as FITS
     fits_open_file(&rawFptr, name.toUtf8().data(), READONLY, &rawStatus);
 
-   if (!rawStatus) {
+    if (!rawStatus) {
         dataFormat = "FITS";
         uncompress();
         consistencyChecks();
@@ -164,7 +164,7 @@ void Splitter::extractImages()
     // adjust progress step size for multi-chip cameras whose detectors are stored in single extension FITS files
     QStringList instruments = {"SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808@SUBARU",
                                "SuprimeCam_200808_SDFRED@SUBARU", "FORS2_2CCD_BLUE_2x2@VLT", "FORS2_2CCD_RED_2x2@VLT",
-                               "FourStar@LCO"};
+                               "FourStar@LCO", "VIMOS@VLT"};
     if (instruments.contains(instData.name)) progressStepSize *= instData.numChips;
 
     if (dataFormat == "FITS") extractImagesFITS();
@@ -325,6 +325,12 @@ int Splitter::inferChipID(int chip)
             return 0;
         }
     }
+    if (instData.name == "VIMOS@VLT") {
+        int value = 0;
+        searchKeyValue(QStringList() << "HIERARCH ESO OCS CON QUAD", value);    // running from 1 to 4
+        chipID = value;
+        return chipID;
+    }
 
     if (instData.name == "SuprimeCam_200105-200807@SUBARU") {
         int value = 0;
@@ -341,6 +347,13 @@ int Splitter::inferChipID(int chip)
         else {
             // bad det skipped in extractFITS()
         }
+        return chipID;
+    }
+
+    if (instData.name == "FourStar@LCO") {
+        int value = 0;
+        searchKeyValue(QStringList() << "CHIP", value);    // running from 1 to 4
+        chipID = value;
         return chipID;
     }
 
@@ -557,7 +570,10 @@ void Splitter::writeImage(int chip)
             outName = "!"+path+"/"+instData.shortName+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
         }
         else {
+            // general case
             outName = "!"+path+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
+            // special cases (overrides outName)
+            individualFixOutName(outName, chipID);
         }
     }
     fits_create_file(&fptr, outName.toUtf8().data(), &status);
@@ -573,6 +589,27 @@ void Splitter::writeImage(int chip)
     delete [] array;
 
     printCfitsioError("writeImage()", status);
+}
+
+void Splitter::individualFixOutName(QString &outname, const int chipID)
+{
+    if (instData.name != "VIMOS@VLT") return;
+
+    bool test = true;
+    if (instData.name == "VIMOS@VLT") {
+        test = searchKeyValue(QStringList() << "HIERARCH ESO DET EXP NO", uniqueID);
+        uniqueID = uniqueID.split('_').at(0);   //  " / char was already replaced by _ in searchKeyInHeaderValue()"
+        uniqueID = uniqueID.simplified();
+    }
+
+    if (test == false) {
+        emit messageAvailable(baseName + " : Could not determine unambiguous file name!", "error");
+        emit critical();
+        successProcessing = false;
+        return;
+    }
+
+    outname = "!"+path+"/"+instData.shortName+"."+filter+"."+uniqueID+"_"+QString::number(chipID)+"P.fits";
 }
 
 void Splitter::writeImageSlice(int chip, long slice)
