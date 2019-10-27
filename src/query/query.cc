@@ -646,7 +646,7 @@ void Query::pushNumberOfSources()
         messageString = "<br>" + QString::number(numSources) + " " + refcatName + " reference sources retrieved at this location:"
                 + "<br>RA  = " + QString::number(alpha, 'f', 5)
                 + "<br>DEC = " + QString::number(delta, 'f', 5)
-                + "<br>radius = " + QString::number(radius, 'f', 1) + "'";
+                + "<br>radius = " + radius_string + "'";
         emit messageAvailable(messageString, "output");
     }
     else {

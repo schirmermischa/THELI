@@ -66,15 +66,16 @@ void Controller::pushConfigGetCatalogFromWeb()
 {
     QString config;
     QString pm;
-    QString ra;
-    QString dec;
-    QString mag;
-    QString rad;
+    QString ra = cdw->ui->ARCraLineEdit->text();
+    QString dec = cdw->ui->ARCdecLineEdit->text();
+    QString mag = cdw->ui->ARCminmagLineEdit->text();
+    QString rad = cdw->ui->ARCradiusLineEdit->text();
     if (cdw->ui->ARCmaxpmLineEdit->text().isEmpty()) pm = "unconstrained";
-    if (cdw->ui->ARCraLineEdit->text().isEmpty()) ra = "automatic";
-    if (cdw->ui->ARCdecLineEdit->text().isEmpty()) dec = "automatic";
-    if (cdw->ui->ARCminmagLineEdit->text().isEmpty()) mag = "unconstrained";
-    if (cdw->ui->ARCradiusLineEdit->text().isEmpty()) rad = "automatic";
+    if (ra.isEmpty()) ra = "automatic";
+    if (dec.isEmpty()) dec = "automatic";
+    if (mag.isEmpty()) mag = "unconstrained";
+    if (rad.isEmpty()) rad = "automatic";
+    else rad.append("'");
 
     config = "<tt>";
     config += "Catalog = " + cdw->ui->ARCcatalogComboBox->currentText() + "<br>";
