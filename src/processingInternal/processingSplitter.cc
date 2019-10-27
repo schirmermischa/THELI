@@ -144,7 +144,7 @@ void Controller::uniformMJDOBS(QDir &dir)
             // Project DATE-OBS and MJD-OBS from chip 1 onto other chips
             else {
                 fits_update_key_str(fptr, "DATE-OBS", dateObsChip1, nullptr, &status);
-                fits_update_key_dbl(fptr, "MJD-OBS", mjdObsChip1, -13, nullptr, &status);
+                fits_update_key_dbl(fptr, "MJD-OBS", mjdObsChip1, -13, nullptr, &status);   // the '-' enforces floating point notation over exponential notation
             }
             if (chipNumber == "1") {
                 // make double sure that in chip one we have exactly the same format and number of digits as in the other chips!

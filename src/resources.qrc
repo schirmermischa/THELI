@@ -285,12 +285,6 @@
         <file>config/instruments/VIMOS@VLT_1.reg</file>
         <file>config/instruments/VIMOS@VLT_3.reg</file>
         <file>config/instruments/VIMOS@VLT_4.reg</file>
-        <file>config/instruments/VIMOS_2004@VLT_1.reg</file>
-        <file>config/instruments/VIMOS_2004@VLT_2.reg</file>
-        <file>config/instruments/VIMOS_2004@VLT_3.reg</file>
-        <file>config/instruments/VIMOS_2004@VLT_4.reg</file>
-        <file>config/instruments/VIMOS_2013@VLT_3.reg</file>
-        <file>config/instruments/VIMOS_2013@VLT_4.reg</file>
         <file>config/instruments/VIRCAM@VISTA.ahead</file>
         <file>config/instruments/VIRCAM@VISTA.ini</file>
         <file>config/instruments/VISIR@VLT.ini</file>
