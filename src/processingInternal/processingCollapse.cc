@@ -181,6 +181,7 @@ void Controller::taskInternalBinnedpreview()
         if (verbosity >= 0) emit messageAvailable("Working on chips in exposure " + QString::number(img)
                                                   + " / " + QString::number(numExp), "controller");
         QVector<float> dataBinnedGlobal(nGlobal*mGlobal,0);
+        int binnedChipCounter = 0;
         for (int chip=0; chip<instData->numChips; ++chip) {
             if (abortProcess) break;
             scienceData->myImageList[chip][img]->setupDataInMemorySimple(false);
@@ -198,9 +199,11 @@ void Controller::taskInternalBinnedpreview()
             mapBinnedData(dataBinnedGlobal, dataBinned, Tmatrices[chip], nGlobal, mGlobal,
                           nb, mb, crpix1, crpix2, xminOffset, yminOffset);
             scienceData->myImageList[chip][img]->unprotectMemory();
+            ++binnedChipCounter;
 #pragma omp atomic
             progress += progressStepSize;
         }
+        if (binnedChipCounter == 0) continue;    // skip inactive images
         QString outName = scienceData->myImageList[0][img]->rootName;
         outName.append("_"+statusString+".mosaic.fits");
         QString outDirName = scienceData->dirName+"/BINNED/";
