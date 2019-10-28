@@ -625,14 +625,15 @@ void IView::compressDynrange(const QVector<float> &fitsdata, unsigned char *intd
     float rescale = 255. / (dynRangeMax - dynRangeMin);
     float tmpdata;
     float fitsdataCorrected;
-#pragma omp parallel for
+    // NOT THREADSAFE!
+//#pragma omp parallel for
     for (long i=0; i<naxis1*naxis2; ++i) {
         // Truncate dynamic range
-        fitsdataCorrected = fitsdata[i] * colorCorrectionFactor;
+        fitsdataCorrected = fitsdata.at(i) * colorCorrectionFactor;
         if (fitsdataCorrected > dynRangeMax) tmpdata = dynRangeMax;
         else if (fitsdataCorrected < dynRangeMin) tmpdata = dynRangeMin;
         else tmpdata = fitsdataCorrected;
-        // Compress to uchar
+        // Compress to uchar (not thread safe)
         intdata[i] = (unsigned char) ((tmpdata-dynRangeMin) * rescale);
     }
 }
@@ -924,9 +925,10 @@ void IView::getImageStatistics(QString colorMode)
         // Must have read the red and green channel already
         if (colorMode == "blueChannel") {
             QVector<float> fitsDataSum(naxis1*naxis2);
-#pragma omp parallel for
+            // NOT THREADSAFE
+            // #pragma omp parallel for
             for (long i=0; i<naxis1*naxis2; ++i) {
-                fitsDataSum[i] = fitsDataR[i] + fitsDataG[i] + fitsDataB[i];
+                fitsDataSum[i] = fitsDataR.at(i) + fitsDataG.at(i) + fitsDataB.at(i);
             }
             get_array_subsample(fitsDataSum, subSample, ranStep);
         }
