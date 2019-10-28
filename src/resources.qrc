@@ -285,6 +285,7 @@
         <file>config/instruments/VIMOS@VLT.ahead</file>
         <file>config/instruments/VIMOS@VLT.ini</file>
         <file>config/instruments/VIMOS@VLT_1.reg</file>
+        <file>config/instruments/VIMOS@VLT_2.reg</file>
         <file>config/instruments/VIMOS@VLT_3.reg</file>
         <file>config/instruments/VIMOS@VLT_4.reg</file>
         <file>config/instruments/VIRCAM@VISTA.ahead</file>
