@@ -56,6 +56,7 @@ void Mask::initMasks()
 
     // Individual mask (addRegionFiles exists immediately if file does not exist)
 #pragma omp parallel for
+  // NOT parallelized internally (polygon::addPolygon_bool()
     for (int chip=0; chip<instData->numChips; ++chip) {
         QString individualMaskName = baseName+"_"+QString::number(chip+1)+".reg";
         long n = instData->sizex[chip];

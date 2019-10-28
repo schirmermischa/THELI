@@ -37,11 +37,13 @@ void region2circle(QString circlestring, float &x, float &y, float &r)
     r = list[2].toFloat();
 }
 
-void addPolygon_bool(long n, long m, QVector<float> &vertx, QVector<float> &verty, QString senseMode, QVector<bool> &mask)
+void addPolygon_bool(const long n, const long m, const QVector<float> &vertx, const QVector<float> &verty, const QString senseMode, QVector<bool> &mask)
 {
     float x, y;
 
     // apply the polygon mask
+    // NOT THREADSAFE!
+    // #pragma omp parallel for firstprivate(vertx, verty, senseMode)
     for (long j=0; j<m; ++j) {
         // we have to add +1 to compensate for arrays in C starting with 0
         // because the polygon system starts with 1, not 0
@@ -50,17 +52,21 @@ void addPolygon_bool(long n, long m, QVector<float> &vertx, QVector<float> &vert
             x = (float) i + 1;
             // if a pixel is masked already (value = true) then it must remain masked no matter what.
             // that is, we only check whether still unmasked pixels need to be masked
-            if (!mask[i+n*j]) {
+            if (!mask.at(i+n*j)) {
                 // test if the pixel is inside or outside the polygon
                 bool polytest = pnpoly_T(vertx, verty, x, y);
                 // Mask pixels inside or outside the polygon
                 if (senseMode == "in") {
                     // Pixels inside the polygon are good
                     // pnpoly() returns 0 if a pixel is outside the polygon
-                    if (polytest == 0) mask[i+n*j] = true;
+                    if (polytest == 0) {
+                        mask[i+n*j] = true;
+                    }
                 }
                 else {
-                    if (polytest == 1) mask[i+n*j] = true;
+                    if (polytest == 1) {
+                        mask[i+n*j] = true;
+                    }
                 }
             }
         }
@@ -72,6 +78,8 @@ void addPolygon_float(long n, long m, QVector<float> &vertx, QVector<float> &ver
     float x, y;
 
     // apply the polygon mask
+    // NOT THREADSAFE
+    //#pragma omp parallel for
     for (long j=0; j<m; ++j) {
         // we have to add +1 to compensate for arrays in C starting with 0
         // because the polygon system starts with 1, not 0
@@ -101,6 +109,8 @@ void addCircle_bool(long n, long m, float x, float y, float r, QString senseMode
 {
     float ii, jj, d;
 
+    // NOT THREADSAFE
+// #pragma omp parallel for
     for (long j=0; j<m; ++j) {
         jj = (float) j;
         for (long i=0; i<n; ++i) {
@@ -126,7 +136,8 @@ void addCircle_bool(long n, long m, float x, float y, float r, QString senseMode
 void addCircle_float(long n, long m, float x, float y, float r, QString senseMode, QVector<float> &weight)
 {
     float ii, jj, d;
-
+// NOT THREADSAFE
+// #pragma omp parallel for
     for (long j=0; j<m; ++j) {
         jj = (float) j;
         for (long i=0; i<n; ++i) {

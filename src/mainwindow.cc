@@ -49,6 +49,7 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     // Setup the status object, and hide some GUI elements we don't need
     // for the user (but internally, to simplify code)
     status.init();
+
     initProcessingStatus();
 
     initEnvironment(thelidir, userdir, tmpdir);
@@ -123,6 +124,7 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     // The entity that keeps track of the data, incl connections
     QString statusOld = status.getStatusFromHistory();
 
+    // NOTE: setting up the controller may take a while (hen creating object masks)
     controller = new Controller(&instData, statusOld, cdw, monitor, this);
     // LineEdit changes update controller
     for (auto &it : status.listDataDirs) {

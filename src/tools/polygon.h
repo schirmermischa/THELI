@@ -5,7 +5,7 @@
 
 void polygon2vertices(QString polystring, QVector<float> &vertx, QVector<float> &verty);
 void addCircle_bool(long n, long m, float x, float y, float r, QString senseMode, QVector<bool> &mask);
-void addPolygon_bool(long n, long m, QVector<float> &vertx, QVector<float> &verty, QString senseMode, QVector<float> &mask);
+void addPolygon_bool(const long n, const long m, const QVector<float> &vertx, const QVector<float> &verty, const QString senseMode, QVector<bool> &mask);
 void addPolygon_float(long n, long m, QVector<float> &vertx, QVector<float> &verty, QString senseMode, QVector<float> &weight);
 void addRegionFilesToMask(long n, long m, QString regionFile, QVector<bool> &mask, bool &isChipMasked);
 void addRegionFilesToWeight(long n, long m, QString regionFile, QVector<float> &mask);
@@ -40,7 +40,7 @@ SOFTWARE.
 */
 
 template<class T>
-bool pnpoly_T(QVector<T> &vertx, QVector<T> &verty, T testx, T testy)
+bool pnpoly_T(const QVector<T> &vertx, const QVector<T> &verty, const T testx, const T testy)
 {
     long i, j;
     long nvert = vertx.length();

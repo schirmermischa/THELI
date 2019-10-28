@@ -1285,22 +1285,23 @@ void Data::initGlobalWeight(int chip, Data *flatData, QString filter, bool sameW
     // Initiate with the flat field, or unity everywhere
     if (!sameWeight) {
         if (flatData == nullptr) {
-            emit messageAvailable("initGlobalWeight(): flatData has not been defined (nullptr)", "error");
-            emit critical();
-            return;
+            emit messageAvailable("No FLAT data defined. Initializing globalweight for chip " + QString::number(chip+1) + " with constant value 1.0", "warning");
+            emit warning();
+            long dim = instData->sizex[chip] * instData->sizey[chip];
+            myImage->dataCurrent.fill(1.0, dim);
         }
-        if (flatData->successProcessing) {
-            if (*verbosity > 0) emit messageAvailable("Initializing globalweight for chip " + QString::number(chip+1) + " from master flat"+thresholds, "data");
-            myImage->dataCurrent = flatData->combinedImage[chip]->dataCurrent;
+        else {
+            if (flatData->successProcessing) {
+                if (*verbosity > 0) emit messageAvailable("Initializing globalweight for chip " + QString::number(chip+1) + " from master flat"+thresholds, "data");
+                myImage->dataCurrent = flatData->combinedImage[chip]->dataCurrent;
+            }
         }
     }
     else {
+        if (*verbosity > 0) emit messageAvailable("Initializing globalweight for chip " + QString::number(chip+1) + " with constant value 1.0", "data");
         long dim = instData->sizex[chip] * instData->sizey[chip];
+        myImage->dataCurrent.fill(1.0, dim);
         myImage->dataCurrent.resize(dim);
-        for (long i=0; i<dim; ++i) {
-            if (*verbosity > 0) emit messageAvailable("Initializing globalweight for chip " + QString::number(chip+1) + " with constant value 1.0", "data");
-            myImage->dataCurrent[i] = 1.;
-        }
     }
 
     for (auto &it: myImage->dataCurrent) {

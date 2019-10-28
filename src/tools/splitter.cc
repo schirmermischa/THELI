@@ -293,10 +293,11 @@ void Splitter::extractImagesFITS()
 }
 
 // skip over bad detectors
-bool Splitter::isDetectorAlive(int chip)
+bool Splitter::isDetectorAlive(int &chipMapped)
 {
     if (instData.name == "SuprimeCam_200101-200104@SUBARU") {
-        if (inferChipID(chip) == 7) return false;
+        if (chipMapped == 6) return false;
+        else if (chipMapped > 6) --chipMapped;       // compensate chip number for lost chip
     }
 
     return true;
@@ -306,7 +307,7 @@ int Splitter::inferChipID(int chip)
 {
     // Data from some cameras, such as SuprimeCam and FORS, come in separate FITS files instead of a MEF file.
     // We need to identify the chip number correctly:
-    int chipID = chip+1;    // external counting starts with zero; This is the number we return for most instruments
+    int chipID = chip + 1;    // external counting starts with zero; 'chipID' is the number we return for most instruments
 
     // These need special treatment. The 'chip' variable is not necessarily used for all of them
     if (instData.name.contains("FORS1_2CCD")
@@ -325,21 +326,22 @@ int Splitter::inferChipID(int chip)
             return 0;
         }
     }
-    if (instData.name == "VIMOS@VLT") {
+
+    else if (instData.name == "VIMOS@VLT") {
         int value = 0;
         searchKeyValue(QStringList() << "HIERARCH ESO OCS CON QUAD", value);    // running from 1 to 4
         chipID = value;
         return chipID;
     }
 
-    if (instData.name == "SuprimeCam_200105-200807@SUBARU") {
+    else if (instData.name == "SuprimeCam_200105-200807@SUBARU" || instData.name == "SuprimeCam_200101-200104@SUBARU") {
         int value = 0;
         searchKeyValue(QStringList() << "DET-ID", value);    // running from 0 to 9
         chipID = value + 1;
         return chipID;
     }
-
-    if (instData.name == "SuprimeCam_200101-200104@SUBARU") {
+/*
+    else if (instData.name == "SuprimeCam_200101-200104@SUBARU") {
         int value = 0;
         searchKeyValue(QStringList() << "DET-ID", value);    // running from 0 to 9;  #6 is DEAD
         if (value < 6) chipID = value + 1;
@@ -349,8 +351,8 @@ int Splitter::inferChipID(int chip)
         }
         return chipID;
     }
-
-    if (instData.name == "FourStar@LCO") {
+*/
+    else if (instData.name == "FourStar@LCO") {
         int value = 0;
         searchKeyValue(QStringList() << "CHIP", value);    // running from 1 to 4
         chipID = value;
@@ -538,7 +540,7 @@ void Splitter::getDetectorSections()
 
 // Write the pixel-corrected extension as a separate FITS file to disk
 // Condensed version of the same function as in MyFITS
-void Splitter::writeImage(int chip)
+void Splitter::writeImage(int chipMapped)
 {
     if (!successProcessing) return;
 
@@ -556,7 +558,9 @@ void Splitter::writeImage(int chip)
     long naxes[2] = { naxis1, naxis2 };
 
     // Infer true chip number:
-    int chipID = inferChipID(chip);
+//    int chipID = inferChipID(chip);
+
+    int chipID = chipMapped + 1;
 
     // Replace blanks in file names
     baseName.replace(' ','_');

@@ -140,7 +140,7 @@ private:
     void xtalk_method8();
     void xtalk_method9();
     void xtalk_method10();
-    void writeImage(int chip);
+    void writeImage(int chipMapped);
 
     void retainMandatoryKeywords();
     void buildTheliHeader();
@@ -207,7 +207,7 @@ private:
     float geometricGain(QVector<float> detectorGains);
 
     bool individualFixGAIN(int chip);
-    bool isDetectorAlive(int chip);
+    bool isDetectorAlive(int &chipMapped);
     void individualFixOutName(QString &outname, const int chipID);
 signals:
     void messageAvailable(QString message, QString type);
