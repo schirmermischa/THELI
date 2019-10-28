@@ -205,7 +205,7 @@ public:
     void writeBackgroundModel_newParallel(int chip, MyImage *combinedBackgroundImage, QString mode, QString basename,
                                           int threadID, omp_lock_t &backLock, bool &staticImageWritten);
     void cleanBackgroundModelStatus();
-
+    bool checkForRawData();
 public slots:
     void setMemoryLockReceived(bool locked);
     void setWCSLockReceived(bool locked);

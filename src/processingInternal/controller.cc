@@ -227,7 +227,6 @@ void Controller::mapDataTree()
     dataTreeUpdateOngoing = true;
     omp_set_lock(&memoryLock);
     emit clearMemoryView();
-
     mainDirName = mainGUI->ui->setupMainLineEdit->text();
     recurseCounter = 0;
     parseDataDir(mainGUI->ui->setupBiasLineEdit, DT_BIAS);
@@ -319,6 +318,7 @@ void Controller::parseDataDir(QLineEdit *le, QList<Data *> &DT_x)
             // nothing yet
         }
         // Check status consistency
+
         successFileScan = data->checkStatusConsistency();
 
         if (!successFileScan) {

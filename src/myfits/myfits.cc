@@ -562,6 +562,9 @@ bool MyFITS::write(QString history, float exptime, QString filter, QVector<QStri
     }
     // BZERO should be 0 after THELI loaded and processed images (data values are scaled by cfitsio when loaded by MyFITS)
     fits_update_key_flt(fptr, "BZERO", 0.0, 6, nullptr, &status);
+
+    // This image has been processed by THELI
+    fits_update_key_lng(fptr, "THELIPRO", 1, "Indicates that this is a THELI FITS file", &status);
     fits_close_file(fptr, &status);
 
     delete [] array;
@@ -656,6 +659,9 @@ bool MyFITS::writeConstImage(QString history, float exptime, QString filter, QVe
     }
     // BZERO should be 0 after THELI loaded and processed images (data values are scaled by cfitsio when loaded by MyFITS)
     fits_update_key_flt(fptr, "BZERO", 0.0, 6, nullptr, &status);
+
+    // This image has been processed by THELI
+    fits_update_key_lng(fptr, "THELIPRO", 1, "Indicates that this is a THELI FITS file", &status);
     fits_close_file(fptr, &status);
 
     delete [] array;
@@ -709,6 +715,9 @@ bool MyFITS::writeDebayer(QString history, float exptime, QString filter, double
     }
     // BZERO should be 0 after THELI loaded and processed images (data values are scaled by cfitsio when loaded by MyFITS)
     fits_update_key_flt(fptr, "BZERO", 0.0, 6, nullptr, &status);
+
+    // This image has been processed by THELI
+    fits_update_key_lng(fptr, "THELIPRO", 1, "Indicates that this is a THELI FITS file", &status);
     fits_close_file(fptr, &status);
 
     delete [] array;
@@ -743,6 +752,9 @@ bool MyFITS::writeLong()
     fits_create_file(&fptr, name.toUtf8().data(), &status);
     fits_create_img(fptr, bitpix, naxis, naxes, &status);
     fits_write_img(fptr, TLONG, fpixel, nelements, array, &status);
+
+    // This image has been processed by THELI
+    fits_update_key_lng(fptr, "THELIPRO", 1, "Indicates that this is a THELI FITS file", &status);
     fits_close_file(fptr, &status);
 
     delete [] array;

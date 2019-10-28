@@ -526,7 +526,7 @@ void MainWindow::on_startPushButton_clicked()
                 anythingChecked = true;
             }
         }
-        // Leave if no normal task is checked 9apart from special buttons)
+        // Leave if no normal task is checked (apart from special buttons)
         if (mode != "GetCatalogFromWEB"
                 && mode != "GetCatalogFromIMAGE"
                 && mode != "ResolveTarget"
@@ -569,8 +569,7 @@ void MainWindow::on_startPushButton_clicked()
         workerThread->start();
 
         // show the process monitor, for normal processing tasks, only
-        if (taskBasename != "ResolveTarget"
-                && taskBasename != "GetCatalogFromWEB") {
+        if (taskBasename != "ResolveTarget") {
             if (switchProcessMonitorPreference) monitor->raise();
             ui->processProgressBar->setValue(0);
         }

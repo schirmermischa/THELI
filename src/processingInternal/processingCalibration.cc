@@ -266,7 +266,7 @@ void Controller::taskInternalProcessflat()
     flatData->rescaleFlag = true;
 
     if (biasData != nullptr && !biasData->hasAllMasterCalibs) {
-        QString part1 = biasData->dirName+"/"+biasData->subDirName+"_?.fits\n";
+        QString part1 = biasData->dirName+"/"+biasData->subDirName+"_*.fits\n";
         emit showMessageBox("Controller::MASTER_FLATOFF_NOT_FOUND", part1, "");
         successProcessing = false;
         return;
@@ -426,13 +426,13 @@ void Controller::taskInternalProcessscience()
 
     // Check if calib data exist (at least chip 1)
     if (biasData != nullptr && !biasData->hasAllMasterCalibs) {
-        QString part1 = biasData->dirName+"/"+biasData->subDirName+"_?.fits\n";
+        QString part1 = biasData->dirName+"/"+biasData->subDirName+"_*.fits\n";
         emit showMessageBox("Controller::MASTER_BIAS_NOT_FOUND", part1, "");
         successProcessing = false;
         return;
     }
     if (flatData != nullptr && !flatData->hasAllMasterCalibs) {
-        QString part1 = flatData->dirName+"/"+flatData->subDirName+"_?.fits\n";
+        QString part1 = flatData->dirName+"/"+flatData->subDirName+"_*.fits\n";
         emit showMessageBox("Controller::MASTER_FLAT_NOT_FOUND", part1, "");
         successProcessing = false;
         return;

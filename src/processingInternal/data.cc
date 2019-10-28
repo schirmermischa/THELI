@@ -10,6 +10,7 @@
 #include "../threading/memoryworker.h"
 #include "../processingStatus/processingStatus.h"
 
+#include "fitsio.h"
 #include <omp.h>
 #include <QDir>
 #include <QMessageBox>
@@ -57,6 +58,7 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
     // Get the recorded processing status from the .processingStatus file (if any)
     processingStatus = new ProcessingStatus(dirName);
     processingStatus->readFromDrive();
+
     QString backupStatus = processingStatus->statusString;
     backupStatus.chop(1);
     pathBackupL1 = dirName + "/" + backupStatus + "_IMAGES";
@@ -70,6 +72,11 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
 
     // start fresh
     clearImageInfo();
+
+    // Check whether this directory contains RAW data (and thus must be processed by HDUreformat first)
+    if (subDirName != "GLOBALWEIGHTS") {    // crashes otherwise when creating globalweights
+        if (checkForRawData()) return;
+    }
 
     if (subDirName == "GLOBALWEIGHTS") {
         numMasterCalibs = 0;
@@ -198,11 +205,14 @@ Data::~Data()
 // Upon launch, check if the status on record matches the FITS files on drive (using chip 1 as a reference)
 bool Data::checkStatusConsistency()
 {
+    // only do this
+    if (!processingStatus->doesStatusFileExist()) return true;
+
     if (dataType == "SCIENCE" || dataType == "SKY" || dataType == "STD") {
         QStringList expectedFileList = dir.entryList(QStringList() << "*_1"+processingStatus->statusString+".fits");
         QStringList observedFileList = dir.entryList(QStringList() << "*_1*.fits");
 
-        // write found status to disk. Controller will then retry of necessary
+        // write found status to disk. Controller will then retry if necessary
         if (expectedFileList.isEmpty() && !observedFileList.isEmpty()) {
             processingStatus->inferStatusFromFilenames();
             processingStatus->statusToBoolean(processingStatus->statusString);
@@ -211,6 +221,42 @@ bool Data::checkStatusConsistency()
         }
     }
     return true;
+}
+
+bool Data::checkForRawData()
+{
+    // Only checking .fits files. Everything else ("*.fit", "*.cr2" etc) it is clear that we have raw data
+    QStringList filter = {"*.fits"};
+    QStringList fileNames = dir.entryList(filter);
+
+    int numRawFiles = 0;
+    int numProcessedFiles = 0;
+    for (auto &fileName : fileNames) {
+        fitsfile *fptr;
+        int status = 0;
+        QString name = dirName + "/" + fileName;
+        fits_open_file(&fptr, name.toUtf8().data(), READONLY, &status);
+        long thelipro = 0;
+        fits_read_key_lng(fptr, "THELIPRO", &thelipro, nullptr, &status);
+        if (status == KEY_NO_EXIST) {
+            ++numRawFiles;
+            status = 0;
+        }
+        else {
+            ++numProcessedFiles;
+        }
+        fits_close_file(fptr, &status);
+    }
+
+    if (numProcessedFiles == 0 && numRawFiles > 0) return true;
+    else if (numProcessedFiles > 0 && numRawFiles == 0) return false;
+    else {
+        // (numProcessedFiles > 0 && numRawFiles > 0) {
+        emit messageAvailable(dirName + " : Both processed and RAW files were found. This status is not allowd. You must clean the directory manually.", "error");
+        emit critical();
+        successProcessing = false;
+        return false;
+    }
 }
 
 void Data::broadcastNumberOfFiles()

@@ -27,6 +27,7 @@ public:
     void statusToBoolean(QString status);
     QString getStatusString();
     void inferStatusFromFilenames();
+    bool doesStatusFileExist();
 
 private:
     QDir dir;

@@ -125,6 +125,9 @@ void ProcessingStatus::inferStatusFromFilenames()
     }
 }
 
+// This does not work if raw data have e.g. the form fsr_1075_03_c2.fits (FourStar).
+// It would return 'c'.
+// Hence this function must not be called if no processing has taken place yet.
 QString ProcessingStatus::extractStatusFromFilename(QString &filename)
 {
     QString id = getLastWord(filename, '_');
@@ -133,5 +136,11 @@ QString ProcessingStatus::extractStatusFromFilename(QString &filename)
     return status;
 }
 
+bool ProcessingStatus::doesStatusFileExist()
+{
+    QFile file(dirName + "/.processingStatus");
+    if( !file.exists()) return false;
+    else return true;
+}
 
 

@@ -1210,6 +1210,7 @@ bool readData3D(QString path, QVector<double> &x, QVector<double> &y, QVector<do
     return true;
 }
 
+// Angles are always passed / returned in degrees
 double getPosAnglefromCD(double cd11, double cd12, double cd21, double cd22)
 {
     // the pixel scale
@@ -1279,11 +1280,15 @@ double getPosAnglefromCD(double cd11, double cd12, double cd21, double cd22)
         }
     }
 
-    return (pa);
+    double rad = 3.14159265 / 180.;
+    return (pa / rad);      // return in degrees
 }
 
+// Angles are always passed / returned in degrees
 void rotateCDmatrix(double &cd11, double &cd12, double &cd21, double &cd22, double PAnew)
 {
+    double rad = 3.14159265 / 180.;
+
     // the current position angle of the CD matrix
     double PAold = getPosAnglefromCD(cd11, cd12, cd21, cd22);
 
@@ -1302,12 +1307,13 @@ void rotateCDmatrix(double &cd11, double &cd12, double &cd21, double &cd22, doub
 
     // rotate the matrix to the new position angle
     double dPA = PAnew - PAold;
-    matrix_mult_T(cos(dPA), -sin(dPA), sin(dPA), cos(dPA), cd11, cd12, cd21, cd22);
+    matrix_mult_T(cos(rad*dPA), -sin(rad*dPA), sin(rad*dPA), cos(rad*dPA), cd11, cd12, cd21, cd22);
 
     // flip the matrix
     matrix_mult_T(f11, f12, f21, f22, cd11, cd12, cd21, cd22);
 }
 
+// Angles are always passed / returned in degrees
 void get_rotimsize(long naxis1, long naxis2, double PAold, double PAnew, long &Nnew, long &Mnew)
 {
     double n = naxis1;

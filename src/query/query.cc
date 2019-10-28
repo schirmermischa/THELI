@@ -647,7 +647,7 @@ void Query::pushNumberOfSources()
                 + "<br>RA  = " + QString::number(alpha, 'f', 5)
                 + "<br>DEC = " + QString::number(delta, 'f', 5)
                 + "<br>radius = " + radius_string + "'";
-        emit messageAvailable(messageString, "output");
+        emit messageAvailable(messageString, "ignore");
     }
     else {
         if (!suppressCatalogWarning) {

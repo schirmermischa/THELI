@@ -48,7 +48,7 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
     else if (trigger == "Controller::MASTER_BIAS_NOT_FOUND" && !MASTER_BIAS_NOT_FOUND_shown) {
         MASTER_BIAS_NOT_FOUND_shown = true;
         QMessageBox::warning(this, tr("Master BIAS not found"),
-                             tr("The following master BIAS or DARK was found for calibrating science images:")+"\n"+
+                             tr("The following master BIAS or DARK was not found for calibrating science images:")+"\n"+
                              part1+
                              tr("\nYou must create it first."),
                              QMessageBox::Ok);

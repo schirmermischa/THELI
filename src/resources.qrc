@@ -93,10 +93,12 @@
         <file>config/instruments/FORS2_2CCD_RED_2x2@VLT_2.reg</file>
         <file>config/instruments/FourStar@LCO.ahead</file>
         <file>config/instruments/FourStar@LCO.ini</file>
+        <file>config/instruments/FourStar@LCO_1.reg</file>
+        <file>config/instruments/FourStar@LCO_2.reg</file>
+        <file>config/instruments/FourStar@LCO_3.reg</file>
         <file>config/instruments/FourStar@LCO_4.reg</file>
         <file>config/instruments/FourStar_Chips1+4@LCO.ahead</file>
         <file>config/instruments/FourStar_Chips1+4@LCO.ini</file>
-        <file>config/instruments/FourStar_Chips1+4@LCO_2.reg</file>
         <file>config/instruments/GMOS-N-EEV-3ports@GEMINI.ahead</file>
         <file>config/instruments/GMOS-N-EEV-3ports@GEMINI.ini</file>
         <file>config/instruments/GMOS-N-EEV-3ports@GEMINI_1.reg</file>

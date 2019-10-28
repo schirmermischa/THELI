@@ -97,8 +97,9 @@ private:
     QString filter = "Unknown";
 
     QString dateObsValue = "";
-    double crval1 = 0.;
-    double crval2 = 0.;
+    double crval1 = 0.0;
+    double crval2 = 0.0;
+    double positionAngle = 0.0;
     float exptimeValue = 0.0;   // header keyword value to calculate other keywords
     float lstValue = 0.0;       // header keyword value to calculate other keywords
     double mjdobsValue = 0.0;   // header keyword value to calculate other keywords
@@ -198,14 +199,14 @@ private:
     void WCSbuildCRPIX(int chip);
     void WCSbuildCTYPE();
 
-    void individualFixCDmatrix(int chip);
-    void individualFixCRVAL();
+    bool individualFixCDmatrix(int chip);
+    bool individualFixCRVAL();
     void uncompress();
     int inferChipID(int chip);
     void convertToElectrons(int chip);
     float geometricGain(QVector<float> detectorGains);
 
-    void individualFixGAIN(int chip);
+    bool individualFixGAIN(int chip);
     bool isDetectorAlive(int chip);
     void individualFixOutName(QString &outname, const int chipID);
 signals:

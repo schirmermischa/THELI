@@ -46,12 +46,9 @@ void Splitter::buildTheliHeader()
         if (mandatoryKey == "OBJECT" && !keyFound)  fallback = "OBJECT  = 'Unknown'";
 
         if (!keyFound) {
+            if (*verbosity > 1) emit messageAvailable(fileName + " : Could not determine keyword: "+mandatoryKey+", using default: "+fallback, "ignore");
             fallback.resize(80, ' ');
             headerTHELI.append(fallback);
-        }
-
-        if (!keyFound) {
-            if (*verbosity > 1) emit messageAvailable(fileName + " : Could not determine keyword: "+mandatoryKey+", using default value", "ignore");
         }
     }
 
@@ -64,6 +61,11 @@ void Splitter::buildTheliHeader()
 
     // Append DUMMY keywords
     headerTHELI.append(dummyKeys);
+
+    // Append the THELIPRO keyword to indicate that this  FITS file underwent initial THELI processing
+    QString card = "THELIPRO= 1             / Indicates that this is a THELI FITS file";
+    card.resize(80, ' ');
+    headerTHELI.append(card);
 }
 
 void Splitter::buildTheliHeaderMJDOBS()
@@ -152,11 +154,8 @@ void Splitter::WCSbuildCRPIX(int chip)
 // Instrument dependent
 void Splitter::WCSbuildCRVAL()
 {
-    // Exceptions
-    if (instData.name == "WFC@INT") {
-        individualFixCRVAL();
-        return;
-    }
+    // Exceptions. Return if successful.
+    if (individualFixCRVAL()) return;
 
     QStringList headerWCS;
 
@@ -185,11 +184,8 @@ void Splitter::WCSbuildCTYPE()
 // Instrument dependent
 void Splitter::WCSbuildCDmatrix(int chip)
 {
-    // Exceptions
-    if (instData.name == "WFC@INT") {
-        individualFixCDmatrix(chip);
-        return;
-    }
+    // Exceptions. Return if successful.
+    if (individualFixCDmatrix(chip)) return;
 
     QStringList headerWCS;
     QString fallback = "";
@@ -211,9 +207,9 @@ void Splitter::WCSbuildCDmatrix(int chip)
         if (!keyFound && wcsKey == "CD2_1") fallback = "CD2_1   = 0.0";
 
         if (!keyFound) {
+            if (*verbosity > 1) emit messageAvailable(fileName + " : Could not determine keyword: "+wcsKey+", using default: "+fallback, "ignore");
             fallback.resize(80, ' ');
             headerWCS.append(fallback);
-            if (*verbosity > 1) emit messageAvailable(fileName + " : Could not determine keyword: "+wcsKey+", using default value", "ignore");
         }
     }
 
@@ -227,9 +223,9 @@ void Splitter::WCSbuildRADESYS()
     bool keyFound = searchKey(wcsKey, headerDictionary.value(wcsKey), headerWCS);
     if (!keyFound) {
         QString card = "RADESYS = 'ICRS'";
+        if (*verbosity > 1) emit messageAvailable(fileName + " : Could not determine keyword: "+wcsKey+", using default: "+card, "ignore");
         card.resize(80, ' ');
         headerWCS.append(card);
-        if (*verbosity > 1) emit messageAvailable(fileName + " : Could not determine keyword: "+wcsKey+", using default value", "ignore");
     }
     headerTHELI.append(headerWCS);
 }
@@ -241,33 +237,40 @@ void Splitter::WCSbuildEQUINOX()
     bool keyFound = searchKey(wcsKey, headerDictionary.value(wcsKey), headerWCS);
     if (!keyFound) {
         QString card = "EQUINOX = 2000.0";
+        if (*verbosity > 1) emit messageAvailable(fileName + " : Could not determine keyword: "+wcsKey+", using default: "+card, "ignore");
         card.resize(80, ' ');
         headerWCS.append(card);
-        if (*verbosity > 1) emit messageAvailable(fileName + " : Could not determine keyword: "+wcsKey+", using default value", "ignore");
     }
     headerTHELI.append(headerWCS);
 }
 
-void Splitter::individualFixCRVAL()
+bool Splitter::individualFixCRVAL()
 {
-    QStringList headerWCS;
+    bool individualFixDone = false;
 
+    QStringList headerWCS;
     QString crval1_card = "";
     QString crval2_card = "";
+    QString crval1 = "";
+    QString crval2 = "";
 
-    QString crval1;
-    QString crval2;
+    // List of instruments that we have to consider
+    QStringList list = {"WFC@INT"};
+
+    // Leave if no individual fix is required.
+    if (!list.contains(instData.name)) return false;
+
+    // Prepare fix.
+    // First, read coords and fix format (sometimes we have 'HH MM SS' instead of 'HH:MM:SS')
+    // Convert to decimal format if necessary
     searchKeyValue(headerDictionary.value("CRVAL1"), crval1);
     searchKeyValue(headerDictionary.value("CRVAL2"), crval2);
-
-    // Fix format (sometimes we have 'HH MM SS' instead of 'HH:MM:SS')
     crval1.replace(' ', ':');
     crval2.replace(' ', ':');
-
-    // Convert to decimal format if necessary
     if (crval1.contains(':')) crval1 = hmsToDecimal(crval1);
     if (crval2.contains(':')) crval2 = dmsToDecimal(crval2);
 
+    // Here are the individual fixes
     if (instData.name == "WFC@INT") {
         double alpha = crval1.toDouble();
         double delta = crval2.toDouble();
@@ -278,19 +281,24 @@ void Splitter::individualFixCRVAL()
         delta = delta - 0.02907;
         crval1_card = "CRVAL1  = "+QString::number(alpha, 'f', 6);
         crval2_card = "CRVAL2  = "+QString::number(delta, 'f', 6);
+        individualFixDone = true;
     }
 
-    crval1_card.resize(80, ' ');
-    crval2_card.resize(80, ' ');
+    if (individualFixDone) {
+        crval1_card.resize(80, ' ');
+        crval2_card.resize(80, ' ');
+        headerWCS.append(crval1_card);
+        headerWCS.append(crval2_card);
+        headerTHELI.append(headerWCS);
+    }
 
-    headerWCS.append(crval1_card);
-    headerWCS.append(crval2_card);
-
-    headerTHELI.append(headerWCS);
+    return individualFixDone;
 }
 
-void Splitter::individualFixCDmatrix(int chip)
+bool Splitter::individualFixCDmatrix(int chip)
 {
+    bool individualFixDone = false;
+
     QStringList headerWCS;
 
     QString cd11_card = "";
@@ -323,20 +331,43 @@ void Splitter::individualFixCDmatrix(int chip)
             cd21_card = "CD2_1   =  -9.224461667406E-05";
             cd22_card = "CD2_2   =   1.077599414761E-06";
         }
+        individualFixDone = true;
+    }
+    if (instData.name == "FourStar@LCO") {     // FourStar has no CD matrix in the header
+        if (!searchKeyValue(QStringList() << "ROTANGLE", positionAngle)) {
+            emit messageAvailable(name + " : Could not find ROTANGLE keyword, set to zero! CD matrix might have wrong orientation.", "warning");
+            emit warning();
+            positionAngle = 0.0;
+        }
+        double cd11 = -1.*instData.pixscale / 3600.;
+        double cd12 = 0.0;
+        double cd21 = 0.0;
+        double cd22 = instData.pixscale / 3600.;
+        rotateCDmatrix(cd11, cd12, cd21, cd22, positionAngle);
+        cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
+        cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
+        cd21_card = "CD2_1   =  "+QString::number(cd21, 'g', 6);
+        cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
+        individualFixDone = true;
     }
 
-    cd11_card.resize(80, ' ');
-    cd12_card.resize(80, ' ');
-    cd21_card.resize(80, ' ');
-    cd22_card.resize(80, ' ');
+    if (individualFixDone) {
+        cd11_card.resize(80, ' ');
+        cd12_card.resize(80, ' ');
+        cd21_card.resize(80, ' ');
+        cd22_card.resize(80, ' ');
 
-    headerWCS.append(cd11_card);
-    headerWCS.append(cd12_card);
-    headerWCS.append(cd21_card);
-    headerWCS.append(cd22_card);
+        headerWCS.append(cd11_card);
+        headerWCS.append(cd12_card);
+        headerWCS.append(cd21_card);
+        headerWCS.append(cd22_card);
 
-    headerTHELI.append(headerWCS);
+        headerTHELI.append(headerWCS);
+    }
+
+    return individualFixDone;
 }
+
 
 // Build the EXPTIME keyword
 void Splitter::buildTheliHeaderEXPTIME()
@@ -451,13 +482,8 @@ void Splitter::buildTheliHeaderGAIN(int chip)
 {
     if (!successProcessing) return;
 
-    // List of instruments that require special treatment (ambiguous GAIN keyword; or gain must be constructed from more readout channels)
-    QStringList gainInstruments = {"HAWKI@VLT", "NIRI@GEMINI"};
-
-    for (auto &inst : gainInstruments) {
-        individualFixGAIN(chip);
-        return;
-    }
+    // Exceptions. Return if successful.
+    if (individualFixGAIN(chip)) return;
 
     // normal cases
     float chipGain = 1.0;
@@ -477,24 +503,35 @@ void Splitter::buildTheliHeaderGAIN(int chip)
     gain[chip] = chipGain;   // used to convert the pixel data from ADU to electrons
 }
 
-void Splitter::individualFixGAIN(int chip)
+bool Splitter::individualFixGAIN(int chip)
 {
+    bool individualFixDone = false;
+
     float chipGain = 1.0;
     if (instData.name == "HAWKI@VLT") {           // https://www.eso.org/sci/facilities/paranal/instruments/hawki/inst.html
         if (chip == 0) chipGain = 1.705;
         if (chip == 1) chipGain = 1.870;
         if (chip == 2) chipGain = 1.735;
         if (chip == 3) chipGain = 2.110;
+        individualFixDone = true;
+    }
+    if (instData.name == "NIRI@GEMINI") {         // https://www.gemini.edu/sciops/instruments/niri/imaging/detector-array
+        chipGain = 12.3;                          // No gain keyword in FITS header
+        individualFixDone = true;
     }
 
-    QString card1 = "GAINRAW = "+QString::number(chipGain, 'f', 6) + " / Effective gain in raw data";
-    QString card2 = "GAIN    = 1.0     / ADUs were converted to e- in this image using GAINRAW";
-    card1.resize(80, ' ');
-    card2.resize(80, ' ');
-    headerTHELI.append(card1);
-    headerTHELI.append(card2);
+    if (individualFixDone) {
+        QString card1 = "GAINRAW = "+QString::number(chipGain, 'f', 6) + " / Effective gain in raw data";
+        QString card2 = "GAIN    = 1.0     / ADUs were converted to e- in this image using GAINRAW";
+        card1.resize(80, ' ');
+        card2.resize(80, ' ');
+        headerTHELI.append(card1);
+        headerTHELI.append(card2);
 
-    gain[chip] = chipGain;
+        gain[chip] = chipGain;
+    }
+
+    return individualFixDone;
 }
 
 // Build the AIRMASS keyword
