@@ -1377,7 +1377,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="processingTabWidgetPage1">
        <attribute name="title">
@@ -1883,7 +1883,7 @@
            <enum>Qt::ClickFocus</enum>
           </property>
           <property name="statusTip">
-           <string>MANDATORY: Must execute, even if no bias/flats have been taken. </string>
+           <string>Apply master BIAS / DARK / FLAT</string>
           </property>
           <property name="autoFillBackground">
            <bool>true</bool>
