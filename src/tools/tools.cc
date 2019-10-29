@@ -349,7 +349,7 @@ QVector<float> collapse_quad(QVector<float> &data, const QVector<bool> &globalMa
 
     QVector<float> quadrant(nh*mh, 0);
     QVector<float> collquad(nh*mh, 0);
-    QVector<float> collapsed2D;
+    QVector<float> collapsed2D(n*m, 0);
     QVector<bool> globalMaskquad(nh*mh, false);
     QVector<bool> objectMaskquad(nh*mh, false);
 
