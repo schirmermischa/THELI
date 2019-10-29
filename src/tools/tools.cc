@@ -224,7 +224,10 @@ void mapBinnedData(QVector<float> &dataBinnedGlobal, const QVector<float> &dataB
             if (jBin >= mGlobal) jBin = mGlobal - 1;
             if (iBin < 0) iBin = 0;
             if (jBin < 0) jBin = 0;
-            dataBinnedGlobal[iBin+nGlobal*jBin] = dataBinnedIndividual[i+nInd*j];
+//            dataBinnedGlobal[iBin+nGlobal*jBin] = dataBinnedIndividual[i+nInd*j];
+            // "Adding" instead of replacing. Does not matter for normal multi-chip cameras, as detectors don't overlap.
+            // But MOIRCS detectors are partially masked and these areas do overlap because of the beam splitter (masking valid pixels)
+            dataBinnedGlobal[iBin+nGlobal*jBin] += dataBinnedIndividual[i+nInd*j];
         }
     }
 }
@@ -271,7 +274,8 @@ QVector<float> collapse_x(QVector<float> &data, const QVector<bool> &globalMask,
         // "2Dsubtract" : Subtract 2D model from data
         for (i=0; i<n; ++i) {
             for (j=0; j<m; ++j) {
-                data[i+n*j] -= col[j];
+                if (!globalMask.at(i+n*j)) data[i+n*j] -= col[j];
+                else data[i+n*j] = 0.;
             }
         }
         return QVector<float>();  // return value ignored. Updating data directly
@@ -322,7 +326,8 @@ QVector<float> collapse_y(QVector<float> &data, const QVector<bool> &globalMask,
         // "2Dsubtract" : Subtract 2D model from data
         for (j=0; j<m; ++j) {
             for (i=0; i<n; ++i) {
-                data[i+n*j] -= row[i];
+                if (!globalMask.at(i+n*j)) data[i+n*j] -= row[i];
+                else data[i+n*j] = 0.;
             }
         }
         return QVector<float>();  // return value ignored. Updating data directly
@@ -433,7 +438,9 @@ QVector<float> collapse_quad(QVector<float> &data, const QVector<bool> &globalMa
         // subtract 2D model
         long i = 0;
         for (auto &pixel : data) {
-            pixel -= collapsed2D[i];
+            if (!globalMask.at(i)) pixel -= collapsed2D.at(i);
+            else pixel = 0.;
+            ++i;
         }
         return QVector<float>();
     }
