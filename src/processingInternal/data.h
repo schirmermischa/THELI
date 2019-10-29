@@ -206,6 +206,7 @@ public:
                                           int threadID, omp_lock_t &backLock, bool &staticImageWritten);
     void cleanBackgroundModelStatus();
     bool checkForRawData();
+    void applyMask(int chip, QString filter);
 public slots:
     void setMemoryLockReceived(bool locked);
     void setWCSLockReceived(bool locked);

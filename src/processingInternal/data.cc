@@ -1450,6 +1450,22 @@ void Data::detectDefects(int chip, Data *comparisonData, QString filter, bool sa
     }
 }
 
+void Data::applyMask(int chip, QString filter)
+{
+    for (auto &it: myImageList[chip]) {
+        // Only process global weights that match the current science filter
+        long i = 0;
+        if (filter == it->filter) {
+            for (auto &jt: it->dataCurrent) {
+                if (mask->globalMask[chip].at(i)) {
+                    jt = 0.;
+                }
+                ++i;
+            }
+        }
+    }
+}
+
 void Data::writeGlobalWeights(int chip, QString filter)
 {
     if (!successProcessing) return;

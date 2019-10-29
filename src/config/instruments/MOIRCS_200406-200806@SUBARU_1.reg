@@ -1,4 +1,5 @@
 # Region file format: DS9 version 4.1
-global color=green dashlist=8 3 width=1 font="helvetica 10 normal roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+# Sense: in
+# Combine: and
 image
 polygon(275,2048,1791.2778,2047.7222,1789.5556,7.5,88.944444,3.5,90,674,172,673,193,532,201,499,245,433,1026.4444,434.05556,1026.4444,668.77778,90.333333,674.33333,102,1890)

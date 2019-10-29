@@ -209,6 +209,7 @@ private:
     bool individualFixGAIN(int chip);
     bool isDetectorAlive(int &chipMapped);
     void individualFixOutName(QString &outname, const int chipID);
+    void applyMask(int chip);
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

@@ -117,23 +117,24 @@ bool Splitter::searchKeyInHeader(const QString &searchKey, const QStringList &po
             QString keyName = card.split("=")[0].simplified();
             if (keyName == possibleKey) {
                 QString keyValue = card.split("=")[1];
-                QString newCard = searchKey;
-                newCard.resize(8, ' ');          // Keyword must be 8 chars long
-                newCard.append("= "+keyValue);
-                newCard.resize(80, ' ');         // Header card must be 80 chars long
-                outputHeader.append(newCard);
                 keyFound = true;
                 int slashPosition = keyValue.lastIndexOf('/');  // (can be -1 if not found, treated as 0 by truncate(), i.e. entire string is set to empty
                 if (searchKey == "DATE-OBS") {
                     if (slashPosition > 12) keyValue.truncate(slashPosition);
                     keyValue.remove("'");
                     dateObsValue = keyValue.simplified();
+                    if (!checkFormatDATEOBS()) break;       // do not append wrong format to output header! dealing with this elsewhere
                 }
                 if (searchKey == "MJD-OBS") {
                     if (slashPosition > 12) keyValue.truncate(slashPosition);
                     keyValue.remove("'");
                     mjdobsValue = keyValue.simplified().toDouble();
                 }
+                QString newCard = searchKey;
+                newCard.resize(8, ' ');          // Keyword must be 8 chars long
+                newCard.append("= "+keyValue);
+                newCard.resize(80, ' ');         // Header card must be 80 chars long
+                outputHeader.append(newCard);
                 break;
             }
         }

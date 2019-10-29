@@ -754,7 +754,7 @@ bool MyFITS::writeLong()
     fits_write_img(fptr, TLONG, fpixel, nelements, array, &status);
 
     // This image has been processed by THELI
-    fits_update_key_lng(fptr, "THELIPRO", 1, "Indicates that this is a THELI FITS file", &status);
+    fits_update_key_lng(fptr, "THELIPRO", 1, "Processed by THELI", &status);
     fits_close_file(fptr, &status);
 
     delete [] array;

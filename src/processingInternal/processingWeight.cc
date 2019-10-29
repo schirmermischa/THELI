@@ -117,6 +117,7 @@ void Controller::taskInternalGlobalweight()
         GLOBALWEIGHTS->initGlobalWeight(chip, flatData, filter, sameWeight, flatMin, flatMax);
         GLOBALWEIGHTS->thresholdGlobalWeight(chip, biasData, filter, threshMin, threshMax);
         GLOBALWEIGHTS->detectDefects(chip, flatData, filter, sameWeight, defectKernel, defectRowTol, defectColTol, defectClusTol);
+        GLOBALWEIGHTS->applyMask(chip, filter);
         GLOBALWEIGHTS->writeGlobalWeights(chip, filter);
         if (biasData != nullptr) biasData->unprotectMemory(chip);
         if (flatData != nullptr) flatData->unprotectMemory(chip);

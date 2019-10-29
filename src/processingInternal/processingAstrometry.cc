@@ -428,7 +428,7 @@ void Controller::taskInternalAstromphotom()
 
         // Run the Scamp command
         workerThread = new QThread();
-        scampWorker = new ScampWorker(scampCommand, scampDir);
+        scampWorker = new ScampWorker(scampCommand, scampDir, instData->shortName);
         workerInit = true;
         workerThreadInit = true;
         scampWorker->moveToThread(workerThread);

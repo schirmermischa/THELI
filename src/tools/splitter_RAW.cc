@@ -158,6 +158,7 @@ void Splitter::extractImagesRAW()
         cropDataSection(dataSection[chip]);
         correctXtalk();
         correctNonlinearity(chip);
+        applyMask(chip);
         buildHeaderRAW();
         writeImage(chip);
 #pragma omp atomic

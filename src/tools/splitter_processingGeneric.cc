@@ -72,6 +72,19 @@ void Splitter::correctOverscan(float (*combineFunction_ptr) (const QVector<float
     }
 }
 
+void Splitter::applyMask(int chip)
+{
+    if (!successProcessing) return;
+
+    if (*verbosity > 1) emit messageAvailable(baseName + " : Applying mask ...", "image");
+
+    long i = 0;
+    for (auto &pixel : dataCurrent) {
+        if (mask->globalMask[chip].at(i)) pixel = 0.;
+        ++i;
+    }
+}
+
 void Splitter::cropDataSection(QVector<long> dataSection)
 {
     if (!successProcessing) return;

@@ -339,7 +339,7 @@ void MainWindow::on_stopToolButton_clicked()
 {
     // There is only sth to abort if the start button is disabled
     controller->userStop = true;
-    emit messageAvailable("Stop request received ...", "stop");
+    emit messageAvailable("Stop request received, finishing current calculations ...", "stop");
     if (!ui->startPushButton->isEnabled()) {
         message(ui->plainTextEdit, "Stopping current task, please wait ...", "stop");
         // Make sure we are not entering next task in the queue

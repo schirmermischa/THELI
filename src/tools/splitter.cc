@@ -162,10 +162,13 @@ void Splitter::extractImages()
     if (!successProcessing) return;
 
     // adjust progress step size for multi-chip cameras whose detectors are stored in single extension FITS files
-    QStringList instruments = {"SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808@SUBARU",
+    QStringList instruments = {"MOIRCS_200406-201006@SUBARU", "MOIRCS_201007-201505@SUBARU", "MOIRCS_201512-today@SUBARU",
+                               "SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808@SUBARU",
                                "SuprimeCam_200808_SDFRED@SUBARU", "FORS2_2CCD_BLUE_2x2@VLT", "FORS2_2CCD_RED_2x2@VLT",
                                "FourStar@LCO", "VIMOS@VLT"};
-    if (instruments.contains(instData.name)) progressStepSize *= instData.numChips;
+    if (instruments.contains(instData.name)) {
+        progressStepSize *= instData.numChips;
+    }
 
     if (dataFormat == "FITS") extractImagesFITS();
     else if (dataFormat == "RAW") extractImagesRAW();
@@ -235,9 +238,11 @@ void Splitter::extractImagesFITS()
                 getCurrentExtensionData();
                 correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
                 cropDataSection(dataSection[chipMapped]);
+                // CHECK: xtalk correction only works if we maintain the original detector geometry
                 correctXtalk();
                 correctNonlinearity(chipMapped);
                 convertToElectrons(chipMapped);
+                applyMask(chipMapped);
                 writeImage(chipMapped);
                 //       initMyImage(chip);
             }
@@ -257,6 +262,7 @@ void Splitter::extractImagesFITS()
                     correctXtalk();                 // TODO: how valid is that operation for the stack?
                     correctNonlinearity(chipMapped);      // TODO: how valid is that operation for the stack?
                     convertToElectrons(chipMapped);
+                    applyMask(chipMapped);
                     writeImage(chipMapped);
                     //   initMyImage(chip);
                     // TODO: how is the exposure time defined for these data? Probably requires individual solution
@@ -270,6 +276,7 @@ void Splitter::extractImagesFITS()
                         correctXtalk();
                         correctNonlinearity(chipMapped);
                         convertToElectrons(chipMapped);
+                        applyMask(chipMapped);
                         writeImageSlice(chip, i);
                         //      initMyImage(chip);
                     }
@@ -340,18 +347,14 @@ int Splitter::inferChipID(int chip)
         chipID = value + 1;
         return chipID;
     }
-/*
-    else if (instData.name == "SuprimeCam_200101-200104@SUBARU") {
+
+    else if (instData.name.contains("MOIRCS")) {
         int value = 0;
-        searchKeyValue(QStringList() << "DET-ID", value);    // running from 0 to 9;  #6 is DEAD
-        if (value < 6) chipID = value + 1;
-        else if (value > 6) chipID = value;
-        else {
-            // bad det skipped in extractFITS()
-        }
+        searchKeyValue(QStringList() << "DET-ID", value);    // running from 1 to 2
+        chipID = value;
         return chipID;
     }
-*/
+
     else if (instData.name == "FourStar@LCO") {
         int value = 0;
         searchKeyValue(QStringList() << "CHIP", value);    // running from 1 to 4
@@ -558,7 +561,7 @@ void Splitter::writeImage(int chipMapped)
     long naxes[2] = { naxis1, naxis2 };
 
     // Infer true chip number:
-//    int chipID = inferChipID(chip);
+    //    int chipID = inferChipID(chip);
 
     int chipID = chipMapped + 1;
 
@@ -597,23 +600,29 @@ void Splitter::writeImage(int chipMapped)
 
 void Splitter::individualFixOutName(QString &outname, const int chipID)
 {
-    if (instData.name != "VIMOS@VLT") return;
-
+    bool individualFixDone = false;
     bool test = true;
     if (instData.name == "VIMOS@VLT") {
         test = searchKeyValue(QStringList() << "HIERARCH ESO DET EXP NO", uniqueID);
         uniqueID = uniqueID.split('_').at(0);   //  " / char was already replaced by _ in searchKeyInHeaderValue()"
         uniqueID = uniqueID.simplified();
+        individualFixDone = true;
+    }
+    else if (instData.name.contains("MOIRCS")) {
+        test = searchKeyValue(QStringList() << "EXP-ID", uniqueID);    // e.g. MCSE00012193
+        individualFixDone = true;
     }
 
-    if (test == false) {
-        emit messageAvailable(baseName + " : Could not determine unambiguous file name!", "error");
-        emit critical();
-        successProcessing = false;
-        return;
+    if (individualFixDone) {
+        if (!test) {
+            emit messageAvailable(baseName + " : Could not determine unambiguous file name!", "error");
+            emit critical();
+            successProcessing = false;
+        }
+        else {
+            outname = "!"+path+"/"+instData.shortName+"."+filter+"."+uniqueID+"_"+QString::number(chipID)+"P.fits";
+        }
     }
-
-    outname = "!"+path+"/"+instData.shortName+"."+filter+"."+uniqueID+"_"+QString::number(chipID)+"P.fits";
 }
 
 void Splitter::writeImageSlice(int chip, long slice)

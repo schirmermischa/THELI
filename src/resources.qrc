@@ -204,10 +204,6 @@
         <file>config/instruments/MEGAPRIME_ELIXIR@CFHT.ini</file>
         <file>config/instruments/MEROPE@MERCATOR.ini</file>
         <file>config/instruments/MMIRS@LCO.ini</file>
-        <file>config/instruments/MOIRCS@SUBARU.ahead</file>
-        <file>config/instruments/MOIRCS@SUBARU.ini</file>
-        <file>config/instruments/MOIRCS@SUBARU_1.reg</file>
-        <file>config/instruments/MOIRCS@SUBARU_2.reg</file>
         <file>config/instruments/MOSAIC-I_old@KPNO_0.9m.ini</file>
         <file>config/instruments/MOSAIC-I_old@KPNO_4.0m.ahead</file>
         <file>config/instruments/MOSAIC-I_old@KPNO_4.0m.ini</file>
@@ -312,5 +308,17 @@
         <file>config/default.conv</file>
         <file>config/default.nnw</file>
         <file>config/default.param</file>
+        <file>config/instruments/MOIRCS_200406-200806@SUBARU_1.reg</file>
+        <file>config/instruments/MOIRCS_200406-200806@SUBARU_2.reg</file>
+        <file>config/instruments/MOIRCS_200406-200806@SUBARU.ini</file>
+        <file>config/instruments/MOIRCS_200807-201505@SUBARU_1.reg</file>
+        <file>config/instruments/MOIRCS_200807-201505@SUBARU_2.reg</file>
+        <file>config/instruments/MOIRCS_200807-201505@SUBARU.ini</file>
+        <file>config/instruments/MOIRCS_201512-today@SUBARU_1.reg</file>
+        <file>config/instruments/MOIRCS_200406-200806@SUBARU.ahead</file>
+        <file>config/instruments/MOIRCS_200807-201505@SUBARU.ahead</file>
+        <file>config/instruments/MOIRCS_201512-today@SUBARU_2.reg</file>
+        <file>config/instruments/MOIRCS_201512-today@SUBARU.ahead</file>
+        <file>config/instruments/MOIRCS_201512-today@SUBARU.ini</file>
     </qresource>
 </RCC>

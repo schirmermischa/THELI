@@ -117,7 +117,8 @@ void Controller::taskInternalHDUreformat()
 // The following instruments do not have this
 void Controller::uniformMJDOBS(QDir &dir)
 {
-    if (instData->name == "VIMOS@VLT") {    // VIMOS has no unique DATE-OBS
+    if (instData->name == "VIMOS@VLT"                  // VIMOS has no unique DATE-OBS
+            || instData->name.contains("MOIRCS")) {    // MOIRCS has no unique DATE-OBS
         QString path = dir.absolutePath();
         QStringList filter = {instData->shortName+"*.fits"};
         dir.setNameFilters(filter);

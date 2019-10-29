@@ -3,10 +3,11 @@
 #include <QProcess>
 #include <QTest>
 
-ScampWorker::ScampWorker(QString command, QString dir, QObject *parent) : Worker(parent)
+ScampWorker::ScampWorker(QString command, QString dir, QString shortname, QObject *parent) : Worker(parent)
 {
     scampCommand = command;
     scampDirName = dir;
+    shortname = shortname;
 }
 
 void ScampWorker::runScamp()
@@ -60,7 +61,8 @@ void ScampWorker::processExternalStderr()
     stderr.remove("1A1M ");
     stderr.remove("1A ");
     stderr.remove("1M ");
-    stderr.remove(QRegExp("![^0131m]"));
+//    stderr.remove(QRegExp("![^0131m]"));
+    stderr.remove("0131m");
     stderr = stderr.simplified();
     stderr.replace(" WARNING: ", "<br>WARNING: ");
     stderr.replace(" Error: ", "<br>Error: ");
@@ -69,9 +71,13 @@ void ScampWorker::processExternalStderr()
     stderr.replace("scamp Examining", "scamp<br>Examining");
     stderr.replace(" Instrument", "<br>Instrument");
     stderr.replace(" Grouping fields:", "<br>Grouping fields:");
+    stderr.replace(" Matching field", "<br>Matching field");
     stderr.replace(" Grouping fields on the sky", "<br>Grouping fields on the sky");
     stderr.replace(" Group ", "<br>Group ");
     stderr.replace(" Generating ", "<br>Generating ");
+//   if (!stderr.contains("Matching field") && !stderr.contains("Examining Catalog")) {
+//        stderr.replace(" "+shortName, "<br>"+shortName);
+//    }
     stderr.replace(" Making mosaic adjustments","<br>Making mosaic adjustments");
     stderr.replace("7m instruments pos.angle scale cont. shift cont.0m", "instruments pos.angle scale cont. shift cont.");
     stderr.replace(" Solving the global astrometry matrix", "<br>Solving the global astrometry matrix");

@@ -27,14 +27,28 @@ void Controller::populateHeaderDictionary()
     headerDictionary.insert("DATE-OBS", {"DATE-OBS", "DATEOBS", "DATE", "UTSHUT"});
     headerDictionary.insert("MJD-OBS", {"MJD-OBS"});
     headerDictionary.insert("GAIN", {"EGAIN", "GAIN", "HIERARCH ESO DET CHIP GAIN", "HIERARCH ESO DET OUT1 GAIN"});
-    headerDictionary.insert("FILTER", {"FILTER", "FILTER1", "FILTER2", "FILTER01", "FILTERID", "FILTERS", "FILTNAME",
+    headerDictionary.insert("FILTER", {"FILTER", "FILTER1", "FILTER2", "FILTER01", "FILTER02", "FILTER03", "FILTERID", "FILTERS", "FILTNAME",
                                        "HIERARCH ESO INS FILT1 NAME", "HIERARCH ESO INS FILT2 NAME",
                                        "HIERARCH ESO INS FILT3 NAME", "HIERARCH ESO INS FILT4 NAME",
                                        "AFT", "ALFLTNM", "FAFLTNM", "FBFLTNM", "FILTRE", "FLTRNAME", "PFMFNAME", "WFFBAND"});
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // Other keywords of interest (to calculate others, or preserve information)
     headerDictionary.insert("DATE", {"DATE", "DATE-OBS", "DATEOBS", "UT-DATE"});
-    headerDictionary.insert("TIME", {"EXPSTART", "TIME", "TIME-OBS", "UT", "UT-TIME", "UTSTART"});
+    headerDictionary.insert("TIME", {"EXPSTART", "TIME", "TIME-OBS", "UT", "UT-TIME", "UTSTART", "UT-STR"});
     headerDictionary.insert("LST", {"LST", "LST-OBS", "LSTHDR", "LST_OBS", "OBS-LST", "SD_TIME", "ST"});
     headerDictionary.insert("DIT", {"EXP1TIME", "EXPCOADD", "EXPTIME", "HIERARCH ESO DET DIT", "ITIME", "K_DETEP1", "TRUITIME", "DIT"});
     headerDictionary.insert("NDIT", {"COADD", "COADDONE", "COADDS", "COAVERAG", "HIERARCH ESO DET NDIT", "NCOADD", "NDIT"});
@@ -92,6 +106,8 @@ void Controller::populateFilterDictionary()
     filterDictionary.insert("Kshort_G0205", "Ks");
     filterDictionary.insert("Y_G0241", "Y");
     filterDictionary.insert("Lprime_G0207", "Lp");
+    // MOIRCS
+    filterDictionary.insert("J_SUB", "J");
     //
 //    filterDictionary.insert(, );
 }

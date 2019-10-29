@@ -11,10 +11,11 @@ class ScampWorker : public Worker
     Q_OBJECT
 
 public:
-    explicit ScampWorker(QString command, QString dir, QObject *parent = nullptr);
+    explicit ScampWorker(QString command, QString dir, QString shortname, QObject *parent = nullptr);
 
     QString scampCommand;
     QString scampDirName;
+    QString shortName;
     QProcess *extProcess;
 
     void abort();

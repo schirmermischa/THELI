@@ -63,7 +63,7 @@ void Splitter::buildTheliHeader()
     headerTHELI.append(dummyKeys);
 
     // Append the THELIPRO keyword to indicate that this  FITS file underwent initial THELI processing
-    QString card = "THELIPRO= 1             / Indicates that this is a THELI FITS file";
+    QString card = "THELIPRO= 1                    / Processed by THELI";
     card.resize(80, ' ');
     headerTHELI.append(card);
 }
@@ -380,6 +380,9 @@ void Splitter::buildTheliHeaderEXPTIME()
                                    "LIRIS@WHT", "LIRIS_POL@WHT", "MOIRCS@SUBARU", "MOSFIRE@KECK", "NEWFIRM@CTIO", "NICS@TNG", "NIRC2@KECK",
                                    "NIRI@GEMINI", "PISCES@LBT", "SOFI@NTT", "VIRCAM@VISTA"};
 
+    // The following instruments also have DITs and NDITs, but they are coadded instead of coaveraged and thus can be treated normally:
+    // MOIRCS
+
     QString exptimeKey;
 
     // Instruments for which we don't have to do anything special
@@ -395,7 +398,7 @@ void Splitter::buildTheliHeaderEXPTIME()
         return;
     }
 
-    // Instruments for which we have to determine the true total EXPTIME keyword, and rescale the data.
+    // Instruments (see list above) for which we have to determine the true total EXPTIME keyword, and rescale the data.
     // In THELI, EXPTIME always represents the total effective integration time. If images are averaged from several coadds,
     // they also need to be rescaled.
 
@@ -456,6 +459,7 @@ void Splitter::buildTheliHeaderDATEOBS()
     if (keyFound && checkFormatDATEOBS()) return;
 
     // Fallback: Try and reconstruct DATE-OBS keyword from other keywords
+    // DATE-OBS has not been appended yet by searchKey() child function if format is wrong
     QString dateValue;
     QString timeValue;
     bool foundDATE = searchKeyValue(headerDictionary.value("DATE"), dateValue);
@@ -515,8 +519,13 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 3) chipGain = 2.110;
         individualFixDone = true;
     }
-    if (instData.name == "NIRI@GEMINI") {         // https://www.gemini.edu/sciops/instruments/niri/imaging/detector-array
+    else if (instData.name == "NIRI@GEMINI") {         // https://www.gemini.edu/sciops/instruments/niri/imaging/detector-array
         chipGain = 12.3;                          // No gain keyword in FITS header
+        individualFixDone = true;
+    }
+    else if (instData.name == "MOIRCS_200807-201505@SUBARU") {  // https://www.naoj.org/Observing/Instruments/MOIRCS/OLD/inst_detector_oldMOIRCS.html
+        if (chip == 0) chipGain = 3.50;           // Wrong in headers between August 2008 and April 2010
+        if (chip == 1) chipGain = 3.30;
         individualFixDone = true;
     }
 
@@ -604,6 +613,8 @@ void Splitter::buildTheliHeaderFILTER()
                     if (filterName.contains("clear", Qt::CaseInsensitive)
                             || filterName.contains("empty", Qt::CaseInsensitive)
                             || filterName.contains("clr", Qt::CaseInsensitive)
+                            || filterName.contains("csl", Qt::CaseInsensitive)          // MOIRCS
+                            || filterName.contains("hole", Qt::CaseInsensitive)         // MOIRCS
                             || filterName.contains("open", Qt::CaseInsensitive)) {
                         clearFound = true;
                         continue;
