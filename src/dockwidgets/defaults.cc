@@ -71,7 +71,7 @@ void ConfDockWidget::populateDefaultMap()
     defaultMap.insert("CIWbloomRangeLineEdit", "");
     defaultMap.insert("CIWbloomMinaduLineEdit", "");
     defaultMap.insert("CIWbloomMinareaLineEdit", "");
-    defaultMap.insert("CIWaggressivenessLineEdit", "1.0");
+    defaultMap.insert("CIWaggressivenessLineEdit", "");
     defaultMap.insert("CIWmaxaduLineEdit", "");
     defaultMap.insert("CIWminaduLineEdit", "");
     defaultMap.insert("COAchipsLineEdit", "");
@@ -254,7 +254,7 @@ void ConfDockWidget::loadDefaults()
         ui->CGWsameweightCheckBox->setChecked(false);
         ui->CIWbloomRangeLineEdit->clear();
         ui->CIWbloomMinaduLineEdit->clear();
-        ui->CIWaggressivenessLineEdit->setText("1.0");
+        ui->CIWaggressivenessLineEdit->clear();
         ui->CIWmaskbloomingCheckBox->setChecked(false);
         ui->CIWmaxaduLineEdit->clear();
         ui->CIWminaduLineEdit->clear();
