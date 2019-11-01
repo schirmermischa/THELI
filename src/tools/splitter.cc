@@ -238,6 +238,7 @@ void Splitter::extractImagesFITS()
                 getCurrentExtensionData();
                 correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
                 cropDataSection(dataSection[chipMapped]);
+                if (instData.name.contains("LIRIS")) descrambleLiris();
                 // CHECK: xtalk correction only works if we maintain the original detector geometry
                 correctXtalk();
                 correctNonlinearity(chipMapped);

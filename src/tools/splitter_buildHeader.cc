@@ -350,6 +350,23 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
         individualFixDone = true;
     }
+    if (instData.name == "LIRIS@WHT") {     // LIRIS has no CD matrix in the header
+        if (!searchKeyValue(QStringList() << "ROTSKYPA", positionAngle)) {
+            emit messageAvailable(name + " : Could not find ROTSKYPA keyword, set to zero! CD matrix might have wrong orientation.", "warning");
+            emit warning();
+            positionAngle = 0.0;
+        }
+        double cd11 = -1.*instData.pixscale / 3600.;
+        double cd12 = 0.0;
+        double cd21 = 0.0;
+        double cd22 = instData.pixscale / 3600.;
+        rotateCDmatrix(cd11, cd12, cd21, cd22, positionAngle);
+        cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
+        cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
+        cd21_card = "CD2_1   =  "+QString::number(cd21, 'g', 6);
+        cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
+        individualFixDone = true;
+    }
 
     if (individualFixDone) {
         cd11_card.resize(80, ' ');
@@ -520,7 +537,11 @@ bool Splitter::individualFixGAIN(int chip)
         individualFixDone = true;
     }
     else if (instData.name == "NIRI@GEMINI") {         // https://www.gemini.edu/sciops/instruments/niri/imaging/detector-array
-        chipGain = 12.3;                          // No gain keyword in FITS header
+        chipGain = 12.3;                               // No gain keyword in FITS header
+        individualFixDone = true;
+    }
+    else if (instData.name == "LIRIS@WHT" || instData.name == "LIRIS_POL@WHT") {    // http://www.ing.iac.es/astronomy/instruments/liris/detector.html
+        chipGain = 3.6;                              // Wrong gain in header
         individualFixDone = true;
     }
     else if (instData.name == "MOIRCS_200807-201505@SUBARU") {  // https://www.naoj.org/Observing/Instruments/MOIRCS/OLD/inst_detector_oldMOIRCS.html
