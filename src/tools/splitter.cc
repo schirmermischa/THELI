@@ -548,6 +548,9 @@ void Splitter::writeImage(int chipMapped)
 {
     if (!successProcessing) return;
 
+    // Exceptions. Return if successful.
+    if (individualFixCDmatrix(chipMapped)) return;
+
     // The new output file
     fitsfile *fptr;
     int status = 0;
@@ -624,6 +627,91 @@ void Splitter::individualFixOutName(QString &outname, const int chipID)
             outname = "!"+path+"/"+instData.shortName+"."+filter+"."+uniqueID+"_"+QString::number(chipID)+"P.fits";
         }
     }
+}
+
+// Some instrument modes need special treatment
+bool Splitter::individualFixWriteImage(int chipMapped)
+{
+    if (!successProcessing) return;
+
+    bool individualFixDone = false;
+
+    if (instData.name == "LIRIS_POL@WHT") {    // Write the four subregions with the different polarization angles as separate FITS files
+
+        for (int channel=0; channel<=3; ++channel) {
+            fitsfile *fptr;
+            int status = 0;
+            long fpixel = 1;
+            // WARNING: If the SIZEx/y vectors in instrument.ini change, we must also change the ijminmax below!
+            long nax1 = instData.sizex[channel];
+            long nax2 = instData.sizey[channel];
+            long nelements = nax1*nax2;
+            long imin = 43;   // same for all channels
+            long imax = 980;  // same for all channels
+            long jmin = 0;
+            long jmax = 0;
+            QString channelID = "";
+            if (channel == 0) {      // 0 deg
+                jmin = 739;   // always 200 pixels high
+                jmax = 938;
+                channelID = "PA000";
+            }
+            else if (channel == 1) { // 90 deg
+                jmin = 513;
+                jmax = 712;
+                channelID = "PA090";
+            }
+            else if (channel == 2) { // 135 deg
+                jmin = 285;
+                jmax = 484;
+                channelID = "PA135";
+            }
+            else if (channel == 3) { // 45 deg
+                jmin = 62;
+                jmax = 261;
+                channelID = "PA045";
+            }
+            float *array = new float[nelements];
+            long k = 0;
+            for (long j=0; j<naxis2; ++j) {
+                for (long i=0; i<naxis2; ++i) {
+                    if (i>=imin && i<=imax && j>=jmin && j<=jmax) {
+                        array[k] = dataCurrent[i+naxis1*j];
+                        ++k;
+                    }
+                }
+            }
+
+            long naxis = 2;
+            long naxes[2] = {nax1, nax2};
+
+            // Replace blanks in file names
+            baseName.replace(' ','_');
+
+            // Output file name
+            QString outName = "!"+path+"/"+baseName+"_"+channelID+"_1P.fits";
+            // If renaming active, and dateobs was determined successfully
+            if (cdw->ui->theliRenamingCheckBox->isChecked() && dateObsValue != "2020-01-01T00:00:00.000") {
+                outName = "!"+path+"/"+instData.shortName+"."+filter+"_"+channelID+"."+dateObsValue+"_1P.fits";
+            }
+            fits_create_file(&fptr, outName.toUtf8().data(), &status);
+            fits_create_img(fptr, FLOAT_IMG, naxis, naxes, &status);
+            fits_write_img(fptr, TFLOAT, fpixel, nelements, array, &status);
+
+            // Propagate header
+            for (int i=0; i<headerTHELI.length(); ++i) {
+                fits_write_record(fptr, headerTHELI[i].toUtf8().constData(), &status);
+            }
+            fits_close_file(fptr, &status);
+
+            delete [] array;
+
+            printCfitsioError("writeImage()", status);
+        }
+        individualFixDone = true;
+    }
+
+    return individualFixDone;
 }
 
 void Splitter::writeImageSlice(int chip, long slice)
