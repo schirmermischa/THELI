@@ -143,18 +143,17 @@ void Splitter::convertToElectrons(int chip)
 }
 
 // Calculate the effective gain for a detector with different readout channels.
-// When we divide the data by the flat field, the effective gain is the geometric mean
-float Splitter::geometricGain(QVector<float> detectorGains)
+// When we divide the data by the flat field, the effective gain is the harmonic mean
+float Splitter::harmonicGain(QVector<float> detectorGains)
 {
-    float geoGain = 0.;
+    float harmGain = 0.;
     for (auto &gain : detectorGains) {
-        geoGain += 1./gain;
+        harmGain += 1./gain;
     }
-    geoGain = float(instData.numChips) / geoGain;
+    harmGain = float(instData.numChips) / harmGain;
 
-    return geoGain;
+    return harmGain;
 }
-
 
 float Splitter::polynomialSum(float x, QVector<float> coefficients)
 {

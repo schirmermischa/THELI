@@ -514,8 +514,8 @@ void Splitter::buildTheliHeaderGAIN(int chip)
         chipGain = 1.0;
     }
 
-    QString card1 = "GAINRAW = "+QString::number(chipGain, 'f', 6) + " / Effective gain in raw data";
-    QString card2 = "GAIN    = 1.0     / ADUs were converted to e- in this image using GAINRAW";
+    QString card1 = "GAINEFF = "+QString::number(chipGain, 'f', 6) + " / Effective gain for this image";
+    QString card2 = "GAIN    = 1.0     / ADUs were converted to e- in this image using GAINEFF";
     card1.resize(80, ' ');
     card2.resize(80, ' ');
     headerTHELI.append(card1);
@@ -551,8 +551,8 @@ bool Splitter::individualFixGAIN(int chip)
     }
 
     if (individualFixDone) {
-        QString card1 = "GAINRAW = "+QString::number(chipGain, 'f', 6) + " / Effective gain in raw data";
-        QString card2 = "GAIN    = 1.0     / ADUs were converted to e- in this image using GAINRAW";
+        QString card1 = "GAINEFF = "+QString::number(chipGain, 'f', 6) + " / Effective gain for this image";
+        QString card2 = "GAIN    = 1.0     / ADUs were converted to e- in this image using GAINEFF";
         card1.resize(80, ' ');
         card2.resize(80, ' ');
         headerTHELI.append(card1);

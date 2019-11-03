@@ -634,8 +634,6 @@ void Splitter::individualFixOutName(QString &outname, const int chipID)
 // Some instrument modes need special treatment
 bool Splitter::individualFixWriteImage(int chipMapped)
 {
-    if (!successProcessing) return;
-
     bool individualFixDone = false;
 
     if (instData.name == "LIRIS_POL@WHT") {    // Write the four subregions with the different polarization angles as separate FITS files
