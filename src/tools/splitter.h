@@ -204,7 +204,7 @@ private:
     void uncompress();
     int inferChipID(int chip);
     void convertToElectrons(int chip);
-    float geometricGain(QVector<float> detectorGains);
+    float harmonicGain(QVector<float> detectorGains);
 
     bool individualFixGAIN(int chip);
     bool isDetectorAlive(int &chipMapped);

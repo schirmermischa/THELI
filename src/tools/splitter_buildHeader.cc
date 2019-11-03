@@ -536,18 +536,43 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 3) chipGain = 2.110;
         individualFixDone = true;
     }
-    else if (instData.name == "NIRI@GEMINI") {         // https://www.gemini.edu/sciops/instruments/niri/imaging/detector-array
-        chipGain = 12.3;                               // No gain keyword in FITS header
+    else if (instData.name == "NIRI@GEMINI") {    // https://www.gemini.edu/sciops/instruments/niri/imaging/detector-array
+        chipGain = 12.3;                          // No gain keyword in FITS header
         individualFixDone = true;
     }
     else if (instData.name == "LIRIS@WHT" || instData.name == "LIRIS_POL@WHT") {    // http://www.ing.iac.es/astronomy/instruments/liris/detector.html
-        chipGain = 3.6;                              // Wrong gain in header
+        chipGain = 3.6;                           // Wrong gain in header
         individualFixDone = true;
     }
     else if (instData.name == "MOIRCS_200807-201505@SUBARU") {  // https://www.naoj.org/Observing/Instruments/MOIRCS/OLD/inst_detector_oldMOIRCS.html
         if (chip == 0) chipGain = 3.50;           // Wrong in headers between August 2008 and April 2010
         if (chip == 1) chipGain = 3.30;
         individualFixDone = true;
+    }
+    else if (instData.name == "FORS1_199904-200703@VLT" || instData.name == "FORS2_200004-200203@VLT") {
+        // 1-port read mode or 4-port read mode?
+        int numOutputs = 0;
+        if (!searchKeyValue(QStringList() << "HIERARCH ESO DET OUTPUTS", numOutputs)) {
+            emit messageAvailable(baseName + " : Could not determine number of readout channels!", "error");
+            emit critical();
+            successProcessing = false;
+        }
+        else {
+            if (numOutputs == 4) {
+                float gain1 = 0.0;
+                float gain2 = 0.0;
+                float gain3 = 0.0;
+                float gain4 = 0.0;
+                searchKeyValue(QStringList() << "HIERARCH ESO DET OUT1 CONAD", gain1);
+                searchKeyValue(QStringList() << "HIERARCH ESO DET OUT2 CONAD", gain2);
+                searchKeyValue(QStringList() << "HIERARCH ESO DET OUT3 CONAD", gain3);
+                searchKeyValue(QStringList() << "HIERARCH ESO DET OUT4 CONAD", gain4);
+                QVector<float> gains;
+                gains << gain1 << gain2 << gain3 << gain4;
+                chipGain = harmonicGain(gains);
+                individualFixDone = true;
+            }
+        }
     }
 
     if (individualFixDone) {
