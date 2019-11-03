@@ -78,19 +78,6 @@
         <file>config/instruments/FLAMINGOS2@GEMINI.ini</file>
         <file>config/instruments/FLAMINGOS2@GEMINI.reg</file>
         <file>config/instruments/FLI-PL16801@WISE.ini</file>
-        <file>config/instruments/FORS1_1CCD@VLT.ini</file>
-        <file>config/instruments/FORS1_2CCD@VLT.ahead</file>
-        <file>config/instruments/FORS1_2CCD@VLT.ini</file>
-        <file>config/instruments/FORS2_1CCD@VLT.ini</file>
-        <file>config/instruments/FORS2_2CCD_BLUE_2x2@VLT.ahead</file>
-        <file>config/instruments/FORS2_2CCD_BLUE_2x2@VLT.ini</file>
-        <file>config/instruments/FORS2_2CCD_BLUE_2x2@VLT_1.reg</file>
-        <file>config/instruments/FORS2_2CCD_BLUE_2x2@VLT_2.reg</file>
-        <file>config/instruments/FORS2_2CCD_RED_1x1@VLT.ini</file>
-        <file>config/instruments/FORS2_2CCD_RED_2x2@VLT.ahead</file>
-        <file>config/instruments/FORS2_2CCD_RED_2x2@VLT.ini</file>
-        <file>config/instruments/FORS2_2CCD_RED_2x2@VLT_1.reg</file>
-        <file>config/instruments/FORS2_2CCD_RED_2x2@VLT_2.reg</file>
         <file>config/instruments/FourStar@LCO.ahead</file>
         <file>config/instruments/FourStar@LCO.ini</file>
         <file>config/instruments/FourStar@LCO_1.reg</file>
@@ -320,5 +307,18 @@
         <file>config/instruments/MOIRCS_201512-today@SUBARU_2.reg</file>
         <file>config/instruments/MOIRCS_201512-today@SUBARU.ahead</file>
         <file>config/instruments/MOIRCS_201512-today@SUBARU.ini</file>
+        <file>config/instruments/FORS1_199904-200703@VLT.ini</file>
+        <file>config/instruments/FORS2_200004-200203@VLT.ini</file>
+        <file>config/instruments/FORS2_E2V_2x2@VLT_1.reg</file>
+        <file>config/instruments/FORS2_E2V_2x2@VLT_2.reg</file>
+        <file>config/instruments/FORS2_E2V_2x2@VLT.ahead</file>
+        <file>config/instruments/FORS2_E2V_2x2@VLT.ini</file>
+        <file>config/instruments/FORS2_MIT_1x1@VLT.ini</file>
+        <file>config/instruments/FORS2_MIT_2x2@VLT_1.reg</file>
+        <file>config/instruments/FORS2_MIT_2x2@VLT_2.reg</file>
+        <file>config/instruments/FORS2_MIT_2x2@VLT.ahead</file>
+        <file>config/instruments/FORS2_MIT_2x2@VLT.ini</file>
+        <file>config/instruments/FORS1_E2V_2x2@VLT.ahead</file>
+        <file>config/instruments/FORS1_E2V_2x2@VLT.ini</file>
     </qresource>
 </RCC>

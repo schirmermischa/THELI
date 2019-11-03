@@ -162,10 +162,11 @@ void Splitter::extractImages()
     if (!successProcessing) return;
 
     // adjust progress step size for multi-chip cameras whose detectors are stored in single extension FITS files
-    QStringList instruments = {"MOIRCS_200406-201006@SUBARU", "MOIRCS_201007-201505@SUBARU", "MOIRCS_201512-today@SUBARU",
+    QStringList instruments = {"FORS1_E2V_2x2@VLT", "FORS2_E2V_2x2@VLT", "FORS2_MIT_1x1@VLT", "FORS2_MIT_2x2@VLT",
+                               "FourStar@LCO",
+                               "MOIRCS_200406-201006@SUBARU", "MOIRCS_201007-201505@SUBARU", "MOIRCS_201512-today@SUBARU",
                                "SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808@SUBARU",
-                               "SuprimeCam_200808_SDFRED@SUBARU", "FORS2_2CCD_BLUE_2x2@VLT", "FORS2_2CCD_RED_2x2@VLT",
-                               "FourStar@LCO", "VIMOS@VLT"};
+                               "SuprimeCam_200808_SDFRED@SUBARU", "VIMOS@VLT"};
     if (instruments.contains(instData.name)) {
         progressStepSize *= instData.numChips;
     }
@@ -318,8 +319,9 @@ int Splitter::inferChipID(int chip)
     int chipID = chip + 1;    // external counting starts with zero; 'chipID' is the number we return for most instruments
 
     // These need special treatment. The 'chip' variable is not necessarily used for all of them
-    if (instData.name.contains("FORS1_2CCD")
-            || instData.name.contains("FORS2_2CCD")) {
+    if (instData.name.contains("FORS1_E2V")                   // The FORSes with their newer 2-detector configuration
+            || instData.name.contains("FORS2_E2V")
+            || instData.name.contains("FORS2_MIT")) {
         QString value = "";
         searchKeyValue(QStringList() << "ORIGFILE", value);       // FORS2_IMG141.43.CHIP1.fits or FORS2_IMG141.43.CHIP2.fits
         QStringList valueList = value.split("CHIP");
