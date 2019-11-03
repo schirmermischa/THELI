@@ -26,7 +26,7 @@ void Controller::populateHeaderDictionary()
     headerDictionary.insert("EQUINOX", {"EQUINOX", "EPOCH", "RADECEQ"});
     headerDictionary.insert("DATE-OBS", {"DATE-OBS", "DATEOBS", "DATE", "UTSHUT"});
     headerDictionary.insert("MJD-OBS", {"MJD-OBS"});
-    headerDictionary.insert("GAIN", {"EGAIN", "GAIN", "HIERARCH ESO DET CHIP GAIN", "HIERARCH ESO DET OUT1 GAIN"});
+    headerDictionary.insert("GAIN", {"EGAIN", "GAIN", "HIERARCH ESO DET CHIP GAIN", "HIERARCH ESO DET OUT1 CONAD"});  // careful with gain and inverse gain!
     headerDictionary.insert("FILTER", {"FILTER", "FILTER1", "FILTER2", "FILTER3", "FILTER01", "FILTER02", "FILTER03", "FILTERID",
                                        "FILT1", "FILT2", "FILTERS", "FILTNAME",
                                        "HIERARCH ESO INS FILT1 NAME", "HIERARCH ESO INS FILT2 NAME",
