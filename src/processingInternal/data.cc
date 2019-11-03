@@ -767,7 +767,8 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
     omp_set_nested(false);  // somehow not yet threadsafe!
     // we still parallelise though for single-chip cameras:
     int localMaxThreads = 1;
-    if (instData->numChips == 1) localMaxThreads = maxCPU;
+    // NOT THREADSAFE
+    //    if (instData->numChips == 1) localMaxThreads = maxCPU;
 #pragma omp parallel for num_threads(localMaxThreads) firstprivate(rescaleFactors) // firstprivate(imglist, goodIndex, rescaleFactors)
     for (long i=0; i<dim; ++i) {
         QVector<float> stack;
