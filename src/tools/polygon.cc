@@ -37,6 +37,7 @@ void region2circle(QString circlestring, float &x, float &y, float &r)
     r = list[2].toFloat();
 }
 
+/*
 void addPolygon_bool(const long n, const long m, const QVector<float> &vertx, const QVector<float> &verty, const QString senseMode, QVector<bool> &mask)
 {
     float x, y;
@@ -69,6 +70,44 @@ void addPolygon_bool(const long n, const long m, const QVector<float> &vertx, co
                     }
                 }
             }
+        }
+    }
+}
+*/
+
+void addPolygon_bool(const long n, const long m, const QVector<float> &vertx, const QVector<float> &verty, const QString senseMode, QVector<bool> &mask)
+{
+    float x, y;
+
+    // apply the polygon mask
+    // NOT THREADSAFE!
+    // #pragma omp parallel for firstprivate(vertx, verty, senseMode)
+    for (long j=0; j<m; ++j) {
+        // we have to add +1 to compensate for arrays in C starting with 0
+        // because the polygon system starts with 1, not 0
+        y = (float) j + 1;
+        for (long i=0; i<n; ++i) {
+            x = (float) i + 1;
+            // if a pixel is masked already (value = true) then it must remain masked no matter what.
+            // that is, we only check whether still unmasked pixels need to be masked
+//            if (!mask.at(i+n*j)) {
+                // test if the pixel is inside or outside the polygon
+                bool polytest = pnpoly_T(vertx, verty, x, y);
+                // Mask pixels inside or outside the polygon
+                if (senseMode == "in") {        // everything masked by default in the beginning
+                    // Pixels inside the polygon are good
+                    // pnpoly() returns 0 if a pixel is outside the polygon
+                    if (polytest == 1) {
+                        mask[i+n*j] = false;
+                    }
+                }
+                else {         // everything unmasked by default in the beginning
+                    // Pixels outside the polygon are good
+                    if (polytest == 1) {   // pixels inside the polygon must remain masked
+                        mask[i+n*j] = true;
+                    }
+                }
+//            }
         }
     }
 }
@@ -178,7 +217,11 @@ void addRegionFilesToMask(long n, long m, QString regionFile, QVector<bool> &mas
     while(!in.atEnd()) {
         QString line = in.readLine().simplified();
         if (line.isEmpty()) continue;
-        if (line.contains("# Sense: ")) senseMode = line.split(":")[1].simplified();
+        if (line.contains("# Sense: ")) {
+            senseMode = line.split(":")[1].simplified();
+            if (senseMode == "in") mask.fill(true);     // default, everything masked. Only keep pixels inside polygons and circles
+            else mask.fill(false);                      // default, everything unmasked. Only keep pixels inside polygons and circles
+        }
         //  if (line.contains("# Combine: ")) combineMode = line.split(":")[1].simplified();
 
         // There can be an arbitrary sequence of polygons and circles

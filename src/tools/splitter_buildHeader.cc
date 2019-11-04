@@ -350,7 +350,7 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
         individualFixDone = true;
     }
-    if (instData.name == "LIRIS@WHT") {     // LIRIS has no CD matrix in the header
+    if (instData.name == "LIRIS@WHT" || instData.name == "LIRIS_POL@WHT") {     // LIRIS has no CD matrix in the header
         if (!searchKeyValue(QStringList() << "ROTSKYPA", positionAngle)) {
             emit messageAvailable(name + " : Could not find ROTSKYPA keyword, set to zero! CD matrix might have wrong orientation.", "warning");
             emit warning();

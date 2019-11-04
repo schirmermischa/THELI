@@ -42,6 +42,8 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
     mainDirName = maindirname;
     subDirName = subdirname;
 
+//    qDebug() << "D0" << subDirName << successProcessing;
+
     dirName = mainDirName + "/" + subDirName;
     myImageList.resize(instData->numChips);
     combinedImage.resize(instData->numChips);
@@ -58,6 +60,7 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
     // Get the recorded processing status from the .processingStatus file (if any)
     processingStatus = new ProcessingStatus(dirName);
     processingStatus->readFromDrive();
+//    qDebug() << "D01" << subDirName << successProcessing;
 
     QString backupStatus = processingStatus->statusString;
     backupStatus.chop(1);
@@ -69,16 +72,17 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
         emit critical();
         return;
     }
+ //   qDebug() << "D02" << subDirName << successProcessing;
 
     // start fresh
     clearImageInfo();
+ //   qDebug() << "D03" << subDirName << successProcessing;
 
     // Check whether this directory contains RAW data (and thus must be processed by HDUreformat first)
     if (subDirName != "GLOBALWEIGHTS") {    // crashes otherwise when creating globalweights
         if (checkForRawData()) return;
     }
-
-    qDebug() << "D2" << subDirName << successProcessing;
+ //   qDebug() << "D1" << subDirName << successProcessing;
 
     if (subDirName == "GLOBALWEIGHTS") {
         numMasterCalibs = 0;
@@ -113,8 +117,7 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
         return;
     }
 
-    qDebug() << "D3" << subDirName << successProcessing;
-
+ //   qDebug() << "D2" << subDirName << successProcessing;
     // Fill the list of MyImage types of individual images and master calibration files in this data directory
     QStringList filter;
     filter << "*.fits";
@@ -150,7 +153,7 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
     }
 
     // The other images (minus master calibs etc)
-    qDebug() << "D4" << subDirName << successProcessing;
+ //   qDebug() << "D3" << subDirName << successProcessing;
 
     numImages = 0;
     for (int chip=0; chip<instData->numChips; ++chip) {
@@ -185,7 +188,7 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
         numImages += myImageList[chip].length();
     }
     if (numImages > 0) dataInitialized = true;
-    qDebug() << "D5" << subDirName << successProcessing;
+ //   qDebug() << "D4" << subDirName << successProcessing;
 
     // Sort the vector with the chip numbers (no particular reason, yet)
     std::sort(uniqueChips.begin(), uniqueChips.end());
@@ -262,6 +265,7 @@ bool Data::checkForRawData()
     if (numProcessedFiles == 0 && numRawFiles > 0) return true;
     else if (numProcessedFiles > 0 && numRawFiles == 0) return false;
     else {
+        qDebug() << "ERROR: checkForRawStatus()" << numProcessedFiles << numRawFiles;
         // (numProcessedFiles > 0 && numRawFiles > 0) {
         emit messageAvailable(dirName + " : Both processed and RAW files were found. This status is not allowd. You must clean the directory manually.", "error");
         emit critical();

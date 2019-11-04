@@ -1047,7 +1047,7 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
     char zerohead[80] = {0};
     QString zeroheadString = "";
     fitsfile *fptr = nullptr;
-    fits_open_file(&fptr, (path+"/"+name).toUtf8().data(), READWRITE, &status);
+    fits_open_file(&fptr, (path+"/"+chipName+processingStatus->statusString+".fits").toUtf8().data(), READWRITE, &status);
     fits_read_key_str(fptr, "ZEROHEAD", zerohead, nullptr, &status);
     if (status > 0) {
         // Add the key if it doesn't exist
@@ -1058,7 +1058,6 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
     }
     else zeroheadString.fromLatin1(zerohead);
 
-    // TODO: sometimes we crash here!!
     fits_update_key_dbl(fptr, "CRVAL1", astromCRVAL1, 9, nullptr, &status);
     fits_update_key_dbl(fptr, "CRVAL2", astromCRVAL2, 9, nullptr, &status);
     fits_update_key_flt(fptr, "CRPIX1", astromCRPIX1, 3, nullptr, &status);

@@ -18,8 +18,8 @@ void Splitter::descrambleLiris()
 {
     if (!successProcessing) return;
 
-    int n = naxis1;
-    int m = naxis2;
+    int n = naxis1Raw;        // Must use Raw size because we trim it in polarimetry mode
+    int m = naxis2Raw;
     QVector<QVector<float>> image2D(n);
     QVector<QVector<float>> image2Dmod(n);
 
@@ -34,7 +34,7 @@ void Splitter::descrambleLiris()
     // Put the image data into the 2D array
     for (j=0; j<m; ++j) {
         for (i=0; i<n; ++i) {
-            image2D[i][j] = dataCurrent[i+n*j];
+            image2D[i][j] = dataRaw[i+n*j];
         }
     }
 
@@ -99,7 +99,7 @@ void Splitter::descrambleLiris()
     // Write the result
     for (j=0; j<m; ++j) {
         for (i=0; i<n; ++i) {
-            dataCurrent[i+n*j] = image2Dmod[i][j];
+            dataRaw[i+n*j] = image2Dmod[i][j];
         }
     }
 }

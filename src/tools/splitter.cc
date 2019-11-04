@@ -249,10 +249,10 @@ void Splitter::extractImagesFITS()
             // 2D image
             if (naxis == 2) {
                 getCurrentExtensionData();
+                if (instData.name.contains("LIRIS")) descrambleLiris();
                 correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
                 cropDataSection(dataSection[chipMapped]);
                 correctXtalk();             // Must maintain original detector geometry for x-talk correction, i.e. do before cropping. Must replace naxisi by naxisiRaw in xtalk methods.
-                if (instData.name.contains("LIRIS")) descrambleLiris();
                 correctNonlinearity(chipMapped);
                 convertToElectrons(chipMapped);
                 applyMask(chipMapped);
@@ -579,7 +579,7 @@ void Splitter::writeImage(int chipMapped)
     if (!successProcessing) return;
 
     // Exceptions. Return if successful.
-    if (individualFixCDmatrix(chipMapped)) return;
+    if (individualFixWriteImage(chipMapped)) return;
 
     // The new output file
     fitsfile *fptr;
@@ -671,8 +671,8 @@ bool Splitter::individualFixWriteImage(int chipMapped)
             int status = 0;
             long fpixel = 1;
             // WARNING: If the SIZEx/y vectors in instrument.ini change, we must also change the ijminmax below!
-            long nax1 = instData.sizex[channel];
-            long nax2 = instData.sizey[channel];
+            long nax1 = instData.sizex[0];
+            long nax2 = instData.sizey[0];
             long nelements = nax1*nax2;
             long imin = 43;   // same for all channels
             long imax = 980;  // same for all channels
