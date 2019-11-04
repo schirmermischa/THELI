@@ -237,7 +237,7 @@ void Controller::coaddPrepare(QString filterArg)
         coaddFilter.append("+");
     }
     coaddFilter.truncate(coaddFilter.length()-1);
-    coaddGain = instData->gain*coaddTexptime;
+    coaddGain = coaddTexptime;
 
     // Check if Swarp will open more file handles than the system currently allows
     long maxOpenFiles = sysconf(_SC_OPEN_MAX);
@@ -509,6 +509,7 @@ void Controller::coaddPrepareBuildSwarpCommand(QString refRA, QString refDE)
     // only in v2.40.1, not in earlier versions. Current latest official release: 2.38
     // swarpCommand += " -HEADEROUT_NAME coadd.head";
     swarpCommand += " -PIXELSCALE_TYPE MANUAL";
+    swarpCommand += " -GAIN_KEYWORD GAIN";
     swarpCommand += " -PIXEL_SCALE "+pixelScale;
     swarpCommand += " -PROJECTION_TYPE " + cdw->ui->COAprojectionComboBox->currentText();
     swarpCommand += " -CELESTIAL_TYPE " + cdw->ui->COAcelestialtypeComboBox->currentText();
@@ -541,6 +542,7 @@ void Controller::coaddResampleBuildSwarpCommand(QString imageList, int i)
     swarpCommand += " -COMBINE N";
     swarpCommand += " -VERBOSE_TYPE FULL";
     swarpCommand += " -WEIGHT_TYPE MAP_WEIGHT";
+    swarpCommand += " -GAIN_KEYWORD GAIN";
     swarpCommand += " -SUBTRACT_BACK N";
     swarpCommand += " -PROJECTION_TYPE " + cdw->ui->COAprojectionComboBox->currentText();
     swarpCommand += " -CELESTIAL_TYPE " + cdw->ui->COAcelestialtypeComboBox->currentText();
@@ -575,6 +577,7 @@ void Controller::coaddCoadditionBuildSwarpCommand(QString imageList)
     swarpCommand += " -WEIGHT_TYPE MAP_WEIGHT";
     swarpCommand += " -BLANK_BADPIXELS Y";
     swarpCommand += " -SUBTRACT_BACK N";
+    swarpCommand += " -GAIN_KEYWORD GAIN";
     swarpCommand += " -PROJECTION_TYPE " + cdw->ui->COAprojectionComboBox->currentText();
     swarpCommand += " -CELESTIAL_TYPE " + cdw->ui->COAcelestialtypeComboBox->currentText();
     swarpCommand += " -RESAMPLING_TYPE " + cdw->ui->COAkernelComboBox->currentText();
