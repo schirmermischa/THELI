@@ -933,6 +933,8 @@ void Controller::coaddUpdate()
     fits_update_key_flt(fptr, "TEXPTIME", coaddTexptime, 3, "Total exposure time [s]", &status);
     fits_update_key_flt(fptr, "SKYVALUE", coaddSkyvalue, 3, "Effektive background value [ADU/s]", &status);
     fits_update_key_flt(fptr, "GAIN", coaddGain, 3, "Effective gain", &status);
+    fits_update_key_str(fptr, "UNITS", "e-/s", "Pixels are photo-electrons / second", &status);
+    fits_update_key_flt(fptr, "SATURATE", 1000., 3, "Currently undetermined (e-)", &status);
     fits_update_key_flt(fptr, "FWHM_I", seeing_image, 3, "FWHM (pixel)", &status);
     fits_update_key_flt(fptr, "FWHM_W", seeing_world, 3, "FWHM (arcsec)", &status);
     fits_update_key_dbl(fptr, "MJDSTART", mjdStart, 12, "Begin of observation (MJD)", &status);
