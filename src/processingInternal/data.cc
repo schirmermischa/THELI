@@ -78,6 +78,8 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
         if (checkForRawData()) return;
     }
 
+    qDebug() << "D2" << subDirName << successProcessing;
+
     if (subDirName == "GLOBALWEIGHTS") {
         numMasterCalibs = 0;
         numImages = 0;
@@ -110,6 +112,8 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
         dataInitialized = true;
         return;
     }
+
+    qDebug() << "D3" << subDirName << successProcessing;
 
     // Fill the list of MyImage types of individual images and master calibration files in this data directory
     QStringList filter;
@@ -146,6 +150,7 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
     }
 
     // The other images (minus master calibs etc)
+    qDebug() << "D4" << subDirName << successProcessing;
 
     numImages = 0;
     for (int chip=0; chip<instData->numChips; ++chip) {
@@ -157,9 +162,8 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
         // if list == empty then reset string and reload
         for (auto &it : fitsFiles) {
             bool skip = false;
-            // skip master calibs and normalized flats
+            // skip master calibs
             if (it == subDirName+"_"+QString::number(chip+1)+".fits") skip = true;
-            if (it == subDirName+"_norm_"+QString::number(chip+1)+".fits") skip = true;
             if (skip) continue;
             MyImage *myImage = new MyImage(dirName, it, processingStatus->statusString, chip+1,
                                            mask->globalMask[chip], mask->isChipMasked[chip], verbosity);
@@ -181,6 +185,7 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
         numImages += myImageList[chip].length();
     }
     if (numImages > 0) dataInitialized = true;
+    qDebug() << "D5" << subDirName << successProcessing;
 
     // Sort the vector with the chip numbers (no particular reason, yet)
     std::sort(uniqueChips.begin(), uniqueChips.end());
@@ -225,11 +230,17 @@ bool Data::checkStatusConsistency()
 
 bool Data::checkForRawData()
 {
-    // Only checking .fits files. Everything else ("*.fit", "*.cr2" etc) it is clear that we have raw data
+    // Only checking .fits files. Everything else ("*.fit", "*.cr2", "*.fz" etc) it is clear that we have raw data
     QStringList filter = {"*.fits"};
-    QStringList fileNames = dir.entryList(filter);
-
+    QStringList filter2 = {"*.*"};
+    dir.setFilter(QDir::Files);
+    QStringList fileNames = dir.entryList(filter);          // Contains processed images and potential raw data
+    QStringList allFileNames = dir.entryList(filter2);      // Everything
     int numRawFiles = 0;
+    for (QString &allFileName : allFileNames) {
+        if (!allFileName.endsWith(".fits")) ++numRawFiles;  // Does not matter whether imaging data or other stuff
+    }
+
     int numProcessedFiles = 0;
     for (auto &fileName : fileNames) {
         fitsfile *fptr;
