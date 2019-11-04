@@ -213,6 +213,7 @@ private:
     void individualFixOutName(QString &outname, const int chipID);
     void applyMask(int chip);
     bool individualFixWriteImage(int chipMapped);
+    bool isImageUsable(int &chipMapped);
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

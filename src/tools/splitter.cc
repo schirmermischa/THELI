@@ -232,6 +232,11 @@ void Splitter::extractImagesFITS()
                 ++chip;
                 continue;
             }
+            if (!isImageUsable(chipMapped)) {
+                fits_movrel_hdu(rawFptr, 1, &hduType, &rawStatus);
+                ++chip;
+                continue;
+            }
             buildTheliHeaderFILTER();
             buildTheliHeaderWCS(chipMapped);
             buildTheliHeaderEXPTIME();
@@ -313,6 +318,23 @@ bool Splitter::isDetectorAlive(int &chipMapped)
     if (instData.name == "SuprimeCam_200101-200104@SUBARU") {
         if (chipMapped == 6) return false;
         else if (chipMapped > 6) --chipMapped;       // compensate chip number for lost chip
+    }
+
+    return true;
+}
+
+// For some cameras, the first (or other) images in a sequence might be unusable
+bool Splitter::isImageUsable(int &chipMapped)
+{
+    if (instData.name == "NIRI@GEMINI") {
+        QString value = "";
+        searchKeyValue(QStringList() << "DATALAB", value);       // FORS2_IMG141.43.CHIP1.fits or FORS2_IMG141.43.CHIP2.fits
+        QStringList list = value.split('-');
+        QString id = list.last();
+        if (id == "001") {
+            if (*verbosity > 1) emit messageAvailable(baseName + " : First NIRI image in sequence, excluding ...", "ignore");
+            return false;
+        }
     }
 
     return true;
