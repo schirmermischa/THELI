@@ -137,6 +137,23 @@ void Splitter::convertToElectrons(int chip)
 {
     if (!successProcessing) return;
 
+    // cameras with multiple readout channels AND different gain per channel
+    // WARNING: ASSUMPTIONS: applies to the size defined in camera.ini
+    if (numReadoutChannels > 1) {
+//        qDebug() << channelGains;
+        if (instData.name == "FORS1_199904-200703@VLT" || instData.name == "FORS2_200004-200203@VLT") {
+            for (long j=0; j<naxis2; ++j) {
+                for (long i=0; i<naxis1; ++i) {
+                    auto &pixel = dataCurrent[i+naxis1*j];
+                    if (i<=1022 && j<=1023) pixel *= channelGains[0];   // lower left quadrant
+                    if (i>=1023 && j<=1023) pixel *= channelGains[1];   // lower right quadrant
+                    if (i<=1022 && j>=1024) pixel *= channelGains[2];   // upper left quadrant
+                    if (i>=1023 && j>=1024) pixel *= channelGains[3];   // upper right quadrant
+                }
+            }
+        }
+    }
+
     for (auto &pixel : dataCurrent) {
         pixel *= gain[chip];
     }
@@ -150,7 +167,7 @@ float Splitter::harmonicGain(QVector<float> detectorGains)
     for (auto &gain : detectorGains) {
         harmGain += 1./gain;
     }
-    harmGain = float(instData.numChips) / harmGain;
+    harmGain = float(detectorGains.length()) / harmGain;
 
     return harmGain;
 }

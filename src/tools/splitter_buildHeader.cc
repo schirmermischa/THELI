@@ -551,14 +551,14 @@ bool Splitter::individualFixGAIN(int chip)
     }
     else if (instData.name == "FORS1_199904-200703@VLT" || instData.name == "FORS2_200004-200203@VLT") {
         // 1-port read mode or 4-port read mode?
-        int numOutputs = 0;
-        if (!searchKeyValue(QStringList() << "HIERARCH ESO DET OUTPUTS", numOutputs)) {
+        numReadoutChannels = 0;
+        if (!searchKeyValue(QStringList() << "HIERARCH ESO DET OUTPUTS", numReadoutChannels)) {
             emit messageAvailable(baseName + " : Could not determine number of readout channels!", "error");
             emit critical();
             successProcessing = false;
         }
         else {
-            if (numOutputs == 4) {
+            if (numReadoutChannels == 4) {
                 float gain1 = 0.0;
                 float gain2 = 0.0;
                 float gain3 = 0.0;
@@ -567,9 +567,9 @@ bool Splitter::individualFixGAIN(int chip)
                 searchKeyValue(QStringList() << "HIERARCH ESO DET OUT2 CONAD", gain2);
                 searchKeyValue(QStringList() << "HIERARCH ESO DET OUT3 CONAD", gain3);
                 searchKeyValue(QStringList() << "HIERARCH ESO DET OUT4 CONAD", gain4);
-                QVector<float> gains;
-                gains << gain1 << gain2 << gain3 << gain4;
-                chipGain = harmonicGain(gains);
+                channelGains.clear();
+                channelGains << gain1 << gain2 << gain3 << gain4;
+                chipGain = harmonicGain(channelGains);
                 individualFixDone = true;
             }
         }

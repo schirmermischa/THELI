@@ -81,7 +81,9 @@ private:
     QVector<QVector<long>> overscanX;
     QVector<QVector<long>> overscanY;
     QVector<QVector<long>> dataSection;
-    QVector<float> gain;
+    QVector<float> gain;           // gain values per chip in a multichip camera
+    QVector<float> channelGains;   // gain values per readout channel in a detector
+    int numReadoutChannels = 1;    // number of readout channels per detector
 
     instrumentDataType instData;   // No pointer, because it is not thread safe (QVectors, QStrings)
     ConfDockWidget *cdw;

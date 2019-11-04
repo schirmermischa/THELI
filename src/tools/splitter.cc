@@ -60,6 +60,8 @@ void Splitter::determineFileFormat()
 
     // Try opening as FITS
     fits_open_file(&rawFptr, name.toUtf8().data(), READONLY, &rawStatus);
+    // CHECK: xtalk correction only works if we maintain the original detector geometry
+    correctXtalk();
 
     if (!rawStatus) {
         dataFormat = "FITS";
@@ -87,7 +89,9 @@ void Splitter::determineFileFormat()
     if (dataFormat == "Unknown") {
         // FITS opening error?
         printCfitsioError("determineFileFormat()", rawStatus);
-        successProcessing = false;
+        successProcessing = false;                // CHECK: xtalk correction only works if we maintain the original detector geometry
+        correctXtalk();
+
         QDir unknownFile(path+"/UnknownFormat");
         unknownFile.mkpath(path+"/UnknownFormat/");
         moveFile(name, path, path+"/UnknownFormat");
@@ -109,7 +113,8 @@ void Splitter::uncompress()
         if (!outName.contains(".fits") || !outName.contains(".fit") || !outName.contains(".fts")) outName.append(".fits");
         fits_create_file(&outRawPtr, outName.toUtf8().data(), &outRawStatus);
         fits_img_decompress(rawFptr, outRawPtr, &rawStatus);
-        // delete compressed file if uncompression was successful, create new fits pointer to uncompressed file
+        // delete compressed file if uncompression was successful, create new fits pointer to uncompressed file        // CHECK: xtalk correction only works if we maintain the original detector geometry
+        correctXtalk();
         // CHECK : No uncompressed FITS files appear after splitting. Where are they? The raw file does not get removed either.
         if (!rawStatus && !outRawStatus) {
             fits_close_file(rawFptr, &rawStatus);
@@ -131,7 +136,9 @@ void Splitter::uncompress()
             printCfitsioError("uncompress()", outRawStatus);
             successProcessing = false;
         }
-    }
+    }                // CHECK: xtalk correction only works if we maintain the original detector geometry
+    correctXtalk();
+
 }
 
 void Splitter::consistencyChecks()
@@ -239,9 +246,8 @@ void Splitter::extractImagesFITS()
                 getCurrentExtensionData();
                 correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
                 cropDataSection(dataSection[chipMapped]);
+                correctXtalk();             // Must maintain original detector geometry for x-talk correction, i.e. do before cropping. Must replace naxisi by naxisiRaw in xtalk methods.
                 if (instData.name.contains("LIRIS")) descrambleLiris();
-                // CHECK: xtalk correction only works if we maintain the original detector geometry
-                correctXtalk();
                 correctNonlinearity(chipMapped);
                 convertToElectrons(chipMapped);
                 applyMask(chipMapped);
