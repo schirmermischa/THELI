@@ -76,6 +76,8 @@ void Splitter::applyMask(int chip)
 {
     if (!successProcessing) return;
 
+    if (instData.name == "LIRIS_POL@WHT") return;     // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
+
     if (*verbosity > 1) emit messageAvailable(baseName + " : Applying mask ...", "image");
 
     long i = 0;
@@ -88,6 +90,13 @@ void Splitter::applyMask(int chip)
 void Splitter::cropDataSection(QVector<long> dataSection)
 {
     if (!successProcessing) return;
+
+    if (instData.name == "LIRIS_POL@WHT") {
+        naxis1 = naxis1Raw;
+        naxis2 = naxis2Raw;
+        dataCurrent = dataRaw;
+        return;
+    }
 
     // new image geometry
     naxis1 = dataSection[1] - dataSection[0] + 1;

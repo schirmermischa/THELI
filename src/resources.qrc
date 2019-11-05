@@ -321,6 +321,5 @@
         <file>config/instruments/FORS1_E2V_2x2@VLT.ahead</file>
         <file>config/instruments/FORS1_E2V_2x2@VLT.ini</file>
         <file>config/instruments/LIRIS@WHT_1.reg</file>
-        <file>config/instruments/LIRIS_POL@WHT_1.reg</file>
     </qresource>
 </RCC>

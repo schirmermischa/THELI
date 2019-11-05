@@ -701,10 +701,10 @@ bool Splitter::individualFixWriteImage(int chipMapped)
             }
             float *array = new float[nelements];
             long k = 0;
-            for (long j=0; j<naxis2; ++j) {
-                for (long i=0; i<naxis2; ++i) {
+            for (long j=0; j<naxis2Raw; ++j) {
+                for (long i=0; i<naxis2Raw; ++i) {
                     if (i>=imin && i<=imax && j>=jmin && j<=jmax) {
-                        array[k] = dataCurrent[i+naxis1*j];
+                        array[k] = dataCurrent[i+naxis1Raw*j];
                         ++k;
                     }
                 }
@@ -730,6 +730,9 @@ bool Splitter::individualFixWriteImage(int chipMapped)
             for (int i=0; i<headerTHELI.length(); ++i) {
                 fits_write_record(fptr, headerTHELI[i].toUtf8().constData(), &status);
             }
+            // Update the filter keyword with the polarization angle
+            QString newFilter = filter+"_"+channelID;
+            fits_update_key_str(fptr, "FILTER", newFilter.toUtf8().data(), nullptr, &status);
             fits_close_file(fptr, &status);
 
             delete [] array;
