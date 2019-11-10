@@ -125,7 +125,8 @@ SOURCES += \
     tools/tools.cc \
     tools/xcorr.cc \
     validators.cc \
-    myimage/memoryoperations.cc
+    myimage/memoryoperations.cc \
+    tools/splitter_multiport.cc
 
 
 

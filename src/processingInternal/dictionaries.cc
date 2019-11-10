@@ -28,7 +28,7 @@ void Controller::populateHeaderDictionary()
     headerDictionary.insert("MJD-OBS", {"MJD-OBS"});
     headerDictionary.insert("GAIN", {"EGAIN", "GAIN", "HIERARCH ESO DET CHIP GAIN", "HIERARCH ESO DET OUT1 CONAD"});  // careful with gain and inverse gain!
     headerDictionary.insert("FILTER", {"FILTER", "FILTER1", "FILTER2", "FILTER3", "FILTER01", "FILTER02", "FILTER03", "FILTERID",
-                                       "FILT1", "FILT2", "FILTERS", "FILTNAME",
+                                       "FILT1", "FILT2", "FILTERS", "FILTNAME", "SUBSET",
                                        "HIERARCH ESO INS FILT1 NAME", "HIERARCH ESO INS FILT2 NAME",
                                        "HIERARCH ESO INS FILT3 NAME", "HIERARCH ESO INS FILT4 NAME",
                                        "AFT", "ALFLTNM", "FAFLTNM", "FBFLTNM", "FILTRE", "FLTRNAME", "PFMFNAME", "WFFBAND",
@@ -96,6 +96,10 @@ void Controller::populateFilterDictionary()
     filterDictionary.insert("Lprime_G0207", "Lp");
     // MOIRCS
     filterDictionary.insert("J_SUB", "J");
-    //
+    // GROND_OPT
+    filterDictionary.insert("grond_g", "g");
+    filterDictionary.insert("grond_r", "r");
+    filterDictionary.insert("grond_i", "i");
+    filterDictionary.insert("grond_z", "z");
 //    filterDictionary.insert(, );
 }

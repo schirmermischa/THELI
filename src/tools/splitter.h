@@ -85,6 +85,15 @@ private:
     QVector<float> channelGains;   // gain values per readout channel in a detector
     int numReadoutChannels = 1;    // number of readout channels per detector
 
+    // The following must have the same first dimension
+    QList<QVector<long>> multiportOverscanSections;      // The sections containing the overscan pixels
+    QList<QVector<long>> multiportDataSections;          // The sections containing the data pixels (indexed over the whole array including overscan areas)
+    QList<QVector<long>> multiportImageSections;         // The sections containing the entire channel (indexed over the whole array including overscan areas)
+    QVector<float> multiportGains;                       // The gain factors for each readout channel
+    QVector<long> multiportOffsetX;                      // The x-offset of that port's data section from the lower left pixel of the pasted image
+    QVector<long> multiportOffsetY;                      // The y-offset of that port's data section from the lower left pixel of the pasted image
+    QStringList multiportOverscanDirections;             // Whether the overscan strips are vertical or horizontal
+
     instrumentDataType instData;   // No pointer, because it is not thread safe (QVectors, QStrings)
     ConfDockWidget *cdw;
     QString name;
@@ -184,7 +193,9 @@ private:
     int getRowXtalkMethod();
     void correctXtalk();
     void correctNonlinearity(int chip);
-    void correctOverscan(float (*combineFunction_ptr)(const QVector<float> &, const QVector<bool> &, long), QVector<long> overscanXArea, QVector<long> overscanYArea);
+    void correctOverscan(int chip);
+//    void doOverscan(float (*combineFunction_ptr)(const QVector<float> &, const QVector<bool> &, long),
+//                          const QVector<long> &overscanXArea, const QVector<long> &overscanYArea, const QVector<long> vertices);
     void cropDataSection(QVector<long> dataSection);
     void initMyImage(int chip);
     void getDataInFirstCubeSlice();
@@ -214,6 +225,17 @@ private:
     void applyMask(int chip);
     bool individualFixWriteImage(int chipMapped);
     bool isImageUsable(int &chipMapped);
+    QVector<long> extractVertices(QString vertexString);
+    QVector<long> extractVerticesFromKeyword(QString keyword);
+//    void pasteMultiPortDataSections(QVector<long> dataSection);
+    void getMultiportInformation(int chip);
+    void doOverscanVertical(float (*combineFunction_ptr)(const QVector<float> &, const QVector<bool> &, long),
+                            const QVector<long> &overscanArea, const QVector<long> dataVertices);
+    void doOverscanHorizontal(float (*combineFunction_ptr)(const QVector<float> &, const QVector<bool> &, long),
+                              const QVector<long> &overscanArea, const QVector<long> dataVertices);
+    void pasteMultiportDataSections(int chip);
+    void pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, const QVector<long> &sector,
+                      const float corrFactor, const long dx, const long dy, const long nT, const long mT, const long nS, const long mS);
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

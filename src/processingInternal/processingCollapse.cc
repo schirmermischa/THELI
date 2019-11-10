@@ -148,7 +148,7 @@ void Controller::taskInternalBinnedpreview()
         scienceData->myImageList[chip][0]->readImage(false);
         QVector<double> CDmatrix = scienceData->myImageList[chip][0]->extractCDmatrix();
         CDmatrices << CDmatrix;
-        Tmatrices << CDmatrixToTransformationMatrix(CDmatrix);
+        Tmatrices << CDmatrixToTransformationMatrix(CDmatrix, instData->name);
     }
 
     // Determine overall image size
@@ -197,7 +197,7 @@ void Controller::taskInternalBinnedpreview()
             if (verbosity >= 1) emit messageAvailable(scienceData->myImageList[chip][img]->chipName + " : Binning ...", "image");
             binData(scienceData->myImageList[chip][img]->dataCurrent, dataBinned, n, m, nb, mb, binFactor, binFactor);
             mapBinnedData(dataBinnedGlobal, dataBinned, Tmatrices[chip], nGlobal, mGlobal,
-                          nb, mb, crpix1, crpix2, xminOffset, yminOffset);
+                          nb, mb, crpix1, crpix2, xminOffset, yminOffset, instData->name);
             scienceData->myImageList[chip][img]->unprotectMemory();
             ++binnedChipCounter;
 #pragma omp atomic

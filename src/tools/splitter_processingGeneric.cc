@@ -12,8 +12,24 @@
 #include <QFile>
 #include <QDir>
 
-void Splitter::correctOverscan(float (*combineFunction_ptr) (const QVector<float> &, const QVector<bool> &, long),
-                               QVector<long> overscanXArea, QVector<long> overscanYArea)
+void Splitter::correctOverscan(int chip)
+{
+    if (!cdw->ui->overscanCheckBox->isChecked()) return;
+
+    int numChannels = multiportOverscanDirections.length();       // the number of readout channels per detector
+    for (int channel=0; channel<numChannels; ++channel) {
+        if (multiportOverscanDirections[channel] == "vertical") {
+            doOverscanVertical(combineOverscan_ptr, multiportOverscanSections[channel], multiportDataSections[channel]);
+        }
+        if (multiportOverscanDirections[channel] == "horizontal") {
+            doOverscanHorizontal(combineOverscan_ptr, multiportOverscanSections[channel], multiportDataSections[channel]);
+        }
+    }
+}
+
+/*
+void Splitter::doOverscan(float (*combineFunction_ptr) (const QVector<float> &, const QVector<bool> &, long),
+                          const QVector<long> &overscanXArea, const QVector<long> &overscanYArea, const QVector<long> vertices)
 {
     if (!successProcessing) return;
 
@@ -26,48 +42,144 @@ void Splitter::correctOverscan(float (*combineFunction_ptr) (const QVector<float
     long n = naxis1Raw;
     long m = naxis2Raw;
 
+    // Overscan correction is applied to a subregion of the detector (including the overscan itself!).
+    // If the detector has a single readout port only (or we can ignore them), then the overscan applies to the full array.
+    // Otherwise, to the subarray defined by 'vertices'
+    long imin;
+    long imax;
+    long jmin;
+    long jmax;
+    if (vertices.isEmpty()) {
+        imin = 0;
+        imax = naxis1Raw;
+        jmin = 0;
+        jmax = naxis2Raw;
+    }
+    else {
+        imin = vertices[0];
+        imax = vertices[1];
+        jmin = vertices[2];
+        jmax = vertices[3];
+    }
+
     // PART 1: Correct vertical overscan
     if (!overscanXArea.isEmpty()) {
-        QVector<float> spectralv(overscanXArea[1]-overscanXArea[0]+1,0);
-        QVector<float> spatialv(m,0);
+        QVector<float> spectral(overscanXArea[1]-overscanXArea[0]+1,0);
+        QVector<float> spatial(m,0);
         // extract representative line
         for (j=0; j<m; ++j) {
             k = 0;
             for (i=overscanXArea[0]; i<=overscanXArea[1]; ++i) {
-                spectralv[k] = dataRaw[i+n*j];
+                spectral[k] = dataRaw[i+n*j];
                 ++k;
             }
-            spatialv[j] = combineFunction_ptr(spectralv, QVector<bool>(), 0);
+            spatial[j] = combineFunction_ptr(spectral, QVector<bool>(), 0);
             //            spatialv[j] = straightMedianInline(spectralv);
         }
-        if (*verbosity > 1) emit messageAvailable(baseName + " : Mean vertical overscan = " + QString::number(meanMask(spatialv), 'f', 3), "image");
+        if (*verbosity > 1) emit messageAvailable(baseName + " : Mean vertical overscan = " + QString::number(meanMask(spatial), 'f', 3), "image");
         // subtract overscan
-        for (i=0; i<n; ++i) {
-            for (j=0; j<m; ++j) {
-                dataRaw[i+n*j] -= spatialv[j];
+        for (i=imin; i<imax; ++i) {
+            for (j=jmin; j<jmax; ++j) {
+                dataRaw[i+n*j] -= spatial[j];
             }
         }
     }
 
     // PART 2: Correct horizontal overscan
     if (!overscanYArea.isEmpty()) {
-        QVector<float> spectralh(overscanYArea[1]-overscanYArea[0]+1,0);
-        QVector<float> spatialh(n,0);
+        QVector<float> spectral(overscanYArea[1]-overscanYArea[0]+1,0);
+        QVector<float> spatial(n,0);
         // extract representative line
         for (i=0; i<n; ++i) {
             k = 0;
             for (j=overscanYArea[0]; j<=overscanYArea[1]; ++j) {
-                spectralh[k] = dataRaw[i+n*j];
+                spectral[k] = dataRaw[i+n*j];
                 ++k;
             }
-            spatialh[i] = combineFunction_ptr(spectralh, QVector<bool>(), 0);
+            spatial[i] = combineFunction_ptr(spectral, QVector<bool>(), 0);
         }
         // subtract overscan
-        if (*verbosity > 1) emit messageAvailable(baseName + " : Mean horizontal overscan = " + QString::number(meanMask(spatialh), 'f', 3), "image");
-        for (j=0; j<m; ++j) {
-            for (i=0; i<n; ++i) {
-                dataRaw[i+n*j] -= spatialh[i];
+        if (*verbosity > 1) emit messageAvailable(baseName + " : Mean horizontal overscan = " + QString::number(meanMask(spatial), 'f', 3), "image");
+        for (j=jmin; j<jmax; ++j) {
+            for (i=imin; i<imax; ++i) {
+                dataRaw[i+n*j] -= spatial[i];
             }
+        }
+    }
+}
+*/
+
+// Correct vertical overscan
+void Splitter::doOverscanVertical(float (*combineFunction_ptr) (const QVector<float> &, const QVector<bool> &, long),
+                                  const QVector<long> &overscanArea, const QVector<long> dataVertices)
+{
+    if (!successProcessing) return;
+    if (overscanArea.isEmpty()) return;
+
+    long i, j, k;
+    long n = naxis1Raw;
+    long m = naxis2Raw;
+
+    QVector<float> spectral(overscanArea[1]-overscanArea[0]+1,0);   // select (xmin, xmax) from [xmin:xmax, ymin:ymax]
+    QVector<float> spatial(m,0);
+    // extract representative line
+    for (j=0; j<m; ++j) {
+        k = 0;
+        for (i=overscanArea[0]; i<=overscanArea[1]; ++i) {
+            spectral[k] = dataRaw[i+n*j];
+            ++k;
+        }
+        spatial[j] = combineFunction_ptr(spectral, QVector<bool>(), 0);
+        //            spatialv[j] = straightMedianInline(spectralv);
+    }
+    if (*verbosity > 1) emit messageAvailable(baseName + " : Mean vertical overscan = " + QString::number(meanMask(spatial), 'f', 3), "image");
+
+    // Overscan correction is applied to a subregion of the detector (including the overscan itself!).
+    // If the detector has a single readout port only (or we can ignore them), then the overscan applies to the full array.
+    long imin = dataVertices[0];
+    long imax = dataVertices[1];
+    long jmin = dataVertices[2];
+    long jmax = dataVertices[3];
+    for (i=imin; i<=imax; ++i) {
+        for (j=jmin; j<=jmax; ++j) {
+            dataRaw[i+n*j] -= spatial[j];
+        }
+    }
+}
+
+// Correct horizontal overscan
+void Splitter::doOverscanHorizontal(float (*combineFunction_ptr) (const QVector<float> &, const QVector<bool> &, long),
+                                    const QVector<long> &overscanArea, const QVector<long> dataVertices)
+{
+    if (!successProcessing) return;
+    if (overscanArea.isEmpty()) return;
+
+    long i, j, k;
+    long n = naxis1Raw;
+    long m = naxis2Raw;
+
+    QVector<float> spectral(overscanArea[3]-overscanArea[2]+1,0);   // select (ymin, ymax) from [xmin:xmax, ymin:ymax]
+    QVector<float> spatial(n,0);
+    // extract representative line
+    for (i=0; i<n; ++i) {
+        k = 0;
+        for (j=overscanArea[2]; j<=overscanArea[3]; ++j) {
+            spectral[k] = dataRaw[i+n*j];
+            ++k;
+        }
+        spatial[i] = combineFunction_ptr(spectral, QVector<bool>(), 0);
+    }
+    if (*verbosity > 1) emit messageAvailable(baseName + " : Mean horizontal overscan = " + QString::number(meanMask(spatial), 'f', 3), "image");
+
+    // Overscan correction is applied to a subregion of the detector (including the overscan itself!).
+    // If the detector has a single readout port only (or we can ignore them), then the overscan applies to the full array.
+    long imin = dataVertices[0];
+    long imax = dataVertices[1];
+    long jmin = dataVertices[2];
+    long jmax = dataVertices[3];
+    for (j=jmin; j<=jmax; ++j) {
+        for (i=imin; i<=imax; ++i) {
+            dataRaw[i+n*j] -= spatial[i];
         }
     }
 }
@@ -87,7 +199,9 @@ void Splitter::applyMask(int chip)
     }
 }
 
-void Splitter::cropDataSection(QVector<long> dataSection)
+// dataSect contains the exposued (desired) illuminated pixels, [min:max], starting counting at zero,
+// correctly converted from the camera.ini CUTON_X and SIZE_X parameterization
+void Splitter::cropDataSection(QVector<long> dataSect)
 {
     if (!successProcessing) return;
 
@@ -99,14 +213,14 @@ void Splitter::cropDataSection(QVector<long> dataSection)
     }
 
     // new image geometry
-    naxis1 = dataSection[1] - dataSection[0] + 1;
-    naxis2 = dataSection[3] - dataSection[2] + 1;
+    naxis1 = dataSect[1] - dataSect[0] + 1;
+    naxis2 = dataSect[3] - dataSect[2] + 1;
     if (*verbosity > 1) emit messageAvailable(baseName + " : Cropping to data section, size = "
                                               + QString::number(naxis1)+"x"+QString::number(naxis2)+" pixel", "image");
     dataCurrent.resize(naxis1*naxis2);
     long k = 0;
-    for (long j=dataSection[2]; j<=dataSection[3]; ++j) {
-        for (long i=dataSection[0]; i<=dataSection[1]; ++i) {
+    for (long j=dataSect[2]; j<=dataSect[3]; ++j) {
+        for (long i=dataSect[0]; i<=dataSect[1]; ++i) {
             dataCurrent[k] = dataRaw[i+naxis1Raw*j];
             ++k;
         }
@@ -149,7 +263,7 @@ void Splitter::convertToElectrons(int chip)
     // cameras with multiple readout channels AND different gain per channel
     // WARNING: ASSUMPTIONS: applies to the size defined in camera.ini
     if (numReadoutChannels > 1) {
-//        qDebug() << channelGains;
+        //        qDebug() << channelGains;
         if (instData.name == "FORS1_199904-200703@VLT" || instData.name == "FORS2_200004-200203@VLT") {
             for (long j=0; j<naxis2; ++j) {
                 for (long i=0; i<naxis1; ++i) {

@@ -540,10 +540,14 @@ bool Splitter::individualFixGAIN(int chip)
         chipGain = 12.3;                          // No gain keyword in FITS header
         individualFixDone = true;
     }
+    /*
+     * UPDATE: The gain in the LIRIS headers follows the actual gain setting, might not be accurate to the decimal, though.
+     * (email from R. Karjalainen, ING, 2019-11-07)
     else if (instData.name == "LIRIS@WHT" || instData.name == "LIRIS_POL@WHT") {    // http://www.ing.iac.es/astronomy/instruments/liris/detector.html
         chipGain = 3.6;                           // Wrong gain in header
         individualFixDone = true;
     }
+    */
     else if (instData.name == "MOIRCS_200807-201505@SUBARU") {  // https://www.naoj.org/Observing/Instruments/MOIRCS/OLD/inst_detector_oldMOIRCS.html
         if (chip == 0) chipGain = 3.50;           // Wrong in headers between August 2008 and April 2010
         if (chip == 1) chipGain = 3.30;

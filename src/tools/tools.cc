@@ -43,9 +43,10 @@ void getBinnedSize(instrumentDataType *instData, QVector<QVector<int>> Tmatrices
 
 // Remove the plate scale and position angle component from a CD matrix
 // (required to create binned images)
-QVector<int> CDmatrixToTransformationMatrix(QVector<double> CD)
+QVector<int> CDmatrixToTransformationMatrix(QVector<double> CD, QString instName)
 {
-    rotateCDmatrix(CD, 0.);
+    if (instName != "WFC@INT" &&
+            instName != "WFC_2x2@INT") rotateCDmatrix(CD, 0.);
     double pscale = sqrt(CD[0]*CD[0] + CD[2]*CD[2]);
 
     QVector<int> T;
@@ -54,12 +55,14 @@ QVector<int> CDmatrixToTransformationMatrix(QVector<double> CD)
     T.push_back(round(CD[2]/pscale));
     T.push_back(round(CD[3]/pscale));
 
-    // Take out any flips. Only rotations are allowed for binned mosaics
-    if (T[0] == -1 && T[3] == 1) T[0] = 1;
-    else if (T[0] == 1 && T[3] == -1) T[3] = 1;
-    else if (T[1] == -1 && T[2] == 1) T[1] = 1;
-    else if (T[1] == 1 && T[2] == -1) T[2] = 1;
-
+    if (instName != "WFC@INT" &&
+            instName != "WFC_2x2@INT") {
+        // Take out any flips. Only rotations are allowed for binned mosaics
+        if (T[0] == -1 && T[3] == 1) T[0] = 1;
+        else if (T[0] == 1 && T[3] == -1) T[3] = 1;
+        else if (T[1] == -1 && T[2] == 1) T[1] = 1;
+        else if (T[1] == 1 && T[2] == -1) T[2] = 1;
+    }
     return T;
 }
 
@@ -203,7 +206,7 @@ void binData(const QVector<float> &data, QVector<float> &dataBinned, int n, int 
 // the transformation matrix
 void mapBinnedData(QVector<float> &dataBinnedGlobal, const QVector<float> &dataBinnedIndividual,
                    QVector<int> T, int nGlobal, int mGlobal, int nInd, int mInd,
-                   long crpix1, long crpix2, int xminOffset, int yminOffset)
+                   long crpix1, long crpix2, int xminOffset, int yminOffset, const QString instName)
 {
     // Transformation matrix, derived from CD matrix, for relative positioning
     int T0 = T[0];
@@ -224,10 +227,14 @@ void mapBinnedData(QVector<float> &dataBinnedGlobal, const QVector<float> &dataB
             if (jBin >= mGlobal) jBin = mGlobal - 1;
             if (iBin < 0) iBin = 0;
             if (jBin < 0) jBin = 0;
-//            dataBinnedGlobal[iBin+nGlobal*jBin] = dataBinnedIndividual[i+nInd*j];
-            // "Adding" instead of replacing. Does not matter for normal multi-chip cameras, as detectors don't overlap.
-            // But MOIRCS detectors are partially masked and these areas do overlap because of the beam splitter (masking valid pixels)
-            dataBinnedGlobal[iBin+nGlobal*jBin] += dataBinnedIndividual[i+nInd*j];
+            if (!instName.contains("MOIRCS")) {
+                dataBinnedGlobal[iBin+nGlobal*jBin] = dataBinnedIndividual[i+nInd*j];
+            }
+            else {
+                // "Adding" instead of replacing. MOIRCS detectors are partially masked and these areas
+                // do overlap because of the beam splitter (masking valid pixels)
+                dataBinnedGlobal[iBin+nGlobal*jBin] += dataBinnedIndividual[i+nInd*j];
+            }
         }
     }
 }

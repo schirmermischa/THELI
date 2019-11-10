@@ -128,9 +128,6 @@
         <file>config/instruments/GOODMAN_2x2@SOAR.ini</file>
         <file>config/instruments/GPC1@PS1.ahead</file>
         <file>config/instruments/GPC1@PS1.ini</file>
-        <file>config/instruments/GROND_IRIM@MPGESO.ini</file>
-        <file>config/instruments/GROND_OIMG@MPGESO.ahead</file>
-        <file>config/instruments/GROND_OIMG@MPGESO.ini</file>
         <file>config/instruments/GSAOI@GEMINI.ahead</file>
         <file>config/instruments/GSAOI@GEMINI.ini</file>
         <file>config/instruments/GSAOI@GEMINI.nldat</file>
@@ -321,5 +318,8 @@
         <file>config/instruments/FORS1_E2V_2x2@VLT.ahead</file>
         <file>config/instruments/FORS1_E2V_2x2@VLT.ini</file>
         <file>config/instruments/LIRIS@WHT_1.reg</file>
+        <file>config/instruments/GROND_OPT@MPGESO.ini</file>
+        <file>config/instruments/GROND_OPT@MPGESO.ahead</file>
+        <file>config/instruments/GROND_NIR@MPGESO.ini</file>
     </qresource>
 </RCC>

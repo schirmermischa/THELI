@@ -61,7 +61,7 @@ void Splitter::determineFileFormat()
     // Try opening as FITS
     fits_open_file(&rawFptr, name.toUtf8().data(), READONLY, &rawStatus);
     // CHECK: xtalk correction only works if we maintain the original detector geometry
-    correctXtalk();
+    // correctXtalk();
 
     if (!rawStatus) {
         dataFormat = "FITS";
@@ -88,9 +88,9 @@ void Splitter::determineFileFormat()
 
     if (dataFormat == "Unknown") {
         // FITS opening error?
-        printCfitsioError("determineFileFormat()", rawStatus);
+//        printCfitsioError("determineFileFormat()", rawStatus);
         successProcessing = false;                // CHECK: xtalk correction only works if we maintain the original detector geometry
-        correctXtalk();
+        // correctXtalk();
 
         QDir unknownFile(path+"/UnknownFormat");
         unknownFile.mkpath(path+"/UnknownFormat/");
@@ -114,7 +114,7 @@ void Splitter::uncompress()
         fits_create_file(&outRawPtr, outName.toUtf8().data(), &outRawStatus);
         fits_img_decompress(rawFptr, outRawPtr, &rawStatus);
         // delete compressed file if uncompression was successful, create new fits pointer to uncompressed file        // CHECK: xtalk correction only works if we maintain the original detector geometry
-        correctXtalk();
+        // correctXtalk();
         // CHECK : No uncompressed FITS files appear after splitting. Where are they? The raw file does not get removed either.
         if (!rawStatus && !outRawStatus) {
             fits_close_file(rawFptr, &rawStatus);
@@ -137,8 +137,7 @@ void Splitter::uncompress()
             successProcessing = false;
         }
     }                // CHECK: xtalk correction only works if we maintain the original detector geometry
-    correctXtalk();
-
+    //correctXtalk();
 }
 
 void Splitter::consistencyChecks()
@@ -159,6 +158,7 @@ void Splitter::consistencyChecks()
 
             successProcessing = false;
         }
+        // euqal or more numHDUs than chips is fine (e.g. multi-channel cameras, or multiple readout ports per detector)
     }
 
     printCfitsioError("consistencyChecks()", rawStatus);
@@ -210,7 +210,9 @@ void Splitter::extractImagesFITS()
 
             // some multi-chip cams (FORS, etc) come with separate FITS files. For them, 'chip' would always be zero,
             // and thus the correct overscan regions etc not identified correctly.
-            // hence this mapping
+            // Others such as GROND image simultaneously in different bandpasses on multiple detectoirs, but they show the
+            // same field of view and should be treated as single-chip cameras.
+            // Hence this mapping
             int chipMapped = inferChipID(chip) - 1;   // same value as chip for normal 'MEF' files
 
             // do we have an "image" (as compared to a data unit that is simply a nullptr)
@@ -248,10 +250,13 @@ void Splitter::extractImagesFITS()
 
             // 2D image
             if (naxis == 2) {
-                getCurrentExtensionData();
+                getCurrentExtensionData();              // sets naxis1/2Raw, needed by everything below
+                getMultiportInformation(chipMapped);    // Update overscan and data sections for nonstandard multiport readouts
                 if (instData.name.contains("LIRIS")) descrambleLiris();
-                correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
-                cropDataSection(dataSection[chipMapped]);
+                correctOverscan(chipMapped);
+                // correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
+//                cropDataSection(dataSection[chipMapped]);
+                pasteMultiportDataSections(chipMapped);
                 correctXtalk();             // Must maintain original detector geometry for x-talk correction, i.e. do before cropping. Must replace naxisi by naxisiRaw in xtalk methods.
                 correctNonlinearity(chipMapped);
                 convertToElectrons(chipMapped);
@@ -263,15 +268,18 @@ void Splitter::extractImagesFITS()
             // Cube
             if (naxis == 3) {
                 getDataInCube();
-                // Test for invalid cube. Not sure such a thing can exist?
+                getMultiportInformation(chipMapped);    // Update overscan and data sections for nonstandard multiport readouts
+                // Test for invalid cube. Not sure such a FIS file can exist?
                 if (naxis3Raw == 0) continue;    // Invalid cube. Not sure such a thing can exist?
 
                 // For these instruments we want to stack (mean) the cube, not slice it
                 QStringList instruments = {"TRECS@GEMINI"};
                 if (instruments.contains(instData.name)) {
                     stackCube();
-                    correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
-                    cropDataSection(dataSection[chipMapped]);
+                    correctOverscan(chipMapped);
+                    // correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
+//                    cropDataSection(dataSection[chipMapped]);
+                    pasteMultiportDataSections(chipMapped);
                     correctXtalk();                 // TODO: how valid is that operation for the stack?
                     correctNonlinearity(chipMapped);      // TODO: how valid is that operation for the stack?
                     convertToElectrons(chipMapped);
@@ -284,7 +292,8 @@ void Splitter::extractImagesFITS()
                     // Loop over slices, extract each of them
                     for (long i=0; i<naxis3Raw; ++i) {
                         sliceCube(i);
-                        correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
+                        correctOverscan(chipMapped);
+//                        correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
                         cropDataSection(dataSection[chipMapped]);
                         correctXtalk();
                         correctNonlinearity(chipMapped);
@@ -361,7 +370,7 @@ int Splitter::inferChipID(int chip)
         else {
             emit messageAvailable("Could not determine chip number for " + instData.name, "error");
             emit critical();
-            return 0;
+            return 1;
         }
     }
 
@@ -393,9 +402,15 @@ int Splitter::inferChipID(int chip)
         return chipID;
     }
 
+    else if (instData.name == "GROND_OPT@MPGESO" || instData.name == "GROND_NIR@MPGESO") {
+        // Simultaneous observations in multiple bands, but just a single detector per band
+        return 1;   // (reduced by -1 in caller)
+    }
+
     return chipID;
 }
 
+// Retrieve the raw data pixel values
 void Splitter::getCurrentExtensionData()
 {
     if (!successProcessing) return;
@@ -420,7 +435,7 @@ void Splitter::getCurrentExtensionData()
         dataRaw.reserve(nelements);
         for (long i=0; i<nelements; ++i) {
             float val = buffer[i];
-            if (isinf(val) || isnan(val)) val = 0.;
+            if (isinf(val) || isnan(val)) val = 0.;      // set peculiar values to zero
             dataRaw.append(val);
         }
     }
@@ -708,9 +723,7 @@ bool Splitter::individualFixWriteImage(int chipMapped)
                         ++k;
                     }
                 }
-            }
-
-            long naxis = 2;
+            }            long naxis = 2;
             long naxes[2] = {nax1, nax2};
 
             // Replace blanks in file names
