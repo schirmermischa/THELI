@@ -9,12 +9,12 @@ void Controller::populateHeaderDictionary()
     // The mandatory THELI header keywords, and possible corresponding key names in the raw data of other instruments
     //    headerDictionary.insert("CTYPE1", {"CTYPE1"});    // Forced, hence not read from headers
     //    headerDictionary.insert("CTYPE2", {"CTYPE2"});    // Forced, hence not read from headers
-    headerDictionary.insert("CRPIX1", {"CRPIX1"});
-    headerDictionary.insert("CRPIX2", {"CRPIX2"});
-    headerDictionary.insert("CD1_1", {"CD1_1"});
-    headerDictionary.insert("CD1_2", {"CD1_2"});
-    headerDictionary.insert("CD2_1", {"CD2_1"});
-    headerDictionary.insert("CD2_2", {"CD2_2"});
+    headerDictionary.insert("CRPIX1", {"CRPIX1", "J_CRPIX1"});
+    headerDictionary.insert("CRPIX2", {"CRPIX2", "J_CRPIX2"});
+    headerDictionary.insert("CD1_1", {"CD1_1", "J_CD1_1"});
+    headerDictionary.insert("CD1_2", {"CD1_2", "J_CD1_2"});
+    headerDictionary.insert("CD2_1", {"CD2_1", "J_CD2_1"});
+    headerDictionary.insert("CD2_2", {"CD2_2", "J_CD2_2"});
     headerDictionary.insert("CDELT1", {"CDELT1"});
     headerDictionary.insert("CDELT2", {"CDELT2"});
     headerDictionary.insert("CRVAL1", {"CRVAL1", "RA", "OBJCTRA", "MEANRA", "OBSRA", "CRVAL1A", "RA-D", "RA_DEG", "RA-HOURS"});

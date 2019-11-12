@@ -77,6 +77,7 @@ public:
     int diskwarnPreference;
     bool doingInitialLaunch = false;
     bool readingSettings = false;
+    bool checkPathsLineEdit(QLineEdit *lineEdit);
 
 signals:
     QFont sendingDefaultFont(QFont);         //  implemented in designer
@@ -259,7 +260,6 @@ private:
     bool areAllPathsValid();
     bool checkRightScampMode(QString coordsMode);
     bool checkMultipledirConsistency(QString mode);
-    bool checkPathsLineEdit(QLineEdit *lineEdit);
     QStringList createCommandlistBlock(QString taskBasename, QStringList goodDirList, bool &stop, QString mode);
     QStringList displayCoaddFilterChoice(QString dirname, QString &filterChoice, QString mode);
     QString estimateStatusFromFilename(DataDir datadir);

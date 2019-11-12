@@ -319,7 +319,8 @@
         <file>config/instruments/FORS1_E2V_2x2@VLT.ini</file>
         <file>config/instruments/LIRIS@WHT_1.reg</file>
         <file>config/instruments/GROND_OPT@MPGESO.ini</file>
-        <file>config/instruments/GROND_OPT@MPGESO.ahead</file>
         <file>config/instruments/GROND_NIR@MPGESO.ini</file>
+        <file>config/instruments/GROND_OPT@MPGESO_1.reg</file>
+        <file>config/instruments/GROND_NIR@MPGESO_1.reg</file>
     </qresource>
 </RCC>

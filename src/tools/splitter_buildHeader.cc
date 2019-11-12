@@ -367,6 +367,36 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
         individualFixDone = true;
     }
+    if (instNameFromData == "GROND_OPT@MPGESO") {                 // GROND optical data has both the NIR and OPT CD matrices in the header.
+        double cd11 = 0.;                                         // With the current scheme, the NIR matrix in the HDU gets picked over
+        double cd12 = 0.;                                         // OPT matrix in the extension
+        double cd21 = 0.;
+        double cd22 = 0.;
+        searchKeyValue(QStringList() << "CD1_1", cd11);
+        searchKeyValue(QStringList() << "CD1_2", cd12);
+        searchKeyValue(QStringList() << "CD2_1", cd21);
+        searchKeyValue(QStringList() << "CD2_2", cd22);
+        cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
+        cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
+        cd21_card = "CD2_1   =  "+QString::number(cd21, 'g', 6);
+        cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
+        individualFixDone = true;
+    }
+    if (instNameFromData == "GROND_NIR@MPGESO") {                 // just double tapping
+        double cd11 = 0.;
+        double cd12 = 0.;
+        double cd21 = 0.;
+        double cd22 = 0.;
+        searchKeyValue(QStringList() << "J_CD1_1", cd11);
+        searchKeyValue(QStringList() << "J_CD1_2", cd12);
+        searchKeyValue(QStringList() << "J_CD2_1", cd21);
+        searchKeyValue(QStringList() << "J_CD2_2", cd22);
+        cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
+        cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
+        cd21_card = "CD2_1   =  "+QString::number(cd21, 'g', 6);
+        cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
+        individualFixDone = true;
+    }
 
     if (individualFixDone) {
         cd11_card.resize(80, ' ');
@@ -509,8 +539,11 @@ void Splitter::buildTheliHeaderGAIN(int chip)
     // normal cases
     float chipGain = 1.0;
     if (!searchKeyValue(headerDictionary.value("GAIN"), chipGain)) {
-        emit messageAvailable(fileName + " : Could not determine keyword: GAIN, set to 1.0. Contact the author about this.", "warning");
-        emit warning();
+//        if (instData.name != "GROND_NIR@MPGESO") {    // GROND: gain determined in writeImageIndividual()
+        if (instNameFromData != "GROND_NIR@MPGESO") {    // GROND: gain determined in writeImageIndividual()
+            emit messageAvailable(fileName + " : Could not determine keyword: GAIN, set to 1.0. Contact the author about this.", "warning");
+            emit warning();
+        }
         chipGain = 1.0;
     }
 

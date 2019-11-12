@@ -106,6 +106,7 @@ private:
     QString dataFormat;  // FITS or RAW
     QString bayerPattern = "";
     QString filter = "Unknown";
+    QString instNameFromData = "";       // needed only for a very small number of cameras (GROND)
 
     QString dateObsValue = "";
     double crval1 = 0.0;
@@ -236,6 +237,7 @@ private:
     void pasteMultiportDataSections(int chip);
     void pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, const QVector<long> &sector,
                       const float corrFactor, const long dx, const long dy, const long nT, const long mT, const long nS, const long mS);
+    void testGROND();
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

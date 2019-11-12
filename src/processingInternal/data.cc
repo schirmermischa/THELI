@@ -233,9 +233,9 @@ bool Data::checkStatusConsistency()
 
 bool Data::checkForRawData()
 {
-    // Only checking .fits files. Everything else ("*.fit", "*.cr2", "*.fz" etc) it is clear that we have raw data
+    // Only checking .fits files. Everything else ("*.fit", "*.cr2", "*.fz" etc) it is clear that we have raw data (or other files)
     QStringList filter = {"*.fits"};
-    QStringList filter2 = {"*.*"};
+    QStringList filter2 = {"*.fits", "*.fit", "*.FIT", "*.fz", "*.cr2", "*.CR2"};
     dir.setFilter(QDir::Files);
     QStringList fileNames = dir.entryList(filter);          // Contains processed images and potential raw data
     QStringList allFileNames = dir.entryList(filter2);      // Everything
@@ -263,11 +263,13 @@ bool Data::checkForRawData()
     }
 
     if (numProcessedFiles == 0 && numRawFiles > 0) return true;
+    else if (numProcessedFiles == 0 && numRawFiles == 0) return true;
     else if (numProcessedFiles > 0 && numRawFiles == 0) return false;
     else {
-        qDebug() << "ERROR: checkForRawStatus()" << numProcessedFiles << numRawFiles;
+        qDebug() << "Data::checkForRawData(): " << subDirName << numProcessedFiles << numRawFiles;
+        qDebug() << "Both processed and RAW files were found. This status is not allowed";
         // (numProcessedFiles > 0 && numRawFiles > 0) {
-        emit messageAvailable(dirName + " : Both processed and RAW files were found. This status is not allowd. You must clean the directory manually.", "error");
+        emit messageAvailable(dirName + " : Both processed and RAW files were found. This status is not allowed. You must clean the directory manually.", "error");
         emit critical();
         successProcessing = false;
         return false;

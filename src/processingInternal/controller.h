@@ -236,6 +236,9 @@ private:
                            const int nGroups, const int nLength, QString mode, QVector<bool> &staticImagesWritten);
 
     void uniformMJDOBS(QDir &dir);
+    void finalizeSplitter(Data *data);
+    bool updateDataDirs(Data *data);
+
 private slots:
     // The following can also be under 'private', but then the declaration must be preceeded like this:
     // Q_INVOKABLE QString taskHDUreformat();
@@ -419,6 +422,7 @@ public:
     void restoreAllRawData();
     void updateMasterList();
     void connectDataWithMemoryViewer();
+    QLineEdit *getDataTreeLineEdit(Data *data);
 
 signals:
     void loadViewer(QString dirname, QString filter, QString mode);

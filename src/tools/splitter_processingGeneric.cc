@@ -16,6 +16,8 @@ void Splitter::correctOverscan(int chip)
 {
     if (!cdw->ui->overscanCheckBox->isChecked()) return;
 
+    if (multiportOverscanDirections.isEmpty()) return;
+
     int numChannels = multiportOverscanDirections.length();       // the number of readout channels per detector
     for (int channel=0; channel<numChannels; ++channel) {
         if (multiportOverscanDirections[channel] == "vertical") {
@@ -189,6 +191,8 @@ void Splitter::applyMask(int chip)
     if (!successProcessing) return;
 
     if (instData.name == "LIRIS_POL@WHT") return;     // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
+//    if (instData.name == "GROND_NIR@MPGESO") return;  // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
+    if (instNameFromData == "GROND_NIR@MPGESO") return;  // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
 
     if (*verbosity > 1) emit messageAvailable(baseName + " : Applying mask ...", "image");
 
@@ -275,6 +279,12 @@ void Splitter::convertToElectrons(int chip)
                 }
             }
         }
+    }
+
+//    if (instData.name == "GROND_NIR@MPGESO") {
+        if (instNameFromData == "GROND_NIR@MPGESO") {
+        gain[chip] = 1.0;   // Gain is fixed in writeImageIndividual();
+        return;
     }
 
     for (auto &pixel : dataCurrent) {

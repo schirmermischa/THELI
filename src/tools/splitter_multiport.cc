@@ -95,7 +95,10 @@ void Splitter::getMultiportInformation(int chip)
     naxis1 = dataSection[chip][1] - dataSection[chip][0] + 1;
     naxis2 = dataSection[chip][3] - dataSection[chip][2] + 1;
 
-    if (instData.name == "GROND_OPT@MPGESO") {
+//    if (instData.name == "GROND_OPT@MPGESO") {
+     if (instNameFromData == "GROND_OPT@MPGESO") {
+        naxis1 = 2048;
+        naxis2 = 2050;
         multiportOverscanDirections << "vertical" << "vertical";
         multiportOverscanSections << extractVerticesFromKeyword("BSECA");
         multiportOverscanSections << extractVerticesFromKeyword("BSECB");
@@ -116,11 +119,37 @@ void Splitter::getMultiportInformation(int chip)
         if (detector == "CCDz") gainValue2 = gainValue1 * 0.88904;
         multiportGains << gainValue1 << gainValue2;
         individualFixDone = true;
+        return;
+    }
+
+ //   if (instData.name == "GROND_NIR@MPGESO") {
+        if (instNameFromData == "GROND_NIR@MPGESO") {
+        naxis1 = 3072;
+        naxis2 = 1024;
+        multiportOverscanDirections << "dummy";
+        QVector<long> section = {0, 3071, 0, 1023};   // all three channels at the same time. Cutting happens separately during writeImage();
+        multiportDataSections << section;
+        multiportImageSections << section;
+        multiportGains << 1.0;
+        individualFixDone = true;
+        return;
+    }
+
+    if (instData.name == "LIRIS_POL@WHT") {
+        naxis1 = 1024;
+        naxis2 = 1024;
+        multiportOverscanDirections << "dummy";
+        QVector<long> section = {0, 1023, 0, 1023};   // all four channels at the same time. Cutting happens separately during writeImage();
+        multiportDataSections << section;
+        multiportImageSections << section;
+        multiportGains << 1.0;
+        individualFixDone = true;
+        return;
     }
 
     if (multiportGains.length() != multiportOverscanSections.length()
             || multiportGains.length() != multiportDataSections.length()) {
-        emit messageAvailable("Splitter::getMultiportInformation : Inconsistent number of channels for gain, overscan and data section!"
+        emit messageAvailable("Splitter::getMultiportInformation : Inconsistent number of channels for gain, overscan and data section: "
                               + QString::number(channelGains.length()) + " "
                               + QString::number(multiportOverscanSections.length()) + " "
                               + QString::number(multiportDataSections.length()), "error");

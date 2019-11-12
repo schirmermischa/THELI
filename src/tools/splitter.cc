@@ -88,7 +88,7 @@ void Splitter::determineFileFormat()
 
     if (dataFormat == "Unknown") {
         // FITS opening error?
-//        printCfitsioError("determineFileFormat()", rawStatus);
+        //        printCfitsioError("determineFileFormat()", rawStatus);
         successProcessing = false;                // CHECK: xtalk correction only works if we maintain the original detector geometry
         // correctXtalk();
 
@@ -239,6 +239,8 @@ void Splitter::extractImagesFITS()
                 ++chip;
                 continue;
             }
+            testGROND();     // GROND data are an oddball and need to be tested here
+
             buildTheliHeaderFILTER();
             buildTheliHeaderWCS(chipMapped);
             buildTheliHeaderEXPTIME();
@@ -255,7 +257,7 @@ void Splitter::extractImagesFITS()
                 if (instData.name.contains("LIRIS")) descrambleLiris();
                 correctOverscan(chipMapped);
                 // correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
-//                cropDataSection(dataSection[chipMapped]);
+                //                cropDataSection(dataSection[chipMapped]);
                 pasteMultiportDataSections(chipMapped);
                 correctXtalk();             // Must maintain original detector geometry for x-talk correction, i.e. do before cropping. Must replace naxisi by naxisiRaw in xtalk methods.
                 correctNonlinearity(chipMapped);
@@ -278,7 +280,7 @@ void Splitter::extractImagesFITS()
                     stackCube();
                     correctOverscan(chipMapped);
                     // correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
-//                    cropDataSection(dataSection[chipMapped]);
+                    //                    cropDataSection(dataSection[chipMapped]);
                     pasteMultiportDataSections(chipMapped);
                     correctXtalk();                 // TODO: how valid is that operation for the stack?
                     correctNonlinearity(chipMapped);      // TODO: how valid is that operation for the stack?
@@ -293,7 +295,7 @@ void Splitter::extractImagesFITS()
                     for (long i=0; i<naxis3Raw; ++i) {
                         sliceCube(i);
                         correctOverscan(chipMapped);
-//                        correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
+                        //                        correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
                         cropDataSection(dataSection[chipMapped]);
                         correctXtalk();
                         correctNonlinearity(chipMapped);
@@ -661,6 +663,10 @@ void Splitter::individualFixOutName(QString &outname, const int chipID)
         test = searchKeyValue(QStringList() << "EXP-ID", uniqueID);    // e.g. MCSE00012193
         individualFixDone = true;
     }
+    //    else if (instData.name == "GROND_OPT@MPGESO") {
+    else if (instNameFromData == "GROND_OPT@MPGESO") {
+        individualFixDone = true;
+    }
 
     if (individualFixDone) {
         if (!test) {
@@ -669,7 +675,16 @@ void Splitter::individualFixOutName(QString &outname, const int chipID)
             successProcessing = false;
         }
         else {
-            outname = "!"+path+"/"+instData.shortName+"."+filter+"."+uniqueID+"_"+QString::number(chipID)+"P.fits";
+            //if (instData.name == "GROND_OPT@MPGESO") {
+            if (instNameFromData == "GROND_OPT@MPGESO") {
+                QString newPath = path+"_"+filter;
+                QDir newDir(newPath);
+                newDir.mkpath(newPath);
+                outname = "!"+newPath+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
+            }
+            else {
+                outname = "!"+path+"/"+instData.shortName+"."+filter+"."+uniqueID+"_"+QString::number(chipID)+"P.fits";
+            }
         }
     }
 }
@@ -723,17 +738,21 @@ bool Splitter::individualFixWriteImage(int chipMapped)
                         ++k;
                     }
                 }
-            }            long naxis = 2;
+            }
+            long naxis = 2;
             long naxes[2] = {nax1, nax2};
 
             // Replace blanks in file names
             baseName.replace(' ','_');
 
-            // Output file name
-            QString outName = "!"+path+"/"+baseName+"_"+channelID+"_1P.fits";
+            // Output file goes to a separate directory to account for different detectors / filters
+            QString newPath = path+"_"+channelID;
+            QDir newDir(newPath);
+            newDir.mkpath(newPath);
+            QString outName = "!"+newPath+"/"+baseName+"_"+channelID+"_1P.fits";
             // If renaming active, and dateobs was determined successfully
             if (cdw->ui->theliRenamingCheckBox->isChecked() && dateObsValue != "2020-01-01T00:00:00.000") {
-                outName = "!"+path+"/"+instData.shortName+"."+filter+"_"+channelID+"."+dateObsValue+"_1P.fits";
+                outName = "!"+newPath+"/"+instData.shortName+"."+filter+"_"+channelID+"."+dateObsValue+"_1P.fits";
             }
             fits_create_file(&fptr, outName.toUtf8().data(), &status);
             fits_create_img(fptr, FLOAT_IMG, naxis, naxes, &status);
@@ -746,6 +765,87 @@ bool Splitter::individualFixWriteImage(int chipMapped)
             // Update the filter keyword with the polarization angle
             QString newFilter = filter+"_"+channelID;
             fits_update_key_str(fptr, "FILTER", newFilter.toUtf8().data(), nullptr, &status);
+            fits_close_file(fptr, &status);
+
+            delete [] array;
+
+            printCfitsioError("writeImage()", status);
+        }
+        individualFixDone = true;
+    }
+
+    //    if (instData.name == "GROND_NIR@MPGESO") {    // Write the three channels as separate FITS files
+    if (instNameFromData == "GROND_NIR@MPGESO") {    // Write the three channels as separate FITS files
+        for (int channel=0; channel<=2; ++channel) {
+            fitsfile *fptr;
+            int status = 0;
+            long fpixel = 1;
+            long nax1 = 1024;
+            long nax2 = 1024;
+            long nelements = nax1*nax2;
+            long imin = 0;
+            long imax = 0;
+            long jmin = 0;     // same for all channels
+            long jmax = 1023;  // same for all channels
+            float gain = 1.0;
+            QString channelID = "";
+            if (channel == 0) {
+                imin = 0;
+                imax = 1023;
+                channelID = "J";
+                searchKeyValue(QStringList() << "J_GAIN", gain);
+            }
+            else if (channel == 1) {
+                imin = 1024;
+                imax = 2047;
+                channelID = "H";
+                searchKeyValue(QStringList() << "H_GAIN", gain);
+            }
+            else if (channel == 2) {
+                imin = 2048;
+                imax = 3071;
+                channelID = "K";
+                searchKeyValue(QStringList() << "K_GAIN", gain);
+            }
+            float *array = new float[nelements];
+            long k = 0;
+            for (long j=0; j<naxis2Raw; ++j) {
+                for (long i=0; i<naxis1Raw; ++i) {
+                    if (i>=imin && i<=imax && j>=jmin && j<=jmax) {
+                        array[k] = -1.0 * dataCurrent[i+naxis1Raw*j] * gain;     // ADUs counting negative?? I thought I have seen it all ...
+                        ++k;
+                    }
+                }
+            }
+            long naxis = 2;
+            long naxes[2] = {nax1, nax2};
+
+            // Replace blanks in file names
+            baseName.replace(' ','_');
+
+            // Output file goes to a separate directory to account for different detectors / filters
+            QString newPath = path+"_"+channelID;
+            QDir newDir(newPath);
+            newDir.mkpath(newPath);
+            QString outName = "!"+newPath+"/"+baseName+"_"+channelID+"_1P.fits";
+            // If renaming active, and dateobs was determined successfully
+            if (cdw->ui->theliRenamingCheckBox->isChecked() && dateObsValue != "2020-01-01T00:00:00.000") {
+                outName = "!"+newPath+"/"+instData.shortName+"."+channelID+"."+dateObsValue+"_1P.fits";
+            }
+            fits_create_file(&fptr, outName.toUtf8().data(), &status);
+            fits_create_img(fptr, FLOAT_IMG, naxis, naxes, &status);
+            fits_write_img(fptr, TFLOAT, fpixel, nelements, array, &status);
+
+            // Propagate header
+            for (int i=0; i<headerTHELI.length(); ++i) {
+                fits_write_record(fptr, headerTHELI[i].toUtf8().constData(), &status);
+            }
+            // Update the filter keyword with the polarization angle
+            QString newFilter = channelID;
+            fits_update_key_str(fptr, "FILTER", newFilter.toUtf8().data(), nullptr, &status);
+            fits_update_key_flt(fptr, "GAINEFF", gain, 6, nullptr, &status);
+
+            // Update the gain
             fits_close_file(fptr, &status);
 
             delete [] array;
@@ -847,6 +947,18 @@ void Splitter::printCfitsioError(QString funcName, int status)
         emit messageAvailable(baseName + " Splitter::"+funcName+":<br>" + errorCodes->errorKeyMap.value(status), "error");
         emit critical();
         successProcessing = false;
+    }
+}
+
+void Splitter::testGROND()
+{
+    // we want to identify for each exposure whether it comes from the optical or the NIR camera
+    // so that we can use the appropriate branch to deal with the data
+    if (instData.name.contains("GROND")) {
+        int nax1 = 0;
+        searchKeyValue(QStringList() << "NAXIS1", nax1);
+        if (nax1 == 3072) instNameFromData = "GROND_NIR@MPGESO";
+        else instNameFromData = "GROND_OPT@MPGESO";
     }
 }
 
