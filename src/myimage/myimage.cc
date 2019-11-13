@@ -867,6 +867,14 @@ void MyImage::collapseCorrection(QString threshold, QString direction)
     else if (direction == "y") {
         static_cast<void> (collapse_y(dataCurrent, globalMask, objectMask, threshold.toFloat(), naxis1, naxis2, "2Dsubtract"));
     }
+    else if (direction == "xy") {
+        static_cast<void> (collapse_x(dataCurrent, globalMask, objectMask, threshold.toFloat(), naxis1, naxis2, "2Dsubtract"));
+        static_cast<void> (collapse_y(dataCurrent, globalMask, objectMask, threshold.toFloat(), naxis1, naxis2, "2Dsubtract"));
+    }
+    else if (direction == "yx") {
+        static_cast<void> (collapse_y(dataCurrent, globalMask, objectMask, threshold.toFloat(), naxis1, naxis2, "2Dsubtract"));
+        static_cast<void> (collapse_x(dataCurrent, globalMask, objectMask, threshold.toFloat(), naxis1, naxis2, "2Dsubtract"));
+    }
     else {
         static_cast<void> (collapse_quad(dataCurrent, globalMask, objectMask, threshold.toFloat(), naxis1, naxis2, direction, "2Dsubtract"));
     }
