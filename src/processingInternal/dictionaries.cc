@@ -47,7 +47,7 @@ void Controller::populateHeaderDictionary()
 
     /*
      * ABOUT GAIN:
-     * FourStart has a GAIN keyword, but the correct one is EGAIN"
+     * FourStar has a GAIN keyword, but the correct one is EGAIN"
     */
 
 }

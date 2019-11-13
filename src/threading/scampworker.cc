@@ -14,7 +14,7 @@ void ScampWorker::runScamp()
 {
     // If using QProcess instead of QProcess*, we get a "cannot create child in different thread" error
     extProcess = new QProcess();
-//    connect(&extProcess, &QProcess::readyReadStandardOutput, this, &ScampWorker::processExternalStdout);
+    //    connect(&extProcess, &QProcess::readyReadStandardOutput, this, &ScampWorker::processExternalStdout);
     connect(extProcess, &QProcess::readyReadStandardError, this, &ScampWorker::processExternalStderr);
     QTest::qWait(300);   // If I don't do this, the GUI crashes. It seems the process produces an output faster than the connection can be made ...
     extProcess->setWorkingDirectory(scampDirName);
@@ -61,7 +61,7 @@ void ScampWorker::processExternalStderr()
     stderr.remove("1A1M ");
     stderr.remove("1A ");
     stderr.remove("1M ");
-//    stderr.remove(QRegExp("![^0131m]"));
+    //    stderr.remove(QRegExp("![^0131m]"));
     stderr.remove("0131m");
     stderr = stderr.simplified();
     stderr.replace(" WARNING: ", "<br>WARNING: ");
@@ -69,15 +69,19 @@ void ScampWorker::processExternalStderr()
     stderr.replace("... Matching ", "... <br>Matching ");
     stderr.replace("detections ", "detections<br>");
     stderr.replace("scamp Examining", "scamp<br>Examining");
+    stderr.replace(" ----- Astrometric stats internal :All detections", "<br>----- Astrometric stats internal: All detections");
+    stderr.replace(" ----- Astrometric stats external:All detections", "<br>----- Astrometric stats external: All detections");
+    stderr.replace(" ----- Photometric stats internal:All detections", "<br>----- Photometric stats internal: All detections");
+    stderr.replace(" ----- Photometric stats external:All detections", "<br>----- Photometric stats external: All detections");
     stderr.replace(" Instrument", "<br>Instrument");
     stderr.replace(" Grouping fields:", "<br>Grouping fields:");
     stderr.replace(" Matching field", "<br>Matching field");
     stderr.replace(" Grouping fields on the sky", "<br>Grouping fields on the sky");
     stderr.replace(" Group ", "<br>Group ");
     stderr.replace(" Generating ", "<br>Generating ");
-//   if (!stderr.contains("Matching field") && !stderr.contains("Examining Catalog")) {
-//        stderr.replace(" "+shortName, "<br>"+shortName);
-//    }
+    //   if (!stderr.contains("Matching field") && !stderr.contains("Examining Catalog")) {
+    //        stderr.replace(" "+shortName, "<br>"+shortName);
+    //    }
     stderr.replace(" Making mosaic adjustments","<br>Making mosaic adjustments");
     stderr.replace("7m instruments pos.angle scale cont. shift cont.0m", "instruments pos.angle scale cont. shift cont.");
     stderr.replace(" Solving the global astrometry matrix", "<br>Solving the global astrometry matrix");

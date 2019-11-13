@@ -306,6 +306,13 @@ bool Splitter::individualFixCDmatrix(int chip)
     QString cd21_card = "";
     QString cd22_card = "";
 
+    if (instData.name == "WFI@MPGESO") {
+        cd11_card = "CD1_1   =  -6.611e-5";
+        cd12_card = "CD1_2   =  0.0";
+        cd21_card = "CD2_1   =  0.0";
+        cd22_card = "CD2_2   =  6.611e-5";
+        individualFixDone = true;
+    }
     if (instData.name == "WFC@INT") {
         if (chip == 0) {
             cd11_card = "CD1_1   =  -1.186589131599E-06";
@@ -539,7 +546,7 @@ void Splitter::buildTheliHeaderGAIN(int chip)
     // normal cases
     float chipGain = 1.0;
     if (!searchKeyValue(headerDictionary.value("GAIN"), chipGain)) {
-//        if (instData.name != "GROND_NIR@MPGESO") {    // GROND: gain determined in writeImageIndividual()
+        //        if (instData.name != "GROND_NIR@MPGESO") {    // GROND: gain determined in writeImageIndividual()
         if (instNameFromData != "GROND_NIR@MPGESO") {    // GROND: gain determined in writeImageIndividual()
             emit messageAvailable(fileName + " : Could not determine keyword: GAIN, set to 1.0. Contact the author about this.", "warning");
             emit warning();
@@ -584,6 +591,17 @@ bool Splitter::individualFixGAIN(int chip)
     else if (instData.name == "MOIRCS_200807-201505@SUBARU") {  // https://www.naoj.org/Observing/Instruments/MOIRCS/OLD/inst_detector_oldMOIRCS.html
         if (chip == 0) chipGain = 3.50;           // Wrong in headers between August 2008 and April 2010
         if (chip == 1) chipGain = 3.30;
+        individualFixDone = true;
+    }
+    else if (instData.name == "WFI@MPGESO") {  // http://www.ls.eso.org:8081/sci/facilities/lasilla/sciops/CCDs/WFI/qc_suite/plots/plot1.png
+        if (chip == 0) chipGain = 1.99;        // Does not have GAIN keywords for all detectors
+        if (chip == 1) chipGain = 2.02;
+        if (chip == 2) chipGain = 2.29;
+        if (chip == 3) chipGain = 2.68;
+        if (chip == 4) chipGain = 2.24;
+        if (chip == 5) chipGain = 2.25;
+        if (chip == 6) chipGain = 2.16;
+        if (chip == 7) chipGain = 2.03;
         individualFixDone = true;
     }
     else if (instData.name == "FORS1_199904-200703@VLT" || instData.name == "FORS2_200004-200203@VLT") {
