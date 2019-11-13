@@ -169,8 +169,7 @@ void Splitter::extractImages()
     if (!successProcessing) return;
 
     // adjust progress step size for multi-chip cameras whose detectors are stored in single extension FITS files
-    QStringList instruments = {"FORS1_E2V_2x2@VLT", "FORS2_E2V_2x2@VLT", "FORS2_MIT_1x1@VLT", "FORS2_MIT_2x2@VLT",
-                               "FourStar@LCO",
+    QStringList instruments = {"FORS1_E2V_2x2@VLT", "FORS2_E2V_2x2@VLT", "FORS2_MIT_1x1@VLT", "FORS2_MIT_2x2@VLT", "FourStar@LCO",
                                "MOIRCS_200406-201006@SUBARU", "MOIRCS_201007-201505@SUBARU", "MOIRCS_201512-today@SUBARU",
                                "SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808@SUBARU",
                                "SuprimeCam_200808_SDFRED@SUBARU", "VIMOS@VLT"};
@@ -253,7 +252,7 @@ void Splitter::extractImagesFITS()
             // 2D image
             if (naxis == 2) {
                 getCurrentExtensionData();              // sets naxis1/2Raw, needed by everything below
-                getMultiportInformation(chipMapped);    // Update overscan and data sections for nonstandard multiport readouts
+                getMultiportInformation(chipMapped);    // sets naxis1/2. Updates overscan and data sections for nonstandard multiport readouts
                 if (instData.name.contains("LIRIS")) descrambleLiris();
                 correctOverscan(chipMapped);
                 // correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);

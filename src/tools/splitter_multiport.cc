@@ -64,30 +64,11 @@ void Splitter::computeMultiportDataOffsets()
 }
 */
 
-// paste a subarea 'sector' {xmin, xmax, ymin, ymax) from source image "dataS" to target image "dataT",
-// with offsets dx and dy in the target image
-void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, const QVector<long> &sector, const float corrFactor,
-                            const long dx, const long dy, const long nT, const long mT, const long nS, const long mS)
-{
-    long iminS = sector[0];
-    long imaxS = sector[1];
-    long jminS = sector[2];
-    long jmaxS = sector[3];
-
-    for (long jS=jminS; jS<=jmaxS; ++jS) {
-        for (long iS=iminS; iS<=imaxS; ++iS) {
-            long iT = dx+iS-iminS;
-            long jT = dy+jS-jminS;
-            if (iT>=nT || iT<0 || jT>=mT || jT<0) continue;   // don't paste pixels falling outside target area
-            dataT[iT+nT*jT] = dataS[iS+nS*jS] * corrFactor;   // correcting for small gain differences
-        }
-    }
-}
-
 void Splitter::getMultiportInformation(int chip)
 {
     multiportOverscanSections.clear();
     multiportDataSections.clear();
+    multiportImageSections.clear();
     multiportGains.clear();
     multiportOverscanDirections.clear();
     bool individualFixDone = false;
@@ -171,9 +152,11 @@ void Splitter::getMultiportInformation(int chip)
         }
         multiportOverscanSections << overscan;
 
-        QVector<long> dataSect;
-        dataSect << 0 << naxis1Raw -1 << 0 << naxis2Raw - 1;
-        multiportDataSections << dataSect;
+        multiportDataSections << dataSection[chip];
+        // image section = data section minus the left and bottom overscan pixels (right and upper overscan pixels not counted)
+        QVector<long> imageSection = {0, dataSection[chip][1] - dataSection[chip][0], 0, dataSection[chip][3] - dataSection[chip][2]};
+        multiportImageSections << imageSection;
+        multiportGains << 1.0;       // i.e. leave gain unchanged
     }
 }
 
@@ -181,32 +164,35 @@ void Splitter::pasteMultiportDataSections(int chip)
 {
     // Paste the data sections into a single image of dimensions naxis1, naxis2
     dataCurrent.resize(naxis1*naxis2);
-    long k = 0;   // the running 1D index in the pasted image
+//    long k = 0;   // the running 1D index in the pasted image
     int channel = 0;
-    // Loop over channels
-    for (auto &section : multiportDataSections) {
+    for (auto &section : multiportImageSections) {
         if (section.length() != 4) continue; // skip wrong vertices, for whatever reason they might be here
-        long xPasteOffset = multiportImageSections[channel][0];
-        long yPasteOffset = multiportImageSections[channel][2];
-//        long n = multiportImageSections[channel][1] + 1;  // +1 to make it analogous to everywhere else in the code ('effective naxis1')
-//        long m = multiportImageSections[channel][2] + 1;  // +1 to make it analogous to everywhere else in the code ('effective naxis2')
-
-        // Here i+j run over the raw data pixel coordinate system
-        /*
-        long imin = multiportDataSections[channel][0];
-        long imax = multiportDataSections[channel][1];  // inclusive
-        long jmin = multiportDataSections[channel][2];
-        long jmax = multiportDataSections[channel][3];  // inclusive
-        for (long j=jmin; j<=jmax; ++j) {
-            for (long i=imin; i<=imax; ++i) {
-                k = i-imin+xPasteOffset + naxis1*(j-jmin+yPasteOffset);
-                dataCurrent[k] = dataRaw[i+naxis1Raw*j] * channelGains[channel];
-            }
-        }
-        */
+        long xPasteOffset = section[0];
+        long yPasteOffset = section[2];
         pasteSubArea(dataCurrent, dataRaw, multiportDataSections[channel], multiportGains[channel],
                      xPasteOffset, yPasteOffset, naxis1, naxis2, naxis1Raw, naxis2Raw);
         ++channel;
+    }
+}
+
+// paste a subarea 'sector' {xmin, xmax, ymin, ymax) from source image "dataS" to target image "dataT",
+// with offsets dx and dy in the target image
+void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, const QVector<long> &sector, const float corrFactor,
+                            const long dx, const long dy, const long nT, const long mT, const long nS, const long mS)
+{
+    long iminS = sector[0];
+    long imaxS = sector[1];
+    long jminS = sector[2];
+    long jmaxS = sector[3];
+
+    for (long jS=jminS; jS<=jmaxS; ++jS) {
+        for (long iS=iminS; iS<=imaxS; ++iS) {
+            long iT = dx+iS-iminS;
+            long jT = dy+jS-jminS;
+            if (iT>=nT || iT<0 || jT>=mT || jT<0) continue;   // don't paste pixels falling outside target area
+            dataT[iT+nT*jT] = dataS[iS+nS*jS] * corrFactor;   // correcting for small gain differences
+        }
     }
 }
 

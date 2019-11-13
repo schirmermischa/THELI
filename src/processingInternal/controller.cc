@@ -558,6 +558,8 @@ void Controller::wipeDataTree()
     for (auto &DT_x : masterListDT) {
         if (!DT_x.isEmpty()) {
             for (auto &it : DT_x) {
+                it->dataInitialized = false;
+                it->processingStatus = nullptr;
                 it->myImageList.clear();
                 delete it;
                 it = nullptr;
@@ -573,7 +575,6 @@ void Controller::wipeDataTree()
     }
 
     masterListDT.clear();
-
     emit clearMemoryView();
 
     omp_unset_lock(&memoryLock);

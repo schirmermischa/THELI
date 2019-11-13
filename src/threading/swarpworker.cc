@@ -56,6 +56,7 @@ void SwarpWorker::processExternalStderr()
     stderr.replace(" Examining input data ...", "<br>Examining input data");
     stderr.replace(" Creating NEW output image ", "<br>Creating NEW output image ");
     stderr.replace(" Creating NEW weight-map ", "<br>Creating NEW weight-map ");
+    stderr.replace(" ----- SWarp ", "<br>----- SWarp ");
     stderr.replace(" ------- Output File coadd.fits:", "<br>------- Output File coadd.fits:");
     stderr.replace(" Flux scaling astrom/photom:", "<br>Flux scaling astrom/photom:");
     stderr.replace(" -------------- File", "<br>-------------- File");

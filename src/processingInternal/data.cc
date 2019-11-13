@@ -1625,7 +1625,10 @@ float Data::memoryCurrentFootprint(bool globalweights)
 
     // CHECK: crashes here when clicking the project reset button right after launching the GUI.
     // still crashes despite this if-clause. MyImageList[chip] seems undefined (innermost for loop)
-    if (processingStatus == nullptr || !processingStatus->HDUreformat) return 0.;   // MyImageList undefined, or no data loaded yet
+
+    if (processingStatus == nullptr
+            || !processingStatus->HDUreformat
+            || !dataInitialized) return 0.;   // MyImageList undefined, or no data loaded yet
 
     // For an unknown reason, I cannot access myImageList for GLOBALWEIGHTS when changing a project; memoryprogressbar then crashes the UI
     if (!globalweights) {
@@ -2573,12 +2576,12 @@ void Data::restoreRAWDATA()
 {
     QDir rawdataDir(dirName+"/RAWDATA");
     if (!rawdataDir.exists()) {
-        emit messageAvailable(subDirName+"/RAWDATA does not exist. No data were restored or deleted.", "image");
+        emit messageAvailable(subDirName+"/RAWDATA does not exist. No data were restored or deleted.", "warning");
         emit warning();
         return;
     }
     if (rawdataDir.isEmpty()) {
-        emit messageAvailable(subDirName+"/RAWDATA is empty. No data were restored or deleted.", "image");
+        emit messageAvailable(subDirName+"/RAWDATA is empty. No data were restored or deleted.", "warning");
         emit warning();
         return;
     }

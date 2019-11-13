@@ -68,7 +68,7 @@ void Controller::taskInternalHDUreformat()
         if (userStop || userKill || abortProcess) continue;  // Only place we do it this way, because Data class is not yet instantiated
         // Setup the splitter class for the current file
         QString fileName = files.at(i);
-        emit messageAvailable(fileName + " : Splitting and low level processing ...", "image");
+        emit messageAvailable(fileName + " : HDU reformatting, low-level pixel processing ...", "image");
         Splitter *splitter = new Splitter(*instData, mask, data, dataType, cdw, mainDirName, dataDir, fileName, &verbosity);
         splitter->headerDictionary = headerDictionary;
         splitter->filterDictionary = filterDictionary;

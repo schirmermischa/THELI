@@ -322,5 +322,8 @@
         <file>config/instruments/GROND_NIR@MPGESO.ini</file>
         <file>config/instruments/GROND_OPT@MPGESO_1.reg</file>
         <file>config/instruments/GROND_NIR@MPGESO_1.reg</file>
+        <file>config/instruments/WFC@INT_4.reg</file>
+        <file>config/instruments/WFC@INT_3.reg</file>
+        <file>config/instruments/WFC@INT_1.reg</file>
     </qresource>
 </RCC>

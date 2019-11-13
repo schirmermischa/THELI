@@ -109,6 +109,7 @@ public:
     QVector<double> FLUXERR_APER;
     QVector<double> MAGERR_APER;
 
+    float saturationValue = 1.e9;
     double sigmai = 0.;
     double sigmab = 0.;
     double ZP = 0;
@@ -145,7 +146,6 @@ public:
 
     long naxis1 = 0;  // image geometry, needed to respect boundaries
     long naxis2 = 0;
-    float saturationValue = 1.e9;
 
     double rad = 3.14159265/180.;
 

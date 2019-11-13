@@ -27,7 +27,7 @@ public:
     // x-talk
     float xtalkNorAmp = 0.;  // normal xtalk amplitude
     float xtalkRowAmp = 0.;  // row xtalk amplitude
-    float xtalkKappa;   // outlier rejection
+    float xtalkKappa = 3.;   // outlier rejection
     QString xtalkDirection = "x";
     int xtalkNsection = 32;
     QString xtalkNorAmpString = "";
@@ -86,9 +86,9 @@ private:
     int numReadoutChannels = 1;    // number of readout channels per detector
 
     // The following must have the same first dimension
-    QList<QVector<long>> multiportOverscanSections;      // The sections containing the overscan pixels
-    QList<QVector<long>> multiportDataSections;          // The sections containing the data pixels (indexed over the whole array including overscan areas)
-    QList<QVector<long>> multiportImageSections;         // The sections containing the entire channel (indexed over the whole array including overscan areas)
+    QVector<QVector<long>> multiportOverscanSections;    // The sections containing the overscan pixels. Coord system: entire readout channel
+    QVector<QVector<long>> multiportDataSections;        // The sections containing the illuminated pixels only. Coord system: entire readout channel
+    QVector<QVector<long>> multiportImageSections;       // The sections containing the entire channel (indexed over the whole array including overscan areas)
     QVector<float> multiportGains;                       // The gain factors for each readout channel
     QVector<long> multiportOffsetX;                      // The x-offset of that port's data section from the lower left pixel of the pasted image
     QVector<long> multiportOffsetY;                      // The y-offset of that port's data section from the lower left pixel of the pasted image
