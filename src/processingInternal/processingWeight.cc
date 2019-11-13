@@ -260,6 +260,8 @@ void Controller::taskInternalSeparate()
     QString dataSubDirName = scienceData->subDirName;
     QString statusString = scienceData->processingStatus->statusString;
 
+    // TODO: Copy the for loop below and delete all new subdirectories that ould be created (if they exist already)
+
 #pragma omp parallel for num_threads(maxExternalThreads) firstprivate(dataSubDirName, mainDirName, statusString)
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : scienceData->myImageList[chip]) {
