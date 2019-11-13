@@ -66,6 +66,7 @@ void SwarpWorker::processExternalStderr()
 
     QStringList warnings;
     warnings << "WARNING: Astrometric approximation too inaccurate for this re-projection";
+    warnings << "Significant inaccuracy likely to occur in projection";
     QStringList errors;
     errors << "Error:";
 
