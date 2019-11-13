@@ -17,8 +17,8 @@
 
 void ColorPicture::on_calibratePushButton_clicked()
 {
-    photcatresult[0].catname = "SDSS";
-    photcatresult[1].catname = "PANSTARRS";
+    photcatresult[0].catname = "PANSTARRS";
+    photcatresult[1].catname = "SDSS";
     photcatresult[2].catname = "APASS";
     photcatresult[3].catname = "AVGWHITE";
 
@@ -136,9 +136,9 @@ void ColorPicture::colorCalibMatchCatalogs()
 void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>> &matchedRGB, RefCatData *REFCAT, float tolerance)
 {
     int index = 0;
-    if (REFCAT->name == "SDSS") index = 0;
-    else if (REFCAT->name == "APASS") index = 1;
-    else if (REFCAT->name == "PANSTARRS") index = 2;
+    if (REFCAT->name == "PANSTARRS") index = 0;
+    else if (REFCAT->name == "SDSS") index = 1;
+    else if (REFCAT->name == "APASS") index = 2;
 
     if (matchedRGB.isEmpty() || REFCAT->ra.isEmpty()) {
         photcatresult[index].rfac    = "1.000";
@@ -165,6 +165,7 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
 
     if (matchedREFCAT.isEmpty()) {
         emit messageAvailable("None of the G2-like sources in " + REFCAT->name + " were detected in your image.", "warning");
+
     }
     // Calculate the color correction factors
     QVector<float> rCorr;   // red correction factors wrt. green channel
@@ -226,6 +227,7 @@ void ColorPicture::filterSolarTypeStars(QList<Query*> queryList)
                 APASS->ra.append(query->ra_out[k]);
                 APASS->de.append(query->de_out[k]);
             }
+//            qDebug() << PANSTARRS->ra << PANSTARRS->de << APASS->ra << APASS->de;
         }
     }
 }
