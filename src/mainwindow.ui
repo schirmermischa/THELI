@@ -168,7 +168,7 @@
           <enum>Qt::ClickFocus</enum>
          </property>
          <property name="statusTip">
-          <string>Reset all parameters for this project.</string>
+          <string>Reset all parameters for this project. Wipe all data kept in memory.</string>
          </property>
          <property name="text">
           <string>...</string>
