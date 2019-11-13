@@ -133,7 +133,7 @@ void Controller::skysubPolynomialFit(Data *scienceData)
             // Must write for SWarp!
             it->writeImage();
             it->unprotectMemory();
-            emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2), "image");
+            emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2) + " e-", "image");
 #pragma omp atomic
             progress += progressStepSize;
         }
@@ -215,7 +215,7 @@ void Controller::skysubConstantFromArea(Data *scienceData)
             it->writeConstSkyImage(it->meanExposureBackground);
         }
         it->unprotectMemory();
-        emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2), "image");
+        emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2) + " e-", "image");
 #pragma omp atomic
         progress += progressStepSize;
     }
@@ -291,7 +291,7 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
         if (abortProcess || !successProcessing) continue;
         auto &it = listOfAllImages[i];
         if (!it->successProcessing) continue;
-        emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2), "image");
+        emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2) + " e-", "image");
         it->processingStatus->Skysub = false;
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
         it->subtract(it->meanExposureBackground);
@@ -382,7 +382,7 @@ void Controller::skysubConstantEachChip(Data *scienceData, QString DT, QString D
             it->writeConstSkyImage(meanExposureBackground);
         }
         it->unprotectMemory();
-        emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(meanExposureBackground,'f',2), "image");
+        emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(meanExposureBackground,'f',2) + " e-", "image");
 #pragma omp atomic
         progress += progressStepSize;
     }
@@ -495,7 +495,7 @@ void Controller::skysubModel(Data *scienceData, QString DT, QString DMIN, QStrin
             it->writeBackgroundModel();
         }
         it->getMeanBackground();
-        emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2), "image");
+        emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2) + " e-", "image");
         it->releaseAllDetectionMemory();
         it->releaseBackgroundMemory("entirely");
 

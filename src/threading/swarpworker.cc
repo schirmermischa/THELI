@@ -52,6 +52,11 @@ void SwarpWorker::processExternalStderr()
     stderr.replace(" Background:", "<br>Background:");
     stderr.replace(" RMS:", "<br>RMS:");
     stderr.replace(" Weight scale:", "<br>Weight scale:");
+    stderr.replace("... Looking for ", "<br>Looking for ");
+    stderr.replace(" Examining input data ...", "<br>Examining input data");
+    stderr.replace(" Creating NEW output image ", "<br>Creating NEW output image ");
+    stderr.replace(" Creating NEW weight-map ", "<br>Creating NEW weight-map ");
+    stderr.replace(" ------- Output File coadd.fits:", "<br>------- Output File coadd.fits:");
     stderr.replace(" Flux scaling astrom/photom:", "<br>Flux scaling astrom/photom:");
     stderr.replace(" -------------- File", "<br>-------------- File");
     stderr.remove(QRegExp("^1A"));
