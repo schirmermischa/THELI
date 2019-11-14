@@ -126,7 +126,8 @@ SOURCES += \
     tools/xcorr.cc \
     validators.cc \
     myimage/memoryoperations.cc \
-    tools/splitter_multiport.cc
+    tools/splitter_multiport.cc \
+    readmes/license.cc
 
 
 
@@ -189,7 +190,8 @@ HEADERS += \
     tools/polygon.h \
     tools/splitter.h \
     tools/swarpfilter.h \
-    tools/tools.h
+    tools/tools.h \
+    readmes/license.h
 
 FORMS += \
         mainwindow.ui \
@@ -209,7 +211,8 @@ FORMS += \
     readmes/imstatsreadme.ui \
     readmes/multidirreadme.ui \
     readmes/scampreadme.ui \
-    readmes/swarpreadme.ui
+    readmes/swarpreadme.ui \
+    readmes/license.ui
 
 RESOURCES = resources.qrc
 

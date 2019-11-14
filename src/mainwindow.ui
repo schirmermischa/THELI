@@ -2555,6 +2555,7 @@
     <addaction name="actionEdit_preferences"/>
     <addaction name="actionAdd_new_instrument_configuration"/>
     <addaction name="actionKill"/>
+    <addaction name="actionAbout"/>
     <addaction name="actionClose"/>
    </widget>
    <addaction name="menuFile"/>
@@ -2718,6 +2719,11 @@
    </property>
    <property name="toolTip">
     <string>Kills the current task immediately. Files on drive may need manual clean-up. Data model in memory possibly corrupted. Restart recommended.</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>

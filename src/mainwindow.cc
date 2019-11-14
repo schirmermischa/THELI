@@ -1546,3 +1546,9 @@ void MainWindow::restoreOriginalData()
     }
     status.updateStatus();
 }
+
+void MainWindow::on_actionAbout_triggered()
+{
+    license = new License(this);
+    license->show();
+}
