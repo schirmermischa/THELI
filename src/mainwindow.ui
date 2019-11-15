@@ -2555,10 +2555,17 @@
     <addaction name="actionEdit_preferences"/>
     <addaction name="actionAdd_new_instrument_configuration"/>
     <addaction name="actionKill"/>
-    <addaction name="actionAbout"/>
     <addaction name="actionClose"/>
    </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>About</string>
+    </property>
+    <addaction name="actionLicense"/>
+    <addaction name="actionAcknowledging"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuAbout"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
@@ -2724,6 +2731,16 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionLicense">
+   <property name="text">
+    <string>GPL License</string>
+   </property>
+  </action>
+  <action name="actionAcknowledging">
+   <property name="text">
+    <string>Acknowledging</string>
    </property>
   </action>
  </widget>

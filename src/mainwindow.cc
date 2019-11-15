@@ -1547,8 +1547,14 @@ void MainWindow::restoreOriginalData()
     status.updateStatus();
 }
 
-void MainWindow::on_actionAbout_triggered()
+void MainWindow::on_actionLicense_triggered()
 {
     license = new License(this);
     license->show();
+}
+
+void MainWindow::on_actionAcknowledging_triggered()
+{
+    acknowledging = new Acknowledging(this);
+    acknowledging->show();
 }

@@ -127,7 +127,8 @@ SOURCES += \
     validators.cc \
     myimage/memoryoperations.cc \
     tools/splitter_multiport.cc \
-    readmes/license.cc
+    readmes/license.cc \
+    readmes/acknowledging.cc
 
 
 
@@ -191,7 +192,8 @@ HEADERS += \
     tools/splitter.h \
     tools/swarpfilter.h \
     tools/tools.h \
-    readmes/license.h
+    readmes/license.h \
+    readmes/acknowledging.h
 
 FORMS += \
         mainwindow.ui \
@@ -212,7 +214,8 @@ FORMS += \
     readmes/multidirreadme.ui \
     readmes/scampreadme.ui \
     readmes/swarpreadme.ui \
-    readmes/license.ui
+    readmes/license.ui \
+    readmes/acknowledging.ui
 
 RESOURCES = resources.qrc
 

@@ -326,5 +326,6 @@
         <file>config/instruments/WFC@INT_3.reg</file>
         <file>config/instruments/WFC@INT_1.reg</file>
         <file>images/gpl.png</file>
+        <file>images/qt5_logo.png</file>
     </qresource>
 </RCC>

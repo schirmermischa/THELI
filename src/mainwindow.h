@@ -3,6 +3,7 @@
 
 #include "readmes/multidirreadme.h"
 #include "readmes/license.h"
+#include "readmes/acknowledging.h"
 #include "abszp/abszeropoint.h"
 #include "instrumentdefinition.h"
 #include "instrumentdata.h"
@@ -212,7 +213,9 @@ private slots:
     void check_taskResolveTarget(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode);
     void restoreOriginalData();
     void emitEditingFinished(const QString &arg1);
-    void on_actionAbout_triggered();
+    void on_actionLicense_triggered();
+
+    void on_actionAcknowledging_triggered();
 
 private:
     // Variables we need to access frequently
@@ -225,6 +228,7 @@ private:
     instrumentDataType instData;
     MultidirReadme *multidirReadme;
     License *license;
+    Acknowledging *acknowledging;
     ErrorDialog *errordialog = new ErrorDialog(this);
     QSettings *settingsp;
     QMap<QCheckBox*,QString> checkboxMap;
