@@ -1,0 +1,5 @@
+# Region file format: DS9 version 4.1
+# Sense: out
+# Combine: and
+image
+polygon(915,4077,1122,4082,1124,-24,912,-9)
