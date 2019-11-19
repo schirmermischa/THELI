@@ -1,7 +1,8 @@
-Before installing THELI, the following dependencies must be met:
+Dependencies for building THELI
+===============================
 
-For compilation, you need the 'devel' versions of the following packages
-(either these version numbers, or more recent ones). Older versions might work but have not been tested.
+You need the 'devel' versions of the following packages (either these version numbers, or more recent ones).
+Older versions might work but have not been tested:
 
 Qt5.9.6         https://www.qt.io/
 cfitsio         https://heasarc.gsfc.nasa.gov/fitsio/
@@ -10,12 +11,15 @@ GSL v2.5        https://www.gnu.org/software/gsl/
 wcslib v6.4     https://www.atnf.csiro.au/people/mcalabre/WCS/
 libraw v0.19.4  https://www.libraw.org/
 
-On a fresh Ubuntu 18.04 LTS installation, the following command should resolve all dependencies and enable the compilation of 'scamp':
+On a fresh Ubuntu 18.04 LTS installation, the following command should resolve all dependencies, and enable the compilation of 'scamp':
 
-sudo apt install g++ build-essential autotools python python-requests libfftw3-dev libtiff-dev curl libcurl4 libcurl4-gnutls-dev qt5-default qt5-qmake libgsl-dev libatlas-base-dev libblas-dev libplplot-dev libcfitsio-dev libwcstools-dev
+sudo apt install g++ build-essential autotools-dev python python-requests libfftw3-dev libtiff-dev curl libcurl4 libcurl4-gnutls-dev qt5-default qt5-qmake libgsl-dev libatlas-base-dev libblas-dev libplplot-dev libcfitsio-dev libwcstools-dev
 
-THELI also uses the following external packages.
-The relevant binaries must be present in your $PATH variable.
+
+Dependencies for running THELI
+==============================
+
+THELI uses a few external packages. The relevant binaries must be present in your $PATH variable.
 THELI will check for their presence upon launch and report any misconfigurations.
 
 swarp v2.38        https://www.astromatic.net/software/swarp
@@ -24,23 +28,34 @@ sextractor v2.19   https://www.astromatic.net/software/sextractor
 vizquery.py        http://cds.u-strasbg.fr/resources/doku.php?id=cdsclient
 sesame             http://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz
 
-In the following, we assume that the THELI source package was unpacked in a 'software' folder in your home
+
+Environment variable
+====================
+
+For example, let's assume that the THELI source package was unpacked in a 'software' folder in your home
 directory:
 
 $HOME/software/THELI-master/
 
-You must set the THELIDIR environment variable to this path, e.g. on bash you would do
+You must set the THELIDIR environment variable to this path. For 'bash' you would do
 
-export THELIDIR=$HOME/software/THELI-master/
+> export THELIDIR=$HOME/software/THELI-master/
 
-To make it permanent, include this line in your ~/.bashrc
+Include the line above in your ~/.bashrc to make it permament.
 
-Now create the 'Makefile' and build it:
 
-cd $HOME/software/THELI-master/src
-qmake -o Makefile THELI.pro
-make
-make clean
+Compilation
+===========
+
+Parallelization in THELI is based on openMP. Your C++ compiler must support at least openMP 4.0.
+For GNU gcc/g++, this is the case for version 5 and later.
+
+Create the 'Makefile' and build it:
+
+> cd $HOME/software/THELI-master/src
+> qmake -o Makefile THELI.pro
+> make
+> make clean
 
 To speed up the compilation on a multi-core system, you can replace 'make' by 'make -j x",
 where 'x' is replaced by the number of CPUs you have available.
@@ -48,5 +63,19 @@ where 'x' is replaced by the number of CPUs you have available.
 The 'qmake' executable is part of the Qt5 dependence you have installed in the beginning.
 
 
+MacOS C++ compiler and openMP
+=============================
 
+THELI has been successfully installed and run on MacOS Mojave. If you use the native Mac clang 
+compiler, you must at least install 'libomp'. THELI has not been tested with the native compiler.
+
+Alternatively, try the LLVM clang version from http://releases.llvm.org/download.html. 
+This was used to compile THELI on Mojave. However, it turned out that openMP parallelized tasks 
+cause THELI to crash when more than one CPU was used. No trouble-shooting attempt was made.
+
+What should work without problems is if you use the GNU g++ compiler, which must be installed separately.
+
+You might have to edit the compiler flags near the end of src/THELI.pro accordingly.
+Or, after running the 'qmake -o Makefile THELI.pro' call, edit the Makefile, replace all references to clang++
+to the GNU version (or the LLVM clang++ version).
 

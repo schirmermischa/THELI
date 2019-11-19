@@ -4,11 +4,9 @@ THELI is a data processing pipeline for optical, near-infrared and mid-infrared 
 
 With its own integrated 'iView' FITS browser, advanced processing of astronomical imaging data has never been easier. 
 
-THELI v3 should also run on MacOS, but the current beta-release has not been tested on it.
+THELI v3 also runs on MacOS.
 
-Even though the current beta-release includes all instruments that were supported in THELI v2, not all of them have been tested. In principle, all instruments with a single detector should work out of the box. Instruments with multiple detectors should work if their data is stored in MEF FITS format, and if THELI can construct a unique DATE-OBS key for all chips.
-
-Instruments with detectors where the overscan region from multiple readout channels is dividing up the image area are not yet supported (such as the Hamamatsu GMOS CCDs, or SuprimeCam).
+Even though the current beta-release includes all instruments that were supported in THELI v2, not all of them have been tested. In particular, some instruments with detectors where the overscan region from multiple readout channels is dividing up the image area are not yet supported (such as the Hamamatsu GMOS CCDs, or SuprimeCam).
 
 Mid-infrared cameras are currently not supported, but support is foreseen as soon as THELI v3 emerges from its beta-testing phase.
 
