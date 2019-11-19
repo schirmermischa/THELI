@@ -160,14 +160,14 @@ void Controller::displayDriveSpace()
     QString datadiskstring = QString::number(GBfree_data,'f',2) + " GB left";
 
     // check if the data disk warning should be activated
-    if (GBfree_data <= mainGUI->diskwarnPreference) {
+    if (GBfree_data <= mainGUI->diskwarnPreference/1024.) {           // preference is given in MB
         if (!mainGUI->datadiskspace_warned) {
             mainGUI->datadiskspace_warned = true;
             if (maindir.isEmpty()) maindir = QDir::homePath();
             QMessageBox::warning( this, "THELI: DATA DISK SPACE LOW",
                                   "The remaining disk space on\n\n"
                                   + maindir+"\n\nis less than your warning threshold of "
-                                  + QString::number(mainGUI->diskwarnPreference)+" GB.\n"
+                                  + QString::number(mainGUI->diskwarnPreference)+" MB.\n"
                                                                                  "The threshold can be set under Edit->Preferences in the main menu. "
                                                                                  "This warning will not be shown anymore in this session, "
                                                                                  "unless you update the threshold to a new value.");

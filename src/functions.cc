@@ -453,7 +453,7 @@ long get_memory()
     QString kernelType = sysInfo->kernelType();
     QString memory;
 
-    // TODO: replace with native QFile operation?
+    // TODO: use sysctl interface instead
     if (kernelType == "linux") {
         QProcess p;
         p.start("awk", QStringList() << "/MemTotal/ { print $2 }" << "/proc/meminfo");
@@ -462,16 +462,19 @@ long get_memory()
         memory = memory.simplified();
         p.close();
     }
-    /*
+
     if (kernelType == "darwin") {
         QProcess p;
-        p.start("sysctl", QStringList() << "kern.version" << "hw.memsize");
-            // or 'hostinfo | grep memory | awk '{print $4}'
+        p.start("sysctl", QStringList() << "hw.memsize");
+            // or 'hostinfo | grep memory | awk '{print $4}'    // returns RAM in GB
         p.waitForFinished(-1);
         QString system_info = p.readAllStandardOutput();
+        QStringList list = system_info.split(' ');
+        QString memory = list[1];
         p.close();
+        delete sysInfo;
+        return memory.toFloat()/1024;
     }
-    */
 
     delete sysInfo;
     return memory.toLong();

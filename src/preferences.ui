@@ -893,7 +893,7 @@
         <item row="3" column="0">
          <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>Disk space warning [ GB ]</string>
+           <string>Disk space warning [ MB ]</string>
           </property>
          </widget>
         </item>
@@ -950,10 +950,13 @@
            <string>When to show a warning that you are running out of disk space</string>
           </property>
           <property name="minimum">
-           <number>1</number>
+           <number>256</number>
           </property>
           <property name="maximum">
            <number>9999</number>
+          </property>
+          <property name="singleStep">
+           <number>256</number>
           </property>
          </widget>
         </item>

@@ -33,6 +33,7 @@ public:
     ~CPU();
 
     int getCPUload();
+    void getCpuInfo_MAC(unsigned long *pulSystem, unsigned long *pulUser, unsigned long *pulNice, unsigned long *pulIdle);
     float getCurrentValue();
 
 signals:
@@ -45,17 +46,21 @@ private:
     double idle1 = 0.;
     double idle2 = 0.;
 
-    void readStatsCPU(double &totval, double &idleval);
+    void readStatsCPU_Linux(double &totval, double &idleval);
+    void readStatsCPU_MAC(double &totval, double &idleval);
 
     QFile file;
     QTextStream instream;
     int maxCPU = 1;
+
+    QString kernelType;
 
     long long lastTotal = 0;
     long long lastTotalActive = 0;
     long long lastTotalIdle = 0;
 
     void init();
+
 public slots:
 
 };

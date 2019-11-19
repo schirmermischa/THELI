@@ -24,10 +24,19 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QTest>
 #include <QFile>
 #include <QThread>
+#include <QSysInfo>
 
-#include "stdlib.h"
-#include "stdio.h"
-#include "string.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+
+#ifdef __MACH__
+#include <mach/mach.h>
+define MACOS
+#elif __LINUX__
+define LINUX
+#endif
 
 CPU::CPU(QObject *parent) : QObject(parent)
 {
@@ -39,7 +48,6 @@ CPU::CPU(QObject *parent) : QObject(parent)
     instream.setDevice(&file);
 
     maxCPU = QThread::idealThreadCount();
-
 
     // new method
     init();
@@ -54,14 +62,17 @@ int CPU::getCPUload()
 {
     if (CPUbarDeactivated) return 0;
 
-    // snapshot 1
-    readStatsCPU(tot1, idle1);
-
-    // 250ms pause
-    QTest::qWait(250);
-
-    // snapshot 2
-    readStatsCPU(tot2, idle2);
+    // Take two snapshots 250 ms apart
+    if (kernelType == "linux") {
+        readStatsCPU_Linux(tot1, idle1);
+        QTest::qWait(250);
+        readStatsCPU_Linux(tot2, idle2);
+    }
+    else if (kernelType == "darwin") {
+        readStatsCPU_MAC(tot1, idle1);
+        QTest::qWait(250);
+        readStatsCPU_MAC(tot2, idle2);
+    }
 
     double dTot = tot2-tot1;
     double dIdle = idle2-idle1;
@@ -71,7 +82,7 @@ int CPU::getCPUload()
     return CPUload;
 }
 
-void CPU::readStatsCPU(double &totval, double &idleval)
+void CPU::readStatsCPU_Linux(double &totval, double &idleval)
 {
     // Reset file to beginning
     instream.seek(0);
@@ -92,19 +103,40 @@ void CPU::readStatsCPU(double &totval, double &idleval)
     idleval = idle;
 }
 
+void CPU::readStatsCPU_MAC(double &totval, double &idleval)
+{
+    unsigned long ulSystem;
+    unsigned long ulUser;
+    unsigned long ulNice;
+    unsigned long ulIdle;
+    getCpuInfo_MAC(&ulSystem, &ulUser, &ulNice, &ulIdle);
+
+    totval = (double)(ulSystem + ulUser + ulNice + ulIdle);
+    idleval = (double) ulIdle;
+}
+
 void CPU::init()
 {
-    // Reset file to beginning
-    lastTotal = 0;
-    lastTotalActive = 0;
-    lastTotalIdle = 0;
-    instream.seek(0);
-    QStringList values = instream.readLine().simplified().split(" ");
-    for (int i=1; i<values.length(); ++i) {
-        if (i!=4 && i!=5) lastTotalActive += values[i].toLongLong();
-        else lastTotalIdle += values[i].toLongLong();
+    QSysInfo *sysInfo = new QSysInfo;
+    kernelType = sysInfo->kernelType();
+
+    if (kernelType == "linux") {
+        // Reset file to beginning
+        lastTotal = 0;
+        lastTotalActive = 0;
+        lastTotalIdle = 0;
+        instream.seek(0);
+        QStringList values = instream.readLine().simplified().split(" ");
+        for (int i=1; i<values.length(); ++i) {
+            if (i!=4 && i!=5) lastTotalActive += values[i].toLongLong();
+            else lastTotalIdle += values[i].toLongLong();
+        }
+        lastTotal = lastTotalIdle + lastTotalActive;
     }
-    lastTotal = lastTotalIdle + lastTotalActive;
+
+    if (kernelType == "darwin") {
+        // nothing to be done
+    }
 }
 
 float CPU::getCurrentValue()
@@ -125,7 +157,7 @@ float CPU::getCurrentValue()
     total = totalActive + totalIdle;
 
     long diffTotalActive = totalActive - lastTotalActive;
-//    long diffTotalIdle = totalIdle - lastTotalIdle;
+    //    long diffTotalIdle = totalIdle - lastTotalIdle;
     long diffTotal = total - lastTotal;
     float CPUload = 100. * maxCPU * diffTotalActive / diffTotal;
 
@@ -134,4 +166,32 @@ float CPU::getCurrentValue()
     lastTotalIdle = totalIdle;
 
     return CPUload;
+}
+
+void CPU::getCpuInfo_MAC(unsigned long *pulSystem, unsigned long *pulUser, unsigned long *pulNice, unsigned long *pulIdle)
+{
+#ifdef __MACH__
+    mach_msg_type_number_t unCpuMsgCount = 0;
+    processor_flavor_t nCpuFlavor = PROCESSOR_CPU_LOAD_INFO;
+    kern_return_t nErr = 0;
+    natural_t unCPUNum = 0;
+    processor_cpu_load_info_t structCpuData;
+    host_t host = mach_host_self();
+    *pulSystem = 0;
+    *pulUser = 0;
+    *pulNice = 0;
+    *pulIdle = 0;
+    nErr = host_processor_info(host, nCpuFlavor, &unCPUNum, (processor_info_array_t *)&structCpuData, &unCpuMsgCount);
+    if(nErr != KERN_SUCCESS) {
+        qDebug() << "Kernel error: " << mach_error_string(nErr);
+    }
+    else {
+        for(int i=0; i<(int)unCPUNum; ++i) {
+            *pulSystem += structCpuData[i].cpu_ticks[CPU_STATE_SYSTEM];
+            *pulUser += structCpuData[i].cpu_ticks[CPU_STATE_USER];
+            *pulNice += structCpuData[i].cpu_ticks[CPU_STATE_NICE];
+            *pulIdle += structCpuData[i].cpu_ticks[CPU_STATE_IDLE];
+        }
+    }
+#endif
 }

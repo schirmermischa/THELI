@@ -331,6 +331,9 @@ void MainWindow::addProgressBars()
     }
     */
 
+    QSysInfo *sysInfo = new QSysInfo;
+    QString kernelType = sysInfo->kernelType();
+
     // Push the progress bars to the right, with little spacers in between;
     QWidget* empty = new QWidget();
     QWidget* empty1 = new QWidget();
@@ -340,12 +343,23 @@ void MainWindow::addProgressBars()
     empty2->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     empty1->setMinimumWidth(10);
     empty2->setMinimumWidth(10);
-    ui->toolBar->addWidget(empty);
-    ui->toolBar->addWidget(driveProgressBar);
-    ui->toolBar->addWidget(empty1);
-    ui->toolBar->addWidget(cpuProgressBar);
-    ui->toolBar->addWidget(empty2);
-    ui->toolBar->addWidget(memoryProgressBar);
+    if (kernelType == "linux") {
+        ui->toolBar->addWidget(empty);
+        ui->toolBar->addWidget(driveProgressBar);
+        ui->toolBar->addWidget(empty1);
+        ui->toolBar->addWidget(cpuProgressBar);
+        ui->toolBar->addWidget(empty2);
+        ui->toolBar->addWidget(memoryProgressBar);
+    }
+    else if (kernelType == "darwin") {        // Progress Bars not supported in macOS in the top toolBar
+        ui->statusBar->addWidget(empty);
+        ui->statusBar->addWidget(driveProgressBar);
+        ui->statusBar->addWidget(empty1);
+        ui->statusBar->addWidget(cpuProgressBar);
+        ui->statusBar->addWidget(empty2);
+        ui->statusBar->addWidget(memoryProgressBar);
+    }
+    delete sysInfo;
 }
 
 void MainWindow::addDockWidgets()
@@ -919,7 +933,7 @@ void MainWindow::fill_setupInstrumentComboBox()
         return;
     }
 
-//    allInstrumentList.sort();
+    //    allInstrumentList.sort();
     instrument_model->setStringList(allInstrumentList);
 
     // CAREFUL! the following line also triggers
