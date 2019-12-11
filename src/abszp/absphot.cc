@@ -150,7 +150,7 @@ long AbsPhot::setupFitMask()
 }
 
 // Iterative regression
-void AbsPhot::regressionLinfit(double &slope, double &cutoff)
+void AbsPhot::regressionLinfit()
 {
     double sum_col_ZP = 0.;
     double sum_col_col = 0.;
@@ -235,6 +235,12 @@ void AbsPhot::regressionLinfit(double &slope, double &cutoff)
             qv_ZPManualOutlier.append(qv_ZPIndividual[i]);
         }
     }
+
+    // Store the result, after resetting all parameters (un-used params for a lower order fit are explicitly set to 0)
+    fitParams[0] = cutoff;
+    fitParams[1] = slope;
+    fitParamsErr[0] = 0.;
+    fitParamsErr[1] = 0.;
 }
 
 bool AbsPhot::regression(int fitOrder)
@@ -246,17 +252,20 @@ bool AbsPhot::regression(int fitOrder)
     for (auto &it : fitParams) it = 0.;
     for (auto &it : fitParamsErr) it = 0.;
 
-    int p = fitOrder+1;
+    int p = fitOrder + 1;
 
     if (n <= p) return false;
 
     gsl_matrix *X, *cov;
-    gsl_vector *y, *w, *c;
-    X = gsl_matrix_alloc (n, p);    // input
-    y = gsl_vector_alloc (n);       // input
-    w = gsl_vector_alloc (n);       // input
-    c = gsl_vector_alloc (p);       // output
-    cov = gsl_matrix_alloc (p, p);  // output
+    gsl_vector *y, *w, *c, *yerr, *w_orig, *r;
+    X = gsl_matrix_alloc(n, p);    // input
+    y = gsl_vector_alloc(n);       // input
+    yerr = gsl_vector_alloc(n);    // input
+    w = gsl_vector_alloc(n);       // input
+    w_orig = gsl_vector_alloc(n);  // input
+    r = gsl_vector_alloc(n);       // input
+    c = gsl_vector_alloc(p);       // output
+    cov = gsl_matrix_alloc(p, p);  // output
 
     long i = 0;
     for (auto &mask : qv_fitMask) {
@@ -271,14 +280,34 @@ bool AbsPhot::regression(int fitOrder)
                 gsl_matrix_set(X, i, k, pow(xi, double(k)));
             }
             gsl_vector_set(y, i, yi);
+            gsl_vector_set(yerr, i, yierr);
             gsl_vector_set(w, i, 1./(ei*ei));
+            gsl_vector_set(w_orig, i, 1./(ei*ei));
             ++i;
         }
     }
 
     double chisq;
-    gsl_multifit_linear_workspace * work = gsl_multifit_linear_alloc (n, p);
-    gsl_multifit_wlinear (X, w, y, c, cov, &chisq, work);
+    gsl_multifit_linear_workspace *work = gsl_multifit_linear_alloc (n, p);
+
+    // iterative fit
+    int iter = 0;
+    int iterMax = 3;
+    while (iter < iterMax) {
+        gsl_multifit_wlinear(X, w, y, c, cov, &chisq, work);
+        gsl_multifit_linear_residuals(X, y, c, r);
+        // Reset the weights to the original weights
+        for (size_t i=0; i<r->size; ++i) {
+            gsl_vector_set(w, i, gsl_vector_get(w_orig, i));
+        }
+        // 3 sigma outlier rejection (setting the weights to zero for the next fit)
+        for (size_t i=0; i<r->size; ++i) {
+            if (gsl_vector_get(r, i) > 3.*gsl_vector_get(yerr, i)) {
+                gsl_vector_set(w, i, 0.);
+            }
+        }
+        ++iter;
+    }
     gsl_multifit_linear_free(work);
 
     // Store the result, after resetting all parameters (un-used params for a lower order fit are explicitly set to 0)

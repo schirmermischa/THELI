@@ -1477,6 +1477,9 @@
         </item>
         <item row="3" column="2" colspan="2">
          <widget class="QSpinBox" name="zpFitOrderSpinBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="statusTip">
            <string>The order of the polynomial fit for the ZP / color term dependence</string>
           </property>
@@ -1497,6 +1500,9 @@
         </item>
         <item row="3" column="1">
          <widget class="QLabel" name="label_39">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Polynomial fit order</string>
           </property>

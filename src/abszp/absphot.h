@@ -78,8 +78,8 @@ public:
     QString ColorErr2Selected;
     QString ColorErr3Selected;
 
-    void regressionLinfit(double &slope, double &cutoff);   // using an iterative linear fit
-    bool regression(int fitOrder);                          // Using a GSL polynomial fit
+    void regressionLinfit();              // using an iterative linear fit
+    bool regression(int fitOrder);        // Using a GSL polynomial fit
     void clear();
 
     void getColor();

@@ -230,45 +230,58 @@ void AbsZeroPoint::taskInternalAbszeropoint()
     myImage->maxCPU = maxCPU;
     myImage->provideHeaderInfo();
 
-    emit messageAvailable("Querying " + ui->zpRefcatComboBox->currentText() + " ...", "ignore");
-    queryRefCat();
-    if (numRefSources == 0) {
-        emit messageAvailable("AbsZP: Aborting, could not find any reference sources.", "error");
-        emit finished();
-        return;
+    bool successQuery = true;
+    bool successDetection = true;
+    // executing catalog query and source detection in parallel
+#pragma omp parallel sections
+    {
+#pragma omp section
+        {
+            emit messageAvailable("Querying " + ui->zpRefcatComboBox->currentText() + " ...", "ignore");
+            queryRefCat();
+            if (numRefSources == 0) {
+                emit messageAvailable("AbsZP: Aborting, could not find any reference sources.", "error");
+                emit finished();
+                successQuery = false;
+            }
+        }
+#pragma omp section
+        {
+            emit messageAvailable("Detecting objects in image ...", "ignore");
+            QString DT = ui->zpDTLineEdit->text();
+            QString DMIN = ui->zpDMINLineEdit->text();
+            if (DT.isEmpty()) {
+                DT = "10";
+                ui->zpDTLineEdit->setText("10");
+            }
+            if (DMIN.isEmpty()) {
+                DMIN = "10";
+                ui->zpDMINLineEdit->setText("10");
+            }
+
+            // Collect apertures and pass them on
+            QString ap = ui->zpApertureLineEdit->text();
+            ap = ap.replace(","," ").simplified();
+            QStringList apList = ap.split(" ");
+            QVector<float> apertures;
+            for (auto &val : apList) {
+                apertures << val.toFloat();
+            }
+            myImage->apertures = apertures;
+
+            // Detect objects
+            myImage->readImage();
+            if (!myImage->successProcessing) successDetection = false;
+            myImage->readWeight();
+            myImage->successProcessing = true;
+            myImage->apertures = apertures;
+            myImage->backgroundModel(100, "interpolate");
+            myImage->segmentImage(DT, DMIN, true, false);
+            emit messageAvailable(QString::number(myImage->objectList.length()) + " objects detected.", "ignore");
+        }
     }
 
-    emit messageAvailable("Detecting objects in image ...", "ignore");
-    QString DT = ui->zpDTLineEdit->text();
-    QString DMIN = ui->zpDMINLineEdit->text();
-    if (DT.isEmpty()) {
-        DT = "10";
-        ui->zpDTLineEdit->setText("10");
-    }
-    if (DMIN.isEmpty()) {
-        DMIN = "10";
-        ui->zpDMINLineEdit->setText("10");
-    }
-
-    // Collect apertures and pass them on
-    QString ap = ui->zpApertureLineEdit->text();
-    ap = ap.replace(","," ").simplified();
-    QStringList apList = ap.split(" ");
-    QVector<float> apertures;
-    for (auto &val : apList) {
-        apertures << val.toFloat();
-    }
-    myImage->apertures = apertures;
-
-    // Detect objects
-    myImage->readImage();
-    if (!myImage->successProcessing) return;
-    myImage->readWeight();
-    myImage->successProcessing = true;
-    myImage->apertures = apertures;
-    myImage->backgroundModel(100, "interpolate");
-    myImage->segmentImage(DT, DMIN, true, false);
-    emit messageAvailable(QString::number(myImage->objectList.length()) + " objects detected.", "ignore");
+    if (!successDetection || !successQuery) return;
 
     emit messageAvailable("Matching objects with reference sources ...", "ignore");
     QVector<QVector<double>> refDat;
@@ -912,12 +925,16 @@ void AbsZeroPoint::on_actionClose_triggered()
 bool AbsZeroPoint::doColortermFit()
 {
     int fitOrder = ui->zpFitOrderSpinBox->value();
+    /*
     if (!absPhot->regression(fitOrder)) {
         QMessageBox::information( this, "Ill-constrainend fit",
                                   "There are not enough photometric reference stars to perform a fit of order "+QString::number(fitOrder),
                                   QMessageBox::Ok);
         return false;
     }
+*/
+    absPhot->regressionLinfit();
+
     return true;
 }
 
@@ -941,7 +958,10 @@ void AbsZeroPoint::updateCoaddHeader()
     absPhot->ColorErr2Selected = QString::number(absPhot->fitParamsErr[2], 'f', 4);
     absPhot->ColorErr3Selected = QString::number(absPhot->fitParamsErr[3], 'f', 4);
 
-    float fluxConv = 1.e6 * pow(10, -0.4 * (absPhot->ZPSelected.toFloat() - 8.90));    // Converting ZP to microJy
+    float fluxConv = 0.0;
+    if (!absPhot->ZPSelected.isEmpty()) {
+        fluxConv = 1.e6 * pow(10, -0.4 * (absPhot->ZPSelected.toFloat() - 8.90));    // Converting ZP to microJy
+    }
 
     // The coadded FITS file
     fitsfile *fptr;
