@@ -616,6 +616,9 @@ void Controller::taskInternalProcessscience()
             if (alwaysStoreData) {
                 it->writeImage();
                 it->unprotectMemory();
+                if (minimizeMemoryUsage) {
+                    it->freeAll();
+                }
             }
         }
         else {

@@ -152,6 +152,9 @@ void Controller::skysubPolynomialFit(Data *scienceData)
             // Must write for SWarp!
             it->writeImage();
             it->unprotectMemory();
+            if (minimizeMemoryUsage) {
+                it->freeAll();
+            }
             emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2) + " e-", "image");
 #pragma omp atomic
             progress += progressStepSize;
@@ -234,6 +237,9 @@ void Controller::skysubConstantFromArea(Data *scienceData)
             it->writeConstSkyImage(it->meanExposureBackground);
         }
         it->unprotectMemory();
+        if (minimizeMemoryUsage) {
+            it->freeAll();
+        }
         emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2) + " e-", "image");
 #pragma omp atomic
         progress += progressStepSize;
@@ -323,6 +329,9 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
             it->writeConstSkyImage(it->meanExposureBackground);
         }
         it->unprotectMemory();
+        if (minimizeMemoryUsage) {
+            it->freeAll();
+        }
 #pragma omp atomic
         progress += progressStepSize;
     }
@@ -401,6 +410,9 @@ void Controller::skysubConstantEachChip(Data *scienceData, QString DT, QString D
             it->writeConstSkyImage(meanExposureBackground);
         }
         it->unprotectMemory();
+        if (minimizeMemoryUsage) {
+            it->freeAll();
+        }
         emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(meanExposureBackground,'f',2) + " e-", "image");
 #pragma omp atomic
         progress += progressStepSize;
@@ -523,6 +535,9 @@ void Controller::skysubModel(Data *scienceData, QString DT, QString DMIN, QStrin
         // Must write for SWarp
         it->writeImage();
         it->unprotectMemory();
+        if (minimizeMemoryUsage) {
+            it->freeAll();
+        }
 #pragma omp atomic
         progress += progressStepSize;
     }

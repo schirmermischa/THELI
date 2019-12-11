@@ -119,6 +119,9 @@ void Controller::taskInternalCollapse()
         if (alwaysStoreData) {
             it->writeImage();
             it->unprotectMemory();
+            if (minimizeMemoryUsage) {
+                it->freeAll();
+            }
         }
 #pragma omp atomic
         progress += progressStepSize;
@@ -197,7 +200,7 @@ void Controller::taskInternalBinnedpreview()
         releaseMemory(nimg*instData->storage, maxCPU);
 
         // Loop over all chips
-        if (verbosity >= 0) emit messageAvailable("Working on chips in exposure " + QString::number(img)
+        if (verbosity >= 0) emit messageAvailable("Binning and mapping chips in exposure " + QString::number(img)
                                                   + " / " + QString::number(numExp), "controller");
         QVector<float> dataBinnedGlobal(nGlobal*mGlobal,0);
         int binnedChipCounter = 0;
@@ -218,6 +221,9 @@ void Controller::taskInternalBinnedpreview()
             mapBinnedData(dataBinnedGlobal, dataBinned, Tmatrices[chip], nGlobal, mGlobal,
                           nb, mb, crpix1, crpix2, xminOffset, yminOffset, instData->name);
             scienceData->myImageList[chip][img]->unprotectMemory();
+            if (minimizeMemoryUsage) {
+                scienceData->myImageList[chip][img]->freeAll();
+            }
             ++binnedChipCounter;
 #pragma omp atomic
             progress += progressStepSize;

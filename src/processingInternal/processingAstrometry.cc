@@ -142,6 +142,9 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
         it->calcMedianSeeingEllipticity();   // Also propagate to FITS header if file is on drive
         it->writeCatalog(minFWHM, maxFlag);  // filters out objects that don't match flag or fwhm
         it->unprotectMemory();
+        if (minimizeMemoryUsage) {
+            it->freeAll();
+        }
         if (it->successProcessing) {
             long nobj = it->objectList.length();
             emitSourceCountMessage(nobj, it->chipName);
@@ -755,6 +758,10 @@ void Controller::copyZeroOrder()
             it->updateHeaderValue("RZP", RZP);                   // like that it will be included in the FITS file when written
             it->updateHeaderValueInFITS("RZP", RZP);             // Optionally, updates the FITS file as well (if on drive)
             */
+            it->unprotectMemory();
+            if (minimizeMemoryUsage) {
+                it->freeAll();
+            }
             if (!it->successProcessing) successProcessing = false;
         }
     }
@@ -801,6 +808,10 @@ void Controller::doImageQualityAnalysis()
         it->updateHeaderValueInFITS("FWHM", QString::number(imageQuality->fwhm, 'f', 3));
         it->updateHeaderValueInFITS("ELLIP", QString::number(imageQuality->ellipticity, 'f', 3));
         delete imageQuality;
+        it->unprotectMemory();
+        if (minimizeMemoryUsage) {
+            it->freeAll();
+        }
     }
 
     workerThread->quit();

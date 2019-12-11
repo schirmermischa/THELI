@@ -859,5 +859,7 @@ void MyImage::appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_strin
     fits_write_col(fptr, TFLOAT, 13, firstrow, firstelem, nrows, ell_arr, &status);
     //    fits_write_col(fptr, TSHORT, 8, firstrow, firstelem, nrows, fieldpos, &status);
 
+    messageAvailable(rootName + " : " + nrows + " valid sources after filtering.", "image");
+
     printCfitsioError("MyImage::appendToScampCatalogInternal())", status);
 }

@@ -239,6 +239,9 @@ void Controller::taskInternalIndividualweight()
         it->weightOnDrive = true;
         it->weightName = it->chipName + ".weight";
         it->unprotectMemory();
+        if (minimizeMemoryUsage) {
+            it->freeAll();
+        }
         GLOBALWEIGHTS->myImageList[chip][0]->unprotectMemory();   // List with one entry per chip, only; could also do:
         // GLOBALWEIGHTS->unprotectMemory(chip);
 #pragma omp atomic
