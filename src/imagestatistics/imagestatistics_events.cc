@@ -65,10 +65,10 @@ void ImageStatistics::keyReleaseEvent(QKeyEvent *event)
                     if (!badStatsList.contains(imgSelectedName)) {
                         badStatsList << imgSelectedName;
                     }
-                    QFile badImage(scienceDirName+"/"+imgSelectedName);
-                    if (!badImage.rename(badStatsDirName+imgSelectedName)) {
+                    QFile badImage(scienceDirName+"/"+imgSelectedName+statusString+".fits");
+                    if (!badImage.rename(badStatsDirName+imgSelectedName+statusString+".fits")) {
                         qDebug() << "QDEBUG: Could not execute the following operation:";
-                        qDebug() << "mv " << scienceDirName+"/"+imgSelectedName << badStatsDirName+imgSelectedName;
+                        qDebug() << "mv " << scienceDirName+"/"+imgSelectedName+statusString+".fits" << badStatsDirName+imgSelectedName+statusString+".fits";
                     }
                 }
 

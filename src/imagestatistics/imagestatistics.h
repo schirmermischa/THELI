@@ -24,6 +24,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../iview/iview.h"
 #include "../qcustomplot.h"
 #include "../instrumentdata.h"
+#include "../processingStatus/processingStatus.h"
 
 #include <QMainWindow>
 #include <myimage/myimage.h>
@@ -74,6 +75,7 @@ private slots:
 private:
     QString mainDir;
     QString statusString;
+    ProcessingStatus *processingStatus;
     Ui::ImageStatistics *ui;
     QString thelidir;
     QString userdir;

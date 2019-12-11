@@ -26,6 +26,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../myfits/myfits.h"
 #include "../myimage/myimage.h"
 #include "../mywcs.h"
+#include "../processingStatus/processingStatus.h"
 
 #include <QSettings>
 #include <QValidator>
@@ -62,6 +63,10 @@ ImageStatistics::ImageStatistics(QVector<QList<MyImage*>> &imlist, QString main,
     scienceDir = sciencedir;
     scienceDirName = mainDir + "/" + sciencedir;
     scienceDir.setPath(scienceDirName);
+
+    processingStatus = new ProcessingStatus(scienceDirName);
+    processingStatus->readFromDrive();
+    statusString = processingStatus->statusString;
 
     numericThresholdList << ui->skyMinLineEdit << ui->skyMaxLineEdit
                          << ui->airmassMinLineEdit << ui->airmassMaxLineEdit
