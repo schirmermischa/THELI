@@ -117,7 +117,7 @@ void ProcessingStatus::reset()
     Skysub = false;
 }
 
-// If the .status file is absent when initialising the Data class, then infer the status from the FITS file names
+// If the .processingStatus file is absent when initialising the Data class, then infer the status from the FITS file names
 void ProcessingStatus::inferStatusFromFilenames()
 {
     statusString = "";

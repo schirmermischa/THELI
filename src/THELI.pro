@@ -221,9 +221,9 @@ RESOURCES = resources.qrc
 
 CONFIG += c++11
 
-QMAKE_CXXFLAGS += -fopenmp
+QMAKE_CXXFLAGS += -fopenmp -g
 QMAKE_CXXFLAGS += -Wno-unused
-QMAKE_CXXFLAGS += -O3
+# QMAKE_CXXFLAGS += -O3
 
 QMAKE_LFLAGS  +=  -fopenmp
 

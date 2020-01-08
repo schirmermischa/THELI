@@ -234,12 +234,14 @@ void MyImage::getGridStatistics()
     backgroundSample.reserve(sampleSize);
     // for (long index=0; index<nGridPoints; ++index) {
 
+    // TODO: grid size must be at least twice smaller than the smoothing kernel!
+
     for (long jg=1; jg<m_grid-1; ++jg) {
         for (long ig=1; ig<n_grid-1; ++ig) {
             long index = ig+n_grid*jg;
-            // TODO: crashes here in cr22test if we procss directly all the way from raw data.
+            // TODO: crashes here in cr22test if we process directly all the way from raw data.
             // Does not crash if we start the gui with this task (source detection)
-//            qDebug() << index << ig << jg << n_grid << m_grid;
+            //            qDebug() << index << ig << jg << n_grid << m_grid;
             // Select data points in a square around the current grid point
             for (long j=grid[1][index]-gridStep/2; j<grid[1][index]+gridStep/2; ++j) {
                 for (long i=grid[0][index]-gridStep/2; i<grid[0][index]+gridStep/2; ++i) {
@@ -248,20 +250,19 @@ void MyImage::getGridStatistics()
                     // Take into account global mask, and possibly object masks as well (if defined)
 
                     // With global mask
-                    if (globalMaskAvailable) {
-                        if (!globalMask[i-pad_l+naxis1*(j-pad_b)]) {
-                            if (!weightInMemory) {
-                                if (!objectMaskDone
-                                        || (objectMaskDone && !objectMask[i-pad_l+naxis1*(j-pad_b)])) {
-                                    backgroundSample.append(dataCurrent[i-pad_l+naxis1*(j-pad_b)]);
-                                }
+                    long ii = i-pad_l+naxis1*(j-pad_b);
+                    if (globalMaskAvailable && !globalMask[ii]) {
+                        if (!weightInMemory) {
+                            if (!objectMaskDone
+                                    || (objectMaskDone && !objectMask[ii])) {
+                                backgroundSample.append(dataCurrent[ii]);
                             }
-                            else {
-                                if (dataWeight[i-pad_l+naxis1*(j-pad_b)] > 0.
-                                        && (!objectMaskDone
-                                            || (objectMaskDone && !objectMask[i-pad_l+naxis1*(j-pad_b)]))) {
-                                    backgroundSample.append(dataCurrent[i-pad_l+naxis1*(j-pad_b)]);
-                                }
+                        }
+                        else {
+                            if (dataWeight[ii] > 0.
+                                    && (!objectMaskDone
+                                        || (objectMaskDone && !objectMask[ii]))) {
+                                backgroundSample.append(dataCurrent[ii]);
                             }
                         }
                     }
@@ -269,15 +270,15 @@ void MyImage::getGridStatistics()
                     else {
                         if (!weightInMemory) {
                             if (!objectMaskDone
-                                    || (objectMaskDone && !objectMask[i-pad_l+naxis1*(j-pad_b)])) {
-                                backgroundSample.append(dataCurrent[i-pad_l+naxis1*(j-pad_b)]);
+                                    || (objectMaskDone && !objectMask[ii])) {
+                                backgroundSample.append(dataCurrent[ii]);
                             }
                         }
                         else {
-                            if (dataWeight[i-pad_l+naxis1*(j-pad_b)] > 0.
+                            if (dataWeight[ii] > 0.
                                     && (!objectMaskDone
-                                        || (objectMaskDone && !objectMask[i-pad_l+naxis1*(j-pad_b)]))) {
-                                backgroundSample.append(dataCurrent[i-pad_l+naxis1*(j-pad_b)]);
+                                        || (objectMaskDone && !objectMask[ii]))) {
+                                backgroundSample.append(dataCurrent[ii]);
                             }
                         }
                     }
@@ -288,6 +289,7 @@ void MyImage::getGridStatistics()
             if (sky[1] > 0.) backStatsGrid[index] = sky[0];  // Histogram peak location (if rms could be evaluated, or data were present)
             if (sky[1] > 0.) rmsStatsGrid[index] = sky[1];
             backgroundSample.clear();
+//            if (baseName == "FourStar.Ks.2017-08-09T00:50:05_4PAB") qDebug() << ig << jg << backStatsGrid[index];
         }
     }
 

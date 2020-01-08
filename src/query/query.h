@@ -74,6 +74,8 @@ public:
     float naxis2 = 0.;       // needed for building the anet index
     float pixscale = 0.;     // needed for building the anet index
 
+    bool fromImage = false;
+
     QVector<double> ra_out;
     QVector<double> de_out;
     QVector<float> mag1_out;

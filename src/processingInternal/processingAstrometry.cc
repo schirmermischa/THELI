@@ -202,6 +202,9 @@ void Controller::detectionSExtractor(Data *scienceData, QString minFWHM, QString
         it->filterSextractorCatalog(minFWHM, maxFlag);
         it->sexcatToIview();
         it->unprotectMemory();
+        if (minimizeMemoryUsage) {
+            it->freeAll();
+        }
         if (it->successProcessing) {
             long nobj = getNumObjectsSexCat(it->path+"/cat/"+it->chipName+".cat");
             emitSourceCountMessage(nobj, it->chipName);
@@ -986,7 +989,7 @@ long Controller::getNumObjectsScampCat(QString cat)
     }
     fits_close_file(fptr, &status);
 
-    printCfitsioError("getNumObjectsScampCat():", status);
+    printCfitsioError("getNumObjectsScampCat():<br>" + cat, status);
 
     return nobj;
 }

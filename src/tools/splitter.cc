@@ -77,6 +77,7 @@ void Splitter::determineFileFormat()
 {
     if (!successProcessing) return;
 
+    alreadyProcessed = false;
     // Try opening as FITS
     fits_open_file(&rawFptr, name.toUtf8().data(), READONLY, &rawStatus);
     // CHECK: xtalk correction only works if we maintain the original detector geometry
@@ -84,6 +85,22 @@ void Splitter::determineFileFormat()
 
     if (!rawStatus) {
         dataFormat = "FITS";
+
+        // Already processed by THELI?
+        long thelipro = 0;
+        fits_read_key_lng(rawFptr, "THELIPRO", &thelipro, nullptr, &rawStatus);
+        if (rawStatus != KEY_NO_EXIST) {
+            // key exists, this file has been processed by the splitter alreay. Must skip.
+            emit messageAvailable(fileName + " : Already processed, skipped.", "image");
+            rawStatus = 0;
+            alreadyProcessed = true;
+            return;
+        }
+        else {
+            // Key does not exist, meaning file has not been processed. reset raw status
+            rawStatus = 0;
+        }
+
         uncompress();
         consistencyChecks();
         getDetectorSections(); // Read overscan and data sections for the current instrument
@@ -121,7 +138,6 @@ void Splitter::determineFileFormat()
 void Splitter::uncompress()
 {
     if (!successProcessing) return;
-
     // Unpack tile-compressed image and write new fits file to disk
     if (fits_is_compressed_image(rawFptr, &rawStatus)) {
         if (*verbosity > 1) emit messageAvailable(baseName + " : Uncompressing ...", "image");
@@ -155,7 +171,9 @@ void Splitter::uncompress()
             printCfitsioError("uncompress()", outRawStatus);
             successProcessing = false;
         }
-    }                // CHECK: xtalk correction only works if we maintain the original detector geometry
+    }
+
+    // CHECK: xtalk correction only works if we maintain the original detector geometry
     //correctXtalk();
 }
 
@@ -186,6 +204,9 @@ void Splitter::consistencyChecks()
 void Splitter::extractImages()
 {
     if (!successProcessing) return;
+    if (alreadyProcessed) return;
+
+    emit messageAvailable(fileName + " : HDU reformatting, low-level pixel processing ...", "image");
 
     // adjust progress step size for multi-chip cameras whose detectors are stored in single extension FITS files
     QStringList instruments = {"FORS1_E2V_2x2@VLT", "FORS2_E2V_2x2@VLT", "FORS2_MIT_1x1@VLT", "FORS2_MIT_2x2@VLT", "FourStar@LCO",
@@ -239,6 +260,11 @@ void Splitter::extractImagesFITS()
             if (naxis == 0 || naxis == 1 || naxis >= 4) {
                 // Empty or peculiar data units. Continue with the next one
                 fits_movrel_hdu(rawFptr, 1, &hduType, &rawStatus);
+                continue;
+            }
+
+            if (chipMapped == -1) {
+                successProcessing = false;
                 continue;
             }
 

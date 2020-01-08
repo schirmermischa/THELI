@@ -56,6 +56,10 @@ void MyGraphicsView::mouseMoveEvent(QMouseEvent *event)
                 //    return;
             }
         }
+        else if (middleMouseMode == "WCSMode") {
+            QPointF pointStart = mapToScene(wcsStart);
+            emit middleWCSTravelled(pointStart, currentPoint);
+        }
     }
     if (leftButtonPressed) {
         QPointF pointStart = mapToScene(leftDragStartPos.x(), leftDragStartPos.y());
@@ -90,8 +94,13 @@ void MyGraphicsView::mousePressEvent(QMouseEvent *event)
             _pan = true;
             _panStartX = event->x();
             _panStartY = event->y();
-            setCursor(Qt::ClosedHandCursor);
+            setCursor(Qt::OpenHandCursor);
             //    event->accept();
+        }
+        else if (middleMouseMode == "WCSMode") {
+            middleButtonPressed = true;
+            wcsStart = event->pos();
+            setCursor(Qt::SizeAllCursor);
         }
     }
     QGraphicsView::mousePressEvent(event);
@@ -108,13 +117,19 @@ void MyGraphicsView::mouseReleaseEvent(QMouseEvent *event)
         emit leftButtonReleased();
     }
     if (event->button() == Qt::MiddleButton) {
+        middleButtonPressed = false;
         if (middleMouseMode == "SkyMode") {
             //        setDragMode(QGraphicsView::NoDrag);
-            middleButtonPressed = false;
             emit middleButtonReleased();
         }
         else if (middleMouseMode == "DragMode") {
             _pan = false;
+            setCursor(Qt::ArrowCursor);
+            //        event->accept();
+            //      return;
+        }
+        else if (middleMouseMode == "WCSMode") {
+            emit middleWCSreleased();
             setCursor(Qt::ArrowCursor);
             //        event->accept();
             //      return;

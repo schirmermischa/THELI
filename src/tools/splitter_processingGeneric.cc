@@ -210,7 +210,7 @@ void Splitter::applyMask(int chip)
     if (!successProcessing) return;
 
     if (instData.name == "LIRIS_POL@WHT") return;     // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
-//    if (instData.name == "GROND_NIR@MPGESO") return;  // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
+    //    if (instData.name == "GROND_NIR@MPGESO") return;  // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
     if (instNameFromData == "GROND_NIR@MPGESO") return;  // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
 
     if (*verbosity > 1) emit messageAvailable(baseName + " : Applying mask ...", "image");
@@ -274,6 +274,29 @@ void Splitter::correctNonlinearity(int chip)
     // Extract coefficients for the current chip
     QVector<float> coeffs = nonlinearityCoefficients[chip];
 
+    // Average nonlinearity correction
+    // http://instrumentation.obs.carnegiescience.edu/FourStar/Documents/FourStar_Documentation.pdf
+    if (instNameFromData == "FourStar@LCO") {
+        float A = 0.;
+        // High gain
+        if (channelGains[0] > 2.) {
+            if (chip == 0) A = 1.203e-8;
+            if (chip == 1) A = 1.337e-8;
+            if (chip == 2) A = 1.157e-8;
+            if (chip == 3) A = 1.195e-8;
+        }
+        // Low gain
+        else {
+            if (chip == 0) A = 5.344e-9;
+            if (chip == 1) A = 7.514e-9;
+            if (chip == 2) A = 3.645e-9;
+            if (chip == 3) A = 5.923e-9;
+        }
+        for (auto &pixel : dataCurrent) {
+            pixel = pixel * (1.+A*pow(pixel,1.5));
+        }
+    }
+
     for (auto &pixel : dataCurrent) {
         pixel = polynomialSum(pixel, coeffs);
     }
@@ -300,8 +323,8 @@ void Splitter::convertToElectrons(int chip)
         }
     }
 
-//    if (instData.name == "GROND_NIR@MPGESO") {
-        if (instNameFromData == "GROND_NIR@MPGESO") {
+    //    if (instData.name == "GROND_NIR@MPGESO") {
+    if (instNameFromData == "GROND_NIR@MPGESO") {
         gain[chip] = 1.0;   // Gain is fixed in writeImageIndividual();
         return;
     }

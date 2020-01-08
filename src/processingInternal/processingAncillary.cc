@@ -146,6 +146,7 @@ void Controller::taskInternalGetCatalogFromIMAGE()
     connect(query, &Query::critical, this, &Controller::criticalReceived);
     query->mainDirName = mainDirName;
     query->scienceData = scienceData;
+    query->fromImage = true;
     for (auto &object : detectionImage->objectList) {
         query->ra_out.append(object->ALPHA_J2000);
         query->de_out.append(object->DELTA_J2000);

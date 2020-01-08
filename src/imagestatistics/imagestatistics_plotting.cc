@@ -70,7 +70,7 @@ void ImageStatistics::plot(QString init)
         it->axis(QCPAxis::atBottom)->setLabel("Image #");
     }
 
-    rectSky->axis(QCPAxis::atLeft)->setLabel("Background [ ADU ]");
+    rectSky->axis(QCPAxis::atLeft)->setLabel("Background [ e- ]");
     rectAirmass->axis(QCPAxis::atLeft)->setLabel("Airmass");
     rectAirmass->axis(QCPAxis::atLeft)->setRangeReversed(true);
     rectSeeing->axis(QCPAxis::atLeft)->setLabel("Seeing [ arcsec ]");

@@ -53,8 +53,8 @@ private:
     long nGridPoints = 0;           // Number of grid points
     int gridStep = 0;               // Linear distance between grid points
     int filterSize = 0;             // spatial scale on which the image should be filtered
-    //   int subSample = 3;              // SPLINTER The factor by which the grid should be subSampled
-    int subSample = 1;              // GSL The factor by which the grid should be subSampled
+    //   int subSample = 3;         // SPLINTER The factor by which the grid should be subSampled
+    int subSample = 1;              // GSL The factor by which the grid should be subSampled; at least twice the kernel width
     int n_grid = 0;                 // number of grid points along naxis1
     int m_grid = 0;                 // number of grid points along naxis2
     int pad_l = 0;                  // number of pad pixels left edge;     same as padWidth w
@@ -443,6 +443,7 @@ public:
     void readImageBackupL1Launch();
     void setObjectLock(bool locked);
     void setBackgroundLock(bool locked);
+    void updateCRPIXOnDrive();
 signals:
     void modelUpdateNeeded(QString baseName, QString chipName);
     void messageAvailable(QString message, QString type);

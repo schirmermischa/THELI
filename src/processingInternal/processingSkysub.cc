@@ -200,6 +200,7 @@ void Controller::skysubConstantFromArea(Data *scienceData)
         for (auto &it : scienceData->exposureList[i]) {
             if (!it->successProcessing) continue;
             it->meanExposureBackground = meanExposureBackground;
+            emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2) + " e-", "image");
             // sky subtraction outsourced below for faster parallelisation
         }
 #pragma omp atomic
@@ -228,7 +229,6 @@ void Controller::skysubConstantFromArea(Data *scienceData)
         it->processingStatus->Skysub = false;
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
         it->subtract(it->meanExposureBackground);
-
         updateImageAndData(it, scienceData);
 
         // Must write for SWarp!
@@ -292,6 +292,7 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
         // If not in memory, will just read it again from drive
         it->setupData(scienceData->isTaskRepeated, false, false);
         it->resetObjectMasking();
+        it->backgroundModelDone = false;
         it->backgroundModel(kernel, "interpolate");
         it->segmentImage(DT, DMIN, true, false);
         it->transferObjectsToMask();
@@ -303,6 +304,12 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
         for (auto &it : scienceData->exposureList[i]) {
             it->meanExposureBackground = meanExposureBackground;
         }
+        it->unprotectMemory();
+        if (minimizeMemoryUsage) {
+            it->freeAll();
+        }
+        it->releaseBackgroundMemory("entirely");
+        it->releaseAllDetectionMemory();
 #pragma omp atomic
         progress += progressStepSize;
     }
@@ -392,8 +399,10 @@ void Controller::skysubConstantEachChip(Data *scienceData, QString DT, QString D
         auto &it = allMyImages[k];
         if (!it->successProcessing) continue;
         it->processingStatus->Skysub = false;
+
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
         it->resetObjectMasking();
+        it->backgroundModelDone = false;
         it->backgroundModel(kernel, "interpolate");
         it->segmentImage(DT, DMIN, true, false);
         it->transferObjectsToMask();
@@ -410,6 +419,8 @@ void Controller::skysubConstantEachChip(Data *scienceData, QString DT, QString D
             it->writeConstSkyImage(meanExposureBackground);
         }
         it->unprotectMemory();
+        it->releaseBackgroundMemory("entirely");
+        it->releaseAllDetectionMemory();
         if (minimizeMemoryUsage) {
             it->freeAll();
         }
@@ -508,25 +519,36 @@ void Controller::skysubModel(Data *scienceData, QString DT, QString DMIN, QStrin
         it->readWeight();
         // Model background so we can detect objects
         it->resetObjectMasking();
+        it->backgroundModelDone = false;
         it->backgroundModel(kernel, "interpolate");
         it->segmentImage(DT, DMIN, true, false);
         it->transferObjectsToMask();
 
         // Model background once more, including object masks, and detect objects
+        it->backgroundModelDone = false;
         it->backgroundModel(kernel, "interpolate");
         it->resetObjectMasking();
         it->segmentImage(DT, DMIN, true, false);
-        it->transferObjectsToMask();  // overwrites previous mask
-        it->maskExpand(expFactor);
+        it->transferObjectsToMask();           // overwrites previous mask
+        it->maskExpand(expFactor, false);       // false -> true to write the mask FITS files
 
         // Model background once more, including object masks, and subtract it from the image
+        it->backgroundModelDone = false;
         it->backgroundModel(kernel, "interpolate");
         it->subtractBackgroundModel();
         if (cdw->ui->skySavemodelCheckBox->isChecked()) {
             it->writeBackgroundModel();
         }
         it->getMeanBackground();
-        emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2) + " e-", "image");
+        if (!isnan(it->meanExposureBackground)) {
+            emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2) + " e-", "image");
+        }
+        else {
+            emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2) + " e-", "warning");
+            warningReceived();
+            it->setActiveState(MyImage::BADBACK);
+            continue;
+        }
         it->releaseAllDetectionMemory();
         it->releaseBackgroundMemory("entirely");
 
@@ -597,12 +619,12 @@ QList<MyImage*> Controller::measureSkyInBlankRegions(Data *scienceData, QString 
                 return listOfAllImages;
             }
         }
-
 #pragma omp parallel for num_threads(maxCPU) firstprivate(backupDirName, alpha, delta, radius)
         for (int i=0; i<listOfAllImages.length(); ++i) {
-            listOfAllImages[i]->setupData(scienceData->isTaskRepeated, true, true, backupDirName);
+            listOfAllImages[i]->setupData(scienceData->isTaskRepeated, false, true, backupDirName);     // 'false': do not move images to backup dir yet
             listOfAllImages[i]->evaluateSkyNodes(alpha, delta, radius);
             listOfAllImages[i]->unprotectMemory();
+            listOfAllImages[i]->freeAll();
         }
     }
 

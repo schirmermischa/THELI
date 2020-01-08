@@ -394,6 +394,55 @@ void IView::drawSkyRectangle(QPointF pointStart, QPointF pointEnd)
     myGraphicsView->show();
 }
 
+void IView::updateWCS(QPointF pointStart, QPointF pointEnd)
+{
+    // Do nothing if no refcat items are displayed.
+    if (refCatItems.isEmpty()) return;
+
+    // Remove items from display
+    for (auto &it: refCatItems) scene->removeItem(it);
+    refCatItems.clear();
+    myGraphicsView->setScene(scene);
+    myGraphicsView->show();
+
+    // Recalculate CRPIX offset
+    qreal dx = pointEnd.x() - pointStart.x();
+    qreal dy = -(pointEnd.y() - pointStart.y());   // Image y-axis flipped in graphics view
+
+    crpix1new = crpix1 + dx;
+    crpix2new = crpix2 + dy;
+    wcs->crpix[0] = crpix1 + dx;
+    wcs->crpix[1] = crpix2 + dy;
+
+    showReferenceCat();
+}
+
+void IView::updateImageWCS()
+{
+    crpix1 = crpix1new;
+    crpix2 = crpix2new;
+
+    if (currentMyImage != nullptr) {
+        // Update in memory
+        // TODO: get rid of the triple redundancy of these params
+        currentMyImage->astromCRPIX1 = crpix1new;
+        currentMyImage->astromCRPIX2 = crpix2new;
+        currentMyImage->myWCS.crpix1 = crpix1new;
+        currentMyImage->myWCS.crpix2 = crpix2new;
+        emit crpixUpdated(crpix1new, crpix2new);  // for the MyImage instance in the main GUI (wcs struct)
+
+        // Update on drive
+
+        int status = 0;
+        fitsfile *fptr = nullptr;
+        fits_open_file(&fptr, (dirName+"/"+currentFileName).toUtf8().data(), READWRITE, &status);
+        fits_update_key_flt(fptr, "CRPIX1", crpix1new, -5, nullptr, &status);
+        fits_update_key_flt(fptr, "CRPIX2", crpix2new, -5, nullptr, &status);
+        fits_close_file(fptr, &status);
+        if (status > 0) qDebug() << "IView::updateImageWCS(): status = " << status;
+    }
+}
+
 void IView::drawSkyCircle(QPointF pointStart, QPointF pointEnd)
 {
     if (displayMode == "SCAMP" || displayMode == "CLEAR") return;

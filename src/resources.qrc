@@ -328,5 +328,6 @@
         <file>images/gpl.png</file>
         <file>images/qt5_logo.png</file>
         <file>config/instruments/SuprimeCam_200101-200104@SUBARU_1.reg</file>
+        <file>images/wcs.png</file>
     </qresource>
 </RCC>

@@ -662,11 +662,18 @@ void Query::pushNumberOfSources()
 {
     QString messageString = "";
     if (numSources > 0) {
-        messageString = "<br>" + QString::number(numSources) + " " + refcatName + " reference sources retrieved at this location:"
-                + "<br>RA  = " + QString::number(alpha, 'f', 5)
-                + "<br>DEC = " + QString::number(delta, 'f', 5)
-                + "<br>radius = " + radius_string + "'";
-        emit messageAvailable(messageString, "ignore");
+
+        if (!fromImage) {
+            messageString = QString::number(numSources) + " " + refcatName + " reference sources retrieved at this location:"
+                    + "<br>RA  = " + QString::number(alpha, 'f', 5)
+                    + "<br>DEC = " + QString::number(delta, 'f', 5)
+                    + "<br>radius = " + radius_string + "'";
+            emit messageAvailable(messageString, "ignore");
+        }
+        else {
+            messageString = QString::number(numSources) + " " + refcatName + " reference sources detected in the image.";
+            emit messageAvailable(messageString, "ignore");
+        }
     }
     else {
         if (!suppressCatalogWarning) {

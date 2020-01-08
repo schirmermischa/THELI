@@ -82,6 +82,8 @@ public:
 
     bool weightMode = false;   // whether iview displays the image data or the weight
 
+    bool refcatSourcesShown = false;
+
     IvConfDockWidget *icdw;
     IvScampDockWidget *scampdw;
     IvColorDockWidget *colordw;
@@ -102,6 +104,9 @@ public:
 
     QList<MyImage*> myImageList;
 
+    MyImage *currentMyImage = nullptr;
+    QString currentFileName = "";
+
 signals:
     void abortPlay();
     void colorFactorChanged(QString redFactor, QString blueFactor);
@@ -110,6 +115,7 @@ signals:
     void solutionAcceptanceState(bool state);
     void middleMouseModeChanged(QString mode);
     void currentlyDisplayedIndex(int index);
+    void crpixUpdated(double crpix1new, double crpix2new);
 
 private slots:
     void adjustBrightnessContrast(QPointF point);
@@ -136,6 +142,7 @@ private slots:
     //    void on_maxLineEdit_returnPressed();
     void on_actionDragMode_triggered();
     void on_actionSkyMode_triggered();
+    void on_actionWCSMode_triggered();
     //    void on_filterLineEdit_textChanged(const QString &arg1);
     void previousAction_triggered();
 //    void redSliderMoved(const int &sliderValue);
@@ -154,6 +161,8 @@ private slots:
     //    void endPanning();
     //  void on_filterLineEdit_editingFinished();    void drawSkyRectangle(QPointF pointStart, QPointF pointEnd);
     // void on_waveletPushButton_clicked();
+    void updateWCS(QPointF pointStart, QPointF pointEnd);
+    void updateImageWCS();
 public slots:
     void clearAll();
     void colorFactorChanged_receiver(QString redFactor, QString blueFactor);
@@ -189,6 +198,8 @@ private:
     float rmsVal;
     double crpix1;
     double crpix2;
+    double crpix1new;
+    double crpix2new;
     double crval1;
     double crval2;
     double cd1_1;

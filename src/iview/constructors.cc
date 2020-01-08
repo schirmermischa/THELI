@@ -167,7 +167,7 @@ IView::IView(QString mode, QString name, QWidget *parent) :
         setImageList(filterName);
         makeConnections();
         switchMode();
-
+        currentFileName = name;
         if (!name.isEmpty()) loadFITS(name);
     }
     else if (displayMode == "SCAMP") {
@@ -268,7 +268,10 @@ IView::IView(QString mode, QString dirname, QString filter, QWidget *parent) :
     makeConnections();
     switchMode();
 
-    if (numImages>0) loadFITS(dirName+'/'+imageList[0]);
+    if (numImages>0) {
+        currentFileName = imageList[0];
+        loadFITS(dirName+'/'+imageList[0]);
+    }
     initGUIstep2();
 }
 
@@ -278,6 +281,7 @@ IView::IView(QString mode, QString dirname, QString fileName, QString filter, QW
     QMainWindow(parent),
     dirName(dirname),
     filterName(filter),
+    currentFileName(fileName),
     ui(new Ui::IView),
     displayMode(mode)
 {
@@ -437,6 +441,8 @@ void IView::makeConnections()
     connect(myGraphicsView, &MyGraphicsView::rightDragTravelled, this, &IView::adjustBrightnessContrast);
     connect(myGraphicsView, &MyGraphicsView::leftDragTravelled, this, &IView::drawSeparationVector);
     connect(myGraphicsView, &MyGraphicsView::middleDragTravelled, this, &IView::drawSkyCircle);
+    connect(myGraphicsView, &MyGraphicsView::middleWCSTravelled, this, &IView::updateWCS);
+    connect(myGraphicsView, &MyGraphicsView::middleWCSreleased, this, &IView::updateImageWCS);
     connect(myGraphicsView, &MyGraphicsView::rightPress, this, &IView::initDynrangeDrag);
     connect(myGraphicsView, &MyGraphicsView::leftPress, this, &IView::initSeparationVector);
     connect(myGraphicsView, &MyGraphicsView::leftPress, this, &IView::sendStatisticsCenter);
@@ -560,6 +566,7 @@ void IView::initGUI()
         middleMouseActionGroup->setExclusive(true);
         middleMouseActionGroup->addAction(ui->actionDragMode);
         middleMouseActionGroup->addAction(ui->actionSkyMode);
+        middleMouseActionGroup->addAction(ui->actionWCSMode);
         ui->actionDragMode->setChecked(true);
     }
 

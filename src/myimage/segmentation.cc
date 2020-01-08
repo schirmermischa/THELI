@@ -513,10 +513,17 @@ void MyImage::maskExpand(QString expFactor, bool writeObjectmaskImage)
 {
     if (!successProcessing) return;
     if (maskExpansionDone) return;      // Don't redo the mask expansion (when calculating a dynamic model, revisiting the same image)
-    if (expFactor.isEmpty()) return;
+    if (expFactor.isEmpty()) {
+        if (writeObjectmaskImage) writeObjectMask(path + "/" + baseName+".mask.fits");
+        return;
+    }
 
     float factor = expFactor.toFloat();
-    if (factor <= 1.0) return;
+    if (factor <= 1.0) {
+        emit messageAvailable(chipName + " : Mask expansion factor less than 1.0; ignored ...", "warning");
+        emit warning();
+        return;
+    }
 
     if (*verbosity > 1) emit messageAvailable(chipName + " : Expanding object mask ...", "image");
 
@@ -859,7 +866,7 @@ void MyImage::appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_strin
     fits_write_col(fptr, TFLOAT, 13, firstrow, firstelem, nrows, ell_arr, &status);
     //    fits_write_col(fptr, TSHORT, 8, firstrow, firstelem, nrows, fieldpos, &status);
 
-    messageAvailable(rootName + " : " + nrows + " valid sources after filtering.", "image");
+    messageAvailable(rootName + " : " + QString::number(nrows) + " valid sources after filtering.", "image");
 
     printCfitsioError("MyImage::appendToScampCatalogInternal())", status);
 }

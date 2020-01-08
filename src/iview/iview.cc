@@ -66,11 +66,21 @@ void IView::setMiddleMouseMode(QString mode)
 {
     if (mode == "SkyMode") {
         ui->actionSkyMode->setChecked(true);
+        ui->actionDragMode->setChecked(false);
+        ui->actionWCSMode->setChecked(false);
         myGraphicsView->middleMouseMode = "SkyMode";
     }
     else if (mode == "DragMode") {
         ui->actionDragMode->setChecked(true);
+        ui->actionSkyMode->setChecked(false);
+        ui->actionWCSMode->setChecked(false);
         middleMouseMode = "DragMode";
+    }
+    else if (mode == "WCSMode") {
+        ui->actionWCSMode->setChecked(true);
+        ui->actionSkyMode->setChecked(false);
+        ui->actionDragMode->setChecked(false);
+        middleMouseMode = "WCSMode";
     }
 }
 
@@ -201,11 +211,11 @@ void IView::loadImage()
     }
 
     if (!QDir(dirName).exists()) dirName = QDir::homePath();
-    QString currentFileName =
+    currentFileName =
             QFileDialog::getOpenFileName(this, tr("Select image"), dirName,
                                          tr("Images and Scamp checkplots (")+filter+" *.png)");
 
-    if ( currentFileName.isEmpty() ) return;
+    if (currentFileName.isEmpty()) return;
 
     // Identify file type by suffix
     QFileInfo fi(currentFileName);
@@ -253,6 +263,7 @@ void IView::clearItems() {
     if (!refCatItems.isEmpty()) {
         for (auto &it: refCatItems) scene->removeItem(it);
         refCatItems.clear();
+        refcatSourcesShown = false;
         ui->actionRefCat->setChecked(false);
     }
     if (!acceptedSkyCircleItems.isEmpty()) {
@@ -350,11 +361,16 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
 {
     if (filename.isEmpty()) {
         filename = dirName+"/"+imageList.at(currentId);
+        currentFileName = imageList.at(currentId);
     }
     else {
         setCurrentId(filename);
         if (currentId == -1) return;
     }
+
+    // We need a MyImage instance to update the CRPIX1/2 in the corresponding FITS file.
+    int verbose = 0;
+    currentMyImage = new MyImage(dirName, filename, "", 1, QVector<bool>(), false, &verbose);
 
     QFileInfo fi(filename);
     QString showName = fi.fileName();
@@ -400,7 +416,6 @@ void IView::loadFromRAMlist(const QModelIndex &index)
 
 void IView::loadFromRAM(MyImage *it, int indexColumn)
 {
-
     if (indexColumn == 0 || indexColumn == 3) {
         // Load image into memory if not yet present
         if (!weightMode) {
@@ -460,6 +475,8 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     myGraphicsView->show();
     myGraphicsView->setMinimumSize(200,200);
     myGraphicsView->setMaximumSize(10000,10000);
+
+    currentMyImage = it;   // For later use, in particular when updating CRPIX1/2
 }
 
 void IView::loadColorFITS(qreal scaleFactor)
@@ -759,6 +776,7 @@ void IView::showSourceCat()
 
 void IView::showReferenceCat()
 {
+    refcatSourcesShown = false;
     // Leave if no image is displayed
     if (scene->items().isEmpty()) return;
 
@@ -766,6 +784,11 @@ void IView::showReferenceCat()
     QColor color = QColor("#ff3300");
     int width = 2. / icdw->zoom2scale(zoomLevel);
     width = width < 1 ? 1 : width;
+
+    if (!refCatItems.isEmpty()) {
+        for (auto &it: refCatItems) scene->removeItem(it);
+        refCatItems.clear();
+    }
 
     if (ui->actionRefCat->isChecked()) {
         refCatItems.clear();
@@ -793,6 +816,9 @@ void IView::showReferenceCat()
             refCatItems.clear();
         }
     }
+    if (!refCatItems.isEmpty()) refcatSourcesShown = true;
+    else refcatSourcesShown = false;
+
     myGraphicsView->setScene(scene);
     myGraphicsView->show();
 }
@@ -877,7 +903,6 @@ bool IView::readRaDecCatalog(QString fileName, QList<QGraphicsRectItem*> &items,
         return false;
     }
 }
-
 
 void IView::sky2xy(double alpha, double delta, double &x, double &y)
 {
@@ -1008,12 +1033,20 @@ void IView::readPreferenceSettings()
 
 void IView::on_actionDragMode_triggered()
 {
+    setMiddleMouseMode("DragMode");             // exclusive button group in c'tor does not work!
     emit middleMouseModeChanged("DragMode");
 }
 
 void IView::on_actionSkyMode_triggered()
 {
+    setMiddleMouseMode("SkyMode");              // exclusive button group in c'tor does not work!
     emit middleMouseModeChanged("SkyMode");
+}
+
+void IView::on_actionWCSMode_triggered()
+{
+    setMiddleMouseMode("WCSMode");              // exclusive button group in c'tor does not work!
+    emit middleMouseModeChanged("WCSMode");
 }
 
 void IView::solutionAcceptanceStateReceived(bool state)

@@ -176,7 +176,7 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
             if (verbosity >= 0) emit messageAvailable(it->chipName + " : Modeling background ...", "image");
 
             it->processingStatus->Background = false;
-            it->setupBackgroundData(scienceData->isTaskRepeated, backupDirName);           // Put original flat-fielded data in dataBackupL1;
+            it->setupBackgroundData(scienceData->isTaskRepeated, backupDirName);     // Put original flat-fielded data in dataBackupL1;
 
             // The list of background images. Each image has a flag whether it contributes to the model
             QList<MyImage*> backgroundList;
@@ -441,13 +441,14 @@ void Controller::processBackgroundDynamic(Data *scienceData, Data *skyData, cons
 void Controller::maskObjectsInSkyImagesPass1(Data *skyData, Data *scienceData, const QList<MyImage*> &backgroundList, const bool twoPass,
                                              const QString dt, const QString dmin, const bool convolution, const QString expFactor)
 {
-    // Loop over the list of valid background images and calculate the model
+    // Loop over the list of valid background images and mask the objects
     bool doSourceDetection = false;
     QVector<QString> thresholds = getBackgroundThresholds(0, twoPass, dt, dmin, doSourceDetection);
     QString DT = thresholds[0];
     QString DMIN = thresholds[1];
     for (auto &back : backgroundList) {
         if (!back->successProcessing) break;
+        if (!back->useForBackground) continue;
         //        if (!back->useForBackground) {
         //            back->unprotectMemory();  // TODO: check if possibly dangerous. Can we do this here? Or elsewhere?
         //            continue;
@@ -486,6 +487,7 @@ void Controller::maskObjectsInSkyImagesPass2(Data *skyData, Data *scienceData, c
             // No masking has taken place in PASS 1 if we are in twopass mode!
             // Subtract 1st pass model: dataCurrent = dataBackupL1 - 1stPassModel
             back->applyBackgroundModel(skyData->combinedImage[chip], cdw->ui->BACapplyComboBox->currentText(), rescaleModel);
+  //          back->backgroundModelDone = false;                  // IMPORTANT, otherwise background model step will be skipped
             back->backgroundModel(256, "interpolate");          // create background model
             back->segmentImage(DT, DMIN, convolution, false);   // detect sources (if requested), do not write seg image
             back->transferObjectsToMask();                      // sets objectMaskDone to true
@@ -583,6 +585,7 @@ void Controller::maskObjectsInSkyImagesPass2_newParallel(Data *skyData, Data *sc
             if (!back->objectMaskDone) {
                 if (mode == "dynamic") back->applyBackgroundModel(combinedImage, cdw->ui->BACapplyComboBox->currentText(), rescaleModel);
                 else back->applyBackgroundModel(skyData->combinedImage[chip], cdw->ui->BACapplyComboBox->currentText(), rescaleModel);
+  //              back->backgroundModelDone = false;                  // IMPORTANT, otherwise background model step will be skipped
                 back->backgroundModel(256, "interpolate");          // create background model
                 back->segmentImage(DT, DMIN, convolution, false);   // detect sources (if requested), do not write seg image
                 back->transferObjectsToMask();                      // sets objectMaskDone to true
@@ -657,6 +660,9 @@ void Controller::selectImagesDynamically(QList<MyImage*> backgroundList, const d
                     it.first->leftBackgroundWindow = true;
                     it.first->releaseBackgroundMemoryBackgroundModel();
                     it.first->releaseAllDetectionMemory();
+//                    if (minimizeMemoryUsage) {
+//                        it.first->freeAll();
+//                    }
                 }
             }
             ++count;

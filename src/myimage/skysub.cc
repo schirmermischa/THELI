@@ -68,7 +68,7 @@ QVector<long> MyImage::locateSkyNode(const double alpha, const double delta, con
     return aperture;
 }
 
-// Needed for polynomial fit
+// Needed for polynomial fit and constant sky sub
 void MyImage::evaluateSkyNodes(const QVector<double> alpha, const QVector<double> delta,
                                const QVector<double> radius)
 {

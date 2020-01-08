@@ -56,6 +56,7 @@ public:
     bool doXtalkRow = false;
     int xtalkNorMethod = -1;
     int xtalkRowMethod = -1;
+    bool alreadyProcessed = false;
     // Nonlinearity
     QList<QVector<float>> nonlinearityCoefficients;
     // Overscan

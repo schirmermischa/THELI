@@ -35,8 +35,10 @@ private:
     QPointF rightDragEndPos;
     QPointF leftDragStartPos;
     QPointF leftDragCurrentPos;
+    QPointF leftDragEndPos;        // unused
     QPointF middleDragStartPos;
     QPointF middleDragCurrentPos;
+    QPointF middleDragEndPos;
     bool rightButtonPressed = false;
     bool leftButtonPressed = false;
     bool middleButtonPressed = false;
@@ -44,6 +46,8 @@ private:
 
     bool _pan = false;
     int _panStartX, _panStartY;
+    bool _wcs = false;
+    QPoint wcsStart;
 
 public:
     explicit MyGraphicsView(QWidget *parent = nullptr);
@@ -61,6 +65,8 @@ signals:
     void currentMousePos(QPointF);
     void rightDragTravelled(QPointF);
     void middleDragTravelled(QPointF pointStart, QPointF pointEnd);
+    void middleWCSTravelled(QPointF pointStart, QPointF pointEnd);
+    void middleWCSreleased();
     void leftDragTravelled(QPointF pointStart, QPointF pointEnd);
     void rightPress();
     void leftPress(QPointF pointStart);

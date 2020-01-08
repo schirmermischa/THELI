@@ -61,8 +61,6 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
     mainDirName = maindirname;
     subDirName = subdirname;
 
-//    qDebug() << "D0" << subDirName << successProcessing;
-
     dirName = mainDirName + "/" + subDirName;
     myImageList.resize(instData->numChips);
     combinedImage.resize(instData->numChips);
@@ -79,7 +77,6 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
     // Get the recorded processing status from the .processingStatus file (if any)
     processingStatus = new ProcessingStatus(dirName);
     processingStatus->readFromDrive();
-//    qDebug() << "D01" << subDirName << successProcessing;
 
     QString backupStatus = processingStatus->statusString;
     backupStatus.chop(1);
@@ -91,17 +88,14 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
         emit critical();
         return;
     }
- //   qDebug() << "D02" << subDirName << successProcessing;
 
     // start fresh
     clearImageInfo();
- //   qDebug() << "D03" << subDirName << successProcessing;
 
     // Check whether this directory contains RAW data (and thus must be processed by HDUreformat first)
     if (subDirName != "GLOBALWEIGHTS") {    // crashes otherwise when creating globalweights
         if (checkForRawData()) return;
     }
- //   qDebug() << "D1" << subDirName << successProcessing;
 
     if (subDirName == "GLOBALWEIGHTS") {
         numMasterCalibs = 0;
@@ -136,7 +130,6 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
         return;
     }
 
- //   qDebug() << "D2" << subDirName << successProcessing;
     // Fill the list of MyImage types of individual images and master calibration files in this data directory
     QStringList filter;
     filter << "*.fits";
@@ -172,7 +165,6 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
     }
 
     // The other images (minus master calibs etc)
- //   qDebug() << "D3" << subDirName << successProcessing;
 
     numImages = 0;
     for (int chip=0; chip<instData->numChips; ++chip) {
@@ -207,7 +199,6 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
         numImages += myImageList[chip].length();
     }
     if (numImages > 0) dataInitialized = true;
- //   qDebug() << "D4" << subDirName << successProcessing;
 
     // Sort the vector with the chip numbers (no particular reason, yet)
     std::sort(uniqueChips.begin(), uniqueChips.end());
@@ -773,7 +764,7 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
     int k = 0;
     for (auto &gi : goodIndex) {
         MyImage *it = myImageList[chip][gi];
-        goodImages.append(it->baseName + ": " + QString::number(it->skyValue,'f',3) + " ADU, rescaled with "
+        goodImages.append(it->baseName + ": " + QString::number(it->skyValue,'f',3) + " e-, rescaled with "
                           + QString::number(rescaleFactors[k],'f',3));
         if (k<goodIndex.length()-1) goodImages.append("<br>");
         ++k;
@@ -924,12 +915,12 @@ void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const 
     }
 
     QString goodImages;
-# pragma omp critical         // QString thread safety  it->chipname could be accessed simultaneously
+#pragma omp critical         // QString thread safety  it->chipname could be accessed simultaneously
     {
         int k = 0;
         for (auto &gi : goodIndex) {
             MyImage *it = backgroundList[gi];
-            goodImages.append(it->chipName + ": " + QString::number(it->skyValue,'f',3) + " ADU, rescaled with "
+            goodImages.append(it->chipName + ": " + QString::number(it->skyValue,'f',3) + " e-, rescaled with "
                               + QString::number(rescaleFactors[k],'f',3));
             if (k<goodIndex.length()-1) goodImages.append("<br>");
             ++k;
@@ -1070,7 +1061,7 @@ void Data::combineImages_newParallel(int chip, MyImage *masterCombined, QList<My
     int k = 0;
     for (auto &gi : goodIndex) {
         MyImage *it = backgroundList[gi];
-        goodImages.append(it->chipName + ": " + QString::number(it->skyValue,'f',3) + " ADU, rescaled with "
+        goodImages.append(it->chipName + ": " + QString::number(it->skyValue,'f',3) + " e-, rescaled with "
                           + QString::number(rescaleFactors[k],'f',3));
         if (k<goodIndex.length()-1) goodImages.append("<br>");
         ++k;
@@ -1146,12 +1137,12 @@ void Data::getModeCombineImages(int chip)
         // mode doesn't work, as all values are very very narrowly distributed around a single value (which might be integer on top of that)
         combinedImage[chip]->skyValue = meanMask(combinedImage[chip]->dataCurrent, mask->globalMask[chip]);
         //       if (*verbosity > 0) emit messageAvailable("Mean of chip "+QString::number(chip+1) + " for master "+dataType + " : "
-        //                                                + QString::number(combinedImage[chip]->skyValue) + " ADU", "data");
+        //                                                + QString::number(combinedImage[chip]->skyValue) + " e-", "data");
     }
     else {
         combinedImage[chip]->skyValue = modeMask(combinedImage[chip]->dataCurrent, "stable", mask->globalMask[chip])[0];
         //       if (*verbosity > 0) emit messageAvailable("Mode of chip "+QString::number(chip+1) + " for master "+dataType + " : "
-        //                                                + QString::number(combinedImage[chip]->skyValue) + " ADU", "data");
+        //                                                + QString::number(combinedImage[chip]->skyValue) + " e-", "data");
     }
     combinedImage[chip]->modeDetermined = true;
 
@@ -1196,7 +1187,7 @@ void Data::reportModeCombineImages()
             }
         }
         else report.append("Chip " + QString::number(chip+1) + " : "
-                           + QString::number(combinedImage[chip]->skyValue, 'f', 3) + " ADU<br>");
+                           + QString::number(combinedImage[chip]->skyValue, 'f', 3) + " e-<br>");
     }
     emit messageAvailable(report, "data");
 }

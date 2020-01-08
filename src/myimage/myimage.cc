@@ -1112,6 +1112,23 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
     printCfitsioError("updateZeroOrderOnDrive()", status);
 }
 
+// Used by iview
+void MyImage::updateCRPIXOnDrive()
+{
+    qDebug() << "H1" << successProcessing << imageOnDrive;
+    if (!successProcessing) return;
+    qDebug() << "H2" << path << chipName << processingStatus->statusString;
+
+    int status = 0;
+    fitsfile *fptr = nullptr;
+    fits_open_file(&fptr, (path+"/"+chipName+processingStatus->statusString+".fits").toUtf8().data(), READWRITE, &status);
+    fits_update_key_flt(fptr, "CRPIX1", astromCRPIX1, 3, nullptr, &status);
+    fits_update_key_flt(fptr, "CRPIX2", astromCRPIX2, 3, nullptr, &status);
+    fits_close_file(fptr, &status);
+    qDebug() << "H3" << status;
+    printCfitsioError("updateZeroOrderOnDrive()", status);
+}
+
 void MyImage::updateZeroOrderInMemory()
 {
     if (!successProcessing) return;
@@ -1134,7 +1151,7 @@ void MyImage::updateZeroOrderInMemory()
                               + QString::number(wcs->naxis) + ", attempting reload (actually, this is a bug!)", "warning");
         imageInMemory = false;
         readImage(false);
-        if (wcs->naxis  != 2) {
+        if (wcs->naxis != 2) {
             emit messageAvailable(chipName + " : Reload failed!", "error");
             return;
         }
