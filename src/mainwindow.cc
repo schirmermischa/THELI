@@ -1163,13 +1163,21 @@ void MainWindow::on_setupProjectLoadToolButton_clicked()
         else return;
     }
 
-    QString projectname =
-            QFileDialog::getOpenFileName(this, tr("Select THELI Project"), QDir::homePath()+"/.config/THELI/",
-                                         tr("THELI projects (*.conf)"));
+    QString projectname;
+    if (kernelType == "linux") {
+        projectname = QFileDialog::getOpenFileName(this, tr("Select THELI Project"), QDir::homePath()+"/.config/THELI/",
+                                                   tr("THELI projects (*.conf)"));
+    }
+    else {
+        // kernelType == "darwin"
+        projectname = QFileDialog::getOpenFileName(this, tr("Select THELI Project"), QDir::homePath()+"/Library/Preferences/THELI/",
+                                                   tr("THELI projects (*.plist)"));
+    }
 
-    // Truncate the suffix (OS dependent; Linux: .conf)
+    // Truncate the suffix (OS dependent; Linux: .conf; MacOS Mojave: com.theli.<project>.plist)
     QFileInfo projectFileInfo(projectname);
     QString projectBaseName = projectFileInfo.completeBaseName();
+    if (kernelType == "darwin") projectBaseName.remove("com.theli.");
     if ( projectBaseName.isEmpty() ) {
         return;
     }

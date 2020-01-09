@@ -452,6 +452,8 @@ void IView::makeConnections()
     connect(myGraphicsView, &MyGraphicsView::leftButtonReleased, this, &IView::updateSkyCircles);
     connect(scene, &MyGraphicsScene::itemDeleted, this, &IView::updateSkyCircles);
 
+    connect(wcsdw, &IvWCSDockWidget::CDmatrixChanged, this, &IView::updateCDmatrix);
+
     ui->graphicsLayout->addWidget(myGraphicsView);
     connect(timer, &QTimer::timeout, this, &IView::forwardAction_triggered);
     connect(timer, &QTimer::timeout, this, &IView::backAction_triggered);

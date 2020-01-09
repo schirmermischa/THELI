@@ -417,8 +417,65 @@ void IView::updateWCS(QPointF pointStart, QPointF pointEnd)
     showReferenceCat();
 }
 
+void IView::updateCDmatrix(double cd11, double cd12, double cd21, double cd22)
+{
+    qDebug() << cd11;
+    // Do nothing if no refcat items are displayed.
+    if (refCatItems.isEmpty()) return;
+
+    // Remove items from display
+    for (auto &it: refCatItems) scene->removeItem(it);
+    refCatItems.clear();
+    myGraphicsView->setScene(scene);
+    myGraphicsView->show();
+
+    cd1_1 = cd11;
+    cd1_2 = cd12;
+    cd2_1 = cd21;
+    cd2_2 = cd22;
+
+    // Update CD matrix
+    wcs->cd[0] = cd11;
+    wcs->cd[1] = cd12;
+    wcs->cd[2] = cd21;
+    wcs->cd[3] = cd22;
+
+    showReferenceCat();
+}
+
+void IView::updateImageCDmatrix(double cd11, double cd12, double cd21, double cd22)
+{
+    // Do nothing if no refcat items are displayed.
+    if (refCatItems.isEmpty()) return;
+
+    if (currentMyImage != nullptr) {
+        // Update in memory
+        // TODO: get rid of the triple redundancy of these params
+        currentMyImage->myWCS.cd1_1 = cd11;
+        currentMyImage->myWCS.cd1_2 = cd12;
+        currentMyImage->myWCS.cd2_1 = cd21;
+        currentMyImage->myWCS.cd2_2 = cd22;
+        emit CDmatrixUpdated(cd11, cd12, cd21, cd22);  // for the MyImage instance in the main GUI (wcs struct)       // TODO: signal not received anywhere by main GUI
+
+        // Update on drive
+
+        int status = 0;
+        fitsfile *fptr = nullptr;
+        fits_open_file(&fptr, (dirName+"/"+currentFileName).toUtf8().data(), READWRITE, &status);
+        fits_update_key_dbl(fptr, "CD1_1", cd11, 8, nullptr, &status);
+        fits_update_key_dbl(fptr, "CD1_2", cd12, 8, nullptr, &status);
+        fits_update_key_dbl(fptr, "CD2_1", cd21, 8, nullptr, &status);
+        fits_update_key_dbl(fptr, "CD2_2", cd22, 8, nullptr, &status);
+        fits_close_file(fptr, &status);
+        if (status > 0) qDebug() << "IView::updateImageCDmatrix(): status = " << status;
+    }
+}
+
 void IView::updateImageWCS()
 {
+    // Do nothing if no refcat items are displayed.
+    if (refCatItems.isEmpty()) return;
+
     crpix1 = crpix1new;
     crpix2 = crpix2new;
 
@@ -429,7 +486,7 @@ void IView::updateImageWCS()
         currentMyImage->astromCRPIX2 = crpix2new;
         currentMyImage->myWCS.crpix1 = crpix1new;
         currentMyImage->myWCS.crpix2 = crpix2new;
-        emit crpixUpdated(crpix1new, crpix2new);  // for the MyImage instance in the main GUI (wcs struct)
+        emit crpixUpdated(crpix1new, crpix2new);  // for the MyImage instance in the main GUI (wcs struct)       // TODO: signal not received anywhere by main GUI
 
         // Update on drive
 

@@ -128,7 +128,8 @@ SOURCES += \
     myimage/memoryoperations.cc \
     tools/splitter_multiport.cc \
     readmes/license.cc \
-    readmes/acknowledging.cc
+    readmes/acknowledging.cc \
+    iview/dockwidgets/ivwcsdockwidget.cc
 
 
 
@@ -193,7 +194,8 @@ HEADERS += \
     tools/swarpfilter.h \
     tools/tools.h \
     readmes/license.h \
-    readmes/acknowledging.h
+    readmes/acknowledging.h \
+    iview/dockwidgets/ivwcsdockwidget.h
 
 FORMS += \
         mainwindow.ui \
@@ -215,7 +217,8 @@ FORMS += \
     readmes/scampreadme.ui \
     readmes/swarpreadme.ui \
     readmes/license.ui \
-    readmes/acknowledging.ui
+    readmes/acknowledging.ui \
+    iview/dockwidgets/ivwcsdockwidget.ui
 
 RESOURCES = resources.qrc
 

@@ -27,6 +27,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "dockwidgets/ivconfdockwidget.h"
 #include "dockwidgets/ivscampdockwidget.h"
 #include "dockwidgets/ivcolordockwidget.h"
+#include "dockwidgets/ivwcsdockwidget.h"
 #include "ui_ivconfdockwidget.h"
 #include "ui_ivcolordockwidget.h"
 
@@ -69,19 +70,43 @@ void IView::setMiddleMouseMode(QString mode)
         ui->actionDragMode->setChecked(false);
         ui->actionWCSMode->setChecked(false);
         myGraphicsView->middleMouseMode = "SkyMode";
+        hideWCSdockWidget();
     }
     else if (mode == "DragMode") {
         ui->actionDragMode->setChecked(true);
         ui->actionSkyMode->setChecked(false);
         ui->actionWCSMode->setChecked(false);
         middleMouseMode = "DragMode";
+        hideWCSdockWidget();
     }
     else if (mode == "WCSMode") {
         ui->actionWCSMode->setChecked(true);
         ui->actionSkyMode->setChecked(false);
         ui->actionDragMode->setChecked(false);
         middleMouseMode = "WCSMode";
+        showWCSdockWidget();
     }
+}
+
+void IView::showWCSdockWidget()
+{
+    // Copy the CD matrix to the WCS dock widget and init()
+    wcsdw->cd11_orig = cd1_1;
+    wcsdw->cd12_orig = cd1_2;
+    wcsdw->cd21_orig = cd2_1;
+    wcsdw->cd22_orig = cd2_2;
+    wcsdw->init();
+
+    addDockWidget(Qt::LeftDockWidgetArea, wcsdw);
+    wcsdw->setFloating(false);
+    wcsdw->raise();
+    wcsdw->show();
+}
+
+void IView::hideWCSdockWidget()
+{
+    removeDockWidget(wcsdw);
+    wcsdw->hide();
 }
 
 void IView::resizeEvent(QResizeEvent * event)
@@ -662,7 +687,7 @@ void IView::compressDynrange(const QVector<float> &fitsdata, unsigned char *intd
     float tmpdata;
     float fitsdataCorrected;
     // NOT THREADSAFE!
-//#pragma omp parallel for
+    //#pragma omp parallel for
     for (long i=0; i<naxis1*naxis2; ++i) {
         // Truncate dynamic range
         fitsdataCorrected = fitsdata.at(i) * colorCorrectionFactor;

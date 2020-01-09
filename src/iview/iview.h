@@ -26,6 +26,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "dockwidgets/ivconfdockwidget.h"
 #include "dockwidgets/ivscampdockwidget.h"
 #include "dockwidgets/ivcolordockwidget.h"
+#include "dockwidgets/ivwcsdockwidget.h"
 #include "../myimage/myimage.h"
 
 #include "fitsio2.h"
@@ -87,6 +88,7 @@ public:
     IvConfDockWidget *icdw;
     IvScampDockWidget *scampdw;
     IvColorDockWidget *colordw;
+    IvWCSDockWidget *wcsdw = new IvWCSDockWidget(this);
 
     MyGraphicsView *myGraphicsView;
     MyGraphicsScene *scene = new MyGraphicsScene(this);
@@ -116,6 +118,7 @@ signals:
     void middleMouseModeChanged(QString mode);
     void currentlyDisplayedIndex(int index);
     void crpixUpdated(double crpix1new, double crpix2new);
+    void CDmatrixUpdated(double cd11, double cd12, double cd21, double cd22);
 
 private slots:
     void adjustBrightnessContrast(QPointF point);
@@ -163,6 +166,8 @@ private slots:
     // void on_waveletPushButton_clicked();
     void updateWCS(QPointF pointStart, QPointF pointEnd);
     void updateImageWCS();
+    void updateImageCDmatrix(double cd11, double cd12, double cd21, double cd22);
+    void updateCDmatrix(double cd11, double cd12, double cd21, double cd22);
 public slots:
     void clearAll();
     void colorFactorChanged_receiver(QString redFactor, QString blueFactor);
@@ -206,6 +211,10 @@ private:
     double cd1_2;
     double cd2_1;
     double cd2_2;
+    double cd1_1new;
+    double cd1_2new;
+    double cd2_1new;
+    double cd2_2new;
     double plateScale = 0.;
     double skyRa;
     double skyDec;
@@ -291,6 +300,8 @@ private:
     void setImageListFromMemory();
     void imageListToChipName();
     void replotCatalogAfterZoom();
+    void showWCSdockWidget();
+    void hideWCSdockWidget();
 };
 
 #endif // IVIEW_H
