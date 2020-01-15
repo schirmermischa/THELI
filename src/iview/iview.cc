@@ -939,6 +939,7 @@ void IView::sky2xy(double alpha, double delta, double &x, double &y)
     world[0] = alpha;
     world[1] = delta;
     int stat[1];
+
     wcss2p(wcs, 1, 2, world, &phi, &theta, imgcrd, pixcrd, stat);
     x = pixcrd[0];
     y = naxis2 - pixcrd[1];

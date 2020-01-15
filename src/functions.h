@@ -43,7 +43,7 @@ struct dataGSL {
 };
 
 QString boolToString(bool test);
-double getPosAnglefromCD(double cd11, double cd12, double cd21, double cd22);
+double getPosAnglefromCD(double cd11, double cd12, double cd21, double cd22, bool lock = true);
 void rotateCDmatrix(double &cd11, double &cd12, double &cd21, double &cd22, double PAnew);
 void get_rotimsize(long naxis1, long naxis2, double PAold, double PAnew, long &Nnew, long &Mnew);
 QStringList datadir2StringList(QLineEdit *lineEdit);

@@ -333,8 +333,8 @@ void message(QPlainTextEdit *pte, QString text, QString type)
     else color = "#000000";                        // black
 
     //    if (type == "image") text.prepend("IMAG: ");
-//    if (type == "data") text.prepend("DATA: ");
-//    else if (type == "controller") text.prepend("CTRL: ");
+    //    if (type == "data") text.prepend("DATA: ");
+    //    else if (type == "controller") text.prepend("CTRL: ");
     if (type == "error") text.prepend("ERROR: ");
 
     pte->appendHtml("<font color=\""+color+"\">"+text+"</font>");
@@ -466,7 +466,7 @@ long get_memory()
     if (kernelType == "darwin") {
         QProcess p;
         p.start("sysctl", QStringList() << "hw.memsize");
-            // or 'hostinfo | grep memory | awk '{print $4}'    // returns RAM in GB
+        // or 'hostinfo | grep memory | awk '{print $4}'    // returns RAM in GB
         p.waitForFinished(-1);
         QString system_info = p.readAllStandardOutput();
         QStringList list = system_info.split(' ');
@@ -1233,7 +1233,7 @@ bool readData3D(QString path, QVector<double> &x, QVector<double> &y, QVector<do
 }
 
 // Angles are always passed / returned in degrees
-double getPosAnglefromCD(double cd11, double cd12, double cd21, double cd22)
+double getPosAnglefromCD(double cd11, double cd12, double cd21, double cd22, bool lock)
 {
     // the pixel scale
     double pscale1 = sqrt(cd11 * cd11 + cd21 * cd21);
@@ -1278,27 +1278,29 @@ double getPosAnglefromCD(double cd11, double cd12, double cd21, double cd22)
     else if (cd11 >= 0 && cd12 <  0 && cd21 >  0 && cd22 >= 0) pa = 2.*PI-acos(cd11); // 270 <= phi < 360
 
     else {
-        // we are very likely close to 0, 90, 180 or 270 degrees, and the CD matrix is slightly non-orthogonal.
-        // In this case, lock onto 0, 90, 180 or 270 degrees. Otherwise, exit with an error.
-        double cd11cd12 = fabs(cd11/cd12);
-        double cd22cd21 = fabs(cd22/cd21);
+        if (lock) {
+            // we are very likely close to 0, 90, 180 or 270 degrees, and the CD matrix is slightly non-orthogonal.
+            // In this case, lock onto 0, 90, 180 or 270 degrees. Otherwise, exit with an error.
+            double cd11cd12 = fabs(cd11/cd12);
+            double cd22cd21 = fabs(cd22/cd21);
 
-        if (cd11cd12 > 20. && cd22cd21 > 20.) {
-            if (cd11 > 0. && cd22 > 0.) pa = 0.*PI/2.;
-            if (cd11 < 0. && cd22 > 0.) pa = 0.*PI/2.;
-            if (cd11 > 0. && cd22 < 0.) pa = 2.*PI/2.;
-            if (cd11 < 0. && cd22 < 0.) pa = 2.*PI/2.;
-        }
+            if (cd11cd12 > 20. && cd22cd21 > 20.) {
+                if (cd11 > 0. && cd22 > 0.) pa = 0.*PI/2.;
+                if (cd11 < 0. && cd22 > 0.) pa = 0.*PI/2.;
+                if (cd11 > 0. && cd22 < 0.) pa = 2.*PI/2.;
+                if (cd11 < 0. && cd22 < 0.) pa = 2.*PI/2.;
+            }
 
-        else if (cd11cd12 < 0.05 && cd22cd21 < 0.05) {
-            if (cd12 > 0. && cd21 < 0.) pa = 1.*PI/2.;
-            if (cd12 < 0. && cd21 < 0.) pa = 1.*PI/2.;
-            if (cd12 > 0. && cd21 > 0.) pa = 3.*PI/2.;
-            if (cd12 < 0. && cd21 > 0.) pa = 3.*PI/2.;
-        }
+            else if (cd11cd12 < 0.05 && cd22cd21 < 0.05) {
+                if (cd12 > 0. && cd21 < 0.) pa = 1.*PI/2.;
+                if (cd12 < 0. && cd21 < 0.) pa = 1.*PI/2.;
+                if (cd12 > 0. && cd21 > 0.) pa = 3.*PI/2.;
+                if (cd12 < 0. && cd21 > 0.) pa = 3.*PI/2.;
+            }
 
-        else {
-            qDebug() << "getPosAnglefromCD(): ERROR: Could not determine position angle from CD matrix!";
+            else {
+                qDebug() << "getPosAnglefromCD(): ERROR: Could not determine position angle from CD matrix!";
+            }
         }
     }
 

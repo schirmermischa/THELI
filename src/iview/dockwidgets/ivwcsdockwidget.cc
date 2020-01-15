@@ -26,7 +26,10 @@ void IvWCSDockWidget::init()
 
 void IvWCSDockWidget::on_cd11Slider_sliderMoved(int position)
 {
-    cd11 = translateCDmatrixSlider(position) * cd11_orig;
+    QSlider *slider = qobject_cast<QSlider*>(sender());
+    float weight = calcCDweight();
+    if (weight > 1.) weight = 1.;
+    cd11 = translateCDmatrixSlider(position, slider->maximum() / weight) * cd11_orig;
     emit CDmatrixChanged(cd11, cd12, cd21, cd22);
 
     ui->cd11LineEdit->setText(QString::number(cd11, 'e', 6));
@@ -34,7 +37,11 @@ void IvWCSDockWidget::on_cd11Slider_sliderMoved(int position)
 
 void IvWCSDockWidget::on_cd12Slider_sliderMoved(int position)
 {
-    cd12 = translateCDmatrixSlider(position) * cd12_orig;
+    QSlider *slider = qobject_cast<QSlider*>(sender());
+    float weight = calcCDweight();
+    if (weight < 1.) weight = 1.;
+    weight = 5.;
+    cd12 = translateCDmatrixSlider(position, slider->maximum() / weight) * cd12_orig;
     emit CDmatrixChanged(cd11, cd12, cd21, cd22);
 
     ui->cd12LineEdit->setText(QString::number(cd12, 'e', 6));
@@ -42,7 +49,11 @@ void IvWCSDockWidget::on_cd12Slider_sliderMoved(int position)
 
 void IvWCSDockWidget::on_cd21Slider_sliderMoved(int position)
 {
-    cd21 = translateCDmatrixSlider(position) * cd21_orig;
+    QSlider *slider = qobject_cast<QSlider*>(sender());
+    float weight = calcCDweight();
+    if (weight < 1.) weight = 1.;
+    weight = 5.;
+    cd21 = translateCDmatrixSlider(position, slider->maximum() / weight) * cd21_orig;
     emit CDmatrixChanged(cd11, cd12, cd21, cd22);
 
     ui->cd21LineEdit->setText(QString::number(cd21, 'e', 6));
@@ -50,52 +61,79 @@ void IvWCSDockWidget::on_cd21Slider_sliderMoved(int position)
 
 void IvWCSDockWidget::on_cd22Slider_sliderMoved(int position)
 {
-    cd22 = translateCDmatrixSlider(position) * cd22_orig;
+    QSlider *slider = qobject_cast<QSlider*>(sender());
+    float weight = calcCDweight();
+    if (weight > 1.) weight = 1.;
+    cd22 = translateCDmatrixSlider(position, slider->maximum() / weight) * cd22_orig;
     emit CDmatrixChanged(cd11, cd12, cd21, cd22);
 
     ui->cd22LineEdit->setText(QString::number(cd22, 'e', 6));
 }
 
-// Translates the integer slider position to a relative change, non-linearly using a cosh dependence
-double IvWCSDockWidget::translateCDmatrixSlider(int position)
+// Calculate a weight that makes the WCS slider more sensitive to smaller CD values
+float IvWCSDockWidget::calcCDweight()
+{
+    float ratio = 1.0;
+
+    if (cd12_orig != 0. && cd11_orig != 0) ratio = fabs(cd11_orig / cd12_orig);
+    else if (cd11_orig == 0. && cd12_orig != 0.) ratio = 0.001;   // effective
+    else if (cd12_orig == 0. && cd11_orig != 0.) ratio = 1000.;   // effective
+    else ratio = 1.;
+
+    float weight = sqrt(ratio);
+
+//    return 1.;   // deactivated
+
+    return weight;
+}
+
+// Translates the integer slider position to a relative change, non-linearly
+double IvWCSDockWidget::translateCDmatrixSlider(int position, int maxRange)
 {
     double pos = position;
-    pos = 0.5*(pow(2., 3.*pos/100.) + pow(2., -3.*pos/100.));    // from -8 to 8
-    if (position < 0) pos *= -1.;
-    return pos;
+    double range = maxRange;
+    return pow(2., 0.5*pos/range);    // from 0.7 to 1.4
 }
 
 // Translates the integer slider position to a relative change, non-linearly using a cosh dependence
-double IvWCSDockWidget::translatePlateScaleSlider(int position)
+double IvWCSDockWidget::translatePlateScaleSlider(int position, int maxRange)
 {
     double pos = position;
-    return 0.5*(pow(2., pos/100.) + pow(2., -pos/100.));          // from 0.5 to 2
+    double range = maxRange;
+    return pow(2., 0.5*pos/range);    // from 0.7 to 1.4
 }
 
 // Translates the integer slider position to a relative change, non-linearly using a cosh dependence
-double IvWCSDockWidget::translatePosAngleSlider(int position)
+double IvWCSDockWidget::translatePosAngleSlider(int position, int maxRange)
 {
     double pos = position;
-    return 0.5*(pow(2., 5.*pos/100.) - pow(2., -5.*pos/100.));    // from -32 to 32
+    double range = maxRange;
+    return 10.*(pos/range);    // from -10 to 10
 }
 
 
 void IvWCSDockWidget::on_plateScaleSlider_sliderMoved(int position)
 {
-    double rescaleFactor = translatePlateScaleSlider(position);
+    QSlider *slider = qobject_cast<QSlider*>(sender());
+    double rescaleFactor = translatePlateScaleSlider(position, slider->maximum());
 
-    cd11 *= rescaleFactor;
-    cd12 *= rescaleFactor;
-    cd21 *= rescaleFactor;
-    cd22 *= rescaleFactor;
+    cd11 = cd11_orig * rescaleFactor;
+    cd12 = cd12_orig * rescaleFactor;
+    cd21 = cd21_orig * rescaleFactor;
+    cd22 = cd22_orig * rescaleFactor;
     emit CDmatrixChanged(cd11, cd12, cd21, cd22);
     updateLineEdits();
 }
 
 void IvWCSDockWidget::on_posAngleSlider_sliderMoved(int position)
 {
-    double oldPA = getPosAnglefromCD(cd11, cd12, cd21, cd22);
-    double newPA = oldPA + translatePosAngleSlider(position);
+    QSlider *slider = qobject_cast<QSlider*>(sender());
+    double oldPA = getPosAnglefromCD(cd11_orig, cd12_orig, cd21_orig, cd22_orig, false);
+    double newPA = oldPA + translatePosAngleSlider(position, slider->maximum());
+    cd11 = cd11_orig;
+    cd12 = cd12_orig;
+    cd21 = cd21_orig;
+    cd22 = cd22_orig;
     rotateCDmatrix(cd11, cd12, cd21, cd22, newPA);
     emit CDmatrixChanged(cd11, cd12, cd21, cd22);
     updateLineEdits();
@@ -107,9 +145,9 @@ void IvWCSDockWidget::on_resetPushButton_clicked()
     cd12 = cd12_orig;
     cd21 = cd21_orig;
     cd22 = cd22_orig;
-    emit CDmatrixChanged(cd11, cd12, cd21, cd22);
     updateLineEdits();
     restoreSliders();
+    emit CDmatrixChanged(cd11, cd12, cd21, cd22);
 }
 
 void IvWCSDockWidget::updateLineEdits()
@@ -118,6 +156,14 @@ void IvWCSDockWidget::updateLineEdits()
     ui->cd12LineEdit->setText(QString::number(cd12, 'e', 6));
     ui->cd21LineEdit->setText(QString::number(cd21, 'e', 6));
     ui->cd22LineEdit->setText(QString::number(cd22, 'e', 6));
+
+    double pscale1 = sqrt(cd11 * cd11 + cd21 * cd21);
+    double pscale2 = sqrt(cd12 * cd12 + cd22 * cd22);
+    QString pscale = QString::number(0.5*(pscale1+pscale2)*3600., 'f', 6);
+    ui->plateScaleLineEdit->setText(pscale);
+
+    QString PA = QString::number(getPosAnglefromCD(cd11, cd12, cd21, cd22), 'f', 2);
+    ui->posAngleLineEdit->setText(PA);
 }
 
 void IvWCSDockWidget::restoreSliders()

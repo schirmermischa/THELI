@@ -168,6 +168,7 @@ private slots:
     void updateImageWCS();
     void updateImageCDmatrix(double cd11, double cd12, double cd21, double cd22);
     void updateCDmatrix(double cd11, double cd12, double cd21, double cd22);
+    void test(double crpixdiff);
 public slots:
     void clearAll();
     void colorFactorChanged_receiver(QString redFactor, QString blueFactor);

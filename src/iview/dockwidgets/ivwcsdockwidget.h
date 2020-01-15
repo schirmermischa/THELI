@@ -39,14 +39,16 @@ private:
     double cd21 = 0.0;
     double cd22 = 0.0;
 
-    double translateCDmatrixSlider(int position);
-    double translatePlateScaleSlider(int position);
-    double translatePosAngleSlider(int position);
+    double translateCDmatrixSlider(int position, int maxRange);
+    double translatePlateScaleSlider(int position, int maxRange);
+    double translatePosAngleSlider(int position, int maxRange);
     void updateLineEdits();
     void restoreSliders();
+    float calcCDweight();
 
 signals:
     void CDmatrixChanged(double cd11, double cd12, double cd21, double cd22);
+    void CRPIXchanged(double crpix);
 };
 
 #endif // IVWCSDOCKWIDGET_H

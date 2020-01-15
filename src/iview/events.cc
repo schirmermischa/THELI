@@ -413,13 +413,30 @@ void IView::updateWCS(QPointF pointStart, QPointF pointEnd)
     crpix2new = crpix2 + dy;
     wcs->crpix[0] = crpix1 + dx;
     wcs->crpix[1] = crpix2 + dy;
+    wcs->flag = 0;    // force an update of internal wcs params.
+
+    showReferenceCat();
+}
+
+void IView::test(double crpixdiff)
+{
+    // Do nothing if no refcat items are displayed.
+    if (refCatItems.isEmpty()) return;
+
+    // Remove items from display
+    for (auto &it: refCatItems) scene->removeItem(it);
+    refCatItems.clear();
+    myGraphicsView->setScene(scene);
+    myGraphicsView->show();
+
+    crpix1new = crpix1 + crpixdiff;
+    wcs->cd[0] = crpixdiff;
 
     showReferenceCat();
 }
 
 void IView::updateCDmatrix(double cd11, double cd12, double cd21, double cd22)
 {
-    qDebug() << cd11;
     // Do nothing if no refcat items are displayed.
     if (refCatItems.isEmpty()) return;
 
@@ -439,7 +456,7 @@ void IView::updateCDmatrix(double cd11, double cd12, double cd21, double cd22)
     wcs->cd[1] = cd12;
     wcs->cd[2] = cd21;
     wcs->cd[3] = cd22;
-
+    wcs->flag = 0;    // force an update of internal wcs params.
     showReferenceCat();
 }
 
