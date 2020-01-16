@@ -1607,7 +1607,7 @@ void Data::getGainNormalization()
         }
     }
     float maxVal = maxVec_T(gainNormalization);
-    if (*verbosity > 0) emit messageAvailable("Gain normalization factors:", "data");
+    if (*verbosity > 0 && instData->numChips>1) emit messageAvailable("Gain normalization factors (multi-chip cameras):", "data");
     for (int chip=0; chip<instData->numChips; ++chip) {
         gainNormalization[chip] /= maxVal;
         combinedImage[chip]->gainNormalization = gainNormalization[chip];
