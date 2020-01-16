@@ -186,6 +186,13 @@ void AbsZeroPoint::processErrorOutput(QString errormessage, QString logname)
 
 void AbsZeroPoint::on_startPushButton_clicked()
 {
+    if (ui->zpImageLineEdit->text().isEmpty()) {
+        QMessageBox::information(this, tr("Missing image."),
+                                 tr("You have not specified an image to be calibrated."),
+                                 QMessageBox::Ok);
+        return;
+    }
+
     on_zpClearPushButton_clicked();
 
     absPhot->clear();

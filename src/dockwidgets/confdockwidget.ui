@@ -472,7 +472,7 @@
        <number>1</number>
       </property>
       <property name="currentIndex">
-       <number>8</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="HDUpage">
        <layout class="QGridLayout" name="gridLayout_22">
@@ -6769,7 +6769,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                 <enum>Qt::ClickFocus</enum>
                </property>
                <property name="statusTip">
-                <string>Whether the model should be rescaled to each exposure.</string>
+                <string>Rescale the model to each exposure. DO NOT do this for bright / extended sources.</string>
                </property>
                <property name="text">
                 <string>Rescale model</string>
