@@ -761,7 +761,9 @@ QString dmsToDecimal(QString dms)
     double dd = list.at(0).toDouble();
     double mm = list.at(1).toDouble();
     double ss = list.at(2).toDouble();
-    int sign = sgn(dd);
+    // Cannot use sgn() function here, as it returns 0 when argument is (-0)
+    int sign = 1;
+    if (list.at(0).contains("-")) sign = -1;
     mm /= 60.;
     ss /= 3600.;
     double decimal = (fabs(dd)+mm+ss)*sign;

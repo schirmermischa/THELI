@@ -244,7 +244,7 @@ void SwarpFilter::runCosmicFilter()
         QVector<long> presentImages;
         presentImages.reserve(num_images);
 
-        if (*verbosity >= 1) emit messageAvailable("Processing block " + QString::number(block+1) + "/" + QString::number(nblocks)+" ...", "output");
+        if (*verbosity >= 2) emit messageAvailable("Processing block " + QString::number(block+1) + "/" + QString::number(nblocks)+" ...", "output");
 
         // read a chunk of data from the images
 #pragma omp parallel num_threads(nthreads)
