@@ -52,7 +52,7 @@ void Splitter::searchKeyCRVAL(const QString searchKey, const QStringList &possib
     // Fallback:
     if (!inPrimaryHeader && !inExtHeader) {
         QString card;
-        if (searchKey == "CRVAL1") card = "CRVAL1  = 0.00001";  // != 0, safeguard against potentially still existing ancient bug I lost track of ...
+        if (searchKey == "CRVAL1") card = "CRVAL1  = 0.0";
         if (searchKey == "CRVAL2") card = "CRVAL2  = 0.0";
         card.resize(80, ' ');
         outputHeader.append(card);

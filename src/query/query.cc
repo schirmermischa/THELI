@@ -102,13 +102,21 @@ void Query::getCatalogSearchLocationAstrom()
 {
     QVector<double> crval1 = scienceData->getKeyFromAllImages("CRVAL1");
     QVector<double> crval2 = scienceData->getKeyFromAllImages("CRVAL2");
-    QVector<double> corners_crval1 = scienceData->getKeyFromAllImages("CORNERS_CRVAL1");
-    QVector<double> corners_crval2 = scienceData->getKeyFromAllImages("CORNERS_CRVAL2");
 
     // Use median to calculate field center (avoiding issues with RA=0|360 deg boundary)
     // Do not average central two elements if number of data points is even
     alpha = straightMedian_T(crval1, 0, false);
     delta = straightMedian_T(crval2, 0, false);
+
+    // Convert to string (because we pass this to 'vizquery'
+    alpha_string = QString::number(alpha, 'f', 6);
+    delta_string = QString::number(delta, 'f', 6);
+}
+
+void Query::getCatalogSearchRadiusAstrom()
+{
+    QVector<double> corners_crval1 = scienceData->getKeyFromAllImages("CORNERS_CRVAL1");
+    QVector<double> corners_crval2 = scienceData->getKeyFromAllImages("CORNERS_CRVAL2");
 
     // Search radius in DEC in arcmin
     double crval2_min = minVec_T(corners_crval2);
@@ -144,10 +152,6 @@ void Query::getCatalogSearchLocationAstrom()
         }
         radius_string = QString::number(radius, 'f', 3);
     }
-
-    // Convert to string (because we pass this to 'vizquery'
-    alpha_string = QString::number(alpha, 'f', 6);
-    delta_string = QString::number(delta, 'f', 6);
 }
 
 void Query::getCatalogSearchLocationPhotom()
@@ -202,7 +206,7 @@ void Query::initAstromQuery()
     if (alpha_manual.contains(":")) alpha_manual = hmsToDecimal(alpha_manual);
     if (delta_manual.contains(":")) delta_manual = dmsToDecimal(delta_manual);
 
-    // Manual or automatic mode
+    // Get location. Manual or automatic mode
     if (magLimit_string.isEmpty()) magLimit_string = "25";
     if (alpha_manual.isEmpty() || delta_manual.isEmpty()) {
         getCatalogSearchLocationAstrom();
@@ -211,6 +215,9 @@ void Query::initAstromQuery()
         alpha_string = alpha_manual;
         delta_string = delta_manual;
     }
+
+    // Get search radius
+    getCatalogSearchRadiusAstrom();
 
     // Make declination explicitly positive (sometimes the cdsclient wants that, or wanted that)
     if (!delta_string.contains('-') && !delta_string.contains('+') ) delta_string.prepend('+');
@@ -662,11 +669,12 @@ void Query::pushNumberOfSources()
 {
     QString messageString = "";
     if (numSources > 0) {
-
         if (!fromImage) {
             messageString = QString::number(numSources) + " " + refcatName + " reference sources retrieved at this location:"
-                    + "<br>RA  = " + QString::number(alpha, 'f', 5)
-                    + "<br>DEC = " + QString::number(delta, 'f', 5)
+//                    + "<br>RA  = " + QString::number(alpha, 'f', 5)
+//                    + "<br>DEC = " + QString::number(delta, 'f', 5)
+                    + "<br>RA  = " + alpha_string
+                    + "<br>DEC = " + delta_string
                     + "<br>radius = " + radius_string + "'";
             emit messageAvailable(messageString, "ignore");
         }

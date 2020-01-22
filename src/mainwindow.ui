@@ -1377,7 +1377,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="processingTabWidgetPage1">
        <attribute name="title">
@@ -1482,7 +1482,7 @@
         <item row="1" column="2">
          <widget class="QLineEdit" name="setupBiasLineEdit">
           <property name="statusTip">
-           <string>Sub-directory(ies) with BIAS exposures</string>
+           <string>BIAS directories, applied to SCIENCE and SKY, only</string>
           </property>
           <property name="clearButtonEnabled">
            <bool>true</bool>
@@ -1499,7 +1499,7 @@
         <item row="2" column="2">
          <widget class="QLineEdit" name="setupDarkLineEdit">
           <property name="statusTip">
-           <string>Sub-directory(ies) with DARK exposures</string>
+           <string>BIAS directories, applied to SCIENCE and SKY, only</string>
           </property>
           <property name="clearButtonEnabled">
            <bool>true</bool>
@@ -1848,7 +1848,7 @@
            <string>Create a master dark flat or flat dark</string>
           </property>
           <property name="text">
-           <string>Process FLAT OFF/DARK</string>
+           <string>Process FLAT OFF / FLAT DARK</string>
           </property>
          </widget>
         </item>
@@ -1889,7 +1889,7 @@
            <bool>true</bool>
           </property>
           <property name="text">
-           <string>Process SCIENCE with BIAS / FLAT</string>
+           <string>Process SCIENCE with BIAS / DARK and FLAT</string>
           </property>
          </widget>
         </item>

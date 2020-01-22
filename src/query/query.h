@@ -164,6 +164,7 @@ private:
 
     void getCatalogSearchLocationAstrom();
     void getCatalogSearchLocationPhotom();
+    void getCatalogSearchRadiusAstrom();
     void getCatalogSearchLocationColorCalib();
     void buildQuerySyntaxAstrom();
     void buildQuerySyntaxGaia();
