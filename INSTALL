@@ -47,8 +47,8 @@ Include the line above in your ~/.bashrc to make it permament.
 Compilation
 ===========
 
-Parallelization in THELI is based on openMP. Your C++ compiler must support at least openMP 4.0.
-For GNU gcc/g++, this is the case for version 5 and later.
+Parallelization in THELI is based on openMP. Your C++ compiler must support at least openMP 4.5.
+For GNU gcc/g++, this is the case for version 6 and later.
 
 Create the 'Makefile' and build it:
 
