@@ -19,7 +19,7 @@ sudo apt install g++ build-essential autotools-dev python python-requests libfft
 Dependencies for running THELI
 ==============================
 
-THELI uses a few external packages. The relevant binaries must be present in your $PATH variable.
+THELI uses a few external packages. The respective binaries and scripts must be present in your $PATH variable.
 THELI will check for their presence upon launch and report any misconfigurations.
 
 swarp v2.38        https://www.astromatic.net/software/swarp
@@ -47,8 +47,8 @@ Include the line above in your ~/.bashrc to make it permament.
 Compilation
 ===========
 
-Parallelization in THELI is based on openMP. Your C++ compiler must support at least openMP 4.0.
-For GNU gcc/g++, this is the case for version 5 and later.
+Parallelization in THELI is based on openMP. Your C++ compiler must support at least openMP 4.5.
+For GNU gcc/g++, this is the case for version 6 and later.
 
 Create the 'Makefile' and build it:
 
