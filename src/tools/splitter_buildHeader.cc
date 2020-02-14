@@ -71,6 +71,13 @@ void Splitter::buildTheliHeader()
         }
     }
 
+    // Instrument-specific optional keys
+    bool keyFoundOptional = true;
+    QString instSpecificKey = "";
+    if (instData.name == "SPARTAN@SOAR") instSpecificKey = "ROTATOR";
+    if (!instSpecificKey.isEmpty()) keyFoundOptional = searchKey(instSpecificKey, {instSpecificKey}, headerTHELI);
+    if (!keyFoundOptional) emit messageAvailable(fileName + " : Could not determine instrument-specific keyword: "+instSpecificKey, "warning");
+
     // Propagate bayer matrix ID for color CCD chips
     if (!instData.bayer.isEmpty()) {
         QString card = "BAYER   = '"+instData.bayer+"'";

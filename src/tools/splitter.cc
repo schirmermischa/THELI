@@ -112,6 +112,7 @@ void Splitter::determineFileFormat()
         int ret = rawProcessor.open_file((path+"/"+fileName).toUtf8().data());
         if (ret == LIBRAW_SUCCESS) {
             // Opened. Try unpacking
+            getDetectorSections();
             bool unpack = rawProcessor.unpack();
             if (unpack != LIBRAW_SUCCESS) {
                 emit messageAvailable(fileName + " : Could not unpack file: " + libraw_strerror(unpack), "warning");
@@ -211,7 +212,7 @@ void Splitter::extractImages()
     // adjust progress step size for multi-chip cameras whose detectors are stored in single extension FITS files
     QStringList instruments = {"FORS1_E2V_2x2@VLT", "FORS2_E2V_2x2@VLT", "FORS2_MIT_1x1@VLT", "FORS2_MIT_2x2@VLT", "FourStar@LCO",
                                "MOIRCS_200406-201006@SUBARU", "MOIRCS_201007-201505@SUBARU", "MOIRCS_201512-today@SUBARU",
-                               "SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808@SUBARU",
+                               "SPARTAN@SOAR", "SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808@SUBARU",
                                "SuprimeCam_200808_SDFRED@SUBARU", "VIMOS@VLT"};
     if (instruments.contains(instData.name)) {
         progressStepSize *= instData.numChips;
@@ -445,6 +446,20 @@ int Splitter::inferChipID(int chip)
         int value = 0;
         searchKeyValue(QStringList() << "CHIP", value);    // running from 1 to 4
         chipID = value;
+        return chipID;
+    }
+
+    else if (instData.name == "SPARTAN@SOAR") {
+        int value = 0;
+        searchKeyValue(QStringList() << "DETSERNO", value);    // detector serial number
+        if (value == 102) chipID = 1;
+        else if (value == 108) chipID = 2;
+        else if (value == 97) chipID = 3;
+        else if (value == 66) chipID = 4;
+        else {
+            emit messageAvailable("Unknown SPARTAN detector serial number: " + QString::number(value), "error");
+            return 0;
+        }
         return chipID;
     }
 

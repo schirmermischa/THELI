@@ -355,7 +355,7 @@ void Controller::taskInternalProcessflat()
         for (auto &it : flatData->myImageList[chip]) {
             if (abortProcess) break;
             if (!it->successProcessing) continue;
-            if (verbosity >= 0 && !message.isEmpty()) emit messageAvailable(it->chipName + " : Correcting with "+message, "image");
+            if (verbosity >= 0 && !message.isEmpty()) emit messageAvailable(it->chipName + " : Correcting with "+message+"_"+QString::number(chip), "image");
             // careful with the booleans, they make sure the data is correctly reread from disk or memory if task is repeated
             it->setupCalibDataInMemory(true, false, true);    // read from backupL1, if not then from disk. Makes backup copy if not yet done
             if (biasData != nullptr && biasData->successProcessing) { // cannot pass nullptr to subtractBias()

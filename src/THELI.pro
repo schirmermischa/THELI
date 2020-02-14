@@ -131,8 +131,6 @@ SOURCES += \
     readmes/acknowledging.cc \
     iview/dockwidgets/ivwcsdockwidget.cc
 
-
-
 HEADERS += \
         mainwindow.h \
     abszp/absphot.h \
@@ -151,6 +149,7 @@ HEADERS += \
     iview/dockwidgets/ivcolordockwidget.h \
     iview/dockwidgets/ivconfdockwidget.h \
     iview/dockwidgets/ivscampdockwidget.h \
+    iview/dockwidgets/ivwcsdockwidget.h \
     iview/iview.h \
     iview/mygraphicsellipseitem.h \
     iview/mygraphicsscene.h \
@@ -194,8 +193,7 @@ HEADERS += \
     tools/swarpfilter.h \
     tools/tools.h \
     readmes/license.h \
-    readmes/acknowledging.h \
-    iview/dockwidgets/ivwcsdockwidget.h
+    readmes/acknowledging.h
 
 FORMS += \
         mainwindow.ui \

@@ -55,6 +55,12 @@ void ProcessingStatus::writeToDrive()
     file.setPermissions(QFile::ReadUser | QFile::WriteUser);
 }
 
+void ProcessingStatus::deleteFromDrive()
+{
+    QFile file(dirName + "/.processingStatus");
+    file.remove();
+}
+
 void ProcessingStatus::readFromDrive()
 {
     QFile file(dirName + "/.processingStatus");

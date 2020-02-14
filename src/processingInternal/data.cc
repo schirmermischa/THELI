@@ -2625,8 +2625,9 @@ void Data::restoreRAWDATA()
     emit globalModelUpdateNeeded();   // CHECK: not necessarily threadsafe, depending on the thread in which the slot gets executed
     emit setMemoryLock(false);
     QString newStatus = "";
-    processingStatus->reset();
-    processingStatus->writeToDrive();
+    processingStatus->deleteFromDrive();
+//    processingStatus->reset();
+//    processingStatus->writeToDrive();
     emit statusChanged(newStatus);
     emit updateModelHeaderLine();
 }

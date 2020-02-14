@@ -472,7 +472,7 @@
        <number>1</number>
       </property>
       <property name="currentIndex">
-       <number>8</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="HDUpage">
        <layout class="QGridLayout" name="gridLayout_22">
