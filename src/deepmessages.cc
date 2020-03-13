@@ -142,8 +142,8 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
     else if (trigger == "Controller::CANNOT_OPEN_FILE" && !CANNOT_OPEN_FILE_shown) {
         CANNOT_OPEN_FILE_shown = true;
         QMessageBox::warning(this, tr("Cannot open file for read/write"),
-                             tr("The following file could not be opened: ")+part1+"<br>"+
-                             tr("Error is: ") + part2 + "<br>Aborting.",
+                             tr("The following file could not be opened: ")+part1+"<br><br>"+
+                             tr("The Error is: \"") + part2 + "\"<br>Aborting.",
                              QMessageBox::Ok);
     }
     else if (trigger == "Data::CANNOT_READ_HEADER_KEYS" && !CANNOT_READ_HEADER_KEYS_shown) {

@@ -630,6 +630,10 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 7) chipGain = 2.03;
         individualFixDone = true;
     }
+    else if (instData.name == "SuprimeCam_200808-201705@SUBARU") {
+        chipGain = harmonicGain(multiportGains);
+        individualFixDone = true;
+    }
     else if (instData.name == "FORS1_199904-200703@VLT" || instData.name == "FORS2_200004-200203@VLT") {
         // 1-port read mode or 4-port read mode?
         numReadoutChannels = 0;
@@ -664,7 +668,7 @@ bool Splitter::individualFixGAIN(int chip)
         headerTHELI.append(card1);
         headerTHELI.append(card2);
 
-        gain[chip] = chipGain;
+        gain[chip] = chipGain;        // not applied for e.g. SuprimeCam_200808-201705
     }
 
     return individualFixDone;

@@ -74,6 +74,9 @@ public:
     float naxis2 = 0.;       // needed for building the anet index
     float pixscale = 0.;     // needed for building the anet index
 
+    float radius = 0.;
+    QString radius_string = "";
+
     bool fromImage = false;
 
     QVector<double> ra_out;
@@ -114,12 +117,10 @@ private:
     // The location and radius for the search, and their string representations
     double alpha = 0.;
     double delta = 0.;
-    float radius = 0.;
     float magLimit = 25.;
     float maxProperMotion = 1.e9;
     QString alpha_string = "";
     QString delta_string = "";
-    QString radius_string = "";
 
     int *verbosity;
 

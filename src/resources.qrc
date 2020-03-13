@@ -251,10 +251,10 @@
         <file>config/instruments/SuprimeCam_200101-200104@SUBARU.ini</file>
         <file>config/instruments/SuprimeCam_200105-200807@SUBARU.ahead</file>
         <file>config/instruments/SuprimeCam_200105-200807@SUBARU.ini</file>
-        <file>config/instruments/SuprimeCam_200808@SUBARU.ahead</file>
-        <file>config/instruments/SuprimeCam_200808@SUBARU.ini</file>
-        <file>config/instruments/SuprimeCam_200808_SDFRED@SUBARU.ahead</file>
-        <file>config/instruments/SuprimeCam_200808_SDFRED@SUBARU.ini</file>
+        <file>config/instruments/SuprimeCam_200808-201705@SUBARU.ahead</file>
+        <file>config/instruments/SuprimeCam_200808-201705@SUBARU.ini</file>
+        <file>config/instruments/SuprimeCam_200808-201705_SDFRED@SUBARU.ahead</file>
+        <file>config/instruments/SuprimeCam_200808-201705_SDFRED@SUBARU.ini</file>
         <file>config/instruments/SuSI2_2x2@NTT.ini</file>
         <file>config/instruments/SuSI2old_2x2@NTT.ini</file>
         <file>config/instruments/SWOPE@LCO.ini</file>

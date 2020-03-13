@@ -40,10 +40,10 @@ void Splitter::correctOverscan(int chip)
     int numChannels = multiportOverscanDirections.length();       // the number of readout channels per detector
     for (int channel=0; channel<numChannels; ++channel) {
         if (multiportOverscanDirections[channel] == "vertical") {
-            doOverscanVertical(combineOverscan_ptr, multiportOverscanSections[channel], multiportDataSections[channel]);
+            doOverscanVertical(combineOverscan_ptr, multiportOverscanSections[channel], multiportChannelSections[channel]);
         }
         if (multiportOverscanDirections[channel] == "horizontal") {
-            doOverscanHorizontal(combineOverscan_ptr, multiportOverscanSections[channel], multiportDataSections[channel]);
+            doOverscanHorizontal(combineOverscan_ptr, multiportOverscanSections[channel], multiportChannelSections[channel]);
         }
     }
 }
@@ -143,20 +143,39 @@ void Splitter::doOverscanVertical(float (*combineFunction_ptr) (const QVector<fl
 
     QVector<float> spectral(overscanArea[1]-overscanArea[0]+1,0);   // select (xmin, xmax) from [xmin:xmax, ymin:ymax]
     QVector<float> spatial(m,0);
-    // extract representative line
-    for (j=0; j<m; ++j) {
-        k = 0;
-        for (i=overscanArea[0]; i<=overscanArea[1]; ++i) {
-            spectral[k] = dataRaw[i+n*j];
-            ++k;
+
+    // Line by line correction
+    if (combineFunction_ptr != nullptr) {
+        // extract representative line
+        for (j=0; j<m; ++j) {
+            k = 0;
+            for (i=overscanArea[0]; i<=overscanArea[1]; ++i) {
+                spectral[k] = dataRaw[i+n*j];
+                ++k;
+            }
+            spatial[j] = combineFunction_ptr(spectral, QVector<bool>(), 0);
+            //            spatialv[j] = straightMedianInline(spectralv);
         }
-        spatial[j] = combineFunction_ptr(spectral, QVector<bool>(), 0);
-        //            spatialv[j] = straightMedianInline(spectralv);
+        if (*verbosity > 1) emit messageAvailable(baseName + " : Mean vertical overscan = " + QString::number(meanMask(spatial), 'f', 3), "image");
     }
-    if (*verbosity > 1) emit messageAvailable(baseName + " : Mean vertical overscan = " + QString::number(meanMask(spatial), 'f', 3), "image");
+    // Global correction with constant value
+    else {
+        QVector<float> tmp;
+        tmp.reserve((overscanArea[1]-overscanArea[0]+1)*m);
+        for (j=0; j<m; ++j) {
+            for (i=overscanArea[0]; i<=overscanArea[1]; ++i) {
+                tmp << dataRaw[i+n*j];
+            }
+        }
+        float constOverscan = straightMedianInline(tmp);
+        if (*verbosity > 1) emit messageAvailable(baseName + " : Global median overscan = " + QString::number(constOverscan, 'f', 1), "image");
+        for (j=0; j<m; ++j) {
+            spatial[j] = constOverscan;
+        }
+    }
 
     // Overscan correction is applied to a subregion of the detector (including the overscan itself!).
-    // If the detector has a single readout port only (or we can ignore them), then the overscan applies to the full array.
+    // If the detector has a single readout port only (or we can ignore the ports), then the overscan applies to the full array.
     long imin = dataVertices[0];
     long imax = dataVertices[1];
     long jmin = dataVertices[2];
@@ -181,19 +200,38 @@ void Splitter::doOverscanHorizontal(float (*combineFunction_ptr) (const QVector<
 
     QVector<float> spectral(overscanArea[3]-overscanArea[2]+1,0);   // select (ymin, ymax) from [xmin:xmax, ymin:ymax]
     QVector<float> spatial(n,0);
-    // extract representative line
-    for (i=0; i<n; ++i) {
-        k = 0;
-        for (j=overscanArea[2]; j<=overscanArea[3]; ++j) {
-            spectral[k] = dataRaw[i+n*j];
-            ++k;
+
+    // Line by line correction
+    if (combineFunction_ptr != nullptr) {
+        // extract representative line
+        for (i=0; i<n; ++i) {
+            k = 0;
+            for (j=overscanArea[2]; j<=overscanArea[3]; ++j) {
+                spectral[k] = dataRaw[i+n*j];
+                ++k;
+            }
+            spatial[i] = combineFunction_ptr(spectral, QVector<bool>(), 0);
         }
-        spatial[i] = combineFunction_ptr(spectral, QVector<bool>(), 0);
+        if (*verbosity > 1) emit messageAvailable(baseName + " : Mean horizontal overscan = " + QString::number(meanMask(spatial), 'f', 3), "image");
     }
-    if (*verbosity > 1) emit messageAvailable(baseName + " : Mean horizontal overscan = " + QString::number(meanMask(spatial), 'f', 3), "image");
+    // Global correction with constant value
+    else {
+        QVector<float> tmp;
+        tmp.reserve((overscanArea[3]-overscanArea[2]+1)*n);
+        for (i=0; i<n; ++i) {
+            for (j=overscanArea[2]; j<=overscanArea[3]; ++j) {
+                tmp << dataRaw[i+n*j];
+            }
+        }
+        float constOverscan = straightMedianInline(tmp);
+        if (*verbosity > 1) emit messageAvailable(baseName + " : Global median overscan = " + QString::number(constOverscan, 'f', 1), "image");
+        for (i=0; i<n; ++i) {
+            spatial[i] = constOverscan;
+        }
+    }
 
     // Overscan correction is applied to a subregion of the detector (including the overscan itself!).
-    // If the detector has a single readout port only (or we can ignore them), then the overscan applies to the full array.
+    // If the detector has a single readout port only (or we can ignore the ports), then the overscan applies to the full array.
     long imin = dataVertices[0];
     long imax = dataVertices[1];
     long jmin = dataVertices[2];
@@ -276,7 +314,7 @@ void Splitter::correctNonlinearity(int chip)
 
     // Average nonlinearity correction
     // http://instrumentation.obs.carnegiescience.edu/FourStar/Documents/FourStar_Documentation.pdf
-    if (instNameFromData == "FourStar@LCO") {
+    if (instData.name == "FourStar@LCO") {
         float A = 0.;
         // High gain
         if (channelGains[0] > 2.) {
@@ -306,7 +344,7 @@ void Splitter::convertToElectrons(int chip)
 {
     if (!successProcessing) return;
 
-    // cameras with multiple readout channels AND different gain per channel
+    // cameras with multiple readout channels AND different gain per channel (but no overscan pasted into the data section)
     // WARNING: ASSUMPTIONS: applies to the size defined in camera.ini
     if (numReadoutChannels > 1) {
         //        qDebug() << channelGains;
@@ -328,6 +366,10 @@ void Splitter::convertToElectrons(int chip)
         gain[chip] = 1.0;   // Gain is fixed in writeImageIndividual();
         return;
     }
+    if (instData.name == "SuprimeCam_200808-201705@SUBARU") {
+        return;
+    }
+
 
     for (auto &pixel : dataCurrent) {
         pixel *= gain[chip];

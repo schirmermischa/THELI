@@ -126,13 +126,12 @@ void Splitter::determineFileFormat()
     if (dataFormat == "Unknown") {
         // FITS opening error?
         //        printCfitsioError("determineFileFormat()", rawStatus);
-        successProcessing = false;                // CHECK: xtalk correction only works if we maintain the original detector geometry
-        // correctXtalk();
+        // successProcessing = false;    // Don not trigger an error, just skip the file
 
         QDir unknownFile(path+"/UnknownFormat");
         unknownFile.mkpath(path+"/UnknownFormat/");
-        moveFile(name, path, path+"/UnknownFormat");
-        emit messageAvailable(fileName+" : Unknown format. Moved to "+subDirName+"/UnknownFormat/", "ignore");
+        moveFile(fileName, path, path+"/UnknownFormat");
+        emit messageAvailable(fileName+" : Unknown format. Moved to "+subDirName+"/UnknownFormat/", "warning");
     }
 }
 
@@ -212,8 +211,8 @@ void Splitter::extractImages()
     // adjust progress step size for multi-chip cameras whose detectors are stored in single extension FITS files
     QStringList instruments = {"FORS1_E2V_2x2@VLT", "FORS2_E2V_2x2@VLT", "FORS2_MIT_1x1@VLT", "FORS2_MIT_2x2@VLT", "FourStar@LCO",
                                "MOIRCS_200406-201006@SUBARU", "MOIRCS_201007-201505@SUBARU", "MOIRCS_201512-today@SUBARU",
-                               "SPARTAN@SOAR", "SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808@SUBARU",
-                               "SuprimeCam_200808_SDFRED@SUBARU", "VIMOS@VLT"};
+                               "SPARTAN@SOAR", "SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808-201705@SUBARU",
+                               "SuprimeCam_200808-201705_SDFRED@SUBARU", "VIMOS@VLT"};
     if (instruments.contains(instData.name)) {
         progressStepSize *= instData.numChips;
     }
@@ -303,7 +302,7 @@ void Splitter::extractImagesFITS()
                 correctOverscan(chipMapped);
                 // correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
                 //                cropDataSection(dataSection[chipMapped]);
-                pasteMultiportDataSections(chipMapped);
+                pasteMultiportIlluminatedSections(chipMapped);
                 correctXtalk();             // Must maintain original detector geometry for x-talk correction, i.e. do before cropping. Must replace naxisi by naxisiRaw in xtalk methods.
                 correctNonlinearity(chipMapped);
                 convertToElectrons(chipMapped);
@@ -326,7 +325,7 @@ void Splitter::extractImagesFITS()
                     correctOverscan(chipMapped);
                     // correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
                     //                    cropDataSection(dataSection[chipMapped]);
-                    pasteMultiportDataSections(chipMapped);
+                    pasteMultiportIlluminatedSections(chipMapped);
                     correctXtalk();                 // TODO: how valid is that operation for the stack?
                     correctNonlinearity(chipMapped);      // TODO: how valid is that operation for the stack?
                     convertToElectrons(chipMapped);
@@ -334,6 +333,11 @@ void Splitter::extractImagesFITS()
                     writeImage(chipMapped);
                     //   initMyImage(chip);
                     // TODO: how is the exposure time defined for these data? Probably requires individual solution
+
+
+                    // Hamamatsus: define temporary data array, larger than the individual FITS extension,
+                    // and successively copy pixels as they become available from the individual extensions.
+                    // Then introduce an individual exception in writeImage() and applymask() (once all extensions are available).
                 }
                 else {
                     // Loop over slices, extract each of them
@@ -374,6 +378,10 @@ bool Splitter::isDetectorAlive(int &chipMapped)
     if (instData.name == "SuprimeCam_200101-200104@SUBARU") {
         if (chipMapped == 6) return false;
         else if (chipMapped > 6) --chipMapped;       // compensate chip number for lost chip
+    }
+    if (instData.name == "WFI_chips1-6@MPGESO") {
+        if (chipMapped == 7) return false;
+        if (chipMapped == 8) return false;
     }
 
     return true;
@@ -428,7 +436,9 @@ int Splitter::inferChipID(int chip)
         return chipID;
     }
 
-    else if (instData.name == "SuprimeCam_200105-200807@SUBARU" || instData.name == "SuprimeCam_200101-200104@SUBARU") {
+    else if (instData.name == "SuprimeCam_200105-200807@SUBARU"
+             || instData.name == "SuprimeCam_200101-200104@SUBARU"
+             || instData.name == "SuprimeCam_200808-201705@SUBARU") {
         int value = 0;
         searchKeyValue(QStringList() << "DET-ID", value);    // running from 0 to 9
         chipID = value + 1;

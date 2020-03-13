@@ -247,7 +247,7 @@ QVector<double> DetectedObject::calcFluxAper(float aperture)
     // Do this only once for the various apertures.
     // The flag is set if one out of all the apertures has zero weight pixels
     if (weightFlag && !aperFlagSetAlready) {
-//        FLAGS += 2;            // TODO: If I set that, then it appears that all sources get non-zero flags; needs to be verified
+        //        FLAGS += 2;            // TODO: If I set that, then it appears that all sources get non-zero flags; needs to be verified
         aperFlagSetAlready = true;
     }
 
@@ -471,17 +471,26 @@ void DetectedObject::calcWindowedMomentsErrors()
         }
         ++i;
     }
-    ERRX2WIN = 4.*xwsum/wsum;
-    ERRY2WIN = 4.*ywsum/wsum;
-    ERRXYWIN = 4.*xywsum/wsum;
 
-    ERRAWIN = 0.5*(ERRX2WIN+ERRY2WIN) + sqrt( 0.25*(ERRX2WIN-ERRY2WIN)*(ERRX2WIN-ERRY2WIN) + ERRXYWIN*ERRXYWIN);
-    ERRBWIN = 0.5*(ERRX2WIN+ERRY2WIN) - sqrt( 0.25*(ERRX2WIN-ERRY2WIN)*(ERRX2WIN-ERRY2WIN) + ERRXYWIN*ERRXYWIN);
-    ERRAWIN = sqrt(ERRAWIN);
-    ERRBWIN = sqrt(ERRBWIN);
-
-    ERRTHETAWIN = 2.*ERRXYWIN / (ERRX2WIN-ERRY2WIN);
-    ERRTHETAWIN = abs(0.5*atan(ERRTHETAWIN)/rad);
+    if (wsum  > 0.) {
+        ERRX2WIN = 4.*xwsum/wsum;
+        ERRY2WIN = 4.*ywsum/wsum;
+        ERRXYWIN = 4.*xywsum/wsum;
+        ERRAWIN = 0.5*(ERRX2WIN+ERRY2WIN) + sqrt( 0.25*(ERRX2WIN-ERRY2WIN)*(ERRX2WIN-ERRY2WIN) + ERRXYWIN*ERRXYWIN);
+        ERRBWIN = 0.5*(ERRX2WIN+ERRY2WIN) - sqrt( 0.25*(ERRX2WIN-ERRY2WIN)*(ERRX2WIN-ERRY2WIN) + ERRXYWIN*ERRXYWIN);
+        ERRAWIN = sqrt(ERRAWIN);
+        ERRBWIN = sqrt(ERRBWIN);
+        ERRTHETAWIN = 2.*ERRXYWIN / (ERRX2WIN-ERRY2WIN);
+        ERRTHETAWIN = abs(0.5*atan(ERRTHETAWIN)/rad);
+    }
+    else {
+        ERRX2WIN = 0.;
+        ERRY2WIN = 0.;
+        ERRXYWIN = 0.;
+        ERRAWIN = 0.;
+        ERRBWIN = 0.;
+        ERRTHETAWIN = 0.;
+    }
 
     // noise floor
     if (ERRTHETAWIN < 0.01) ERRTHETAWIN = 0.01;

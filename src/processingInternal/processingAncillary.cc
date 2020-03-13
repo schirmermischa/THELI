@@ -72,7 +72,7 @@ void Controller::provideHeaderInfo(Data *scienceData)
 
 void Controller::downloadGaiaCatalog(Data *scienceData)
 {
-    int verbosity = 0;
+//    int verbosity = 0;
     gaiaQuery = new Query(&verbosity);
     connect(gaiaQuery, &Query::messageAvailable, this, &Controller::messageAvailableReceived);
     connect(gaiaQuery, &Query::critical, this, &Controller::criticalReceived);
@@ -81,6 +81,23 @@ void Controller::downloadGaiaCatalog(Data *scienceData)
     gaiaQuery->naxis1 = instData->sizex[0];
     gaiaQuery->naxis2 = instData->sizey[0];
     gaiaQuery->pixscale = instData->pixscale;
+    gaiaQuery->suppressCatalogWarning = true;
+
+    emit messageAvailable("Querying point source catalog from GAIA ...", "ignore");
+    gaiaQuery->doGaiaQuery();
+    emit messageAvailable(QString::number(gaiaQuery->numSources) + " point sources retrieved for analysis of image quality ...", "ignore");
+}
+
+// Overload, to set the image size from the coadded image, and not from the images in the Data class
+void Controller::downloadGaiaCatalog(Data *scienceData, QString radius)
+{
+//    int verbosity = 0;
+    gaiaQuery = new Query(&verbosity);
+    connect(gaiaQuery, &Query::messageAvailable, this, &Controller::messageAvailableReceived);
+    connect(gaiaQuery, &Query::critical, this, &Controller::criticalReceived);
+    gaiaQuery->mainDirName = mainDirName;
+    gaiaQuery->scienceData = scienceData;
+    gaiaQuery->radius_string = radius;
     gaiaQuery->suppressCatalogWarning = true;
 
     emit messageAvailable("Querying point source catalog from GAIA ...", "ignore");

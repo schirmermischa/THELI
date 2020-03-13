@@ -161,6 +161,16 @@ void Controller::coaddPrepare(QString filterArg)
 
     QString ident = cdw->ui->COAuniqueidLineEdit->text();
     QString chips = cdw->ui->COAchipsLineEdit->text();
+    QVector<int> chipList;
+    QStringList chipStringList = chips.replace(","," ").simplified().split(" ");
+    if (!chips.isEmpty()) {
+        for (auto &chip : chipStringList) chipList.append(chip.toInt()-1);
+    }
+    else {
+        // include all chips
+        for (int chip=0; chip<instData->numChips; ++chip) chipList.append(chip);
+    }
+
     QString edgeSmooth = cdw->ui->COAedgesmoothingLineEdit->text();
 
     // Check if coaddDir exists. Delete everything in it if yes. Then recreate it.
@@ -216,6 +226,7 @@ void Controller::coaddPrepare(QString filterArg)
     float numexp = 0;
     QList<QString> filterNames;
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (!chipList.contains(chip)) continue;        // Skip chips that should not be coadded
         for (auto &it : coaddScienceData->myImageList[chip]) {
             if (!it->successProcessing) continue;
             it->provideHeaderInfo();
@@ -873,7 +884,26 @@ void Controller::coaddUpdate()
 
     emit loadViewer(coaddDirName, "coadd.fits", "DragMode");
 
-    downloadGaiaCatalog(coaddScienceData); // Point sources
+    QString pixelScale = cdw->ui->COApixscaleLineEdit->text();
+    if (pixelScale.isEmpty()) pixelScale = QString::number(instData->pixscale, 'f', 9);
+
+    long naxis1 = 0;
+    long naxis2 = 0;
+    fitsfile *fptr0 = nullptr;
+    int status = 0;
+    QString filename = coaddDirName+ "/coadd.fits";
+    fits_open_file(&fptr0, filename.toUtf8().data(), READONLY, &status);
+    float radius = 1.0;
+    if (!status) {
+        fits_read_key_lng(fptr0, "NAXIS1", &naxis1, NULL, &status);
+        fits_read_key_lng(fptr0, "NAXIS2", &naxis2, NULL, &status);
+        radius = sqrt(naxis1*naxis1+naxis2*naxis2) / 2. * pixelScale.toFloat() / 60.;
+        // Enforce an upper limit to the download catalog (the query also has a built-in limit of # sources < 1e6)
+        if (radius > 60) radius = 60.;
+    }
+    fits_close_file(fptr0, &status);
+
+    downloadGaiaCatalog(coaddScienceData, QString::number(radius, 'f', 1)); // Point sources
 
     // Measure the seeing if we have reference sources
     float seeing_world = 0.;
@@ -887,16 +917,18 @@ void Controller::coaddUpdate()
         connect(coadd, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
         connect(coadd, &MyImage::warning, this, &Controller::warningReceived);
         connect(coadd, &MyImage::setMemoryLock, this, &Controller::setMemoryLockReceived, Qt::DirectConnection);
+        coadd->chipName = "coadd.fits";
         emit messageAvailable("coadd.fits : Loading image data ...", "image");
         coadd->setupData(false, false, true);
         coadd->globalMask = QVector<bool>();
         coadd->globalMaskAvailable = false;
         coadd->objectMaskDone = false;
         coadd->weightInMemory = false;
+        coadd->gain = 1.0;
         emit messageAvailable("coadd.fits : Modeling background ...", "image");
         coadd->backgroundModel(256, "interpolate");
         emit messageAvailable("coadd.fits : Detecting sources ...", "image");
-        coadd->segmentImage("10", "3", true, false);
+        coadd->segmentImage("10", "3", true, true);
         coadd->estimateMatchingTolerance();
 
         ImageQuality *imageQuality = new ImageQuality(coaddScienceData, instData, mainDirName);
@@ -911,7 +943,7 @@ void Controller::coaddUpdate()
         bool gaia = imageQuality->getSeeingFromGaia();
         if (!gaia) imageQuality->getSeeingFromRhMag();
         seeing_world = imageQuality->fwhm;
-        seeing_image = seeing_world / instData->pixscale;
+        seeing_image = seeing_world / pixelScale.toFloat();
         emit messageAvailable("coadd.fits : FWHM = " + QString::number(seeing_world, 'f', 2) + "\"  ("
                               + QString::number(seeing_image, 'f', 2) + " pixel)", "image");
         emit messageAvailable("coadd.fits : Ellipticity = " + QString::number(imageQuality->ellipticity, 'f', 3), "image");
@@ -940,7 +972,7 @@ void Controller::coaddUpdate()
     // Update header keywords
     fitsfile *fptr = nullptr;
     QString name = coaddDirName+"/coadd.fits";
-    int status = 0;
+//    int status = 0;    // declared above
     if (name.isNull() || name.isEmpty()) {
         status = 1;
         qDebug() << "QDEBUG: ERROR: MyFITS::initFITS(): file name empty or not initialized!";

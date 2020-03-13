@@ -54,10 +54,11 @@ bool ImageQuality::getSeeingFromGaia()
     int dummy2;
     QVector<QVector<double>> matchedCat;
     int maxCPU = 1;   // external parallelization
+
     match2D(sourceCat, refCat, matchedCat, matchingTolerance, dummy1, dummy2, maxCPU);
 
     if (matchedCat.isEmpty()) {
-        emit messageAvailable(baseName + " : No reference point sources identified for IQ analysis. Using rh-mag method ...", "warning");
+        emit messageAvailable(baseName + " : No usable reference point sources identified for IQ analysis. Using rh-mag method ...", "warning");
         fwhm = -1.0;
         ellipticity = -1.0;
         return false;

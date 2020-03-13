@@ -406,23 +406,23 @@ void MainWindow::updateController()
 
 void MainWindow::updateControllerFunctors(QString text)
 {
-    if (cdw->ui->overscanMethodComboBox->currentText() == "Median")
-        controller->combineOverscan_ptr = &medianMask;
-    else controller->combineOverscan_ptr = &meanMask;
+    if (cdw->ui->overscanMethodComboBox->currentText() == "Line median") controller->combineOverscan_ptr = &medianMask;
+    else if (cdw->ui->overscanMethodComboBox->currentText() == "Line mean") controller->combineOverscan_ptr = &meanMask;
+    else controller->combineOverscan_ptr = nullptr;
 
-    if (cdw->ui->overscanMethodComboBox->currentText() == "Median")
+    if (cdw->ui->biasMethodComboBox->currentText() == "Median")
         controller->combineBias_ptr = &medianMask;
     else controller->combineBias_ptr = &meanMask;
 
-    if (cdw->ui->overscanMethodComboBox->currentText() == "Median")
+    if (cdw->ui->darkMethodComboBox->currentText() == "Median")
         controller->combineDark_ptr = &medianMask;
     else controller->combineDark_ptr = &meanMask;
 
-    if (cdw->ui->overscanMethodComboBox->currentText() == "Median")
+    if (cdw->ui->flatoffMethodComboBox->currentText() == "Median")
         controller->combineFlatoff_ptr = &medianMask;
     else controller->combineFlatoff_ptr = &meanMask;
 
-    if (cdw->ui->overscanMethodComboBox->currentText() == "Median")
+    if (cdw->ui->flatMethodComboBox->currentText() == "Median")
         controller->combineFlat_ptr = &medianMask;
     else controller->combineFlat_ptr = &meanMask;
 

@@ -437,6 +437,7 @@ public:
     //    void coaddPrepareStep2();
     QStringList getFilterList(QString scienceDir);
     void downloadGaiaCatalog(Data *scienceData);
+    void downloadGaiaCatalog(Data *scienceData, QString radius);
     void releaseAllMemory();
     void restoreAllRawData();
     void updateMasterList();

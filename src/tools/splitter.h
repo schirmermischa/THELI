@@ -106,9 +106,9 @@ private:
     int numReadoutChannels = 1;    // number of readout channels per detector
 
     // The following must have the same first dimension
-    QVector<QVector<long>> multiportOverscanSections;    // The sections containing the overscan pixels. Coord system: entire readout channel
-    QVector<QVector<long>> multiportDataSections;        // The sections containing the illuminated pixels only. Coord system: entire readout channel
-    QVector<QVector<long>> multiportImageSections;       // The sections containing the entire channel (indexed over the whole array including overscan areas)
+    QVector<QVector<long>> multiportOverscanSections;    // The sections containing the overscan pixels. Coord system: entire FITS extension
+    QVector<QVector<long>> multiportIlluminatedSections; // The sections containing the illuminated pixels. Coord system: entire FITS channel
+    QVector<QVector<long>> multiportChannelSections;     // The sections containing the entire readout channel (including overscan). Coord system: entire FITS channel
     QVector<float> multiportGains;                       // The gain factors for each readout channel
     QVector<long> multiportOffsetX;                      // The x-offset of that port's data section from the lower left pixel of the pasted image
     QVector<long> multiportOffsetY;                      // The y-offset of that port's data section from the lower left pixel of the pasted image
@@ -126,7 +126,7 @@ private:
     QString dataFormat;  // FITS or RAW
     QString bayerPattern = "";
     QString filter = "Unknown";
-    QString instNameFromData = "";       // needed only for a very small number of cameras (GROND)
+    QString instNameFromData = "";       // needed only for a very small number of cameras, where the instrument must be deduced from the headers (GROND)
 
     QString dateObsValue = "";
     double crval1 = 0.0;
@@ -254,10 +254,13 @@ private:
                             const QVector<long> &overscanArea, const QVector<long> dataVertices);
     void doOverscanHorizontal(float (*combineFunction_ptr)(const QVector<float> &, const QVector<bool> &, long),
                               const QVector<long> &overscanArea, const QVector<long> dataVertices);
-    void pasteMultiportDataSections(int chip);
+    void pasteMultiportIlluminatedSections(int chip);
     void pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, const QVector<long> &sector,
-                      const float corrFactor, const long dx, const long dy, const long nT, const long mT, const long nS, const long mS);
+                      const float corrFactor, const long nT, const long mT, const long nS, const long mS);
     void testGROND();
+    QVector<long> extractVerticesFromKeyword(QString keyword1, QString keyword2, QString keyword3, QString keyword4);
+    QVector<long> extractReducedOverscanFromKeyword(QString keyword1, QString keyword2, int value3, int value4);
+    QVector<long> extractReducedIlluminationFromKeyword(QString keyword1, QString keyword2, int value3, int value4);
 signals:
     void messageAvailable(QString message, QString type);
     void warning();
