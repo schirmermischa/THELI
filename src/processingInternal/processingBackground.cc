@@ -487,7 +487,7 @@ void Controller::maskObjectsInSkyImagesPass2(Data *skyData, Data *scienceData, c
             // No masking has taken place in PASS 1 if we are in twopass mode!
             // Subtract 1st pass model: dataCurrent = dataBackupL1 - 1stPassModel
             back->applyBackgroundModel(skyData->combinedImage[chip], cdw->ui->BACapplyComboBox->currentText(), rescaleModel);
-  //          back->backgroundModelDone = false;                  // IMPORTANT, otherwise background model step will be skipped
+            //          back->backgroundModelDone = false;                  // IMPORTANT, otherwise background model step will be skipped
             back->backgroundModel(256, "interpolate");          // create background model
             back->segmentImage(DT, DMIN, convolution, false);   // detect sources (if requested), do not write seg image
             back->transferObjectsToMask();                      // sets objectMaskDone to true
@@ -585,7 +585,7 @@ void Controller::maskObjectsInSkyImagesPass2_newParallel(Data *skyData, Data *sc
             if (!back->objectMaskDone) {
                 if (mode == "dynamic") back->applyBackgroundModel(combinedImage, cdw->ui->BACapplyComboBox->currentText(), rescaleModel);
                 else back->applyBackgroundModel(skyData->combinedImage[chip], cdw->ui->BACapplyComboBox->currentText(), rescaleModel);
-  //              back->backgroundModelDone = false;                  // IMPORTANT, otherwise background model step will be skipped
+                //              back->backgroundModelDone = false;                  // IMPORTANT, otherwise background model step will be skipped
                 back->backgroundModel(256, "interpolate");          // create background model
                 back->segmentImage(DT, DMIN, convolution, false);   // detect sources (if requested), do not write seg image
                 back->transferObjectsToMask();                      // sets objectMaskDone to true
@@ -660,9 +660,9 @@ void Controller::selectImagesDynamically(QList<MyImage*> backgroundList, const d
                     it.first->leftBackgroundWindow = true;
                     it.first->releaseBackgroundMemoryBackgroundModel();
                     it.first->releaseAllDetectionMemory();
-//                    if (minimizeMemoryUsage) {
-//                        it.first->freeAll();
-//                    }
+                    //                    if (minimizeMemoryUsage) {
+                    //                        it.first->freeAll();
+                    //                    }
                 }
             }
             ++count;
@@ -985,9 +985,12 @@ bool Controller::idChipsWithBrightStars(Data *skyData, QList<QVector<double>> &b
         it->provideHeaderInfo();
         it->checkBrightStars(brightStarList, safetyDistance, instData->pixscale);
         if (it->hasBrightStars) {
-            ++numImagesAffected;
-            ++numChipsRejected[chip];
-            imagesAffected.append(it->chipName + "<br>");
+#pragma omp critical
+            {
+                ++numImagesAffected;
+                ++numChipsRejected[chip];
+                imagesAffected.append(it->chipName + "<br>");
+            }
         }
     }
 

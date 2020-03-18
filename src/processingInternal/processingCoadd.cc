@@ -295,7 +295,7 @@ void Controller::coaddPrepare(QString filterArg)
     swarpWorker->moveToThread(workerThreadPrepare);
 
     connect(workerThreadPrepare, &QThread::started, swarpWorker, &SwarpWorker::runSwarp, Qt::DirectConnection);
-//    connect(workerThreadPrepare, &QThread::finished, workerThreadPrepare, &QThread::deleteLater, Qt::DirectConnection);
+    //    connect(workerThreadPrepare, &QThread::finished, workerThreadPrepare, &QThread::deleteLater, Qt::DirectConnection);
     connect(workerThreadPrepare, &QThread::finished, workerThreadPrepare, &QThread::deleteLater);
     connect(swarpWorker, &SwarpWorker::errorFound, this, &Controller::errorFoundReceived);
     connect(swarpWorker, &SwarpWorker::finishedPreparation, this, &Controller::finishedPreparationReceived);
@@ -368,8 +368,8 @@ void Controller::coaddPrepareProjectPM(QFile &headerFileOld, QString newHeaderNa
     double timeDiff = (mjdobsNow - mjdobsZero) * 1440.;
 
     // New CRVAL1/2 for the current exposure
-//    double crval1New = crval1 + timeDiff * crval1Speed;
-//    double crval2New = crval2 + timeDiff * crval2Speed;
+    //    double crval1New = crval1 + timeDiff * crval1Speed;
+    //    double crval2New = crval2 + timeDiff * crval2Speed;
 
     // Update CRVAL1/2 (and write to a new header file)
     QTextStream streamIn(&headerFileOld);
@@ -700,21 +700,25 @@ void Controller::coaddResample()
         coaddResampleBuildSwarpCommand(listNames[i], i);
 
         // Run the Swarp command
-        workerThreads[i] = new QThread();
-        swarpWorkers[i] = new SwarpWorker(swarpCommands[i], coaddDirName, "swarpResampling");
-        workersInit = true;
-        workerThreadsInit = true;
-        swarpWorkers[i]->threadID = i;
-        swarpWorkers[i]->moveToThread(workerThreads[i]);
+#pragma omp critical
+        {
+            workerThreads[i] = new QThread();
+            swarpWorkers[i] = new SwarpWorker(swarpCommands[i], coaddDirName, "swarpResampling");
+            workersInit = true;
+            workerThreadsInit = true;
+            swarpWorkers[i]->threadID = i;
+            swarpWorkers[i]->moveToThread(workerThreads[i]);
+        }
         connect(workerThreads[i], &QThread::started, swarpWorkers[i], &SwarpWorker::runSwarp);
         connect(workerThreads[i], &QThread::finished, workerThreads[i], &QThread::deleteLater);
         //        connect(workerThreads[i], &QThread::finished, workerThreads[i], &QThread::deleteLater);
         connect(swarpWorkers[i], &SwarpWorker::finishedResampling, this, &Controller::waitForResamplingThreads);
- //       connect(swarpWorkers[i], &SwarpWorker::finished, workerThreads[i], &QThread::quit);
+        //       connect(swarpWorkers[i], &SwarpWorker::finished, workerThreads[i], &QThread::quit);
         connect(swarpWorkers[i], &SwarpWorker::finished, swarpWorkers[i], &QObject::deleteLater);
         connect(swarpWorkers[i], &SwarpWorker::finished, workerThreads[i], &QThread::quit);
         //        connect(swarpWorkers[i], &SwarpWorker::finished, swarpWorkers[i], &QObject::deleteLater);
         connect(swarpWorkers[i], &SwarpWorker::messageAvailable, monitor, &Monitor::displayMessage);
+
         workerThreads[i]->start();
         //       workerThreads[i]->wait();
     }
@@ -972,7 +976,7 @@ void Controller::coaddUpdate()
     // Update header keywords
     fitsfile *fptr = nullptr;
     QString name = coaddDirName+"/coadd.fits";
-//    int status = 0;    // declared above
+    //    int status = 0;    // declared above
     if (name.isNull() || name.isEmpty()) {
         status = 1;
         qDebug() << "QDEBUG: ERROR: MyFITS::initFITS(): file name empty or not initialized!";
@@ -1002,7 +1006,7 @@ void Controller::coaddUpdate()
 
     // Now we can quit the first coaddition thread (which spawned all the other threads).
     // This will return control to mainGUI() (i.e. enable the start button again)
- //   workerThreadPrepare->quit();
+    //   workerThreadPrepare->quit();
 
     // Finally, do flux calibration if requested
     if (cdw->ui->COAfluxcalibCheckBox->isChecked()) {
