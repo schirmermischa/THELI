@@ -103,8 +103,8 @@ void Splitter::determineFileFormat()
 
         uncompress();
         consistencyChecks();
-        getDetectorSections(); // Read overscan and data sections for the current instrument
-        gain.resize(instData.numChips);
+        getDetectorSections(); // Read overscan and data sections for the current instrument; resize accordingly, including gain vector
+        getNumberOfAmplifiers();
     }
     else {
         // Try opening as RAW
@@ -213,6 +213,11 @@ void Splitter::extractImages()
                                "MOIRCS_200406-201006@SUBARU", "MOIRCS_201007-201505@SUBARU", "MOIRCS_201512-today@SUBARU",
                                "SPARTAN@SOAR", "SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808-201705@SUBARU",
                                "SuprimeCam_200808-201705_SDFRED@SUBARU", "VIMOS@VLT"};
+
+    // multiple readout channels in different FITS extensions
+    multiChannelMultiExt << "GMOS-N-HAM@GEMINI" <<  "GMOS-N-HAM_1x1@GEMINI" << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI";
+    if (multiChannelMultiExt.contains(instData.name)) ampInSeparateExt = true;
+
     if (instruments.contains(instData.name)) {
         progressStepSize *= instData.numChips;
     }
@@ -283,7 +288,8 @@ void Splitter::extractImagesFITS()
                 ++chip;
                 continue;
             }
-            testGROND();     // GROND data are an oddball and need to be tested here
+            testGROND();                     // GROND data are an oddball and need to be tested here
+            updateMEFpastingStatus(chip);    // Some cameras have readout channels in individual FITS extensions, implying skipping e.g. writeImage()
 
             buildTheliHeaderFILTER();
             buildTheliHeaderWCS(chipMapped);
@@ -624,13 +630,19 @@ void Splitter::getDetectorSections()
 {
     if (!successProcessing) return;
 
+    // WARNING
+    // This is for detectors only which have a single amplifier per detector, at least without injected overscan data between illuminated pixels
+    // Other configurations are handled separately
+
     overscanX.clear();
     overscanY.clear();
     dataSection.clear();
+    gain.clear();
 
     overscanX.resize(instData.numChips);
     overscanY.resize(instData.numChips);
     dataSection.resize(instData.numChips);
+    gain.resize(instData.numChips);
 
     QVector<int> xmin = instData.overscan_xmin;
     QVector<int> xmax = instData.overscan_xmax;
@@ -658,11 +670,44 @@ void Splitter::getDetectorSections()
     }
 }
 
+void Splitter::getNumberOfAmplifiers()
+{
+    if (!successProcessing) return;
+
+    numAmpPerChip = 1;     // The number of amplifiers forming data for a single detector. Aleways 1, unless stored in separate FITS extensions
+    if (instData.name.contains("GMOS-N-HAM") || instData.name.contains("GMOS-S-HAM")) {
+        fits_read_key_lng(rawFptr, "NAMPS", &numAmpPerChip, nullptr, &rawStatus);
+        if (rawStatus) {
+            qDebug() << "ERROR: Splitter::getNumberOfAmplifiers()";
+            numAmpPerChip = 1;
+            rawStatus = 0;
+        }
+    }
+
+    // multiple readout channels in different FITS extensions
+    multiChannelMultiExt << "GMOS-N-HAM@GEMINI" <<  "GMOS-N-HAM_1x1@GEMINI"
+                         << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI";
+    if (multiChannelMultiExt.contains(instData.name)) ampInSeparateExt = true;
+
+    if (numAmpPerChip > 1 && ampInSeparateExt) {
+        overscanX.clear();
+        overscanY.clear();
+        dataSection.clear();
+        gain.clear();
+        overscanX.resize(instData.numChips * numAmpPerChip);
+        overscanY.resize(instData.numChips * numAmpPerChip);
+        dataSection.resize(instData.numChips * numAmpPerChip);
+        gain.resize(instData.numChips * numAmpPerChip);
+    }
+}
+
 // Write the pixel-corrected extension as a separate FITS file to disk
 // Condensed version of the same function as in MyFITS
 void Splitter::writeImage(int chipMapped)
 {
     if (!successProcessing) return;
+
+    if (!MEFpastingFinished) return;
 
     // Exceptions. Return if successful.
     if (individualFixWriteImage(chipMapped)) return;
@@ -684,6 +729,16 @@ void Splitter::writeImage(int chipMapped)
     //    int chipID = inferChipID(chip);
 
     int chipID = chipMapped + 1;
+
+    // adjust chipID for datra where multiple channels are in separate extensions
+    if (multiChannelMultiExt.contains(instData.name)) {
+        if (instData.name.contains("GMOS")) {
+            if (chipMapped == 3) chipID = 1;
+            if (chipMapped == 7) chipID = 2;
+            if (chipMapped == 11) chipID = 3;
+        }
+        MEFpastingFinished = false;
+    }
 
     // Replace blanks in file names
     baseName.replace(' ','_');

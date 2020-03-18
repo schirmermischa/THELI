@@ -247,6 +247,12 @@ void Splitter::applyMask(int chip)
 {
     if (!successProcessing) return;
 
+    if (!MEFpastingFinished) return;
+    else {
+        // Must reset 'chip' such that it counts true CCDs, not the etxnesions with the individual amplifiers (e.g., for GMOS)
+        chip = chip / numAmpPerChip;
+    }
+
     if (instData.name == "LIRIS_POL@WHT") return;     // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
     //    if (instData.name == "GROND_NIR@MPGESO") return;  // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
     if (instNameFromData == "GROND_NIR@MPGESO") return;  // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
@@ -260,7 +266,7 @@ void Splitter::applyMask(int chip)
     }
 }
 
-// dataSect contains the exposued (desired) illuminated pixels, [min:max], starting counting at zero,
+// dataSect contains the exposed (desired) illuminated pixels, [min:max], starting counting at zero,
 // correctly converted from the camera.ini CUTON_X and SIZE_X parameterization
 void Splitter::cropDataSection(QVector<long> dataSect)
 {
@@ -301,6 +307,8 @@ void Splitter::cropDataSection(QVector<long> dataSect)
 void Splitter::correctNonlinearity(int chip)
 {
     if (!successProcessing) return;
+
+    if (!MEFpastingFinished) return;
 
     if (!cdw->ui->nonlinearityCheckBox->isChecked()) return;
 
@@ -344,6 +352,8 @@ void Splitter::convertToElectrons(int chip)
 {
     if (!successProcessing) return;
 
+    if (!MEFpastingFinished) return;
+
     // cameras with multiple readout channels AND different gain per channel (but no overscan pasted into the data section)
     // WARNING: ASSUMPTIONS: applies to the size defined in camera.ini
     if (numReadoutChannels > 1) {
@@ -369,7 +379,10 @@ void Splitter::convertToElectrons(int chip)
     if (instData.name == "SuprimeCam_200808-201705@SUBARU") {
         return;
     }
-
+    if (multiChannelMultiExt.contains(instData.name)) {
+        // GMOS
+        return;
+    }
 
     for (auto &pixel : dataCurrent) {
         pixel *= gain[chip];
@@ -432,6 +445,8 @@ int Splitter::getRowXtalkMethod()
 void Splitter::correctXtalk()
 {
     if (!successProcessing) return;
+
+    if (!MEFpastingFinished) return;
 
     // Xtalk type
     bool doXtalkNor = cdw->ui->normalxtalkCheckBox->isChecked();

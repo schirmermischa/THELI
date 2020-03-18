@@ -57,6 +57,8 @@ public:
     int xtalkNorMethod = -1;
     int xtalkRowMethod = -1;
     bool alreadyProcessed = false;
+    bool MEFpastingFinished = true;
+
     // Nonlinearity
     QList<QVector<float>> nonlinearityCoefficients;
     // Overscan
@@ -72,6 +74,8 @@ public:
     QStringList dummyKeys;                         // Defined once in the controller, we just link to it
 
     QStringList headerTHELI;
+
+    QStringList multiChannelMultiExt;              // Contains all instruments having multiple readout channels, stored in separate FITS extensions
 
     bool successProcessing = true;
 
@@ -97,6 +101,9 @@ private:
     long naxis1 = 0;
     long naxis2 = 0;
     long naxis3 = 0;
+
+    long numAmpPerChip = 1;            // The number of amplifiers per detector
+    bool ampInSeparateExt = false;     // Whether the data from an amplifier is in a separate FITS extension (e.g., GMOS Hamamatsu, but not for SuprimeCam-2008)
 
     QVector<QVector<long>> overscanX;
     QVector<QVector<long>> overscanY;
@@ -144,6 +151,7 @@ private:
     QVector<float> dataCubeRaw;
     QVector<float> dataCurrent;
     QVector<float> dataXcorr;
+    QVector<float> dataPasted;  // Accumulates the data from readout channels in separate FITS extensions, until complete; Then transferred to dataCurrent;
 
     QString fullExtHeaderString;
     QString fullPrimaryHeaderString;
@@ -255,12 +263,18 @@ private:
     void doOverscanHorizontal(float (*combineFunction_ptr)(const QVector<float> &, const QVector<bool> &, long),
                               const QVector<long> &overscanArea, const QVector<long> dataVertices);
     void pasteMultiportIlluminatedSections(int chip);
-    void pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, const QVector<long> &sector,
+    void pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, const QVector<long> &secton,
                       const float corrFactor, const long nT, const long mT, const long nS, const long mS);
+    void pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, const QVector<long> &section,
+                      const float corrFactor, const long offx, const long offy, const long nT, const long mT,
+                      const long nS, const long mS);
     void testGROND();
     QVector<long> extractVerticesFromKeyword(QString keyword1, QString keyword2, QString keyword3, QString keyword4);
     QVector<long> extractReducedOverscanFromKeyword(QString keyword1, QString keyword2, int value3, int value4);
     QVector<long> extractReducedIlluminationFromKeyword(QString keyword1, QString keyword2, int value3, int value4);
+    void updateMEFpastingStatus(int chip);
+    bool individualFixCRPIX(int chip);
+    void getNumberOfAmplifiers();
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

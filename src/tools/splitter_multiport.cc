@@ -87,7 +87,8 @@ void Splitter::computeMultiportDataOffsets()
 // Collects information where in an image the overscan and illuminated pixel areas are located.
 // For "normal" cameras which have only a single readout channel, or where the differences between readout channels are negligible,
 // we just take the information from the camera.ini file.
-// For others, where multiple channels are pasted into a single FITS extension, we must reply on the headers and do individual implementations
+// For others, where multiple channels are pasted into a single FITS extension, or where different channels are in different FITS extensions,
+// we must rely on the headers and do individual implementations
 void Splitter::getMultiportInformation(int chip)
 {
     multiportOverscanSections.clear();
@@ -96,9 +97,6 @@ void Splitter::getMultiportInformation(int chip)
     multiportGains.clear();
     multiportOverscanDirections.clear();
     bool individualFixDone = false;
-
-    naxis1 = dataSection[chip][1] - dataSection[chip][0] + 1;
-    naxis2 = dataSection[chip][3] - dataSection[chip][2] + 1;
 
     //    if (instData.name == "GROND_OPT@MPGESO") {
     if (instNameFromData == "GROND_OPT@MPGESO") {
@@ -209,6 +207,88 @@ void Splitter::getMultiportInformation(int chip)
         return;
     }
 
+    // All Hamamatsu Gemini GMOS configurations. Single channel in single FITS extension
+    if ( multiChannelMultiExt.contains(instData.name) && instData.name.contains("GMOS")) {
+        int binning = 1;
+        QString binString = "";
+        searchKeyValue(QStringList() << "CCDSUM", binString);
+        if (binString.simplified() == "1 1") binning = 1;
+        else if (binString.simplified() == "2 2") binning = 2;
+        else {
+            emit messageAvailable(fileName + ": Invalid binning encountered: "+binString.simplified(), "error");
+            successProcessing = false;
+            return;
+        }
+        naxis1 = 2048 / binning;
+        naxis2 = 4224 / binning;
+
+        int naxis1channel = 0;
+        int naxis2channel = 0;
+        searchKeyValue(QStringList() << "NAXIS1", naxis1channel);
+        searchKeyValue(QStringList() << "NAXIS2", naxis2channel);
+        multiportOverscanDirections << "vertical";
+        multiportOverscanSections << extractVerticesFromKeyword("BIASSEC");      // given in binned units in the header
+        multiportIlluminatedSections << extractVerticesFromKeyword("DATASEC");   // given in binned units in the header
+        QVector<long> channelSection;
+        channelSection << 0 << naxis1channel - 1 << 0 << naxis2channel - 1;
+        multiportChannelSections << channelSection;                              // "DETSEC" has the illuminated section in CCD coordinates
+        //        for (auto &section : multiportChannelSections) {
+        //            for (auto &it : section) it /= binning;                              // maapping unbinned pixel space to binned pixel space
+        //        }
+        if (chip == 0 || chip == 4 || chip == 8) dataPasted.resize(naxis1 * naxis2);
+
+        float gainValue = 1.0;
+        if (instData.name == "GMOS-S-HAM@GEMINI" || instData.name == "GMOS-S-HAM_1x1@GEMINI") {
+            // Accurate amplifier gains are not available in the GMOS FITS headers
+            if (mjdobsValue < 57265.999988) {           // before 2015-08-31        // WARNING: these are the LOW gain modes. High gain mode is hardly used
+                if (chip == 0)       gainValue = 1.626;
+                else if (chip == 1)  gainValue = 1.700;
+                else if (chip == 2)  gainValue = 1.720;
+                else if (chip == 3)  gainValue = 1.652;
+                else if (chip == 4)  gainValue = 1.739;
+                else if (chip == 5)  gainValue = 1.673;
+                else if (chip == 6)  gainValue = 1.691;
+                else if (chip == 7)  gainValue = 1.664;
+                else if (chip == 8)  gainValue = 1.613;
+                else if (chip == 9)  gainValue = 1.510;
+                else if (chip == 10) gainValue = 1.510;
+                else if (chip == 11) gainValue = 1.519;
+            }
+            else {                                      // after 2015-08-31
+                if (chip == 0)       gainValue = 1.834;
+                else if (chip == 1)  gainValue = 1.874;
+                else if (chip == 2)  gainValue = 1.878;
+                else if (chip == 3)  gainValue = 1.852;
+                else if (chip == 4)  gainValue = 1.908;
+                else if (chip == 5)  gainValue = 1.933;
+                else if (chip == 6)  gainValue = 1.840;
+                else if (chip == 7)  gainValue = 1.878;
+                else if (chip == 8)  gainValue = 1.813;
+                else if (chip == 9)  gainValue = 1.724;
+                else if (chip == 10) gainValue = 1.761;
+                else if (chip == 11) gainValue = 1.652;
+            }
+        }
+        if (instData.name == "GMOS-N-HAM@GEMINI" || instData.name == "GMOS-N-HAM_1x1@GEMINI") {
+            if (chip == 0)       gainValue = 1.66;
+            else if (chip == 1)  gainValue = 1.63;
+            else if (chip == 2)  gainValue = 1.62;
+            else if (chip == 3)  gainValue = 1.57;
+            else if (chip == 4)  gainValue = 1.68;
+            else if (chip == 5)  gainValue = 1.65;
+            else if (chip == 6)  gainValue = 1.64;
+            else if (chip == 7)  gainValue = 1.68;
+            else if (chip == 8)  gainValue = 1.61;
+            else if (chip == 9)  gainValue = 1.63;
+            else if (chip == 10) gainValue = 1.58;
+            else if (chip == 11) gainValue = 1.65;
+        }
+        multiportGains << gainValue;
+        channelGains.clear();
+        channelGains << 1.0;   // dummy;
+        individualFixDone = true;
+    }
+
     if (multiportGains.length() != multiportOverscanSections.length()
             || multiportGains.length() != multiportIlluminatedSections.length()) {
         emit messageAvailable("Splitter::getMultiportInformation : Inconsistent number of channels for gain, overscan and data section: "
@@ -221,6 +301,8 @@ void Splitter::getMultiportInformation(int chip)
 
     // What to do for detectors that are not split up by several readout channels and overscans
     if (!individualFixDone) {
+        naxis1 = dataSection[chip][1] - dataSection[chip][0] + 1;
+        naxis2 = dataSection[chip][3] - dataSection[chip][2] + 1;
         // Append the overscan strips from the instrument.ini files, and padd the missing dimension
         QVector<long> overscan;
         if (!overscanX[chip].isEmpty()) {
@@ -245,18 +327,39 @@ void Splitter::getMultiportInformation(int chip)
 void Splitter::pasteMultiportIlluminatedSections(int chip)
 {
     // Paste the data sections into a single image of dimensions naxis1, naxis2
-    dataCurrent.resize(naxis1*naxis2);
-    //    long k = 0;   // the running 1D index in the pasted image
-    int channel = 0;
-    for (auto &section : multiportIlluminatedSections) {
-        if (section.length() != 4) continue; // skip wrong vertices, for whatever reason they might be here
-        pasteSubArea(dataCurrent, dataRaw, multiportIlluminatedSections[channel], multiportGains[channel], naxis1, naxis2, naxis1Raw, naxis2Raw);
-        ++channel;
+    if (!multiChannelMultiExt.contains(instData.name)) {
+        dataCurrent.resize(naxis1*naxis2);
+        //    long k = 0;   // the running 1D index in the pasted image
+        int channel = 0;
+        for (auto &section : multiportIlluminatedSections) {
+            if (section.length() != 4) continue; // skip wrong vertices, for whatever reason they might be here
+            pasteSubArea(dataCurrent, dataRaw, multiportIlluminatedSections[channel], multiportGains[channel], naxis1, naxis2, naxis1Raw, naxis2Raw);
+            ++channel;
+        }
+    }
+    // Individual exceptions (currently: GMOS only)
+    else {
+        int channel = 0;
+        for (auto &section : multiportIlluminatedSections) {
+            if (section.length() != 4) continue; // skip wrong vertices, for whatever reason they might be here
+            long offx = (chip % 4) * naxis1 / 4;
+            long offy = 0;
+            pasteSubArea(dataPasted, dataRaw, multiportIlluminatedSections[channel], multiportGains[channel],
+                         offx, offy, naxis1, naxis2, naxis1Raw, naxis2Raw);
+            ++channel;
+        }
+        if (chip == 3 || chip == 7 || chip == 11) {
+            // all channels have been pasted. Transfer the data to dataCurrent.
+            MEFpastingFinished = true;
+            dataCurrent.swap(dataPasted);
+            dataPasted.clear();
+            dataPasted.squeeze();
+        }
     }
 }
 
 // paste a subarea 'sector' (xmin, xmax, ymin, ymax) from source image "dataS" to target image "dataT",
-// Offsets are calculated internally, ssuming that data sections have equal sizes
+// Offsets are calculated internally, assuming that data sections have equal sizes
 void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, const QVector<long> &section, const float corrFactor,
                             const long nT, const long mT, const long nS, const long mS)
 {
@@ -271,8 +374,28 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
     long sizey = section[3] - section[2] + 1;     // section y-size
     long nsecx = section[0] / sizex;              // number of sections found to the left, using integer division
     long nsecy = section[2] / sizey;              // number of sections found below the botton, using integer division
-    long offx = nsecx * sizex;                // The offset for the current section in the pasted output geometry
-    long offy = nsecy * sizey;                // The offset for the current section in the pasted output geometry
+    long offx = nsecx * sizex;                    // The offset for the current section in the pasted output geometry
+    long offy = nsecy * sizey;                    // The offset for the current section in the pasted output geometry
+
+    for (long jS=jminS; jS<=jmaxS; ++jS) {
+        for (long iS=iminS; iS<=imaxS; ++iS) {
+            long iT = offx+iS-iminS;
+            long jT = offy+jS-jminS;
+            if (iT>=nT || iT<0 || jT>=mT || jT<0) continue;   // don't paste pixels falling outside target area
+            dataT[iT+nT*jT] = dataS[iS+nS*jS] * corrFactor;   // correcting for gain differences
+        }
+    }
+}
+
+// paste a subarea 'sector' (xmin, xmax, ymin, ymax) from source image "dataS" to target image "dataT",
+// offsets dx and dy are given explicitly
+void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, const QVector<long> &section, const float corrFactor,
+                            const long offx, const long offy, const long nT, const long mT, const long nS, const long mS)
+{
+    long iminS = section[0];
+    long imaxS = section[1];
+    long jminS = section[2];
+    long jmaxS = section[3];
 
     for (long jS=jminS; jS<=jmaxS; ++jS) {
         for (long iS=iminS; iS<=imaxS; ++iS) {
@@ -352,4 +475,20 @@ QVector<long> Splitter::extractReducedIlluminationFromKeyword(QString keyword1, 
     vertices << value1 - 1 << value2 - 1 << value3 - 1 << value4 - 1;   // The -1 accounts for C++ indexing starting at zero
 
     return vertices;
+}
+
+void Splitter::updateMEFpastingStatus(int chip)
+{
+    MEFpastingFinished = false;
+
+    if (!multiChannelMultiExt.contains(instData.name)) {
+        MEFpastingFinished = true;
+        return;
+    }
+
+    // The following instruments store the multiple readout channels of their detectors in separate FITS extensions, and must be pasted back together:
+    // Once the last channel has been read, we can paste the chips together
+    if (instData.name.contains("GMOS")) {
+        if (chip == 3 || chip == 7 || chip == 11) MEFpastingFinished = true;
+    }
 }

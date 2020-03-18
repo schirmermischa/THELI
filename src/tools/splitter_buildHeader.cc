@@ -164,6 +164,9 @@ void Splitter::buildTheliHeaderWCS(int chip)
 
 void Splitter::WCSbuildCRPIX(int chip)
 {
+    // Exceptions. Return if successful.
+    if (individualFixCRPIX(chip)) return;
+
     QStringList headerWCS;
 
     // CRPIXi: Rely on instrument.ini (Todo: scan .ahead files directly for multi-chip cameras)
@@ -315,6 +318,58 @@ bool Splitter::individualFixCRVAL()
         crval2_card.resize(80, ' ');
         headerWCS.append(crval1_card);
         headerWCS.append(crval2_card);
+        headerTHELI.append(headerWCS);
+    }
+
+    return individualFixDone;
+}
+
+bool Splitter::individualFixCRPIX(int chip)
+{
+    bool individualFixDone = false;
+
+    QStringList headerWCS;
+    QString crpix1_card = "";
+    QString crpix2_card = "";
+    float crpix1 = 0.;
+    float crpix2 = 0.;
+
+    // Leave if no individual fix is required.
+    if (!multiChannelMultiExt.contains(instData.name)) return false;
+
+    // Prepare fix.
+    // First, read coords and fix format (sometimes we have 'HH MM SS' instead of 'HH:MM:SS')
+    // Convert to decimal format if necessary
+    searchKeyValue(headerDictionary.value("CRPIX1"), crpix1);
+    searchKeyValue(headerDictionary.value("CRPIX2"), crpix2);
+
+    // Solutions per individual channel (will be ignored)
+    crpix1_card = "CRPIX1  = "+QString::number(crpix1, 'f', 2);
+    crpix2_card = "CRPIX2  = "+QString::number(crpix2, 'f', 2);
+
+    // Here are the individual fixes
+    if (instData.name == "GMOS-N-HAM_1x1@GEMINI" || instData.name == "GMOS-S-HAM_1x1@GEMINI") {
+        if (chip == 3) crpix1_card = "CRPIX1  = 3180";
+        if (chip == 7) crpix1_card = "CRPIX1  = 1088";
+        if (chip == 11) crpix1_card = "CRPIX1  = -1004";
+        crpix2_card = "CRPIX2  = 2304";
+        individualFixDone = true;
+    }
+
+    if (instData.name == "GMOS-N-HAM@GEMINI" || instData.name == "GMOS-S-HAM@GEMINI") {
+        if (chip == 3) crpix1_card = "CRPIX1  = 1589";
+        if (chip == 7) crpix1_card = "CRPIX1  = 544";
+        if (chip == 11) crpix1_card = "CRPIX1  = -502";
+        crpix2_card = "CRPIX2  = 1152";
+        individualFixDone = true;
+    }
+
+    // Append only when all channels of one chip have been read (i.e., 'individualFixDone' == true)
+    if (individualFixDone) {
+        crpix1_card.resize(80, ' ');
+        crpix2_card.resize(80, ' ');
+        headerWCS.append(crpix1_card);
+        headerWCS.append(crpix2_card);
         headerTHELI.append(headerWCS);
     }
 
@@ -634,6 +689,10 @@ bool Splitter::individualFixGAIN(int chip)
         chipGain = harmonicGain(multiportGains);
         individualFixDone = true;
     }
+    else if (instData.name.contains("GMOS-N-HAM") || instData.name.contains("GMOS-S-HAM")) {
+        chipGain = harmonicGain(multiportGains);
+        individualFixDone = true;
+    }
     else if (instData.name == "FORS1_199904-200703@VLT" || instData.name == "FORS2_200004-200203@VLT") {
         // 1-port read mode or 4-port read mode?
         numReadoutChannels = 0;
@@ -668,7 +727,12 @@ bool Splitter::individualFixGAIN(int chip)
         headerTHELI.append(card1);
         headerTHELI.append(card2);
 
-        gain[chip] = chipGain;        // not applied for e.g. SuprimeCam_200808-201705
+        if (instData.name.contains("GMOS-N-HAM") || instData.name.contains("GMOS-S-HAM")) {
+            gain[chip/4] = chipGain;
+        }
+        else {
+            gain[chip] = chipGain;        // not applied for e.g. SuprimeCam_200808-201705
+        }
     }
 
     return individualFixDone;
