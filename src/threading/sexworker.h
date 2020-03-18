@@ -23,6 +23,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "worker.h"
 
 #include <QObject>
+#include <QProcess>
 
 class SexWorker : public Worker
 {
@@ -33,6 +34,9 @@ public:
 
     QString sexCommand;
     QString sexDirName;
+    QProcess *extProcess;
+
+    void abort();  // Currently not used anywhere
 
 public slots:
     void runSex();

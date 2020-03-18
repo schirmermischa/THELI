@@ -184,6 +184,9 @@ void Controller::taskInternalGetCatalogFromIMAGE()
 
 void Controller::taskInternalResolveTarget()
 {
+    cdw->ui->ARCpmRALineEdit->clear();
+    cdw->ui->ARCpmDECLineEdit->clear();
+
     QString targetName = cdw->ui->ARCtargetresolverLineEdit->text();
     if (targetName.isEmpty()) return;
 

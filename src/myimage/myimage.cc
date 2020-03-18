@@ -1115,9 +1115,9 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
 // Used by iview
 void MyImage::updateCRPIXOnDrive()
 {
-    qDebug() << "H1" << successProcessing << imageOnDrive;
+//    qDebug() << "H1" << successProcessing << imageOnDrive;
     if (!successProcessing) return;
-    qDebug() << "H2" << path << chipName << processingStatus->statusString;
+//    qDebug() << "H2" << path << chipName << processingStatus->statusString;
 
     int status = 0;
     fitsfile *fptr = nullptr;
@@ -1125,7 +1125,7 @@ void MyImage::updateCRPIXOnDrive()
     fits_update_key_flt(fptr, "CRPIX1", astromCRPIX1, 3, nullptr, &status);
     fits_update_key_flt(fptr, "CRPIX2", astromCRPIX2, 3, nullptr, &status);
     fits_close_file(fptr, &status);
-    qDebug() << "H3" << status;
+//    qDebug() << "H3" << status;
     printCfitsioError("updateZeroOrderOnDrive()", status);
 }
 
@@ -1176,12 +1176,14 @@ void MyImage::updateZeroOrderInMemory()
 void MyImage::updateCRVALinHeaderOnDrive()
 {
     // Must write file to drive (scamp reads the header information) if it does not exist yet
-    QFile file(path+ "/" + baseName + ".fits");
-    if (!file.exists()) writeImage(path+ "/" + baseName + ".fits");
+    QString outfile = path+"/"+chipName+processingStatus->statusString+".fits";
+   //  QFile file(path+ "/" + baseName + ".fits");
+    QFile file(outfile);
+    if (!file.exists()) writeImage(outfile);
 
     int status = 0;
     fitsfile *fptr = nullptr;
-    fits_open_file(&fptr, (path+"/"+name).toUtf8().data(), READWRITE, &status);
+    fits_open_file(&fptr, (outfile).toUtf8().data(), READWRITE, &status);
     fits_update_key_dbl(fptr, "CRVAL1", crval1, 6, nullptr, &status);
     fits_update_key_dbl(fptr, "CRVAL2", crval2, 6, nullptr, &status);
     fits_close_file(fptr, &status);
@@ -1191,12 +1193,13 @@ void MyImage::updateCRVALinHeaderOnDrive()
 void MyImage::updateCRVALCDinHeaderOnDrive()
 {
     // Must write file to disk (scamp reads the header information) if it does not exist yet
-    QFile file(path+ "/" + baseName + ".fits");
-    if (!file.exists()) writeImage(path+ "/" + baseName + ".fits");
+    QString outfile = path+"/"+chipName+processingStatus->statusString+".fits";
+    QFile file(outfile);
+    if (!file.exists()) writeImage(outfile);
 
     int status = 0;
     fitsfile *fptr = nullptr;
-    fits_open_file(&fptr, (path+"/"+name).toUtf8().data(), READWRITE, &status);
+    fits_open_file(&fptr, (outfile).toUtf8().data(), READWRITE, &status);
     fits_update_key_dbl(fptr, "CRVAL1", crval1, 6, nullptr, &status);
     fits_update_key_dbl(fptr, "CRVAL2", crval2, 6, nullptr, &status);
     fits_update_key_flt(fptr, "CD1_1", myWCS.cd1_1, 6, nullptr, &status);

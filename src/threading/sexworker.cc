@@ -18,6 +18,7 @@ If not, see https://www.gnu.org/licenses/ .
 */
 
 #include "sexworker.h"
+#include "../functions.h"
 
 #include <QProcess>
 #include <QTest>
@@ -30,13 +31,13 @@ SexWorker::SexWorker(QString command, QString dir, QObject *parent) : Worker(par
 
 void SexWorker::runSex()
 {
-    QProcess extProcess;
-    connect(&extProcess, &QProcess::readyReadStandardOutput, this, &SexWorker::processExternalStdout);
-    connect(&extProcess, &QProcess::readyReadStandardError, this, &SexWorker::processExternalStderr);
+    extProcess = new QProcess();
+    connect(extProcess, &QProcess::readyReadStandardOutput, this, &SexWorker::processExternalStdout);
+    connect(extProcess, &QProcess::readyReadStandardError, this, &SexWorker::processExternalStderr);
     QTest::qWait(300);   // If I don't do this, the GUI crashes. It seems the process produces an output faster than the connection can be made ...
-    extProcess.setWorkingDirectory(sexDirName);
-    extProcess.start("/bin/sh -c \""+sexCommand+"\"");
-    extProcess.waitForFinished(-1);
+    extProcess->setWorkingDirectory(sexDirName);
+    extProcess->start("/bin/sh -c \""+sexCommand+"\"");
+    extProcess->waitForFinished(-1);
 
     emit finished();
     // stdout and stderr channels are slotted into the monitor's plainTextEdit
@@ -72,4 +73,16 @@ void SexWorker::processExternalStderr()
             break;
         }
     }
+}
+
+void SexWorker::abort()
+{
+    // First, kill the children
+    long pid = extProcess->processId();
+    killProcessChildren(pid);
+
+    // The kill the process that invokes the commandline task
+    extProcess->kill();
+
+    emit finished();
 }

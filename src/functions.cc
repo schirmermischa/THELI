@@ -445,6 +445,18 @@ void initEnvironment(QString &thelidir, QString &userdir, QString &tmpdir)
     delete sysInfo;
 }
 
+void killProcessChildren(qint64 parentProcessId) {
+
+    QProcess get_children;
+    QStringList get_children_cmd;
+    get_children_cmd << "--ppid" << QString::number(parentProcessId) << "-o" << "pid" << "--no-heading";
+    get_children.start("ps", get_children_cmd);
+    get_children.waitForFinished();
+    QString childIds(get_children.readAllStandardOutput());
+    childIds.replace('\n', ' ');
+
+    QProcess::execute("kill -9 " + childIds);
+}
 
 // Returns the memory in kB
 long get_memory()

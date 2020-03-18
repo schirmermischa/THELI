@@ -18,6 +18,7 @@ If not, see https://www.gnu.org/licenses/ .
 */
 
 #include "swarpworker.h"
+#include "../functions.h"
 
 #include <QProcess>
 #include <QTest>
@@ -50,6 +51,11 @@ void SwarpWorker::runSwarp()
 
 void SwarpWorker::abort()
 {
+    // First, kill the children
+    long pid = extProcess->processId();
+    killProcessChildren(pid);
+
+    // The kill the process that invokes the commandline task
     extProcess->kill();
     emit finished();
 }

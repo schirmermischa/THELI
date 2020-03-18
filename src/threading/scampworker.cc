@@ -18,6 +18,7 @@ If not, see https://www.gnu.org/licenses/ .
 */
 
 #include "scampworker.h"
+#include "../functions.h"
 
 #include <QProcess>
 #include <QTest>
@@ -66,7 +67,13 @@ void ScampWorker::runScamp()
 
 void ScampWorker::abort()
 {
+    // First, kill the children
+    long pid = extProcess->processId();
+    killProcessChildren(pid);
+
+    // The kill the process that invokes the commandline task
     extProcess->kill();
+
     emit finished();
 }
 
