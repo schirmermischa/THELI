@@ -151,8 +151,10 @@ void ProcessingStatus::inferStatusFromFilenames()
 }
 
 // This does not work if raw data have e.g. the form fsr_1075_03_c2.fits (FourStar).
-// It would return 'c'.
+// It would return 'c'. Or in case of Gemini, e.g. S20191231S0495.fits, it would return 'SS'
 // Hence this function must not be called if no processing has taken place yet.
+// UPDATE: This function IS called when initializing the Data class. But inside that initialization, we check for RAW data,
+// and if any are found, the status string and internal data are reset.
 QString ProcessingStatus::extractStatusFromFilename(QString &filename)
 {
     QString id = getLastWord(filename, '_');

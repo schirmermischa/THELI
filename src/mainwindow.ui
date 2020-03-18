@@ -1377,7 +1377,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="processingTabWidgetPage1">
        <attribute name="title">

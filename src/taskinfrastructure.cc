@@ -650,6 +650,7 @@ bool MainWindow::OSPBC_addCommandBlock(const QString taskBasename, const QString
     return true;
 }
 
+// UNUSED
 // Check if a task is on the currently displayed stack widget page
 bool MainWindow::OSPBC_isTaskCurrentlyVisible(QCheckBox *cb)
 {

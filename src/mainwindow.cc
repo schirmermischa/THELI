@@ -203,11 +203,15 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
             << object->DELTA_J2000 << object->A << object->B << object->THETA << object->XWIN << object->YWIN << object->CXX << object->CYY << object->CXY;
     }
     */
-    // Need this after connecting status dirs to paint checkboxes correctly.
-    // Doesn't work if done further above, not sure why
-    status.updateStatus();
 
     memoryViewer->populate();
+    // Need this after connecting status dirs to paint checkboxes correctly.
+    // Doesn't work if done further above, not sure why
+
+    // Does the right thing (repaint check boxes), but it seems random at best. Only updates tabwidet shown
+    status.updateStatus();
+
+    update();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -1547,6 +1551,7 @@ void MainWindow::on_processingTabWidget_currentChanged(int index)
         // Fill the coadd filter combobox with values
     }
     writeGUISettings();
+    update();
 }
 
 void MainWindow::shutDown()

@@ -78,12 +78,10 @@ void Status::updateStatus()
 {
     int i=0;
     QPalette palette;
+
     for (auto &checked : listHistory) {
         if (checked) palette.setColor(QPalette::Button, QColor("#33e3cc"));
         else palette.setColor(QPalette::Button, QColor("#eeffff"));
-
-        // Update actions
-//        listStatusActions.operator[](i)->setChecked(checked);
 
         // Paint checkbox background
         listCheckBox.operator[](i)->setPalette(palette);

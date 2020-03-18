@@ -272,10 +272,16 @@ bool Data::checkForRawData()
         fits_close_file(fptr, &status);
     }
 
-    if (numProcessedFiles == 0 && numRawFiles > 0) return true;
+    if (numProcessedFiles == 0 && numRawFiles > 0) {
+        processingStatus->deleteFromDrive();
+        processingStatus->reset();
+        return true;
+    }
     else if (numProcessedFiles == 0 && numRawFiles == 0) return true;
     else if (numProcessedFiles > 0 && numRawFiles == 0) return false;
     else {
+        processingStatus->deleteFromDrive();
+        processingStatus->reset();
         qDebug() << "Data::checkForRawData(): " << subDirName << numProcessedFiles << numRawFiles;
         qDebug() << "Both processed and RAW files were found. This status is not allowed";
         // (numProcessedFiles > 0 && numRawFiles > 0) {
