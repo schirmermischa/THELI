@@ -219,6 +219,7 @@ void Controller::taskInternalIndividualweight()
         releaseMemory(nimg*instData->storage, maxCPU);
 
         auto &it = allMyImages[k];
+
         if (!it->successProcessing) continue;
         int chip = it->chipNumber - 1;
         if (verbosity >= 0) emit messageAvailable(it->chipName + " : Creating weight map ...", "image");

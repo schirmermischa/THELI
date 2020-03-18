@@ -293,6 +293,7 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
         it->setupData(scienceData->isTaskRepeated, false, false);
         it->resetObjectMasking();
         it->backgroundModelDone = false;
+        it->readWeight();
         it->backgroundModel(kernel, "interpolate");
         it->segmentImage(DT, DMIN, true, false);
         it->transferObjectsToMask();
@@ -403,6 +404,7 @@ void Controller::skysubConstantEachChip(Data *scienceData, QString DT, QString D
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
         it->resetObjectMasking();
         it->backgroundModelDone = false;
+        it->readWeight();
         it->backgroundModel(kernel, "interpolate");
         it->segmentImage(DT, DMIN, true, false);
         it->transferObjectsToMask();

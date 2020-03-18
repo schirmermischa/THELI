@@ -36,6 +36,7 @@ Mask::Mask(instrumentDataType *instrumentData, QObject *parent) : QObject(parent
 void Mask::initMasks()
 {
     // We need as many masks as we have chips
+
     globalMask.resize(instData->numChips);
     isChipMasked.resize(instData->numChips);
 

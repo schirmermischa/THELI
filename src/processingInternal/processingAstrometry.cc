@@ -129,6 +129,7 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
         if (!it->successProcessing) continue;
         if (verbosity > 1 ) emit messageAvailable(it->chipName + " : Creating source catalog ...", "image");
         it->setupDataInMemorySimple(true);
+        it->readWeight();
         it->backgroundModel(256, "interpolate");
         it->updateSaturation(saturation);
         if (it->dataBackground.capacity() == 0) {

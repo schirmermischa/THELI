@@ -249,7 +249,7 @@ public:
     QVector<bool> objectMask;      // Object mask (used for background modeling and sky subtraction)
     bool isMasked = false;
     bool backgroundPushedDown = false;  // Used to detect whether a backup copy was made already during twopass background correction
-    bool globalMaskAvailable = true;  // Unless we load an external image, e.g. for absolute zeropoint
+    bool globalMaskAvailable = true;    // Unless we load an external image, e.g. for absolute zeropoint
 
     // Memory stages (to decide what can be deleted and what not)
     bool dataRaw_deletable = false;

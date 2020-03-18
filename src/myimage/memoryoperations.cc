@@ -513,7 +513,13 @@ void MyImage::freeData(QVector<float> &data)
 {
     data.clear();
     data.squeeze();
-    imageInMemory = false;
+    if (&data == &dataCurrent) imageInMemory = false;
+    else if (&data == &dataWeight) weightInMemory = false;
+    else if (&data == &dataRaw) RAWInMemory = false;
+    else if (&data == &dataBackupL1) backupL1InMemory = false;
+    else if (&data == &dataBackupL2) backupL2InMemory = false;
+    else if (&data == &dataBackupL3) backupL3InMemory = false;
+
     emit modelUpdateNeeded(baseName, chipName);
 }
 
@@ -672,9 +678,10 @@ void MyImage::freeAll()
     freeData(dataBackupL3);
     freeData(dataCurrent);
     freeData(dataWeight);
-    globalMask.clear();
-    globalMask.squeeze();
-    imageInMemory = false;
+//    globalMask.clear();         should be handled by Controller class; shared entity across all myimages
+//    globalMask.squeeze();
+//    imageInMemory = false;      // now handled in freeData(QVector<float> &data) itself
+//    weightInMemory = false;
     emit modelUpdateNeeded(baseName, chipName);
     emit setMemoryLock(false);
 }
