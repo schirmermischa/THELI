@@ -472,7 +472,7 @@
        <number>1</number>
       </property>
       <property name="currentIndex">
-       <number>8</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="HDUpage">
        <layout class="QGridLayout" name="gridLayout_22">
@@ -11241,7 +11241,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <item row="1" column="0">
               <widget class="QLabel" name="label_36">
                <property name="text">
-                <string>Kernel si&amp;ze</string>
+                <string>Kernel size</string>
                </property>
                <property name="buddy">
                 <cstring>CGWflatsmoothLineEdit</cstring>
@@ -11391,7 +11391,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <item row="4" column="0">
               <widget class="QLabel" name="label_39">
                <property name="text">
-                <string>Cl&amp;uster tolerance</string>
+                <string>Cluster tolerance</string>
                </property>
                <property name="buddy">
                 <cstring>CGWflatclustolLineEdit</cstring>
@@ -11934,7 +11934,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <item row="0" column="0">
               <widget class="QLabel" name="confIndWMinLabel">
                <property name="text">
-                <string>Image min ADU</string>
+                <string>Image min value</string>
                </property>
                <property name="buddy">
                 <cstring>CIWminaduLineEdit</cstring>
@@ -11963,7 +11963,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <item row="1" column="0">
               <widget class="QLabel" name="confIndWMaxLabel">
                <property name="text">
-                <string>Image ma&amp;x ADU</string>
+                <string>Image max value</string>
                </property>
                <property name="buddy">
                 <cstring>CIWmaxaduLineEdit</cstring>
@@ -13473,7 +13473,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <item row="3" column="1">
               <widget class="QLabel" name="confIndWBloomMinLabel">
                <property name="text">
-                <string>&amp;Min ADU</string>
+                <string>Min value</string>
                </property>
                <property name="buddy">
                 <cstring>CIWbloomMinaduLineEdit</cstring>
@@ -18641,8 +18641,11 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              </item>
              <item row="2" column="0">
               <widget class="QLabel" name="confSourcecatSaturationLabel">
+               <property name="statusTip">
+                <string>The image value above which saturation occurs</string>
+               </property>
                <property name="text">
-                <string>Saturation [ ADU ]</string>
+                <string>Saturation value [e-]</string>
                </property>
               </widget>
              </item>
