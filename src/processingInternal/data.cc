@@ -2037,7 +2037,10 @@ void Data::populate(QString statusString)
             connect(myImage, &MyImage::setWCSLock, this, &Data::setWCSLockReceived, Qt::DirectConnection);
             myImage->imageOnDrive = true;
             myImageList[chip].append(myImage);
-            if (!uniqueChips.contains(chip+1)) uniqueChips.push_back(chip+1);
+#pragma omp critical
+            {
+                if (!uniqueChips.contains(chip+1)) uniqueChips.push_back(chip+1);
+            }
         }
 #pragma omp atomic
         numImages += myImageList[chip].length();
@@ -2626,8 +2629,8 @@ void Data::restoreRAWDATA()
     emit setMemoryLock(false);
     QString newStatus = "";
     processingStatus->deleteFromDrive();
-//    processingStatus->reset();
-//    processingStatus->writeToDrive();
+    //    processingStatus->reset();
+    //    processingStatus->writeToDrive();
     emit statusChanged(newStatus);
     emit updateModelHeaderLine();
 }

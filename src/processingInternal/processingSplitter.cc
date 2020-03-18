@@ -135,7 +135,7 @@ void Controller::finalizeSplitter(Data *data)
         }
     }
     data->emitStatusChanged();
-    //        emit populateMemoryView();
+    emit populateMemoryView();
 }
 
 // Multi-chip cameras must have uniform MJD-OBS, otherwise "exposures" cannot be identified unambiguously
