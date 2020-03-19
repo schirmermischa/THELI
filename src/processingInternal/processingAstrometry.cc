@@ -804,7 +804,7 @@ void Controller::doImageQualityAnalysis()
         it->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag);
         // match
         bool gaia = imageQuality->getSeeingFromGaia();
-        if (!gaia) imageQuality->getSeeingFromRhMag();
+//        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: Not yet implemented
         if (verbosity > 1) emit messageAvailable(it->baseName + " : FWHM / Ellipticity = "
                                                  + QString::number(imageQuality->fwhm, 'f', 3) + " / "
                                                  + QString::number(imageQuality->ellipticity, 'f', 3), "ignore");

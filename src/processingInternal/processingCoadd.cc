@@ -948,7 +948,7 @@ void Controller::coaddUpdate()
         coadd->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag);
         // match
         bool gaia = imageQuality->getSeeingFromGaia();
-        if (!gaia) imageQuality->getSeeingFromRhMag();
+//        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: not yet implemented
         seeing_world = imageQuality->fwhm;
         seeing_image = seeing_world / pixelScale.toFloat();
         emit messageAvailable("coadd.fits : FWHM = " + QString::number(seeing_world, 'f', 2) + "\"  ("

@@ -246,7 +246,7 @@ void MyImage::maskBloomingSpike(QString instType, QString range, QString minVal,
         ++k;
     }
 
-    // The ADU thresholds for a blooming spikes
+    // The count thresholds for blooming spikes
     float bloommin = 0.;
     float bloommax = 0.;
     if (!bloomMin.isEmpty() && !bloomMax.isEmpty()) {

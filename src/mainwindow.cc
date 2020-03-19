@@ -199,7 +199,8 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     // Does the right thing (repaint check boxes), but it seems random at best. Only updates tabwidet shown
     status.updateStatus();
 
-    update();
+    // repaint; doesn't seem to help in painting the checkboxes correctly
+//    update();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

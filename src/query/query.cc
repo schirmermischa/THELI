@@ -230,6 +230,8 @@ void Query::initAstromQuery()
 void Query::initGaiaQuery()
 {
     getCatalogSearchLocationAstrom();
+    // search radius is provided explicitly only by the coaddition. Otherwise, we have to determine it
+    if (radius_string.isEmpty()) getCatalogSearchRadiusAstrom();
 
     // Make declination explicitly positive (sometimes the cdsclient wants that, or wanted that)
     if (!delta_string.contains('-') && !delta_string.contains('+') ) delta_string.prepend('+');

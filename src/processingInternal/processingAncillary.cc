@@ -122,7 +122,7 @@ void Controller::collectGaiaRaDec(MyImage *image, QVector<double> &dec, QVector<
 
     for (long i=0; i<dim; ++i) {
         // Only include refcat sources that are within the footprint of the image.
-        // Othwerwise, with very large multichip cameras, there is a severe overhead for every chip
+        // Otherwise, with very large multichip cameras, there is a severe overhead for every chip
         if (ra[i] >= alpha_min && ra[i] <= alpha_max && dec[i] >= delta_min && dec[i] <= delta_max) {
             QVector<double> result(3);
             result[0] = dec[i];
