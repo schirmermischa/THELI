@@ -476,7 +476,7 @@ void MainWindow::initGUI()
     ui->setupProjectResetToolButton->setIcon(projectReset);
     ui->setupProjectResetDataToolButton->setIcon(projectDataReset);
 
-    this->setWindowTitle("THELI GUI "+GUIVERSION+"      Project: "+ui->setupProjectLineEdit->text());
+    this->setWindowTitle("THELI "+GUIVERSION+"      Project: "+ui->setupProjectLineEdit->text());
 
     // Check the status of currently selected tasks (if any; simulator mode)
     // and push a suitable message to plainTextedit
