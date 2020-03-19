@@ -530,7 +530,8 @@ void Controller::coaddPrepareBuildSwarpCommand(QString refRA, QString refDE)
 
     statusOld = coaddScienceData->processingStatus->statusString;
 
-    swarpCommand = "swarp *"+statusOld+".fits";
+    QString swarp = findExecutableName("swarp");
+    swarpCommand = swarp + " *"+statusOld+".fits";
     swarpCommand += " -NTHREADS " + QString::number(maxCPU);
     swarpCommand += " -CENTER "+refRA+","+refDE;
     swarpCommand += " -CENTER_TYPE MANUAL";
@@ -564,7 +565,8 @@ void Controller::coaddResampleBuildSwarpCommand(QString imageList, int i)
 
     statusOld = coaddScienceData->processingStatus->statusString;
 
-    swarpCommand = "swarp @"+imageList;
+    QString swarp = findExecutableName("swarp");
+    swarpCommand = swarp +" @"+imageList;
     swarpCommand += " -NTHREADS 1";  // Launching maxCPU externally
     //    swarpCommand += " -NTHREADS " + QString::number(maxExternalThreads);
     swarpCommand += " -RESAMPLE Y";
@@ -599,7 +601,8 @@ void Controller::coaddCoadditionBuildSwarpCommand(QString imageList)
 
     statusOld = coaddScienceData->processingStatus->statusString;
 
-    swarpCommand = "swarp @"+imageList;
+    QString swarp = findExecutableName("swarp");
+    swarpCommand = swarp +" @"+imageList;
     swarpCommand += " -NTHREADS " + QString::number(maxCPU);
     swarpCommand += " -RESAMPLE N";
     swarpCommand += " -COMBINE Y";
@@ -932,7 +935,7 @@ void Controller::coaddUpdate()
         emit messageAvailable("coadd.fits : Modeling background ...", "image");
         coadd->backgroundModel(256, "interpolate");
         emit messageAvailable("coadd.fits : Detecting sources ...", "image");
-        coadd->segmentImage("10", "3", true, true);
+        coadd->segmentImage("10", "3", true, false);
         coadd->estimateMatchingTolerance();
 
         ImageQuality *imageQuality = new ImageQuality(coaddScienceData, instData, mainDirName);

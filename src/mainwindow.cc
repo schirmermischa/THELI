@@ -192,18 +192,6 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
 
     doingInitialLaunch = false;
 
-    /*
-    QVector<bool> maskit(2410236, false);
-    MyImage bla("/data1/hannah_0101.A-0694/BIN_2/FLAT/sextest/", "sub.fits", "", 0, maskit, false);
-    bla.readImage(false);
-    bla.backgroundModel(100, "interpolate");
-    bla.segmentImage("5", "5", true, false);
-    for (auto &object : bla.objectList) {
-        qDebug() << object->X << object->Y << object->FLUX_RADIUS << object->MAG_AUTO << object->ALPHA_J2000
-            << object->DELTA_J2000 << object->A << object->B << object->THETA << object->XWIN << object->YWIN << object->CXX << object->CYY << object->CXY;
-    }
-    */
-
     memoryViewer->populate();
     // Need this after connecting status dirs to paint checkboxes correctly.
     // Doesn't work if done further above, not sure why

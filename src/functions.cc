@@ -34,6 +34,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QStandardItemModel>
 #include <QStorageInfo>
 #include <QProgressBar>
+#include <QStandardPaths>
 
 QString boolToString(bool test)
 {
@@ -443,6 +444,35 @@ void initEnvironment(QString &thelidir, QString &userdir, QString &tmpdir)
     tmpdir.replace("//","/");
 
     delete sysInfo;
+}
+
+QString findExecutableName(QString program)
+{
+    QStringList sexlist = {"sex", "sextractor", "SExtractor", "source-extractor"};
+    QStringList scamplist = {"scamp", "Scamp"};
+    QStringList swarplist = {"swarp", "Swarp", "SWarp"};
+
+    QString commandname = "";
+    if (program == "sex") {
+        for (auto &it : sexlist) {
+            commandname = QStandardPaths::findExecutable(it);
+            if (!commandname.isEmpty()) break;
+        }
+    }
+    else if (program == "scamp") {
+        for (auto &it : scamplist) {
+            commandname = QStandardPaths::findExecutable(it);
+            if (!commandname.isEmpty()) break;
+        }
+    }
+    else if (program == "swarp") {
+        for (auto &it : swarplist) {
+            commandname = QStandardPaths::findExecutable(it);
+            if (!commandname.isEmpty()) break;
+        }
+    }
+
+    return commandname;
 }
 
 void killProcessChildren(qint64 parentProcessId) {

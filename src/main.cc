@@ -74,9 +74,9 @@ void dependencyCheck()
     // Dependency checks
     QString vizquery = QStandardPaths::findExecutable("vizquery.py");
     QString sesame = QStandardPaths::findExecutable("sesame");
-    QString scamp = QStandardPaths::findExecutable("scamp");
-    QString swarp = QStandardPaths::findExecutable("swarp");
-    QString sex = QStandardPaths::findExecutable("sex");
+    QString scamp = findExecutableName("scamp");    // testing different executable names
+    QString swarp = findExecutableName("swarp");
+    QString sex = findExecutableName("sex");
 
     QString vizqueryDep = "";
     QString sesameDep = "";
@@ -97,12 +97,12 @@ void dependencyCheck()
     }
 
     if (scamp.isEmpty()) {
-        scampDep = "'Scamp' v2.7.7 or later required (binary name must be: 'scamp').\nhttps://github.com/astromatic/scamp\n";
+        scampDep = "'Scamp' v2.7.7 or later required (working binary name: 'scamp').\nhttps://github.com/astromatic/scamp\n";
         ++missingDep;
     }
     else {
         // Check if scamp has the right version
-        QString scampCommand = "scamp -v";
+        QString scampCommand = scamp + " -v";
         QString result = read_system_command(scampCommand);
         QStringList list = result.split(" ");
         if (list.length() < 3) {
@@ -120,11 +120,11 @@ void dependencyCheck()
     }
 
     if (swarp.isEmpty()) {
-        swarpDep = "'Swarp' v2.38.0 or later required (binary name must be: 'swarp').\nhttps://www.astromatic.net/software/swarp\n";
+        swarpDep = "'Swarp' v2.38.0 or later required (working binary name: 'swarp').\nhttps://github.com/astromatic/swarp\n";
     }
     else {
         // Check if swarp has the right version
-        QString swarpCommand = "swarp -v";
+        QString swarpCommand = swarp + " -v";
         QString result = read_system_command(swarpCommand);
         QStringList list = result.split(" ");
         if (list.length() < 3) {
@@ -135,29 +135,39 @@ void dependencyCheck()
             // Minimum swarp version required: 2.38.0
             int version = list[2].remove('.').toInt();
             if (version < 2380) {
-                swarpDep = "'swarp' v2.38.0 or later required.\nhttps://www.astromatic.net/software/swarp\nInstalled:  " + result + "\n";
+                swarpDep = "'swarp' v2.38.0 or later required.\nhttps://github.com/astromatic/swarp\nInstalled:  " + result + "\n";
                 ++missingDep;
             }
         }
     }
 
     if (sex.isEmpty()) {
-        sexDep = "'SExtractor' v2.19.5 or later required (binary name must be: 'sex').\nhttps://www.astromatic.net/software/sextractor\n";
+        sexDep = "'SExtractor' v2.19.5 or later required (working binary name: 'sex').\nhttps://github.com/astromatic/sextractor\n";
     }
     else {
         // Check if sextractor has the right version
-        QString sexCommand = "sex -v";
+        // expected formats are:
+        // SExtractor version 2.25.0 (2020-03-19)
+        // Source Extractor version 2.25.0 (2018-02-08)
+        QString sexCommand = sex + " -v";
         QString result = read_system_command(sexCommand);
+        QString resultOrig = result;
+        result.remove("SExtractor", Qt::CaseInsensitive);
+        result.remove("Source", Qt::CaseInsensitive);
+        result.remove("Extractor", Qt::CaseInsensitive);
+        result.remove("version", Qt::CaseInsensitive);
+        result = result.simplified();
+
         QStringList list = result.split(" ");
-        if (list.length() < 3) {
-            qDebug() << "WARNING: Unexpected output format when checking sex version:" << result;
+        if (list.length() != 2) {
+            qDebug() << "WARNING: Unexpected output format when checking SExtractor version:" << resultOrig;
             qDebug() << "WARNING: Required version: 2.19.5 or later";
         }
         else {
             // Minimum sex version required: 2.19.5
-            int version = list[2].remove('.').toInt();
+            int version = list[0].remove('.').toInt();
             if (version < 2195) {
-                sexDep = "'SExtractor' v2.19.5 or later required.\nhttps://www.astromatic.net/software/sextractor\nInstalled:  " + result + "\n";
+                sexDep = "'SExtractor' v2.19.5 or later required.\nhttps://github.com/astromatic/sextractor\nInstalled:  " + result + "\n";
                 ++missingDep;
             }
         }

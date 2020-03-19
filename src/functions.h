@@ -51,6 +51,7 @@ QString get_fileparameter(QFile *, QString, QString warn = "");
 QString get_fileHeaderParameter(QFile *file, QString parametername);
 QString get_fileparameter_vector(QFile *, QString, QString warn = "");
 QVector<int> get_fileparameter_FullVector(QFile *file, QString parametername);
+QString findExecutableName(QString program);
 void killProcessChildren(qint64 parentProcessId);
 long get_memory();
 void showLogfile(QString logname, QString line = "");

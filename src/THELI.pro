@@ -231,6 +231,7 @@ QMAKE_LFLAGS  +=  -fopenmp
 # INCLUDEPATH += /usr/local/include/SPLINTER/
 # LIBS += -lcfitsio -lcurl -lpthread -lfftw3_omp -lfftw3 -lsplinter-4-0 -lm -lgsl -lgslcblas
 
-INCLUDEPATH += /usr/local/include/wcslib-6.4/
+INCLUDEPATH += /usr/include/wcslib/
+INCLUDEPATH += /usr/local/include/wcslib/
 
 LIBS += -lcfitsio -lcurl -lfftw3_omp -lfftw3 -lm -lgsl -lgslcblas -lwcs -ltiff -lraw

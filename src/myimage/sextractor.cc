@@ -44,7 +44,8 @@ void MyImage::buildSexCommand()
     // Create the 'cat/' sub-directory if it does not exist yet.
     mkAbsDir(path+"/cat/iview/");
 
-    sexCommand = "sex ";
+    QString sex = findExecutableName("sex");
+    sexCommand = sex + " ";
     sexCommand += path + "/" + chipName + processingStatus->statusString + ".fits";
     sexCommand += " -CATALOG_NAME " + path+"/cat/" + chipName + ".cat";
     sexCommand += " -WEIGHT_IMAGE " + weightPath + "/" + chipName + ".weight.fits";

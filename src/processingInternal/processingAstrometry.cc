@@ -1027,7 +1027,7 @@ void Controller::buildScampCommand(Data *scienceData)
     QString distKeysUser = cdw->ui->ASTdistortkeysLineEdit->text();
     if (!distKeysUser.isEmpty()) distKeys.append(","+distKeysUser);
 
-    scampCommand = "scamp ";
+    scampCommand = findExecutableName("scamp");
     scampCommand += " @"+tmpdir+"/scamp_cats";
     scampCommand += " -NTHREADS " + QString::number(maxCPU);
     scampCommand += " -ASTREF_CATALOG FILE";
