@@ -72,7 +72,7 @@ void Controller::provideHeaderInfo(Data *scienceData)
 
 void Controller::downloadGaiaCatalog(Data *scienceData)
 {
-//    int verbosity = 0;
+    //    int verbosity = 0;
     gaiaQuery = new Query(&verbosity);
     connect(gaiaQuery, &Query::messageAvailable, this, &Controller::messageAvailableReceived);
     connect(gaiaQuery, &Query::critical, this, &Controller::criticalReceived);
@@ -91,7 +91,7 @@ void Controller::downloadGaiaCatalog(Data *scienceData)
 // Overload, to set the image size from the coadded image, and not from the images in the Data class
 void Controller::downloadGaiaCatalog(Data *scienceData, QString radius)
 {
-//    int verbosity = 0;
+    //    int verbosity = 0;
     gaiaQuery = new Query(&verbosity);
     connect(gaiaQuery, &Query::messageAvailable, this, &Controller::messageAvailableReceived);
     connect(gaiaQuery, &Query::critical, this, &Controller::criticalReceived);
@@ -179,7 +179,20 @@ void Controller::taskInternalGetCatalogFromIMAGE()
 
     delete detectionImage;
 
-    //    pushEndMessage(taskBasename, scienceDir);
+    // dump reference catalog ID
+    QString outpath = mainDirName+"/"+scienceData->subDirName+"/cat/refcat/";
+    mkAbsDir(outpath);
+
+    QFile file(outpath+"/.refcatID");
+    QTextStream stream(&file);
+    if( !file.open(QIODevice::WriteOnly)) {
+        emit messageAvailable("Query::dumpRefcatID(): ERROR writing "+outpath+file.fileName()+" : "+file.errorString(), "error");
+        emit criticalReceived();
+        return;
+    }
+
+    stream << image+"_"+cdw->ui->ARCDTLineEdit->text()+"_"+cdw->ui->ARCDMINLineEdit->text() << "\n";
+    file.close();
 }
 
 void Controller::taskInternalResolveTarget()

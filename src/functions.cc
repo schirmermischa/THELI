@@ -485,6 +485,8 @@ void killProcessChildren(qint64 parentProcessId) {
     QString childIds(get_children.readAllStandardOutput());
     childIds.replace('\n', ' ');
 
+    if (childIds.isEmpty()) return;
+
     QProcess::execute("kill -9 " + childIds);
 }
 

@@ -1072,7 +1072,10 @@ void Query::writeAstromScamp()
     int tfields = 9;
     long nrows = numSources;
 
-    QString filename = mainDirName+"/"+scienceData->subDirName+"/cat/refcat/theli_mystd.scamp";
+    QString outpath = mainDirName+"/"+scienceData->subDirName+"/cat/refcat/";
+    mkAbsDir(outpath);
+
+    QString filename = outpath + "/theli_mystd.scamp";
     filename = "!"+filename;
     fits_create_file(&fptr, filename.toUtf8().data(), &status);
     fits_create_tbl(fptr, BINARY_TBL, nrows, tfields, ttype, tform, nullptr, "LDAC_OBJECTS", &status);
@@ -1161,8 +1164,11 @@ void Query::writeAstromANET()
     if (scaleNumber<0) scaleNumber = 0;
     if (scaleNumber>19) scaleNumber = 19;
 
+    QString outpath = mainDirName+"/"+scienceData->subDirName+"/cat/refcat/";
+    mkAbsDir(outpath);
+
     filename1 = tmpdir+"/theli_mystd_anet.cat"; // without the exclamation mark
-    QString filename2 = mainDirName+"/"+scienceData->subDirName+"/cat/refcat/theli_mystd.index";
+    QString filename2 = outpath + "/theli_mystd.index";
     QString buildIndexCommand = "build-astrometry-index ";
     QString anetCheck = QStandardPaths::findExecutable("build-astrometry-index");
     if (anetCheck.isEmpty()) return;

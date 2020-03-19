@@ -433,6 +433,7 @@ void Controller::taskInternalAstromphotom()
         // Collect scamp input catalogs
         long totNumObjects = 0;
         long numCats = prepareScampCats(scienceData, totNumObjects);
+        if (numCats == 0) return;
 
         // Release memory:
         // 140 bytes per detection
@@ -962,8 +963,7 @@ long Controller::prepareScampCats(Data *scienceData, long &totNumObjects)
     catFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
 
     if (numCat == 0) {
-        emit messageAvailable("No cat/*.scamp catalogs were found matching the exposures in "+scienceDir, "error");
-        emit messageAvailable("Did you create the source catalogs?", "error");
+        emit messageAvailable("No cat/*.scamp catalogs were found matching the exposures in "+scienceDir+"<br>Did you create the source catalogs?", "error");
         monitor->raise();
         successProcessing = false;
         return 0;

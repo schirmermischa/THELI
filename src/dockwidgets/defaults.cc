@@ -333,7 +333,6 @@ void ConfDockWidget::loadDefaults()
         ui->ARCmaxpmLineEdit->clear();
         ui->ARCDTLineEdit->setText("5");
         ui->ARCDMINLineEdit->setText("5");
-        ui->ARCmincontLineEdit->setText("0.0005");
         ui->ARCraLineEdit->clear();
         ui->ARCradiusLineEdit->clear();
         ui->ARCselectimageLineEdit->clear();

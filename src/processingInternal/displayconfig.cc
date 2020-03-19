@@ -114,7 +114,6 @@ void Controller::pushConfigGetCatalogFromImage()
     config += "FITS file = " + cdw->ui->ARCselectimageLineEdit->text() + "<br>";
     config += "DT = " + cdw->ui->ARCDTLineEdit->text() + "<br>";
     config += "DMIN = " + cdw->ui->ARCDMINLineEdit->text() + "<br>";
-    config += "DEBLEND = " + cdw->ui->ARCmincontLineEdit->text() + "<br>";
     emit messageAvailable(config, "config");
 }
 

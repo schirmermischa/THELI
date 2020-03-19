@@ -342,9 +342,10 @@ QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList
 void MainWindow::on_yieldToolButton_clicked()
 {
     // There is only sth to abort if the start button is disabled
-    controller->userYield = true;
-    emit messageAvailable("Yield request received ...", "stop");
     if (!ui->startPushButton->isEnabled()) {
+        controller->userYield = true;
+        emit messageAvailable("Yield request received ...", "stop");
+
         message(ui->plainTextEdit, "Will stop after current task has finished, please wait ...", "stop");
         mainGUIWorker->yield = true;
         if (!ui->startPushButton->isEnabled()) {
@@ -357,9 +358,10 @@ void MainWindow::on_yieldToolButton_clicked()
 void MainWindow::on_stopToolButton_clicked()
 {
     // There is only sth to abort if the start button is disabled
-    controller->userStop = true;
-    emit messageAvailable("Stop request received, finishing current calculations ...", "stop");
     if (!ui->startPushButton->isEnabled()) {
+        controller->userStop = true;
+        emit messageAvailable("Stop request received, finishing current calculations ...", "stop");
+
         message(ui->plainTextEdit, "Stopping current task, please wait ...", "stop");
         // Make sure we are not entering next task in the queue
         mainGUIWorker->yield = true;
@@ -417,9 +419,10 @@ void MainWindow::on_stopToolButton_clicked()
 void MainWindow::on_actionKill_triggered()
 {
     // There is only sth to abort if the start button is disabled
-    controller->userKill = true;
-    emit messageAvailable("Abort request received ...", "stop");
     if (!ui->startPushButton->isEnabled()) {
+        controller->userKill = true;
+        emit messageAvailable("Abort request received ...", "stop");
+
         message(ui->plainTextEdit, "Kill signal sent, please wait ...", "stop");
         if (controller->taskBasename == "Astromphotom") {
             emit messageAvailable("Sending Scamp a kill signal ...", "stop");
@@ -789,7 +792,7 @@ bool MainWindow::isRefcatRecent(QString dirname)
     QString currentId;
 
     if ( !file.open(QIODevice::ReadOnly)) {
-        qDebug() << "QDEBUG: isRefcatRecent(): "+dirname+".refcatID could not be opened.";
+//        qDebug() << "QDEBUG: isRefcatRecent(): "+dirname+".refcatID could not be opened.";
         return false;
     }
     else {
@@ -812,8 +815,8 @@ bool MainWindow::isRefcatRecent(QString dirname)
             QString image = cdw->ui->ARCselectimageLineEdit->text();
             QString dt = cdw->ui->ARCDTLineEdit->text();
             QString dmin = cdw->ui->ARCDMINLineEdit->text();
-            QString deblend = cdw->ui->ARCmincontLineEdit->text();
-            currentId = image+"_"+dt+"_"+dmin+"_"+deblend;
+//            QString deblend = cdw->ui->ARCmincontLineEdit->text();
+            currentId = image+"_"+dt+"_"+dmin;
         }
         if (id != currentId) return false;
         else return true;

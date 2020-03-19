@@ -106,7 +106,6 @@ int MainWindow::writeGUISettings()
     settings.setValue("ARCmaxpmLineEdit", cdw->ui->ARCmaxpmLineEdit->text());
     settings.setValue("ARCpmRALineEdit", cdw->ui->ARCpmRALineEdit->text());
     settings.setValue("ARCpmDECLineEdit", cdw->ui->ARCpmDECLineEdit->text());
-    settings.setValue("ARCmincontLineEdit", cdw->ui->ARCmincontLineEdit->text());
     settings.setValue("ARCminmagLineEdit", cdw->ui->ARCminmagLineEdit->text());
     settings.setValue("ARCraLineEdit", cdw->ui->ARCraLineEdit->text());
     settings.setValue("ARCradiusLineEdit", cdw->ui->ARCradiusLineEdit->text());
@@ -362,7 +361,6 @@ int MainWindow::readGUISettings(QString projectname)
     cdw->ui->ARCmaxpmLineEdit->setText(settings.value("ARCmaxpmLineEdit").toString());
     cdw->ui->ARCpmRALineEdit->setText(settings.value("ARCpmRALineEdit").toString());
     cdw->ui->ARCpmDECLineEdit->setText(settings.value("ARCpmDECLineEdit").toString());
-    cdw->ui->ARCmincontLineEdit->setText(settings.value("ARCmincontLineEdit").toString());
     cdw->ui->ARCminmagLineEdit->setText(settings.value("ARCminmagLineEdit").toString());
     cdw->ui->ARCraLineEdit->setText(settings.value("ARCraLineEdit").toString());
     cdw->ui->ARCradiusLineEdit->setText(settings.value("ARCradiusLineEdit").toString());
