@@ -709,6 +709,10 @@ void Splitter::writeImage(int chipMapped)
 
     if (!MEFpastingFinished) return;
 
+    // Do not write bad detectors
+    // Easiest done here, and not further above, in case of detectors with multiple readout amps
+    if (instData.badChips.contains(chipMapped)) return;
+
     // Exceptions. Return if successful.
     if (individualFixWriteImage(chipMapped)) return;
 

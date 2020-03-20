@@ -51,8 +51,8 @@ void ImageStatistics::keyReleaseEvent(QKeyEvent *event)
         badStatsDir.mkpath(badStatsDirName);
         // move selected images to badstats
         foreach (QCPDataRange dataRange, selection.dataRanges()) {
-     //       QCPGraphDataContainer::const_iterator itBegin = seeingGraph->data()->at(dataRange.begin());
-     //       QCPGraphDataContainer::const_iterator itEnd = seeingGraph->data()->at(dataRange.end());
+            //       QCPGraphDataContainer::const_iterator itBegin = seeingGraph->data()->at(dataRange.begin());
+            //       QCPGraphDataContainer::const_iterator itEnd = seeingGraph->data()->at(dataRange.end());
             int begin = dataRange.begin();
             int end = dataRange.end();
             for (int i=begin; i<end; ++i) {
@@ -66,9 +66,12 @@ void ImageStatistics::keyReleaseEvent(QKeyEvent *event)
                         badStatsList << imgSelectedName;
                     }
                     QFile badImage(scienceDirName+"/"+imgSelectedName+statusString+".fits");
-                    if (!badImage.rename(badStatsDirName+imgSelectedName+statusString+".fits")) {
-                        qDebug() << "QDEBUG: Could not execute the following operation:";
-                        qDebug() << "mv " << scienceDirName+"/"+imgSelectedName+statusString+".fits" << badStatsDirName+imgSelectedName+statusString+".fits";
+                    allMyImages[i]->activeState = MyImage::BADSTATS;  // deactivate
+                    if (allMyImages[i]->imageOnDrive) {
+                        if (!badImage.rename(badStatsDirName+imgSelectedName+statusString+".fits")) {
+                            qDebug() << "QDEBUG: Could not execute the following operation:";
+                            qDebug() << "mv " << scienceDirName+"/"+imgSelectedName+statusString+".fits" << badStatsDirName+imgSelectedName+statusString+".fits";
+                        }
                     }
                 }
 
@@ -78,15 +81,19 @@ void ImageStatistics::keyReleaseEvent(QKeyEvent *event)
                     QString base = removeLastWords(imgSelectedName, 1, '_');
                     QStringList baseFilter(base+"_*.fits");
                     QStringList baseList = scienceDir.entryList(baseFilter);
-                    for (auto & it : baseList) {
+                    for (auto &it : baseList) {
                         if (!badStatsList.contains(it)) {
                             badStatsList << it;
                         }
                         QFile badImage(scienceDirName+"/"+it);
                         if (!badImage.rename(badStatsDirName+it)) {
+                            // Don't have to check whether image is on drive, because we loop over list of existing FITS images
                             qDebug() << "QDEBUG: Could not execute the following operation:";
                             qDebug() << "mv " << scienceDirName+"/"+it << badStatsDirName+it;
                         }
+                    }
+                    for (auto &myimg : allMyImages) {
+                        if (imgSelectedName.contains(myimg->rootName)) myimg->activeState = MyImage::BADSTATS;  // deactivate
                     }
                 }
             }

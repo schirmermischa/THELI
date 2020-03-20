@@ -198,6 +198,7 @@ void Controller::getNumberOfActiveImages(Data *&data)
     numActiveImages = 0;
     progress = 0.;
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : data->myImageList[chip]) {
             if (it->activeState == MyImage::ACTIVE) ++numActiveImages;
         }
@@ -207,7 +208,7 @@ void Controller::getNumberOfActiveImages(Data *&data)
 
     // Last 5% are reserved for mode determination and writing to drive
     // 45% are in Data::combineImagesCalib() for combination
-    progressCombinedStepSize = 5./instData->numChips;
+    progressCombinedStepSize = 5./instData->numUsedChips;
 }
 
 Controller::~Controller()
@@ -454,6 +455,7 @@ long Controller::makeListofAllImages(QList<MyImage*> &allMyImages, Data *data)
 {
     allMyImages.clear();
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         //        incrementCurrentThreads(lock);
         for (auto &it : data->myImageList[chip]) {
             allMyImages.append(it);
@@ -738,8 +740,8 @@ void Controller::loadPreferences()
     // We have maxExternalThreads, which is the max number of threads working on independent detectors.
     // If more CPUs than detectors, limit this number so that we have left-over threads for further parallelization
     // (internal threads in Data class)
-    if (maxCPU > instData->numChips) {
-        maxExternalThreads = instData->numChips;
+    if (maxCPU > instData->numUsedChips) {
+        maxExternalThreads = instData->numUsedChips;
         maxInternalThreads = maxCPU - maxExternalThreads + 1;
     }
     else {
@@ -1038,6 +1040,7 @@ void Controller::getDetectorSections()
     QVector<int> ymin = instData->overscan_ymin;
     QVector<int> ymax = instData->overscan_ymax;
 
+    // to stay safe, i include chips that are not used
     for (int chip=0; chip<instData->numChips; ++chip) {
         // Overscan X
         QVector<long> overscanxRegion;
@@ -1356,6 +1359,7 @@ void Controller::sendMemoryPreferenceToImages(QList<Data*> DT_x)
 {
     if (DT_x.isEmpty()) return;
 
+    // including chips the user does not want to use
     for (auto &data : DT_x) {
         for (int chip=0; chip<data->instData->numChips; ++chip) {
             for (auto &it : data->myImageList[chip]) {

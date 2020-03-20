@@ -229,6 +229,7 @@ int MainWindow::writeGUISettings()
     settings.setValue("darkNhighLineEdit", cdw->ui->darkNhighLineEdit->text());
     settings.setValue("darkNlowLineEdit", cdw->ui->darkNlowLineEdit->text());
     settings.setValue("darkMethodComboBox", cdw->ui->darkMethodComboBox->currentIndex());
+    settings.setValue("excludeDetectorsLineEdit", cdw->ui->excludeDetectorsLineEdit->text());
     settings.setValue("flatMaxLineEdit", cdw->ui->flatMaxLineEdit->text());
     settings.setValue("flatMinLineEdit", cdw->ui->flatMinLineEdit->text());
     settings.setValue("flatNhighLineEdit", cdw->ui->flatNhighLineEdit->text());
@@ -483,6 +484,7 @@ int MainWindow::readGUISettings(QString projectname)
     cdw->ui->darkNhighLineEdit->setText(settings.value("darkNhighLineEdit").toString());
     cdw->ui->darkNlowLineEdit->setText(settings.value("darkNlowLineEdit").toString());
     cdw->ui->darkMethodComboBox->setCurrentIndex(settings.value("darkMethodComboBox").toInt());
+    cdw->ui->excludeDetectorsLineEdit->setText(settings.value("excludeDetectorsLineEdit").toString());
     cdw->ui->flatMaxLineEdit->setText(settings.value("flatMaxLineEdit").toString());
     cdw->ui->flatMinLineEdit->setText(settings.value("flatMinLineEdit").toString());
     cdw->ui->flatNhighLineEdit->setText(settings.value("flatNhighLineEdit").toString());

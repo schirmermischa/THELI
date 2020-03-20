@@ -61,7 +61,6 @@ void MyImage::makeDriveBackup(QString backupDirName, QString statusOld)
     if (!successProcessing) return;
     if (activeState != ACTIVE) return;    // Don't change location of deactivated images
 
-
     // Current and backup paths
     QString currentPath = path;
     QString backupPath = path+"/"+backupDirName+"/";

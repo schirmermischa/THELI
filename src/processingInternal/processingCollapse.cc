@@ -99,10 +99,12 @@ void Controller::taskInternalCollapse()
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
 
-        releaseMemory(nimg*instData->storage, maxCPU);
-
         auto &it = allMyImages[k];
         if (!it->successProcessing) continue;
+        int chip = it->chipNumber - 1;
+        if (instData->badChips.contains(chip)) continue;
+        releaseMemory(nimg*instData->storage, maxCPU);
+
         if (verbosity >= 0) emit messageAvailable(it->chipName + " : Collapse correction ...", "image");
         it->processingStatus->Collapse = false;
         it->setupData(scienceData->isTaskRepeated, true, true, backupDirName);  // CHECK: why do we determine the mode here?
@@ -167,10 +169,18 @@ void Controller::taskInternalBinnedpreview()
     QVector< QVector<double>> CDmatrices;
     QVector< QVector<int>> Tmatrices;
     for (int chip=0; chip<instData->numChips; ++chip) {
-        scienceData->myImageList[chip][0]->readImage(false);
-        QVector<double> CDmatrix = scienceData->myImageList[chip][0]->extractCDmatrix();
-        CDmatrices << CDmatrix;
-        Tmatrices << CDmatrixToTransformationMatrix(CDmatrix, instData->name);
+        if (!instData->badChips.contains(chip)) {
+            scienceData->myImageList[chip][0]->readImage(false);
+            QVector<double> CDmatrix = scienceData->myImageList[chip][0]->extractCDmatrix();
+            CDmatrices << CDmatrix;
+            Tmatrices << CDmatrixToTransformationMatrix(CDmatrix, instData->name);
+        }
+        else {
+            // a dummy
+            QVector<double> CDmatrix = {-0.001, 0.0, 0.0, 0.0001};
+            CDmatrices << CDmatrix;
+            Tmatrices << CDmatrixToTransformationMatrix(CDmatrix, instData->name);
+        }
     }
 
     // Determine overall image size
@@ -206,6 +216,7 @@ void Controller::taskInternalBinnedpreview()
         int binnedChipCounter = 0;
         for (int chip=0; chip<instData->numChips; ++chip) {
             if (abortProcess) break;
+            if (instData->badChips.contains(chip)) continue;
             scienceData->myImageList[chip][img]->setupDataInMemorySimple(false);
             if (!scienceData->myImageList[chip][img]->successProcessing) continue;
             int n = scienceData->myImageList[chip][img]->naxis1;

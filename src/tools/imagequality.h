@@ -35,7 +35,7 @@ public:
     bool getSeeingFromGaia();
     bool getSeeingFromRhMag();
 
-    double matchingTolerance = 1./3600;   // 1.0 arcsec
+    double matchingTolerance = 1./3600;   // 1.0 arcsec starting value
     QString baseName;
     double fwhm = -1.0;
     double ellipticity = -1.0;

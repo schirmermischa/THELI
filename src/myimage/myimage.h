@@ -425,7 +425,7 @@ public:
     void updateHeaderValueInFITS(QString keyName, QString keyValue);
     void calcMedianSeeingEllipticity();
     QVector<double> collectObjectParameter(QString paramName);
-    void collectSeeingParameters(QVector<QVector<double> > &outputParams, QVector<double> &outputMag);
+    void collectSeeingParameters(QVector<QVector<double> > &outputParams, QVector<double> &outputMag, int goodChip);
     void setDeletable();
 //    void setDeletable(QString dataX, bool deletable);
     void createMyFITSinstance();

@@ -121,6 +121,7 @@ public slots:
     void resetProgressBarReceived();
     void updateSwitchProcessMonitorPreference(bool switchToMonitor);
     void statusChangedReceived(QString newStatus);
+    void updateExcludedDetectors(QString badDetectors);
 
 protected:
     // Don't know yet what the 'override' means
@@ -233,7 +234,6 @@ private slots:
     void restoreOriginalData();
     void emitEditingFinished(const QString &arg1);
     void on_actionLicense_triggered();
-
     void on_actionAcknowledging_triggered();
 
 private:

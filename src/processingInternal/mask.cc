@@ -37,6 +37,10 @@ void Mask::initMasks()
 {
     // We need as many masks as we have chips
 
+    // Masks are fully populated, even for chips the user does not want to use, because the latter may change,
+    // but the mask is initialized when the instrument is selected, so we need it for all chips.
+
+
     globalMask.resize(instData->numChips);
     isChipMasked.resize(instData->numChips);
 

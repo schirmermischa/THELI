@@ -368,10 +368,10 @@ void MyImage::provideHeaderInfo()
         transferMetadataToMyImage();
         transferWCS();
         cornersToRaDec();
-        if (*verbosity > 2) emit messageAvailable(baseName + " : Image header loaded", "image");
+        if (*verbosity > 2) emit messageAvailable(chipName + " : Image header loaded", "image");
     }
     else {
-        if (*verbosity > 2) emit messageAvailable(baseName + " : Header already in memory", "image");
+        if (*verbosity > 2) emit messageAvailable(chipName + " : Header already in memory", "image");
     }
     headerInfoProvided = true;
 }

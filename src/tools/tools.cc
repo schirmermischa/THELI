@@ -35,6 +35,7 @@ void getBinnedSize(instrumentDataType *instData, QVector<QVector<int>> Tmatrices
     QVector<long> yLimits;
 
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         QVector<int> T = Tmatrices[chip];
         int x0 = -instData->crpix1[chip] + 0;
         int x1 = -instData->crpix1[chip] + instData->sizex[chip];

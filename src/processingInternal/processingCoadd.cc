@@ -124,6 +124,8 @@ void Controller::coaddSmoothEdge()
 
         auto &it = allMyImages[k];
         if (!it->successProcessing) continue;
+        int chip = it->chipNumber - 1;
+        if (instData->badChips.contains(chip)) continue;
         emit messageAvailable(it->baseName + " : Smoothing weight edge ...", "controller");
         it->readWeight();
         it->roundEdgeOfWeight(edge, roundEdge);
@@ -168,7 +170,10 @@ void Controller::coaddPrepare(QString filterArg)
     }
     else {
         // include all chips
-        for (int chip=0; chip<instData->numChips; ++chip) chipList.append(chip);
+        for (int chip=0; chip<instData->numChips; ++chip) {
+            if (instData->badChips.contains(chip)) continue;
+            chipList.append(chip);
+        }
     }
 
     QString edgeSmooth = cdw->ui->COAedgesmoothingLineEdit->text();
@@ -187,6 +192,7 @@ void Controller::coaddPrepare(QString filterArg)
         QVector<double> alpha;
         QVector<double> delta;
         for (int chip=0; chip<instData->numChips; ++chip) {
+            if (instData->badChips.contains(chip)) continue;
             for (auto &it : coaddScienceData->myImageList[chip]) {
                 if (!it->successProcessing) continue;
                 alpha.append(it->alpha_ctr);
@@ -226,7 +232,7 @@ void Controller::coaddPrepare(QString filterArg)
     float numexp = 0;
     QList<QString> filterNames;
     for (int chip=0; chip<instData->numChips; ++chip) {
-        if (!chipList.contains(chip)) continue;        // Skip chips that should not be coadded
+        if (!chipList.contains(chip) || instData->badChips.contains(chip)) continue;        // Skip chips that should not be coadded
         for (auto &it : coaddScienceData->myImageList[chip]) {
             if (!it->successProcessing) continue;
             it->provideHeaderInfo();
@@ -260,7 +266,7 @@ void Controller::coaddPrepare(QString filterArg)
         }
     }
 
-    coaddTexptime /= instData->numChips;
+    coaddTexptime /= instData->numUsedChips;
     coaddSkyvalue /= numexp;
     for (auto &filter : filterNames) {
         coaddFilter.append(filter);
@@ -945,7 +951,7 @@ void Controller::coaddUpdate()
         // pass the reference data
         collectGaiaRaDec(coadd, gaiaQuery->de_out, gaiaQuery->ra_out, imageQuality->refCat);
         // pass the source data (dec, ra, fwhm, ell on one hand, and mag separately)
-        coadd->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag);
+        coadd->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag, 0);
         // match
         bool gaia = imageQuality->getSeeingFromGaia();
 //        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: not yet implemented

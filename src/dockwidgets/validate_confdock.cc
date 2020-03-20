@@ -155,6 +155,7 @@ void ConfDockWidget::validate()
     ui->darkMinLineEdit->setValidator( validator_int_pos );
     ui->darkNhighLineEdit->setValidator( validator_int_pos );
     ui->darkNlowLineEdit->setValidator( validator_int_pos );
+    ui->excludeDetectorsLineEdit->setValidator( validator_int_pos_comma_blank );
     ui->flatoffMaxLineEdit->setValidator( validator_int_pos );
     ui->flatoffMinLineEdit->setValidator( validator_int_pos );
     ui->flatoffNhighLineEdit->setValidator( validator_int_pos );
@@ -276,6 +277,7 @@ void ConfDockWidget::connect_validators()
     connect(ui->darkMinLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->darkNhighLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->darkNlowLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
+    connect(ui->excludeDetectorsLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->flatoffMaxLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->flatoffMinLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->flatoffNhighLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);

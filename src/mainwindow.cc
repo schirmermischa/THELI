@@ -747,6 +747,7 @@ void MainWindow::updateFont(QFont font)
 void MainWindow::resetInstrumentData()
 {
     instData.numChips = 1;
+    instData.numUsedChips = 1;
     instData.name = "";
     instData.shortName = "";
     instData.nameFullPath = "";
@@ -874,7 +875,9 @@ void MainWindow::initInstrumentData(QString instrumentNameFullPath)
 
     // Lastly, how many MB does a single detector occupy
     instData.storage = instData.sizex[0]*instData.sizey[0]*sizeof(float) / 1024. / 1024.;
-    instData.storageExposure = instData.storage * instData.numChips;
+    instData.storageExposure = instData.storage * instData.numChips;             // Always use full storage. This is computed before user may change number of used chips
+
+    updateExcludedDetectors(cdw->ui->excludeDetectorsLineEdit->text());
 }
 
 void MainWindow::testOverscan(QVector<int> &overscan)
@@ -1244,6 +1247,25 @@ void MainWindow::statusChangedReceived(QString newStatus)
     status.statusstringToHistory(newStatus);
 }
 
+void MainWindow::updateExcludedDetectors(QString badDetectors)
+{
+    instData.badChips.clear();
+    QStringList chipStringList = badDetectors.replace(","," ").simplified().split(" ");
+    if (!badDetectors.isEmpty()) {
+        for (auto &chip : chipStringList) instData.badChips.append(chip.toInt()-1);
+    }
+    instData.numUsedChips = instData.numChips - instData.badChips.length();
+
+    // Map the chip numbers to the number in which they appear in order (e.g. in .scamp catalogs)
+    int countGoodChip = 0;
+    for (int chip=0; chip<instData.numChips; ++chip) {
+        if (instData.badChips.contains(chip)) {
+            instData.chipMap.insert(chip, countGoodChip);
+            ++countGoodChip;
+        }
+    }
+}
+
 void MainWindow::load_dialog_abszeropoint()
 {
     AbsZeroPoint *abszeropoint = new AbsZeroPoint("", &instData, this);
@@ -1562,9 +1584,9 @@ void MainWindow::on_actionEdit_preferences_triggered()
 void MainWindow::restoreOriginalData()
 {
     QMessageBox msgBox;
-    msgBox.setInformativeText(tr("Restore raw data?\n\n") +
-                              tr("This button restores all raw data from their RAWDATA/ directories.\n") +
-                              tr("All previously processed data will be lost (full data reset).\n\n"));
+    msgBox.setInformativeText(tr("Restore all raw data from their RAWDATA/ directories. ") +
+                              tr("All previously processed data will be lost (full data reset)!\n\n") +
+                              tr("YOU MUST RESTART THELI AFTERWARDS.\n"));
     QAbstractButton *okButton = msgBox.addButton("OK", QMessageBox::YesRole);
     QAbstractButton *cancelButton = msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
     msgBox.exec();

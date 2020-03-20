@@ -101,6 +101,7 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
         numMasterCalibs = 0;
         numImages = 0;
         for (int chip=0; chip<instData->numChips; ++chip) {
+            // The list is fully populated, even for chips the user might decide not to use
             myImageList[chip].clear(); // in case we run globalweights several times
             QStringList filter;
             filter << "globalweight*_"+QString::number(chip+1)+".fits";
@@ -396,12 +397,13 @@ void Data::checkPresenceOfMasterCalibs()
     // Check if master calibration FITS files are present
     int numMasterCalibs = 0;
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         QStringList filter;
         filter << subDirName+"_"+QString::number(chip+1)+".fits";
         QStringList fitsFiles = dir.entryList(filter);
         if (!fitsFiles.isEmpty()) ++numMasterCalibs;
     }
-    if (numMasterCalibs == instData->numChips) hasAllMasterCalibs = true;
+    if (numMasterCalibs == instData->numUsedChips) hasAllMasterCalibs = true;
     else hasAllMasterCalibs = false;
 }
 
@@ -433,6 +435,7 @@ void Data::populateExposureList()
     // Create a list of unique MJDOBS
     QVector<double> mjdList;
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : myImageList[chip]) {
             // TODO: this is only necessary if the GUI is launched and files have not been read yet!
             // There should be a member boolean that keeps track of this
@@ -450,6 +453,7 @@ void Data::populateExposureList()
     long expNumber = 0;
     for (auto &mjdobs : mjdList) {
         for (int chip=0; chip<instData->numChips; ++chip) {
+            if (instData->badChips.contains(chip)) continue;
             for (auto &it : myImageList[chip]) {
                 if (it->mjdobs == mjdobs) exposureList[expNumber].append(it);
             }
@@ -461,6 +465,7 @@ void Data::populateExposureList()
 
 void Data::resetGlobalWeight(QString filter)
 {
+    // CHECK: not usre i need to exclude badChips here
     if (myImageList.isEmpty()) return;
     for (int chip=0; chip<instData->numChips; ++chip) {
         int removeIndex = 0;
@@ -485,7 +490,7 @@ void Data::loadCombinedImage(int chip)
     if (userStop || userKill) return;
 
     if (*verbosity > 0 && !combinedImage[chip]->imageInMemory) {
-        emit messageAvailable("Chip " + QString::number(chip) + " : Loading master "+ subDirName + " ...", "data");
+        emit messageAvailable("Chip " + QString::number(chip+1) + " : Loading master "+ subDirName + " ...", "data");
     }
 
     bool determineMode = false;
@@ -783,7 +788,7 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
     if (*verbosity > 0) emit messageAvailable(subDirName + " : Median combination running ...", "data");
 
     // 45% of the progress counter is reserved for combining the images. We update the progress bar for every 10% of these 45%
-    float localProgressStepSize = 0.45 / 10. / instData->numChips * 100.;
+    float localProgressStepSize = 0.45 / 10. / instData->numUsedChips * 100.;
     int progCount = 1;  // runs from 1 to 10;
     long progCountComparison = dim / 10;
 
@@ -941,8 +946,8 @@ void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const 
     int nlow = nlowString.toInt();    // returns 0 for empty string (desired)
     int nhigh = nhighString.toInt();  // returns 0 for empty string (desired)
     dim = combinedImage[chip]->dataCurrent.length();
-    int localMaxThreads = maxCPU/instData->numChips;
-    if (instData->numChips > maxCPU) localMaxThreads = 1;
+    //    int localMaxThreads = maxCPU/instData->numChips;
+    //    if (instData->numChips > maxCPU) localMaxThreads = 1;
 
     if (instData->numChips > 1) {
         // parallelization not yet thread safe (Qt5 classes not threadsafe)
@@ -1079,8 +1084,8 @@ void Data::combineImages_newParallel(int chip, MyImage *masterCombined, QList<My
     // works on dataBackupLx (?)
 
     dim = masterCombined->dataCurrent.length();
-    int localMaxThreads = maxCPU/instData->numChips;
-    if (instData->numChips > maxCPU) localMaxThreads = 1;
+    //    int localMaxThreads = maxCPU/instData->numChips;
+    //    if (instData->numChips > maxCPU) localMaxThreads = 1;
 
     // for some unknown reason this parallelization results in a massive memory chaos. somewhere, something is overflowing and I just can't figure out where.
     QList<float> stack;
@@ -1192,8 +1197,15 @@ void Data::reportModeCombineImages()
                 report.append("Chip " + QString::number(chip+1) + " : failed<br>");
             }
         }
-        else report.append("Chip " + QString::number(chip+1) + " : "
-                           + QString::number(combinedImage[chip]->skyValue, 'f', 3) + " e-<br>");
+        else {
+            if (instData->badChips.contains(chip)) {
+                report.append("Chip " + QString::number(chip+1) + " : Bad detector, skipped.<br>");
+            }
+            else {
+                report.append("Chip " + QString::number(chip+1) + " : "
+                              + QString::number(combinedImage[chip]->skyValue, 'f', 3) + " e-<br>");
+            }
+        }
     }
     emit messageAvailable(report, "data");
 }
@@ -1601,9 +1613,15 @@ void Data::getGainNormalization()
     // The gains are normalized to the chip with the lowest effective gain
     // (the one with brightest image in a FLAT)
     QVector<float> gainNormalization;
+    QVector<float> tmpNormalizationData;
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) {
+            gainNormalization << 1.0;   // a dummy value to maintain the vector's structure (need one entry per chip)
+            continue;
+        }
         if (combinedImage[chip]->modeDetermined) {
             gainNormalization << combinedImage[chip]->skyValue;
+            tmpNormalizationData << combinedImage[chip]->skyValue;
         }
         else {
             emit messageAvailable("Controller::getGainNormalization(): mode was not determined in flat!", "error");
@@ -1615,15 +1633,18 @@ void Data::getGainNormalization()
     float maxVal = maxVec_T(gainNormalization);
     if (*verbosity > 0 && instData->numChips>1) emit messageAvailable("Gain normalization factors (multi-chip cameras):", "data");
     for (int chip=0; chip<instData->numChips; ++chip) {
-        gainNormalization[chip] /= maxVal;
-        combinedImage[chip]->gainNormalization = gainNormalization[chip];
         QString space = " ";
         if (chip > 9) space = "";
+        if (instData->badChips.contains(chip)) {
+            if (*verbosity > 0) emit messageAvailable("Chip "+QString::number(chip+1) + space + " : Bad detector, skipped.", "ignore");
+            continue;
+        }
+        gainNormalization[chip] /= maxVal;
+        combinedImage[chip]->gainNormalization = gainNormalization[chip];
         if (*verbosity > 0) emit messageAvailable("Chip "+QString::number(chip+1) + space + " : "
                                                   + QString::number(gainNormalization[chip], 'f', 6), "ignore");
     }
 }
-
 
 float Data::memoryNeeded(int chip)
 {
@@ -1650,6 +1671,7 @@ float Data::memoryCurrentFootprint(bool globalweights)
     if (!globalweights) {
         if (!myImageList.isEmpty()) {  // e.g. if RAWDATA are restored
             for (int chip=0; chip<instData->numChips; ++chip) {
+                if (instData->badChips.contains(chip)) continue;
                 for (auto &it: myImageList[chip]) {
                     footprint += it->dataCurrent.capacity() * sizeof(float);
                     footprint += it->dataBackupL1.capacity() * sizeof(float);
@@ -1669,6 +1691,7 @@ float Data::memoryCurrentFootprint(bool globalweights)
 
     if (!combinedImage.isEmpty()) {
         for (int chip=0; chip<instData->numChips; ++chip) {
+            if (instData->badChips.contains(chip)) continue;
             // Crashes if equal to nullptr
             if (combinedImage[chip] != nullptr) {
                 footprint += combinedImage[chip]->dataCurrent.capacity() * sizeof(float);
@@ -1711,6 +1734,7 @@ void Data::memoryFreeDataX(int chip, QString dataX)
 void Data::protectMemory()
 {
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : myImageList[chip]) {
             it->protectMemory();
         }
@@ -2072,6 +2096,7 @@ long Data::countUnsavedImages()
 {
     long numUnsaved = 0;
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : myImageList[chip]) {
             if (!it->imageOnDrive) ++numUnsaved;
         }
@@ -2083,6 +2108,7 @@ long Data::countUnsavedImages()
 bool Data::containsUnsavedImages()
 {
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : myImageList[chip]) {
             if (!it->imageOnDrive) return false;
         }
@@ -2130,6 +2156,7 @@ bool Data::collectMJD()
     // Therefore, read it for every chip in every exposure
 #pragma omp parallel for num_threads(maxExternalThreads) firstprivate(subDirName)
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         QVector<double> mjdData;
         mjdData.reserve(myImageList[chip].length());
         if (duplicateFound) continue;
@@ -2166,6 +2193,7 @@ bool Data::getPointingCharacteristics()
     QVector<double> crval1Vertex;
     QVector<double> crval2Vertex;
 
+    // we include unused chips here because otherwise any centroids our boundaries might be biased
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : myImageList[chip]) {
             it->provideHeaderInfo();
@@ -2566,6 +2594,7 @@ bool Data::restoreFromBackupLevel(QString level, QString &newStatusRAM)
     long i = 0;
     bool success = true;
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it: myImageList[chip]) {
             // Continue if no backup data in RAM
             if (level == "L1") success *= it->makeL1Current();

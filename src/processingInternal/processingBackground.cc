@@ -165,7 +165,7 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
     QVector<bool> dataStaticModelDone = skyData->staticModelDone;
 #pragma omp parallel for num_threads(maxExternalThreads) firstprivate(dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2, mode, dataDirName, dataSubDirName, dataStaticModelDone)
     for (int chip=0; chip<instData->numChips; ++chip) {
-        if (abortProcess || !successProcessing) continue;
+        if (abortProcess || !successProcessing || instData->badChips.contains(chip)) continue;
         int currentExposure = 0;   // only relevant for LIRIS@WHT-type detectors where we need to select specific images
         QString backExpList = "";
         bool pass2staticDone = false;
@@ -266,6 +266,7 @@ void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const
         auto &it = allMyImages[k];
         if (!it->successProcessing) continue;
         int chip = it->chipNumber - 1;
+        if (instData->badChips.contains(chip)) continue;
         releaseMemory(nimg*instData->storage, maxExternalThreads);
 
         if (verbosity >= 0) emit messageAvailable(it->chipName + " : Modeling background ...", "image");
@@ -376,6 +377,7 @@ void Controller::processBackgroundDynamic(Data *scienceData, Data *skyData, cons
         auto &it = allMyImages[k];
         if (!it->successProcessing) continue;
         int chip = it->chipNumber - 1;
+        if (instData->badChips.contains(chip)) continue;
         releaseMemory(nimg*instData->storage, maxExternalThreads);
 
         if (verbosity >= 0) emit messageAvailable(it->chipName + " : Modeling background ...", "image");
@@ -982,6 +984,7 @@ bool Controller::idChipsWithBrightStars(Data *skyData, QList<QVector<double>> &b
     for (int k=0; k<numMyImages; ++k) {
         auto &it = allMyImages[k];
         int chip = it->chipNumber - 1;
+        if (instData->badChips.contains(chip)) continue;
         it->provideHeaderInfo();
         it->checkBrightStars(brightStarList, safetyDistance, instData->pixscale);
         if (it->hasBrightStars) {
@@ -1002,6 +1005,7 @@ bool Controller::idChipsWithBrightStars(Data *skyData, QList<QVector<double>> &b
 
     bool critical = false;
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         int chipsAvailable = skyData->myImageList[chip].length() - numChipsRejected[chip];
         if (chipsAvailable == 0) {
             emit messageAvailable("Chip "+QString::number(chip+1)

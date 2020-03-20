@@ -64,6 +64,7 @@ void Controller::provideHeaderInfo(Data *scienceData)
     if (verbosity>1) emit messageAvailable("Collecting metadata from FITS files ...", "controller");
 
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : scienceData->myImageList[chip]) {
             it->provideHeaderInfo();
         }
@@ -244,6 +245,7 @@ void Controller::taskInternalRestoreHeader()
 
 #pragma omp parallel for num_threads(maxExternalThreads)
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : scienceData->myImageList[chip]) {
             it->provideHeaderInfo();
             // Restore the header if a backup exists

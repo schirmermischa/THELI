@@ -123,7 +123,7 @@ void Controller::taskInternalGlobalweight()
     // Only need as many threads as chips, max
 #pragma omp parallel for num_threads(maxExternalThreads)
     for (int chip=0; chip<instData->numChips; ++chip) {
-        if (abortProcess || !successProcessing) continue;
+        if (abortProcess || !successProcessing || instData->badChips.contains(chip)) continue;
 
         releaseMemory(nimg*instData->storage, maxExternalThreads);
 
@@ -216,12 +216,13 @@ void Controller::taskInternalIndividualweight()
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
 
-        releaseMemory(nimg*instData->storage, maxCPU);
-
         auto &it = allMyImages[k];
 
         if (!it->successProcessing) continue;
         int chip = it->chipNumber - 1;
+        if (instData->badChips.contains(chip)) continue;
+        releaseMemory(nimg*instData->storage, maxCPU);
+
         if (verbosity >= 0) emit messageAvailable(it->chipName + " : Creating weight map ...", "image");
         it->setupDataInMemorySimple(false);
         // Locking, otherwise the same globalweight will be initialized several times (image geometry not threadsafe)
@@ -285,6 +286,7 @@ void Controller::taskInternalSeparate()
 
     // Delete previously created directories, then add files in another loop
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : scienceData->myImageList[chip]) {
             QString subDirName = dataSubDirName+"_"+QString::number(it->groupNumber);
             QString pathNew = mainDirName+"/"+subDirName;
@@ -295,6 +297,7 @@ void Controller::taskInternalSeparate()
 
 #pragma omp parallel for num_threads(maxExternalThreads) firstprivate(dataSubDirName, mainDirName, statusString)
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : scienceData->myImageList[chip]) {
             if (!it->successProcessing) continue;
             QString pathOld = it->path;

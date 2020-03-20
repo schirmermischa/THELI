@@ -151,6 +151,8 @@ void ConfDockWidget::establish_connections()
         connect(it, &QPushButton::clicked, this, &ConfDockWidget::showAPIsolution);
     }
 
+    connect(ui->excludeDetectorsLineEdit, &QLineEdit::textChanged, mainGUI, &MainWindow::updateExcludedDetectors);
+
     connect(mainGUI->ui->setupInstrumentComboBox, &QComboBox::currentTextChanged, this, &ConfDockWidget::setupInstrumentComboBox_clicked);
 
     connect_validators();
@@ -160,6 +162,7 @@ void ConfDockWidget::applyStyleSheets()
 {
     QList<QLabel*> conftitleLabelList;
     conftitleLabelList.append(ui->conftitleHDUreformatLabel);
+    conftitleLabelList.append(ui->conftitleExcludeDetectorsLabel);
     conftitleLabelList.append(ui->conftitleProcessbiasLabel);
     conftitleLabelList.append(ui->conftitleChopnodLabel);
     conftitleLabelList.append(ui->conftitleBackground1Label);
@@ -233,6 +236,7 @@ void ConfDockWidget::applyStyleSheets()
     QList<QFrame*> confFrameList;
     confFrameList.append(ui->confHDUreformat1Frame);
     confFrameList.append(ui->confHDUreformat2Frame);
+    confFrameList.append(ui->confExcludeDetectorsFrame);
     confFrameList.append(ui->confCalibrators1Frame);
     confFrameList.append(ui->confCalibrators2Frame);
     confFrameList.append(ui->confChopnodFrame);

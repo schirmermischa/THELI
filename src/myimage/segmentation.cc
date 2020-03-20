@@ -373,7 +373,7 @@ QVector<double> MyImage::collectObjectParameter(QString paramName)
     return param;
 }
 
-void MyImage::collectSeeingParameters(QVector<QVector<double>> &outputParams, QVector<double> &outputMag)
+void MyImage::collectSeeingParameters(QVector<QVector<double>> &outputParams, QVector<double> &outputMag, int goodChip)
 {
     QVector<double> param;
     param.reserve(4);
@@ -388,7 +388,8 @@ void MyImage::collectSeeingParameters(QVector<QVector<double>> &outputParams, QV
             // Must recalculate RA and DEC after astrometry
             double raNew;
             double decNew;
-            myWCS.xy2sky(object->XWIN, object->YWIN, raNew, decNew);
+            xy2sky(object->XWIN, object->YWIN, raNew, decNew);
+//          myWCS.xy2sky(object->XWIN, object->YWIN, raNew, decNew);
             // must pass dec first for tools::match2D() method
             if (object->FLAGS == 0) {
                 param << decNew << raNew << object->FWHM << object->ELLIPTICITY;
@@ -417,7 +418,7 @@ void MyImage::collectSeeingParameters(QVector<QVector<double>> &outputParams, QV
         fits_open_file(&fptr, fullCatalogName.toUtf8().data(), READONLY, &status);
         // LDAC_OBJECTS tables are found in extensions 3, 5, 7, ..., internally referred to as 2, 4, 6, ...
         int hduType = 0;
-        fits_movabs_hdu(fptr, 2*chipNumber+1, &hduType, &status);
+        fits_movabs_hdu(fptr, 2*(goodChip+1)+1, &hduType, &status);
         // fits_movnam_hdu(fptr, BINARY_TBL, tblname, extver, &status);
         long nrows = 0;
         int xwinColNum = -1;

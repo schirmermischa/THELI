@@ -123,10 +123,13 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
 
+        auto &it = allMyImages[k];
+        int chip = it->chipNumber - 1;
+        if (!it->successProcessing) continue;
+        if (instData->badChips.contains(chip)) continue;
+
         releaseMemory(nimg*instData->storage, maxCPU);
 
-        auto &it = allMyImages[k];
-        if (!it->successProcessing) continue;
         if (verbosity > 1 ) emit messageAvailable(it->chipName + " : Creating source catalog ...", "image");
         it->setupDataInMemorySimple(true);
         it->readWeight();
@@ -190,10 +193,13 @@ void Controller::detectionSExtractor(Data *scienceData, QString minFWHM, QString
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
 
+        auto &it = allMyImages[k];
+        int chip = it->chipNumber - 1;
+        if (!it->successProcessing) continue;
+        if (instData->badChips.contains(chip)) continue;
+
         releaseMemory(nimg*instData->storage, maxCPU);
 
-        auto &it = allMyImages[k];
-        if (!it->successProcessing) continue;
         if (verbosity > 1 ) emit messageAvailable(it->chipName + " : Creating source catalog ...", "image");
         it->setupDataInMemorySimple(true);
         it->buildSexCommand();
@@ -250,9 +256,10 @@ void Controller::mergeInternal(Data *scienceData, QString minFWHM, QString maxFl
             it->appendToScampCatalogInternal(fptr, minFWHM, maxFlag);
             ++counter;
         }
-        if (counter != instData->numChips) {
+//        if (counter != instData->numChips) {
+        if (counter != instData->numUsedChips) {
             emit messageAvailable(scienceData->exposureList[i][0]->rootName + " : Merged only " + QString::number(counter)
-                    + " out of " + QString::number(instData->numChips) + " catalogs for scamp!", "error");
+                    + " out of " + QString::number(instData->numUsedChips) + " catalogs for scamp!", "error");
             emit criticalReceived();
         }
 
@@ -375,6 +382,9 @@ bool Controller::manualCoordsUpdate(Data *scienceData, QString mode)
 #pragma omp parallel for num_threads(maxCPU)
     for (int k=0; k<numMyImages; ++k) {
         auto &it = allMyImages[k];
+        int chip = it->chipNumber - 1;
+        if (instData->badChips.contains(chip)) continue;
+
         if (!it->successProcessing) continue;
         it->setupDataInMemorySimple(false);
         // TODO: should be sufficient, but crashes when executed right after launch
@@ -642,6 +652,7 @@ void Controller::splitScampHeaders()
         int i=0;
         while (inStream.readLineInto(&line)) {
             if (i==0) {
+                if (instData->badChips.contains(chip-1)) ++chip;
                 HEAD.setFileName(scampHeadersDir+"/"+MEFinfo.completeBaseName()+"_"+QString::number(chip)+".head");
                 outStream.setDevice(&HEAD);
                 if( !HEAD.open(QIODevice::WriteOnly)) {
@@ -745,11 +756,11 @@ void Controller::copyZeroOrder()
 
 #pragma omp parallel for num_threads(maxExternalThreads)
     for (int chip=0; chip<instData->numChips; ++chip) {
-        if (abortProcess || !successProcessing) continue;
+        if (abortProcess || !successProcessing || instData->badChips.contains(chip)) continue;
         for (auto &it : scampScienceData->myImageList[chip]) {
             if (abortProcess) break;
             it->setupDataInMemorySimple(false);
-//            it->backupOrigHeader(chip);                          // Create a backup copy of the original FITS headers if it doesn't exist yet
+//            it->backupOrigHeader(chip);                        // Create a backup copy of the original FITS headers if it doesn't exist yet
             if (it->scanAstromHeader(chip, "inHeadersDir")) {
                 it->updateZeroOrderOnDrive("update");            // Overwrite 0-th order solution in FITS header (if on drive)
                 it->updateZeroOrderInMemory();                   // Overwrite 0-th order solution in memory
@@ -792,20 +803,25 @@ void Controller::doImageQualityAnalysis()
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
         auto &it = allMyImages[k];
+        int chip = it->chipNumber - 1;
         if (!it->successProcessing) continue;
+        if (instData->badChips.contains(chip)) continue;
+
         it->setupDataInMemorySimple(false);
         // Setup seeing measurement
         it->estimateMatchingTolerance();
         ImageQuality *imageQuality = new ImageQuality(scampScienceData, instData, mainDirName);
         imageQuality->matchingTolerance = it->matchingTolerance;
+        imageQuality->baseName = it->chipName;
         // pass the reference data
         collectGaiaRaDec(it, gaiaQuery->de_out, gaiaQuery->ra_out, imageQuality->refCat);
         // pass the source data (dec, ra, fwhm, ell on one hand, and mag separately)
-        it->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag);
+        // CHECK: this does not seem to work for chip #3 in WFC@INT: signifiant offset in calculated RA/DEC and downloaded RA/DEC. O-order solution insufficient?
+        it->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag, instData->chipMap.value(chip));
         // match
         bool gaia = imageQuality->getSeeingFromGaia();
 //        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: Not yet implemented
-        if (verbosity > 1) emit messageAvailable(it->baseName + " : FWHM / Ellipticity = "
+        if (verbosity > 1) emit messageAvailable(it->chipName + " : FWHM / Ellipticity = "
                                                  + QString::number(imageQuality->fwhm, 'f', 3) + " / "
                                                  + QString::number(imageQuality->ellipticity, 'f', 3), "ignore");
         it->updateHeaderValue("FWHM", imageQuality->fwhm);           // Optionally, updates the FITS file as well (if on drive)
@@ -838,7 +854,7 @@ void Controller::doCrossCorrelation(Data *scienceData)
 
     //#pragma omp parallel for num_threads(maxExternalThreads)
     for (int chip=0; chip<instData->numChips; ++chip) {
-        if (abortProcess || !successProcessing) continue;
+        if (abortProcess || !successProcessing || instData->badChips.contains(chip)) continue;
         for (auto &it : scienceData->myImageList[chip]) {
             if (abortProcess) break;
             if (!it->successProcessing) continue;
@@ -935,6 +951,7 @@ long Controller::prepareScampCats(Data *scienceData, long &totNumObjects)
 
     QStringList imageList;
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : scienceData->myImageList[chip]) {
             if (it->activeState == MyImage::ACTIVE) imageList << it->chipName;
         }
@@ -982,7 +999,7 @@ long Controller::getNumObjectsScampCat(QString cat)
     // LDAC_OBJECTS tables are found in extensions 3, 5, 7, ..., internally referred to as 2, 4, 6, ...
     int hduType = 0;
     long nobj = 0;
-    for (int chip=1; chip<=instData->numChips; ++chip) {
+    for (int chip=1; chip<=instData->numUsedChips; ++chip) {
         fits_movabs_hdu(fptr, 2*chip+1, &hduType, &status);
         long nrows = 0;
         fits_get_num_rows(fptr, &nrows, &status);

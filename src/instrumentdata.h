@@ -22,6 +22,7 @@ If not, see https://www.gnu.org/licenses/ .
 
 #include <QVector>
 #include <QFile>
+#include <QMap>
 
 typedef struct {
     int numChips;
@@ -37,6 +38,9 @@ typedef struct {
     float radius = 0.1;   // exposure coverage radius in degrees
     float storage = 0;    // MB used for a single image
     float storageExposure = 0.; // MB used for the entire (multi-chip) exposure
+    int numUsedChips;
+    QVector<int> badChips;
+    QMap<int, int> chipMap;      // in case of bad detectors, we need to map e.g. chip #4 to index #3 (e.g. if data from chip #2 is missing)
 
     QVector<int> overscan_xmin;
     QVector<int> overscan_xmax;

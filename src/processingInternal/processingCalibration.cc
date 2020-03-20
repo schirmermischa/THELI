@@ -68,7 +68,7 @@ void Controller::taskInternalProcessbias()
     // NOTE: QString is not threadsafe, must create copies for threads!
 #pragma omp parallel for num_threads(maxExternalThreads) firstprivate(nlow, nhigh, min, max, dataDirName, dataSubDirName)
     for (int chip=0; chip<instData->numChips; ++chip) {
-        if (abortProcess || !successProcessing) continue;
+        if (abortProcess || !successProcessing || instData->badChips.contains(chip)) continue;
         float nimg = biasData->myImageList[chip].length() + 1;  // The number of images we must keep in memory
         // Release memory cannot touch any dataCurrent read by MyImage::readImage, because we 'protected' it outside the loop.
         // Initially, this call might not do anything because everything is protected. On systems with less RAM than
@@ -161,7 +161,7 @@ void Controller::taskInternalProcessdark()
     // Loop over all chips
 #pragma omp parallel for num_threads(maxExternalThreads) firstprivate(nlow, nhigh, min, max, dataDirName, dataSubDirName)
     for (int chip=0; chip<instData->numChips; ++chip) {
-        if (abortProcess || !successProcessing) continue;
+        if (abortProcess || !successProcessing || instData->badChips.contains(chip)) continue;
 
         float nimg = darkData->myImageList[chip].length() + 1;  // The number of images we must keep in memory
         releaseMemory(nimg*instData->storage, maxExternalThreads, "calibrator");
@@ -227,7 +227,7 @@ void Controller::taskInternalProcessflatoff()
     // Loop over all chips
 #pragma omp parallel for num_threads(maxExternalThreads) firstprivate(nlow, nhigh, min, max, dataDirName, dataSubDirName)
     for (int chip=0; chip<instData->numChips; ++chip) {
-        if (abortProcess || !successProcessing) continue;
+        if (abortProcess || !successProcessing || instData->badChips.contains(chip)) continue;
 
         float nimg = flatoffData->myImageList[chip].length() + 1;  // The number of images we must keep in memory
         releaseMemory(nimg*instData->storage, maxExternalThreads, "calibrator");
@@ -341,7 +341,7 @@ void Controller::taskInternalProcessflat()
     // Loop over all chips
 #pragma omp parallel for num_threads(maxExternalThreads) firstprivate(nlow, nhigh, min, max, dataDirName, dataSubDirName)
     for (int chip=0; chip<instData->numChips; ++chip) {
-        if (abortProcess || !successProcessing) continue;
+        if (abortProcess || !successProcessing || instData->badChips.contains(chip)) continue;
 
         float nimg = flatData->myImageList[chip].length() + 2;  // The number of images we must keep in memory
         releaseMemory(nimg*instData->storage, maxExternalThreads, "calibrator");
@@ -355,7 +355,7 @@ void Controller::taskInternalProcessflat()
         for (auto &it : flatData->myImageList[chip]) {
             if (abortProcess) break;
             if (!it->successProcessing) continue;
-            if (verbosity >= 0 && !message.isEmpty()) emit messageAvailable(it->chipName + " : Correcting with "+message+"_"+QString::number(chip), "image");
+            if (verbosity >= 0 && !message.isEmpty()) emit messageAvailable(it->chipName + " : Correcting with "+message+"_"+QString::number(chip+1)+".fits", "image");
             // careful with the booleans, they make sure the data is correctly reread from disk or memory if task is repeated
             it->setupCalibDataInMemory(true, false, true);    // read from backupL1, if not then from disk. Makes backup copy if not yet done
             if (biasData != nullptr && biasData->successProcessing) { // cannot pass nullptr to subtractBias()
@@ -389,6 +389,7 @@ void Controller::taskInternalProcessflat()
     // Normalize flats to one. Gain corrections are stored in member variable for later use
 #pragma omp parallel for num_threads(maxExternalThreads)
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         flatData->combinedImage[chip]->normalizeFlat();
         flatData->combinedImage[chip]->applyMask();
         flatData->writeCombinedImage(chip);
@@ -567,14 +568,26 @@ void Controller::taskInternalProcessscience()
     QString biasDataType;
     if (biasData != nullptr) biasDataType = biasData->dataType;
 
+    // get rid of bad detectors, should they still be here
+    for (int chip=0; chip<instData->numChips; ++chip) {
+        if (!instData->badChips.contains(chip)) continue;  // skip good detectors
+        for (auto &it : scienceData->myImageList[chip]) {
+            if (it->imageOnDrive) {                            // delete FITS file for bad detectors (if still present after splitting) so they cannot interfere
+                deleteFile(it->baseName+".fits", it->path);
+                it->imageOnDrive = false;
+                it->activeState = MyImage::DELETED;
+            }
+        }
+    }
+
 #pragma omp parallel for num_threads(maxCPU) firstprivate(dataDirName, biasDataType)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
 
         auto &it = allMyImages[k];
-        if (!it->successProcessing) continue;
         int chip = it->chipNumber - 1;
-
+        if (!it->successProcessing) continue;
+        if (instData->badChips.contains(chip)) continue;     // redundant. Image not even in allMyImages[k];
         releaseMemory(nimg*instData->storage, maxCPU);
 
         // Don't remember why we need a lock here. I think it had to do with the headers. Will crash otherwise
@@ -647,7 +660,7 @@ void Controller::taskInternalProcessscience()
 
                 // Must provide filter string explicitly (and therefore also the full path and file name.
                 // Always store debayered images
-//                it->writeImageDebayer(it->path + "/" + it->chipName + "PA.fits", it->filter, it->exptime, it->mjdobs);
+                //                it->writeImageDebayer(it->path + "/" + it->chipName + "PA.fits", it->filter, it->exptime, it->mjdobs);
                 it->writeImageDebayer();
                 it->unprotectMemory();
             }
@@ -661,7 +674,7 @@ void Controller::taskInternalProcessscience()
         progress += progressStepSize;
         ++numProcessedImages[chip];
         if ((minimizeMemoryUsage && instData->numChips > 1)
-                || numProcessedImages[chip] == instData->numChips) {
+                || numProcessedImages[chip] == numMyImages/instData->numUsedChips) {
             // all images of this chip have been processed, and the calib data can be set deletable
             if (biasData != nullptr) biasData->unprotectMemory(chip);
             if (flatData != nullptr) flatData->unprotectMemory(chip);
@@ -669,6 +682,7 @@ void Controller::taskInternalProcessscience()
     }
 
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         // Update image list; remove bayer images, insert debayered images
         if (!instData->bayer.isEmpty()) scienceData->repopulate(chip, bayerList[chip]);
         /*
@@ -695,6 +709,6 @@ void Controller::taskInternalProcessscience()
         scienceData->emitStatusChanged();
         emit addBackupDirToMemoryviewer(scienceDir, backupDirName);
         emit progressUpdate(100);
-//        pushEndMessage(taskBasename, scienceDir);
+        //        pushEndMessage(taskBasename, scienceDir);
     }
 }
