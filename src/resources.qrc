@@ -46,7 +46,6 @@
         <file>images/bones_final.png</file>
         <file>images/stop_final.png</file>
         <file>images/yield_final.png</file>
-        <file>images/db_reset.png</file>
         <file>config/instruments/ACAM@WHT.ini</file>
         <file>config/instruments/ACAM@WHT.reg</file>
         <file>config/instruments/ACS@HST.ini</file>
@@ -329,5 +328,12 @@
         <file>images/qt5_logo.png</file>
         <file>config/instruments/SuprimeCam_200101-200104@SUBARU_1.reg</file>
         <file>images/wcs.png</file>
+        <file>images/db-restart-icon.png</file>
+        <file>images/db-reset.png</file>
+        <file>images/parameter-reset.png</file>
+        <file>images/open_project.png</file>
+        <file>images/Actions-process-stop-icon.png</file>
+        <file>images/Signal-yield-icon.png</file>
+        <file>images/settings-icon.png</file>
     </qresource>
 </RCC>

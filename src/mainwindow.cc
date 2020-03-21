@@ -453,7 +453,8 @@ void MainWindow::initGUI()
     QIcon redoarrow(":/images/redoarrow.png");
     QIcon projectLoad(":/images/open_file.png");
     QIcon projectReset(":/images/reset.png");
-    QIcon projectDataReset(":/images/db_reset.png");
+//    QIcon projectDataReset(":/images/db_reset.png");
+    QIcon projectDataReset(":/images/Aqua-Restart-icon.png");
     // configuration dialog
 
     ui->HDUreformatConfigureToolButton->setIcon(key);
