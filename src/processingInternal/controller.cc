@@ -741,7 +741,8 @@ void Controller::loadPreferences()
     // If more CPUs than detectors, limit this number so that we have left-over threads for further parallelization
     // (internal threads in Data class)
     if (maxCPU > instData->numUsedChips) {
-        maxExternalThreads = instData->numUsedChips;
+//        maxExternalThreads = instData->numUsedChips;      // NO! The loops skipped for a bad chip will just wait until another CPU becomes available.
+        maxExternalThreads = instData->numChips;            // keep full number of CPUs instead
         maxInternalThreads = maxCPU - maxExternalThreads + 1;
     }
     else {

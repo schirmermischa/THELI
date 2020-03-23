@@ -454,7 +454,6 @@ void MainWindow::initGUI()
     QIcon projectLoad(":/images/open_project.png");
     QIcon projectReset(":/images/parameter-reset.png");
     QIcon projectDataReset(":/images/db-reset.png");
-//    QIcon projectDataReset(":/images/Aqua-Restart-icon.png");
     // configuration dialog
 
     ui->HDUreformatConfigureToolButton->setIcon(key);
@@ -1593,9 +1592,6 @@ void MainWindow::restoreOriginalData()
     msgBox.exec();
     if (msgBox.clickedButton()== cancelButton) return;
 
-    // Restore data
-    controller->restoreAllRawData();
-
     QString newStatus = "";
     status.statusstringToHistory(newStatus);
     // Reset status
@@ -1603,6 +1599,9 @@ void MainWindow::restoreOriginalData()
         it = false;
     }
     status.updateStatus();
+
+    // Restore data
+    controller->restoreAllRawData();
 }
 
 void MainWindow::on_actionLicense_triggered()

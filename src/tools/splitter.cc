@@ -254,7 +254,7 @@ void Splitter::extractImagesFITS()
 
             // some multi-chip cams (FORS, etc) come with separate FITS files. For them, 'chip' would always be zero,
             // and thus the correct overscan regions etc not identified correctly.
-            // Others such as GROND image simultaneously in different bandpasses on multiple detectoirs, but they show the
+            // Others such as GROND image simultaneously in different bandpasses on multiple detectors, but they show the
             // same field of view and should be treated as single-chip cameras.
             // Hence this mapping
             int chipMapped = inferChipID(chip) - 1;   // same value as chip for normal 'MEF' files

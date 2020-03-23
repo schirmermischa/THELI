@@ -66,6 +66,7 @@ void Controller::taskInternalProcessbias()
 
     // Loop over all chips
     // NOTE: QString is not threadsafe, must create copies for threads!
+    // NOTE: a 'bad' chip will 'continue', but openMP waits until at least one of the other threads has finished
 #pragma omp parallel for num_threads(maxExternalThreads) firstprivate(nlow, nhigh, min, max, dataDirName, dataSubDirName)
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (abortProcess || !successProcessing || instData->badChips.contains(chip)) continue;

@@ -226,6 +226,7 @@ public:
     void cleanBackgroundModelStatus();
     bool checkForRawData();
     void applyMask(int chip, QString filter);
+    void resetBackupInfo();
 public slots:
     void setMemoryLockReceived(bool locked);
     void setWCSLockReceived(bool locked);

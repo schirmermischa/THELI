@@ -2540,6 +2540,18 @@ void Data::transferBackupInfo()
     statusBackupL3 = it->statusBackupL3;
 }
 
+// Reset status (when restoring original data)
+void Data::resetBackupInfo()
+{
+    processingStatus->statusString = "";
+    pathBackupL1 = "";
+    pathBackupL2 = "";
+    pathBackupL3 = "";
+    statusBackupL1 = "";
+    statusBackupL2 = "";
+    statusBackupL3 = "";
+}
+
 // Used if data is restored from a backup dir alone, i.e. data are not present in RAM in any backup level
 void Data::restoreFromDirectory(QString backupDirName)
 {
@@ -2655,6 +2667,7 @@ void Data::restoreRAWDATA()
 
     emit setMemoryLock(true);
     releaseAllMemory();
+    resetBackupInfo();
     myImageList.clear();
     combinedImage.clear();
     myImageList.resize(instData->numChips);
@@ -2664,7 +2677,7 @@ void Data::restoreRAWDATA()
     emit setMemoryLock(false);
     QString newStatus = "";
     processingStatus->deleteFromDrive();
-    //    processingStatus->reset();
+    processingStatus->reset();
     //    processingStatus->writeToDrive();
     emit statusChanged(newStatus);
     emit updateModelHeaderLine();

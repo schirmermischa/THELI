@@ -45,7 +45,7 @@ MemoryViewer::MemoryViewer(Controller *ctrl, MainWindow *parent) :
     mainGUI = parent;
     controller = ctrl;
 
-//    connect(ui->memoryTableView, &QTableView::clicked, this, &MemoryViewer::writeCheckBoxClicked);
+    //    connect(ui->memoryTableView, &QTableView::clicked, this, &MemoryViewer::writeCheckBoxClicked);
     connect(ui->procstatusHDUreformatCheckbox, &QCheckBox::clicked, this, &MemoryViewer::updateProcessingStatusOnDriveAndInData);
     connect(ui->procstatusProcessscienceCheckbox, &QCheckBox::clicked, this, &MemoryViewer::updateProcessingStatusOnDriveAndInData);
     connect(ui->procstatusChopnodCheckbox, &QCheckBox::clicked, this, &MemoryViewer::updateProcessingStatusOnDriveAndInData);
@@ -249,9 +249,15 @@ void MemoryViewer::on_datadirComboBox_currentIndexChanged(int index)
         ui->restoreComboBox->insertItem(0, "RAWDATA");
     }
     if (dataModelList[index]->modelType == "science") {
-        QString status1 = dataModelList[index]->imageList[0]->statusBackupL1;
-        QString status2 = dataModelList[index]->imageList[0]->statusBackupL2;
-        QString status3 = dataModelList[index]->imageList[0]->statusBackupL3;
+        QString status1 = "";
+        QString status2 = "";
+        QString status3 = "";
+        // Must test for empty when having done full data reset, and then selecting the "science" tab in the memory viewer
+        if (!dataModelList[index]->imageList.isEmpty()) {
+            status1 = dataModelList[index]->imageList[0]->statusBackupL1;
+            status2 = dataModelList[index]->imageList[0]->statusBackupL2;
+            status3 = dataModelList[index]->imageList[0]->statusBackupL3;
+        }
         ui->restoreComboBox->addItem("RAWDATA");
         if (!status1.isEmpty()) ui->restoreComboBox->addItem(status1+"_IMAGES");
         if (!status2.isEmpty()) ui->restoreComboBox->addItem(status2+"_IMAGES");
