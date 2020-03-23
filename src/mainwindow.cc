@@ -1193,6 +1193,8 @@ void MainWindow::on_setupProjectLoadToolButton_clicked()
         cdw->raise();
         viewSwitched = true;
     }
+
+    monitor->displayMessage("Freeing memory ...", "ignore");
     controller->wipeDataTree();
 
     // Now load the new GUI settings
