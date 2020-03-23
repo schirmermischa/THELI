@@ -38,14 +38,10 @@
         <file>images/hand.png</file>
         <file>images/pipette.png</file>
         <file>qss/default.qss</file>
-        <file>images/reset.png</file>
-        <file>images/open_file.png</file>
         <file>images/upload.png</file>
         <file>images/download.png</file>
         <file>images/gear.png</file>
         <file>images/bones_final.png</file>
-        <file>images/stop_final.png</file>
-        <file>images/yield_final.png</file>
         <file>config/instruments/ACAM@WHT.ini</file>
         <file>config/instruments/ACAM@WHT.reg</file>
         <file>config/instruments/ACS@HST.ini</file>

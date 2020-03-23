@@ -451,10 +451,10 @@ void MainWindow::initGUI()
 
     QIcon key(":/images/key.png");
     QIcon redoarrow(":/images/redoarrow.png");
-    QIcon projectLoad(":/images/open_file.png");
-    QIcon projectReset(":/images/reset.png");
-//    QIcon projectDataReset(":/images/db_reset.png");
-    QIcon projectDataReset(":/images/Aqua-Restart-icon.png");
+    QIcon projectLoad(":/images/open_project.png");
+    QIcon projectReset(":/images/parameter-reset.png");
+    QIcon projectDataReset(":/images/db-reset.png");
+//    QIcon projectDataReset(":/images/Aqua-Restart-icon.png");
     // configuration dialog
 
     ui->HDUreformatConfigureToolButton->setIcon(key);
@@ -498,8 +498,8 @@ void MainWindow::initGUI()
     }
     */
 
-    QIcon yield(":/images/yield_final.png");
-    QIcon stop(":/images/stop_final.png");
+    QIcon yield(":/images/Signal-yield-icon.png");
+    QIcon stop(":/images/Actions-process-stop-icon.png");
     ui->yieldToolButton->setIcon(yield);
     ui->stopToolButton->setIcon(stop);
 }
