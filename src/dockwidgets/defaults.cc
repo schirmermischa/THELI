@@ -198,6 +198,7 @@ void ConfDockWidget::loadDefaults()
         ui->biasNhighLineEdit->setText("");
         ui->darkNlowLineEdit->setText("");
         ui->darkNhighLineEdit->setText("");
+        ui->excludeDetectorsLineEdit->clear();
         ui->flatoffNlowLineEdit->setText("");
         ui->flatoffNhighLineEdit->setText("");
         ui->flatNlowLineEdit->setText("");

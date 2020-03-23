@@ -713,7 +713,7 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
 
     if (userStop || userKill) return;
 
-    if (*verbosity > 0) emit messageAvailable(subDirName + " : Combining images ...", "data");
+    if (*verbosity > 0) emit messageAvailable(subDirName + " : Combining images for chip "+QString::number(chip)+" ...", "data");
 
     int nlow = nlowString.toInt();    // returns 0 for empty string (desired)
     int nhigh = nhighString.toInt();  // returns 0 for empty string (desired)

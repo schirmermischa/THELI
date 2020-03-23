@@ -455,7 +455,7 @@ void MainWindow::initGUI()
     QIcon key(":/images/key.png");
     QIcon redoarrow(":/images/redoarrow.png");
     QIcon projectLoad(":/images/open_project.png");
-    QIcon projectReset(":/images/parameter-reset.png");
+    QIcon projectReset(":/images/db-restart-icon.png");
     QIcon projectDataReset(":/images/db-reset.png");
     // configuration dialog
 
@@ -1393,9 +1393,11 @@ void MainWindow::reset()
 
         QMessageBox msgBox;
         msgBox.setModal(true);
-        msgBox.setInformativeText(tr("You are about to reset the current project, which keeps \n") +
+        msgBox.setText(tr("Project parameter reset"));
+        msgBox.setInformativeText(tr("WARNING: You are about to reset the current project, which keeps \n") +
                                   QString::number(numUnsavedImages) +
-                                  tr(" processed images in memory that have not yet been saved to drive.\n\n"));
+                                  tr(" processed images in memory that have not yet been saved to drive.\n\n") +
+                                  tr(" All processing parameters will be reset to their default values. Processing will continue with the FITS files found on disk. Data currently kept in memory can optionally be written to disk.\n"));
         QAbstractButton *pButtonSave = msgBox.addButton(tr("Save images (")+QString::number(mBytes)+" MB)", QMessageBox::YesRole);
         QAbstractButton *pButtonContinue = msgBox.addButton(tr("Continue without saving"), QMessageBox::YesRole);
         QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
@@ -1406,17 +1408,36 @@ void MainWindow::reset()
             }
             else {
                 // sufficientSpaceAvailable() displays a warning message
-                return;
+                return;      // insufficient space available
             }
         }
         else if (msgBox.clickedButton() == pButtonContinue) {
-            // nothing yet
+            // nothing to be done
         }
         else return;
     }
+    else {
+        QMessageBox msgBox;
+        msgBox.setModal(true);
+        msgBox.setText(tr("Project parameter reset"));
+        msgBox.setInformativeText(tr("WARNING: You are about to reset the current project.") +
+                                  tr(" All processing parameters will be reset to their default values. Processing will continue with the FITS files found on disk.\n"));
+        QAbstractButton *pButtonOK = msgBox.addButton(tr("OK"), QMessageBox::YesRole);
+        QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
+        msgBox.exec();
+        if (msgBox.clickedButton() == pButtonCancel) return;
+    }
 
+    // Purge all data from memory
+    monitor->displayMessage("Freeing memory ...", "ignore");
     controller->wipeDataTree();
 
+    // Reread data tree from disk
+    monitor->displayMessage("Reading data structure from drive ...", "ignore");
+    controller->mapDataTree();
+
+    // Load defaults
+    monitor->displayMessage("Restoring defaults ...", "ignore");
     cdw->loadDefaults();
 
     for (auto &it : status.listHistory) {
@@ -1424,6 +1445,8 @@ void MainWindow::reset()
     }
     status.updateStatus();
     writeGUISettings();
+
+    monitor->displayMessage("<br>*** DONE ***", "note");
 }
 
 void MainWindow::populateTaskCommentMap()
@@ -1590,13 +1613,25 @@ void MainWindow::on_actionEdit_preferences_triggered()
 
 void MainWindow::restoreOriginalData()
 {
-    QMessageBox msgBox;
-    msgBox.setInformativeText(tr("Restore all raw data from their RAWDATA/ directories. ") +
-                              tr("All previously processed data will be lost (full data reset)!\n\n"));
-    QAbstractButton *okButton = msgBox.addButton("OK", QMessageBox::YesRole);
-    QAbstractButton *cancelButton = msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
-    msgBox.exec();
-    if (msgBox.clickedButton()== cancelButton) return;
+    bool accept = true;
+
+    const QMessageBox::StandardButton ret
+            = QMessageBox::warning(this, tr("Full data reset"),
+                                   tr("WARNING: You are about to restore all raw data.\n\n") +
+                                   tr("All processed data, both in memory and on drive, will be lost!\n"),
+                                   QMessageBox::Ok | QMessageBox::Cancel);
+    switch (ret) {
+    case QMessageBox::Ok:
+        accept = accept && true;
+        break;
+    case QMessageBox::Cancel:
+        accept = accept && false;
+        break;
+    default:
+        break;
+    }
+
+    if (!accept) return;
 
     QString newStatus = "";
     status.statusstringToHistory(newStatus);
@@ -1607,6 +1642,7 @@ void MainWindow::restoreOriginalData()
     status.updateStatus();
 
     // Restore data
+    monitor->displayMessage("Freeing memory, restoring raw data ...", "ignore");
     controller->restoreAllRawData();
 }
 
