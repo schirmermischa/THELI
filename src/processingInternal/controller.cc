@@ -741,7 +741,7 @@ void Controller::loadPreferences()
     // If more CPUs than detectors, limit this number so that we have left-over threads for further parallelization
     // (internal threads in Data class)
     if (maxCPU > instData->numUsedChips) {
-//        maxExternalThreads = instData->numUsedChips;      // NO! The loops skipped for a bad chip will just wait until another CPU becomes available.
+        //        maxExternalThreads = instData->numUsedChips;      // NO! The loops skipped for a bad chip will just wait until another CPU becomes available.
         maxExternalThreads = instData->numChips;            // keep full number of CPUs instead
         maxInternalThreads = maxCPU - maxExternalThreads + 1;
     }
@@ -1383,16 +1383,23 @@ void Controller::restoreAllRawData()
 
     if (GLOBALWEIGHTS!= nullptr) GLOBALWEIGHTS->releaseAllMemory();
     QDir globalweightsDir(mainDirName+"/GLOBALWEIGHTS/");
-    emit messageAvailable("Deleting " + mainDirName+"/GLOBALWEIGHTS/" + "...", "controller");
-    globalweightsDir.removeRecursively();
+    if (globalweightsDir.exists()) {
+        emit messageAvailable("Deleting " + mainDirName+"/GLOBALWEIGHTS/" + "...", "controller");
+        globalweightsDir.removeRecursively();
+    }
 
     QDir weightsDir(mainDirName+"/WEIGHTS/");
-    emit messageAvailable("Deleting " + mainDirName+"/WEIGHTS/" + "...", "controller");
-    weightsDir.removeRecursively();
+    if (weightsDir.exists()) {
+        emit messageAvailable("Deleting " + mainDirName+"/WEIGHTS/" + "...", "controller");
+        weightsDir.removeRecursively();
+    }
 
     updateMasterList();
 
     mainGUI->status.clearAllCheckBoxes();
+
+    cdw->ui->ARCpmRALineEdit->clear();
+    cdw->ui->ARCpmDECLineEdit->clear();
 }
 
 void Controller::printCfitsioError(QString funcName, int status)

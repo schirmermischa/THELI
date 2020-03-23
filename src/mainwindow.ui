@@ -278,7 +278,7 @@
           <enum>Qt::ClickFocus</enum>
          </property>
          <property name="statusTip">
-          <string>WARNING: Restores all original data! All processed data in memory and on disk will be lost. RESTART REQUIRED.</string>
+          <string>WARNING: Restores all original data! All processed data in memory and on disk will be lost.</string>
          </property>
          <property name="text">
           <string>...</string>

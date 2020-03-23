@@ -2636,12 +2636,12 @@ void Data::restoreRAWDATA()
 {
     QDir rawdataDir(dirName+"/RAWDATA");
     if (!rawdataDir.exists()) {
-        emit messageAvailable(subDirName+"/RAWDATA does not exist. No data were restored or deleted.", "warning");
+        emit messageAvailable(subDirName+"/RAWDATA does not exist, "+subDirName+" remains unmodified.", "note");
         emit warning();
         return;
     }
     if (rawdataDir.isEmpty()) {
-        emit messageAvailable(subDirName+"/RAWDATA is empty. No data were restored or deleted.", "warning");
+        emit messageAvailable(subDirName+"/RAWDATA is empty, "+subDirName+" remains unmodified.", "note");
         emit warning();
         return;
     }

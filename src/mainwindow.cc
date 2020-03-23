@@ -49,6 +49,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QStorageInfo>
 #include <QTimer>
 #include <QPixmap>
+#include <QScreen>
 
 MainWindow::MainWindow(QString pid, QWidget *parent) :
     QMainWindow(parent),
@@ -201,6 +202,8 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
 
     // repaint; doesn't seem to help in painting the checkboxes correctly
 //    update();
+
+    estimateBinningFactor();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -871,6 +874,8 @@ void MainWindow::initInstrumentData(QString instrumentNameFullPath)
         Tmatrices << tm;
     }
     getBinnedSize(&instData, Tmatrices, nGlobal, mGlobal, binFactor, xminOffset, yminOffset);    // used to retrieve nglobal and mglobal
+    instData.nGlobal = nGlobal;
+    instData.mGlobal = mGlobal;
     instData.radius = 0.5 * sqrt(nGlobal*nGlobal + mGlobal*mGlobal)*instData.pixscale / 3600.;   // in degrees
 
     // Lastly, how many MB does a single detector occupy
@@ -1073,6 +1078,8 @@ void MainWindow::on_setupInstrumentComboBox_clicked()
         ui->BACconfigureToolButton->show();
         cdw->ui->overscanCheckBox->setEnabled(true);
     }
+
+    cdw->ui->BIPSpinBox->setValue(estimateBinningFactor());
 
     // Update settings
     writeGUISettings();
@@ -1585,8 +1592,7 @@ void MainWindow::restoreOriginalData()
 {
     QMessageBox msgBox;
     msgBox.setInformativeText(tr("Restore all raw data from their RAWDATA/ directories. ") +
-                              tr("All previously processed data will be lost (full data reset)!\n\n") +
-                              tr("YOU MUST RESTART THELI AFTERWARDS.\n"));
+                              tr("All previously processed data will be lost (full data reset)!\n\n"));
     QAbstractButton *okButton = msgBox.addButton("OK", QMessageBox::YesRole);
     QAbstractButton *cancelButton = msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
     msgBox.exec();
@@ -1614,4 +1620,17 @@ void MainWindow::on_actionAcknowledging_triggered()
 {
     acknowledging = new Acknowledging(this);
     acknowledging->show();
+}
+
+int MainWindow::estimateBinningFactor()
+{
+    QScreen *screen = QGuiApplication::primaryScreen();
+    int x = screen->availableSize().width() - 240;    // subtracting margins for the iview UI
+    int y = screen->availableSize().height() - 120;
+    int binFactorX = instData.nGlobal / x + 1;
+    int binFactorY = instData.mGlobal / y + 1;
+    int binFactor = binFactorX > binFactorY ? binFactorX : binFactorY;
+    if (binFactor < 1) binFactor = 1;
+
+    return binFactor;
 }

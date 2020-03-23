@@ -39,6 +39,8 @@ typedef struct {
     float storage = 0;    // MB used for a single image
     float storageExposure = 0.; // MB used for the entire (multi-chip) exposure
     int numUsedChips;
+    long nGlobal = 1;     // Overall focal plane size in x-direction
+    long mGlobal = 1;     // Overall focal plane size in x-direction
     QVector<int> badChips;
     QMap<int, int> chipMap;      // in case of bad detectors, we need to map e.g. chip #4 to index #3 (e.g. if data from chip #2 is missing)
 

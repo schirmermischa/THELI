@@ -331,6 +331,7 @@ private:
     void checkMemoryConstraints();
     void addProgressBars();
     void resetInstrumentData();
+    int estimateBinningFactor();
 };
 
 // Subclassing QStringListModel to allow certain entries being shown with different colors
