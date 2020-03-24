@@ -260,9 +260,18 @@ void Splitter::applyMask(int chip)
     if (*verbosity > 1) emit messageAvailable(baseName + " : Applying mask ...", "image");
 
     long i = 0;
-    for (auto &pixel : dataCurrent) {
-        if (mask->globalMask[chip].at(i)) pixel = 0.;
-        ++i;
+    if (!instData.name.contains("GROND")) {
+        for (auto &pixel : dataCurrent) {
+            if (mask->globalMask[chip].at(i)) pixel = 0.;
+            ++i;
+        }
+    }
+    // Resolve a mask conflict (two different masks, but only one instrument can be selected at a time)
+    else if (instNameFromData == "GROND_OPT@MPGESO" && instData.name == "GROND_NIR@MPGESO" && altMask != nullptr) {
+        for (auto &pixel : dataCurrent) {
+            if (altMask->globalMask[chip].at(i)) pixel = 0.;
+            ++i;
+        }
     }
 }
 

@@ -45,6 +45,8 @@ void Controller::taskInternalCoaddition()
     coaddScienceDir = instructions.split(" ").at(1);
     QString filterArg = instructions.split(" ").at(3);
     coaddScienceData = getData(DT_SCIENCE, coaddScienceDir);
+    if (coaddScienceData == nullptr) return;      // Error triggered by getData();
+
     currentData = coaddScienceData;
     currentDirName = coaddScienceDir;
 
@@ -1019,9 +1021,7 @@ void Controller::coaddUpdate()
 
     // Finally, do flux calibration if requested
     if (cdw->ui->COAfluxcalibCheckBox->isChecked()) {
-        AbsZeroPoint *abszeropoint = new AbsZeroPoint(coaddDirName+"/coadd.fits", instData);
-        connect(abszeropoint, &AbsZeroPoint::destroyed, this, &Controller::absZeroPointCloseReceived);
-        abszeropoint->show();
+        emit loadAbsZP(coaddDirName+"/coadd.fits", instData);
     }
     else {
         // Now we can quit the first coaddition thread (which spawned all the other threads).

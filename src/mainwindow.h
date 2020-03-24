@@ -235,6 +235,7 @@ private slots:
     void emitEditingFinished(const QString &arg1);
     void on_actionLicense_triggered();
     void on_actionAcknowledging_triggered();
+    void loadCoaddAbsZP(QString coaddImage, instrumentDataType *instData);
 
 private:
     // Variables we need to access frequently

@@ -37,7 +37,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QFile>
 #include <QDir>
 
-Splitter::Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Data *someData, QString datatype,
+Splitter::Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Mask *altDetectorMask, Data *someData, QString datatype,
                    ConfDockWidget *confDockWidget, QString maindirname,
                    QString subdirname, QString filename, int *verbose,
                    QObject *parent) : QObject(parent)
@@ -54,6 +54,7 @@ Splitter::Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Data 
     baseName = fi.completeBaseName();
     verbosity = verbose;
     mask = detectorMask;
+    altMask = altDetectorMask;
     data = someData;
 
     QDir rawdata(path+"/RAWDATA");
@@ -205,6 +206,7 @@ void Splitter::extractImages()
 {
     if (!successProcessing) return;
     if (alreadyProcessed) return;
+    if (dataFormat == "Unknown") return;
 
     emit messageAvailable(fileName + " : HDU reformatting, low-level pixel processing ...", "image");
 

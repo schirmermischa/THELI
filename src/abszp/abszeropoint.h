@@ -63,6 +63,7 @@ signals:
     void resetProgressBar();
     void finished();
     void readyForPlotting();
+    void abszpClosed();
 
 public slots:
     void processErrorOutput(QString errormessage, QString logname);
@@ -84,6 +85,8 @@ private slots:
     void finishedCalculations();
     void buildAbsPhot();
     void criticalReceived();
+    void on_closePushButton_clicked();
+
 private:
     void defaults_if_empty();
     void initGUI();

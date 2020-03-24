@@ -35,8 +35,8 @@ class Splitter : public QObject
 {
     Q_OBJECT
 public:
-    explicit Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Data *someData, QString datatype,
-                      ConfDockWidget *confDockWidget, QString maindirname,
+    explicit Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Mask *altDetectorMask,
+                      Data *someData, QString datatype, ConfDockWidget *confDockWidget, QString maindirname,
                       QString subdirname, QString filename, int *verbose, QObject *parent = nullptr);
 
     void extractImages();
@@ -67,6 +67,8 @@ public:
 
 
     Mask *mask;
+    Mask *altMask;     // alternative mask, in case of e.g. GRONG where we have two very different detector types
+
     Data *data;
 
     QMap<QString, QStringList> headerDictionary;   // Defined once in the controller, we just link to it; NOPE! Local copy, thread safety!
@@ -121,7 +123,8 @@ private:
     QVector<long> multiportOffsetY;                      // The y-offset of that port's data section from the lower left pixel of the pasted image
     QStringList multiportOverscanDirections;             // Whether the overscan strips are vertical or horizontal
 
-    instrumentDataType instData;   // No pointer, because it is not thread safe (QVectors, QStrings)
+    instrumentDataType instData;      // No pointer, because it is not thread safe (QVectors, QStrings)
+    instrumentDataType altInstData;   // For GROND, where we have two very different detector types
     ConfDockWidget *cdw;
     QString name;
     QString fileName;
@@ -275,6 +278,9 @@ private:
     void updateMEFpastingStatus(int chip);
     bool individualFixCRPIX(int chip);
     void getNumberOfAmplifiers();
+    void resetInstrumentData();
+    void initAltInstrumentData(QString instrumentNameFullPath);
+    void testOverscan(QVector<int> &overscan);
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

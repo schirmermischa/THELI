@@ -144,7 +144,7 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     // The entity that keeps track of the data, incl connections
     QString statusOld = status.getStatusFromHistory();
 
-    // NOTE: setting up the controller may take a while (hen creating object masks)
+    // NOTE: setting up the controller may take a while (when creating object masks)
     controller = new Controller(&instData, statusOld, cdw, monitor, this);
     // LineEdit changes update controller
     for (auto &it : status.listDataDirs) {
@@ -157,6 +157,7 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     // Another dock widget, must be done after instantiating the controller
     memoryViewer = new MemoryViewer(controller, this);
     controller->memoryViewer = memoryViewer;
+    controller->instrument_dir = instrument_dir;
     controller->connectDataWithMemoryViewer();
     connect(controller, &Controller::clearMemoryView, memoryViewer, &MemoryViewer::clearMemoryViewReceived, Qt::DirectConnection);
     connect(controller, &Controller::populateMemoryView, memoryViewer, &MemoryViewer::populateMemoryViewReceived);
@@ -173,6 +174,7 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     updateControllerFunctors("");
     // Internal processing
     connect(controller, &Controller::loadViewer, this, &MainWindow::launchViewer);
+    connect(controller, &Controller::loadAbsZP, this, &MainWindow::loadCoaddAbsZP);
     connect(controller, &Controller::messageAvailable, monitor, &Monitor::displayMessage);
     connect(controller, &Controller::appendOK, monitor, &Monitor::appendOK);
     connect(controller, &Controller::showMessageBox, this, &MainWindow::showMessageBoxReceived);
@@ -1280,6 +1282,13 @@ void MainWindow::load_dialog_abszeropoint()
     AbsZeroPoint *abszeropoint = new AbsZeroPoint("", &instData, this);
     // crashes, probably because 'preferences' doesn't exist yet.
     //   connect(preferences, &Preferences::verbosityLevelChanged, abszeropoint, &AbsZeroPoint::updateVerbosity);
+    abszeropoint->show();
+}
+
+void MainWindow::loadCoaddAbsZP(QString coaddImage, instrumentDataType *instData)
+{
+    AbsZeroPoint *abszeropoint = new AbsZeroPoint(coaddImage, instData, this);
+    connect(abszeropoint, &AbsZeroPoint::abszpClosed, controller, &Controller::absZeroPointCloseReceived);
     abszeropoint->show();
 }
 

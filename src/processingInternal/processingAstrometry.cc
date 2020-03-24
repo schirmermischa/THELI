@@ -41,6 +41,8 @@ void Controller::taskInternalCreatesourcecat()
     QString scienceDir = instructions.split(" ").at(1);
     QString updateMode = instructions.split(" ").at(3);
     Data *scienceData = getData(DT_SCIENCE, scienceDir);
+    if (scienceData == nullptr) return;      // Error triggered by getData();
+
     currentData = scienceData;
     currentDirName = scienceDir;
 
@@ -418,6 +420,8 @@ void Controller::taskInternalAstromphotom()
 {
     QString scienceDir = instructions.split(" ").at(1);
     Data *scienceData = getData(DT_SCIENCE, scienceDir);
+    if (scienceData == nullptr) return;      // Error triggered by getData();
+
     currentData = scienceData;
     currentDirName = scienceDir;
 

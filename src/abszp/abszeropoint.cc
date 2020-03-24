@@ -1038,3 +1038,9 @@ void AbsZeroPoint::updateCoaddHeader()
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SURV= '"+ui->zpRefcatComboBox->currentText()+"'</tt>");
     ui->zpPlainTextEdit->appendHtml("<tt>FLUXCONV= "+QString::number(fluxConv, 'f', 4)+" (conversion factor to microJy)</tt>");
 }
+
+void AbsZeroPoint::on_closePushButton_clicked()
+{
+    emit abszpClosed();
+    this->close();
+}

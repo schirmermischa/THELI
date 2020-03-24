@@ -34,6 +34,8 @@ void Controller::taskInternalCollapse()
 {
     QString scienceDir = instructions.split(" ").at(1);
     Data *scienceData = getData(DT_SCIENCE, scienceDir);
+    if (scienceData == nullptr) return;      // Error triggered by getData();
+
     currentData = scienceData;
     currentDirName = scienceDir;
 
@@ -159,6 +161,8 @@ void Controller::taskInternalBinnedpreview()
 {
     QString scienceDir = instructions.split(" ").at(1);
     Data *scienceData = getData(DT_SCIENCE, scienceDir);
+    if (scienceData == nullptr) return;      // Error triggered by getData();
+
     currentData = scienceData;
     currentDirName = scienceDir;
 

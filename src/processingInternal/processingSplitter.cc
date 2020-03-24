@@ -38,6 +38,8 @@ void Controller::taskInternalHDUreformat()
     currentDirName = dataDir;
 
     Data *data = getDataAll(dataDir);
+    if (data == nullptr) return;      // Error triggered by getDataAll();
+
     data->numImages = 0;
 
     pushBeginMessage(taskBasename, dataDir);
@@ -80,6 +82,8 @@ void Controller::taskInternalHDUreformat()
 
     QString dataType = data->dataType;
 
+    provideAlternativeMask();
+
     // Loop over all chips
 #pragma omp parallel for num_threads(maxCPU) firstprivate(mainDirName, dataDir, dummyKeys, nonlinearityCoefficients, headerDictionary, filterDictionary, dataType)
     for (int i=0; i<numActiveImages; ++i) {
@@ -87,7 +91,7 @@ void Controller::taskInternalHDUreformat()
         if (userStop || userKill || abortProcess) continue;  // Only place we do it this way, because Data class is not yet instantiated
         // Setup the splitter class for the current file
         QString fileName = files.at(i);
-        Splitter *splitter = new Splitter(*instData, mask, data, dataType, cdw, mainDirName, dataDir, fileName, &verbosity);
+        Splitter *splitter = new Splitter(*instData, mask, altMask, data, dataType, cdw, mainDirName, dataDir, fileName, &verbosity);
         splitter->headerDictionary = headerDictionary;
         splitter->filterDictionary = filterDictionary;
         splitter->dummyKeys = dummyKeys;
@@ -271,4 +275,148 @@ QLineEdit* Controller::getDataTreeLineEdit(Data *data)
     }
 
     return le;
+}
+
+// copied from MainWindow
+void Controller::resetAltInstrumentData()
+{
+    altInstData.numChips = 1;
+    altInstData.numUsedChips = 1;
+    altInstData.name = "";
+    altInstData.shortName = "";
+    altInstData.nameFullPath = "";
+    altInstData.obslat = 0.;
+    altInstData.obslong = 0.;
+    altInstData.bayer = "";
+    altInstData.type = "OPT";
+    altInstData.pixscale = 1.0; // in arcsec
+    altInstData.gain = 1.0;
+    altInstData.radius = 0.1;   // exposure coverage radius in degrees
+    altInstData.storage = 0;    // MB used for a single image
+    altInstData.storageExposure = 0.; // MB used for the entire (multi-chip) exposure
+
+    altInstData.overscan_xmin.clear();
+    altInstData.overscan_xmax.clear();
+    altInstData.overscan_ymin.clear();
+    altInstData.overscan_ymax.clear();
+    altInstData.cutx.clear();
+    altInstData.cuty.clear();
+    altInstData.sizex.clear();
+    altInstData.sizey.clear();
+    altInstData.crpix1.clear();
+    altInstData.crpix2.clear();
+}
+
+// copied and modified (shortened) from MainWindow, to handle the two GROND detector types
+void Controller::initAltInstrumentData(QString instrumentNameFullPath)
+{
+    resetAltInstrumentData();
+
+    QFile altInstDataFile(instrumentNameFullPath);
+    altInstDataFile.setFileName(instrumentNameFullPath);
+    altInstData.nameFullPath = instrumentNameFullPath;
+
+    // read the instrument specific data
+    if( !altInstDataFile.open(QIODevice::ReadOnly)) {
+        emit messageAvailable("Controller::initAltInstrumentData(): "+instrumentNameFullPath+" "+altInstDataFile.errorString(), "error");
+        return;
+    }
+
+    bool bayerFound = false;
+    QTextStream in(&(altInstDataFile));
+    while(!in.atEnd()) {
+        QString line = in.readLine().simplified();
+        if (line.isEmpty() || line.contains("#")) continue;
+
+        // scalars
+        if (line.contains("INSTRUMENT=")) altInstData.name = line.split("=")[1];
+        if (line.contains("INSTSHORT=")) altInstData.shortName = line.split("=")[1];
+        if (line.contains("NCHIPS=")) altInstData.numChips = line.split("=")[1].toInt();
+        if (line.contains("TYPE=")) altInstData.type = line.split("=")[1];
+        if (line.contains("BAYER=")) {
+            // BAYER is not mandatory; if not found, we must set it to blank
+            altInstData.bayer = line.split("=")[1];
+            bayerFound = true;
+        }
+        if (line.contains("OBSLAT=")) altInstData.obslat = line.split("=")[1].toFloat();
+        if (line.contains("OBSLONG=")) altInstData.obslong = line.split("=")[1].toFloat();
+        if (line.contains("PIXSCALE=")) altInstData.pixscale = line.split("=")[1].toFloat();
+        if (line.contains("GAIN=")) altInstData.gain = line.split("=")[1].toFloat();
+
+        // vectors
+        if (line.contains("OVSCANX1=")
+                || line.contains("OVSCANX2=")
+                || line.contains("OVSCANY1=")
+                || line.contains("OVSCANY2=")
+                || line.contains("CUTX=")
+                || line.contains("CUTY=")
+                || line.contains("SIZEX=")
+                || line.contains("SIZEY=")
+                || line.contains("REFPIXX=")
+                || line.contains("REFPIXY=")) {
+            line = line.replace('=',' ').replace(')',' ').replace(')',"");
+            line = line.simplified();
+            QStringList values = line.split(" ");
+            QVector<int> vecData;
+            // NOTE: already subtracting -1 to make it conform with C++ indexing
+            // (apart from SIZEX/Y, which is the actual number of pixels per axis and not a coordinate)
+            for (int i=2; i<values.length(); i=i+2) {
+                if (line.contains("SIZE")) vecData.push_back(values.at(i).toInt());
+                else vecData.push_back(values.at(i).toInt() - 1);
+                //     vecData.push_back(values.at(i).toInt() - 1);
+            }
+            if (line.contains("OVSCANX1")) altInstData.overscan_xmin = vecData;
+            if (line.contains("OVSCANX2")) altInstData.overscan_xmax = vecData;
+            if (line.contains("OVSCANY1")) altInstData.overscan_ymin = vecData;
+            if (line.contains("OVSCANY2")) altInstData.overscan_ymax = vecData;
+            if (line.contains("CUTX")) altInstData.cutx = vecData;
+            if (line.contains("CUTY")) altInstData.cuty = vecData;
+            if (line.contains("SIZEX")) altInstData.sizex = vecData;
+            if (line.contains("SIZEY")) altInstData.sizey = vecData;
+            if (line.contains("REFPIXX")) altInstData.crpix1 = vecData;
+            if (line.contains("REFPIXY")) altInstData.crpix2 = vecData;
+        }
+    }
+
+    if (!bayerFound) altInstData.bayer = "";
+    // Backwards compatibility:
+    if (altInstData.type.isEmpty()) altInstData.type = "OPT";
+    QString shortstring = altInstData.name.split('@').at(0);
+    if (altInstData.shortName.isEmpty()) altInstData.shortName = shortstring;
+
+    altInstDataFile.close();
+
+    // The overscan needs special treatment:
+    // if it is consistently -1, or the string wasn't found,
+    // then the vector must be empty
+    testOverscan(altInstData.overscan_xmin);
+    testOverscan(altInstData.overscan_xmax);
+    testOverscan(altInstData.overscan_ymin);
+    testOverscan(altInstData.overscan_ymax);
+}
+
+// copied from MainWindow
+void Controller::testOverscan(QVector<int> &overscan)
+{
+    if (overscan.isEmpty()) return;
+
+    // if the overscan is consistently -1, then the vector must be empty
+    bool flag = true;
+    for (auto &it : overscan) {
+        if (it != -1) {
+            flag = false;
+            break;
+        }
+    }
+    if (flag) overscan.clear();
+}
+
+void Controller::provideAlternativeMask()
+{
+    // If the NIR detector config is chosen for GROND, then we must create separate masks for the optical data.
+    // Not the other way round, as the masking for the NIR data is handled elsewhere.
+    if (instData->name == "GROND_NIR@MPGESO") {
+        initAltInstrumentData(instrument_dir+"/GROND_OPT@MPGESO.ini");
+        altMask = new Mask(&altInstData, this);
+    }
 }

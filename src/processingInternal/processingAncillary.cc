@@ -33,6 +33,7 @@ void Controller::taskInternalGetCatalogFromWEB()
 {
     QString scienceDir = instructions.split(" ").at(1);
     Data *scienceData = getData(DT_SCIENCE, scienceDir);
+    if (scienceData == nullptr) return;      // Error triggered by getData();
 
     pushBeginMessage(taskBasename, scienceDir);
     pushConfigGetCatalogFromWeb();
@@ -138,6 +139,7 @@ void Controller::taskInternalGetCatalogFromIMAGE()
 {
     QString scienceDir = instructions.split(" ").at(1);
     Data *scienceData = getData(DT_SCIENCE, scienceDir);
+    if (scienceData == nullptr) return;      // Error triggered by getData();
 
     pushBeginMessage(taskBasename, scienceDir);
     pushConfigGetCatalogFromImage();
@@ -222,6 +224,7 @@ void Controller::taskInternalRestoreHeader()
 {
     QString scienceDir = instructions.split(" ").at(1);
     Data *scienceData = getData(DT_SCIENCE, scienceDir);
+    if (scienceData == nullptr) return;      // Error triggered by getData();
 
     pushBeginMessage(taskBasename, scienceDir);
 

@@ -65,7 +65,6 @@ private:
     QString thelidir;
     QString userdir;
     QString tmpdir;
-    QString instrument_dir;
 
     QMap<QString,QString> commentMap;
 
@@ -111,6 +110,8 @@ private:
     bool globalweights_created = false;
 
     QString statusAtDistribute = "";
+
+    instrumentDataType altInstData;   // For instruments with e.g. simultaneous optical and NIR detectors requiring different masks during HDU reformatting
 
     QMap<QString,QStringList> headerDictionary;
     QMap<QString,QString> filterDictionary;
@@ -258,6 +259,10 @@ private:
     void finalizeSplitter(Data *data);
     bool updateDataDirs(Data *data);
 
+    void initAltInstrumentData(QString instrumentNameFullPath);
+    void resetAltInstrumentData();
+    void testOverscan(QVector<int> &overscan);
+    void provideAlternativeMask();
 private slots:
     // The following can also be under 'private', but then the declaration must be preceeded like this:
     // Q_INVOKABLE QString taskHDUreformat();
@@ -301,7 +306,6 @@ private slots:
     void copyZeroOrder();
     void errorFoundReceived();
     void addToProgressBarReceived(float differential);
-    void absZeroPointCloseReceived();
 
 public:
     explicit Controller(instrumentDataType *instrumentData, QString statusold, ConfDockWidget *cdw, Monitor *processMonitor,
@@ -344,6 +348,8 @@ public:
 
     QString mainDirName;
 
+    QString instrument_dir;
+
     Query *gaiaQuery;
 
     bool alwaysStoreData = false;
@@ -381,6 +387,7 @@ public:
 
     instrumentDataType *instData;
     Mask *mask = nullptr;
+    Mask *altMask = nullptr;         // for GROND types with different simultaneous detectors
     MainWindow *mainGUI;
     ConfDockWidget *cdw;
     Monitor *monitor;
@@ -464,6 +471,7 @@ signals:
     void populateMemoryView();
     void stopFileProgressTimer();
     void addBackupDirToMemoryviewer(QString scienceDir, QString backupDirName);
+    void loadAbsZP(QString coaddImagePath, instrumentDataType *instData);
 
 public slots:
     void updateAll();
@@ -487,6 +495,7 @@ public slots:
     void rereadScienceDataDirReceived();
     void setMemoryLockReceived(bool locked);
     void setWCSLockReceived(bool locked);
+    void absZeroPointCloseReceived();
 };
 
 #endif // CONTROLLER_H

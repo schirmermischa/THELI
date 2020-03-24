@@ -472,7 +472,7 @@
        <number>1</number>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>8</number>
       </property>
       <widget class="QWidget" name="HDUpage">
        <layout class="QGridLayout" name="gridLayout_31">
@@ -33141,7 +33141,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <item row="0" column="0">
               <widget class="QCheckBox" name="COAfluxcalibCheckBox">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="focusPolicy">
                 <enum>Qt::ClickFocus</enum>

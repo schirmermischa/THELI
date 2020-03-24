@@ -35,6 +35,8 @@ void Controller::taskInternalBackground()
     QString scienceDir = instructions.split(" ").at(1);
     QString skyDir = instructions.split(" ").at(2);
     Data *scienceData = getData(DT_SCIENCE, scienceDir);
+    if (scienceData == nullptr) return;      // Error triggered by getData();
+
     currentData = scienceData;
     currentDirName = scienceDir;
 
@@ -52,6 +54,7 @@ void Controller::taskInternalBackground()
     if (skyDir == "noskydir") skyData = scienceData;  // The background is calculated either from science or from sky images
     else {
         skyData = getData(DT_SKY, skyDir);
+        if (skyData == nullptr) return;      // Error triggered by getData();
         if (!skyData->hasImages()) return;
         if (!skyData->collectMJD()) return;
         skyData->resetProcessbackground();
