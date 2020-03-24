@@ -93,7 +93,7 @@ void MemoryViewer::populate()
     dataModelList.clear();
 
     // Add data from the defined data directories
-    addData(controller->DT_SCIENCE, "SCIENCE");
+    addData(controller->DT_SCIENCE, "SCI");
     addData(controller->DT_SKY, "SKY");
     addData(controller->DT_BIAS, "BIAS");
     addData(controller->DT_DARK, "DARK");
@@ -281,7 +281,7 @@ void MemoryViewer::on_datadirComboBox_currentIndexChanged(int index)
 // triggered when a processing task has created a new backup dir. Only for the currently visible science data
 void MemoryViewer::addBackupDirReceived(QString scienceDir, QString backupDirName)
 {
-    if (ui->datadirComboBox->currentText() == "SCIENCE: "+scienceDir) {
+    if (ui->datadirComboBox->currentText() == "SCI: "+scienceDir) {
         repopulateRestoreComboBox();
     }
 }
