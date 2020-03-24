@@ -59,6 +59,12 @@ AbsZeroPoint::AbsZeroPoint(QString image, instrumentDataType *instrumentData, QW
     ui->zpFitOrderSpinBox->setValue(3);
     ui->zpSaturationLineEdit->setText("5000");
     */
+    ui->zpImageLineEdit->setText("/data1/TESTDATA/ST10new/JACOBY/coadd_OIII/coadd.fits");
+    ui->zpRefcatComboBox->setCurrentText("PANSTARRS");
+    ui->zpFitOrderSpinBox->setValue(1);
+    ui->zpSaturationLineEdit->setText("30");
+    ui->zpDTLineEdit->setText("20");
+    ui->zpDMINLineEdit->setText("20");
 
     performingStartup = false;
 
@@ -317,6 +323,7 @@ void AbsZeroPoint::taskInternalAbszeropoint()
     // Now do the matching
     int multiple1 = 0;
     int multiple2 = 0;
+    matched.clear();       // Otherwise, multiple runs will append to previous data
     match2D(objDat, refDat, matched, myImage->matchingTolerance, multiple1, multiple2, maxCPU);
 
     if (matched.length() == 0) {
@@ -932,6 +939,7 @@ void AbsZeroPoint::on_actionClose_triggered()
 bool AbsZeroPoint::doColortermFit()
 {
     int fitOrder = ui->zpFitOrderSpinBox->value();
+
     /*
     if (!absPhot->regression(fitOrder)) {
         QMessageBox::information( this, "Ill-constrainend fit",
@@ -939,7 +947,8 @@ bool AbsZeroPoint::doColortermFit()
                                   QMessageBox::Ok);
         return false;
     }
-*/
+    */
+
     absPhot->regressionLinfit();
 
     return true;

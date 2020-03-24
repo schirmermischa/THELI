@@ -170,8 +170,10 @@ void AbsPhot::regressionLinfit()
         meanZP = meanMask_T(qv_ZPIndividual, qv_fitMask);
         // Calculate the regression coefficients
         for (long i=0; i<numObj; ++i) {
-            sum_col_ZP += (qv_colorIndividual[i] - meanColor) * (qv_ZPIndividual[i] - meanZP);
-            sum_col_col += (qv_colorIndividual[i] - meanColor) * (qv_colorIndividual[i] - meanColor);
+            if (!qv_fitMask[i]) {
+                sum_col_ZP += (qv_colorIndividual[i] - meanColor) * (qv_ZPIndividual[i] - meanZP);
+                sum_col_col += (qv_colorIndividual[i] - meanColor) * (qv_colorIndividual[i] - meanColor);
+            }
         }
         slope = sum_col_ZP / sum_col_col;
         cutoff = meanZP - slope * meanColor;
