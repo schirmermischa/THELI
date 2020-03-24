@@ -1285,9 +1285,10 @@ void MainWindow::load_dialog_abszeropoint()
     abszeropoint->show();
 }
 
-void MainWindow::loadCoaddAbsZP(QString coaddImage, instrumentDataType *instData)
+void MainWindow::loadCoaddAbsZP(QString coaddImage, instrumentDataType *instData, float maxVal)
 {
     AbsZeroPoint *abszeropoint = new AbsZeroPoint(coaddImage, instData, this);
+    abszeropoint->updateSaturationValue(maxVal);
     connect(abszeropoint, &AbsZeroPoint::abszpClosed, controller, &Controller::absZeroPointCloseReceived);
     abszeropoint->show();
 }

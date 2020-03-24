@@ -1577,10 +1577,10 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>The ADU level in the image above which non-linearity (or saturation) start to impact the measurement. </string>
+           <string>The level above which non-linearity (or saturation) occurs.</string>
           </property>
           <property name="statusTip">
-           <string>The ADU level at which the image becomes nonlinear or saturated.</string>
+           <string>The level at which nonlinearity or saturation occurs.</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

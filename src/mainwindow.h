@@ -71,7 +71,7 @@ public:
     QString instrument_dir;
     QString instrument_userDir;
 
-    QString GUIVERSION = "3.0.b3";
+    QString GUIVERSION = "3.0.RC1";
     QString editorPreference;
     QString downloadServer;
     QString mainPID;
@@ -235,7 +235,7 @@ private slots:
     void emitEditingFinished(const QString &arg1);
     void on_actionLicense_triggered();
     void on_actionAcknowledging_triggered();
-    void loadCoaddAbsZP(QString coaddImage, instrumentDataType *instData);
+    void loadCoaddAbsZP(QString coaddImage, instrumentDataType *instData, float maxVal);
 
 private:
     // Variables we need to access frequently

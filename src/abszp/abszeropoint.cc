@@ -59,12 +59,15 @@ AbsZeroPoint::AbsZeroPoint(QString image, instrumentDataType *instrumentData, QW
     ui->zpFitOrderSpinBox->setValue(3);
     ui->zpSaturationLineEdit->setText("5000");
     */
+
+    /*
     ui->zpImageLineEdit->setText("/data1/TESTDATA/ST10new/JACOBY/coadd_OIII/coadd.fits");
     ui->zpRefcatComboBox->setCurrentText("PANSTARRS");
     ui->zpFitOrderSpinBox->setValue(1);
     ui->zpSaturationLineEdit->setText("30");
     ui->zpDTLineEdit->setText("20");
     ui->zpDMINLineEdit->setText("20");
+    */
 
     performingStartup = false;
 
@@ -158,7 +161,7 @@ void AbsZeroPoint::validate()
 void AbsZeroPoint::defaults_if_empty()
 {
     if (ui->zpPhoterrorLineEdit->text().isEmpty()) ui->zpPhoterrorLineEdit->setText("0.05");
-    if (ui->zpSaturationLineEdit->text().isEmpty()) ui->zpSaturationLineEdit->setText("1000");
+    if (ui->zpSaturationLineEdit->text().isEmpty()) ui->zpSaturationLineEdit->setText("100");
     if (ui->zpApertureLineEdit->text().isEmpty()) ui->zpApertureLineEdit->setText("20");
 }
 
@@ -230,6 +233,12 @@ void AbsZeroPoint::on_startPushButton_clicked()
 void AbsZeroPoint::criticalReceived()
 {
     emit finished();
+}
+
+void AbsZeroPoint::updateSaturationValue(float value)
+{
+    // use 90% of the highest measured value as a limit
+    ui->zpSaturationLineEdit->setText(QString::number(0.9*value, 'f', 2));
 }
 
 // Running in separate thread!

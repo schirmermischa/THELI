@@ -924,6 +924,8 @@ void Controller::coaddUpdate()
     float seeing_world = 0.;
     float seeing_image = 0.;
 
+    float maxVal = 100;
+
     if (gaiaQuery->numSources != 0) {
 
         // Measure the seeing
@@ -940,6 +942,7 @@ void Controller::coaddUpdate()
         coadd->objectMaskDone = false;
         coadd->weightInMemory = false;
         coadd->gain = 1.0;
+        maxVal = maxVec_T(coadd->dataCurrent);
         emit messageAvailable("coadd.fits : Modeling background ...", "image");
         coadd->backgroundModel(256, "interpolate");
         emit messageAvailable("coadd.fits : Detecting sources ...", "image");
@@ -1021,7 +1024,7 @@ void Controller::coaddUpdate()
 
     // Finally, do flux calibration if requested
     if (cdw->ui->COAfluxcalibCheckBox->isChecked()) {
-        emit loadAbsZP(coaddDirName+"/coadd.fits", instData);
+        emit loadAbsZP(coaddDirName+"/coadd.fits", instData, maxVal);
     }
     else {
         // Now we can quit the first coaddition thread (which spawned all the other threads).

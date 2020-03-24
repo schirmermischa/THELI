@@ -53,10 +53,14 @@ public:
     QThread *workerThread;
     AbszpWorker *abszpWorker;
 
+    float autoMaxVal = 100.;       // determined by the coadd task on the coadded image
+
     int verbosity = 0;
     int maxCPU = 1;
 
     void taskInternalAbszeropoint();
+    void updateSaturationValue(float value);
+
 signals:
     void messageAvailable(QString message, QString type);
     void progressUpdate(float progress);

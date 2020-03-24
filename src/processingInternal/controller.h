@@ -471,7 +471,7 @@ signals:
     void populateMemoryView();
     void stopFileProgressTimer();
     void addBackupDirToMemoryviewer(QString scienceDir, QString backupDirName);
-    void loadAbsZP(QString coaddImagePath, instrumentDataType *instData);
+    void loadAbsZP(QString coaddImagePath, instrumentDataType *instData, float maxVal);
 
 public slots:
     void updateAll();
