@@ -6,7 +6,7 @@ With its own integrated 'iView' FITS browser, advanced processing of astronomica
 
 THELI v3 also runs on MacOS.
 
-Even though the current beta-release includes all instruments that were supported in THELI v2, not all of them have been tested. In particular, some instruments with detectors where the overscan region from multiple readout channels is dividing up the image area are not yet supported (such as the Hamamatsu GMOS CCDs, or SuprimeCam).
+Even though the current release includes all instruments that were supported in THELI v2, not all of them have been tested. Please contact the author if you encounter data that do not run through the first processing step correctly.
 
-Mid-infrared cameras are currently not supported, but support is foreseen as soon as THELI v3 emerges from its beta-testing phase.
+Mid-infrared cameras are currently not supported, but support is foreseen as soon as THELI v3 has been running stable for a while. If you need mid-IR support, please contact the author with a test data set.
 
