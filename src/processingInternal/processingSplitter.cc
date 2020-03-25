@@ -83,8 +83,6 @@ void Controller::taskInternalHDUreformat()
 
     QString dataType = data->dataType;
 
-    provideAlternativeMask();
-
     // Loop over all chips
 #pragma omp parallel for num_threads(maxCPU) firstprivate(mainDirName, dataDir, dummyKeys, nonlinearityCoefficients, headerDictionary, filterDictionary, dataType)
     for (int i=0; i<numActiveImages; ++i) {
@@ -412,6 +410,7 @@ void Controller::testOverscan(QVector<int> &overscan)
     if (flag) overscan.clear();
 }
 
+// Runs outside the processing thread, but kept here for consistency
 void Controller::provideAlternativeMask()
 {
     // If the NIR detector config is chosen for GROND, then we must create separate masks for the optical data.

@@ -679,6 +679,9 @@ void Controller::updateAll()
     mask->instData = instData;
     mask->initMasks();
 
+    // Fro GROND (and in the future, other multi-channel instruments)
+    provideAlternativeMask();
+
     // instData member is a pointer and does not need updating when a new instrument is selected (true? must check!)
     mapDataTree();   // updates the memory view
 }
@@ -1220,7 +1223,7 @@ Data* Controller::getData(QList<Data *> DT_x, QString dirName)
         }
     }
 
-    emit messageAvailable("Controller::getData(): Directory " + dirName + "not found in Data class for" + DT_x[0]->dirName, "error");
+    emit messageAvailable("Controller::getData(): Directory " + dirName + " not found in Data class for " + DT_x[0]->dirName, "error");
     criticalReceived();
 
     return nullptr;

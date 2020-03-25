@@ -559,8 +559,6 @@ void Query::processAstromCatalog()
     outcat_iview.close();
     outcat_iview.setPermissions(QFile::ReadUser | QFile::WriteUser);
 
-    qDebug() << numSources;
-
     measureBulkMotion();       // display mean bulk motion in that field
     pushNumberOfSources();     // display number of refcat sources
 
