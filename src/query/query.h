@@ -124,6 +124,8 @@ private:
 
     int *verbosity;
 
+    bool successProcessing = true;
+
     QVector<double> raMotions;     // Contains the proper motions in RA
     QVector<double> deMotions;     // Contains the proper motions in DEC
     QVector<double> raMotions_err; // Contains the proper motion errors in RA

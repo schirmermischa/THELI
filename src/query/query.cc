@@ -100,8 +100,17 @@ void Query::doColorCalibQueryFromWeb()
 
 void Query::getCatalogSearchLocationAstrom()
 {
+    if (!successProcessing) return;
+
     QVector<double> crval1 = scienceData->getKeyFromAllImages("CRVAL1");
     QVector<double> crval2 = scienceData->getKeyFromAllImages("CRVAL2");
+
+    if (crval1.isEmpty() || crval2.isEmpty()) {
+        emit messageAvailable("Query::getCatalogSearchLocationAstrom(): CRVAL vectors are empty", "error");
+        emit critical();
+        successProcessing = false;
+        return;
+    }
 
     // Use median to calculate field center (avoiding issues with RA=0|360 deg boundary)
     // Do not average central two elements if number of data points is even
@@ -115,8 +124,17 @@ void Query::getCatalogSearchLocationAstrom()
 
 void Query::getCatalogSearchRadiusAstrom()
 {
+    if (!successProcessing) return;
+
     QVector<double> corners_crval1 = scienceData->getKeyFromAllImages("CORNERS_CRVAL1");
     QVector<double> corners_crval2 = scienceData->getKeyFromAllImages("CORNERS_CRVAL2");
+
+    if (corners_crval1.isEmpty() || corners_crval2.isEmpty()) {
+        emit messageAvailable("Query::getCatalogSearchRadiusAstrom(): Corner vectors are empty", "error");
+        emit critical();
+        successProcessing = false;
+        return;
+    }
 
     // Search radius in DEC in arcmin
     double crval2_min = minVec_T(corners_crval2);
@@ -156,6 +174,8 @@ void Query::getCatalogSearchRadiusAstrom()
 
 void Query::getCatalogSearchLocationPhotom()
 {
+    if (!successProcessing) return;
+
     // Calculate RA/DEC of image center
     photomImage = new MyImage(photomDir, photomImageName, "", 1, QVector<bool>(), false, verbosity);
     photomImage->provideHeaderInfo();
@@ -171,6 +191,8 @@ void Query::getCatalogSearchLocationPhotom()
 
 void Query::getCatalogSearchLocationColorCalib()
 {
+    if (!successProcessing) return;
+
     // Calculate RA/DEC of image center
     photomImage->provideHeaderInfo();
     naxis1 = photomImage->naxis1;
@@ -185,16 +207,14 @@ void Query::getCatalogSearchLocationColorCalib()
 
 void Query::getMedianEpoch()
 {
+    if (!successProcessing) return;
+
     // Get median observation epoch (for GAIA)
     QVector<double> epochs = scienceData->getKeyFromAllImages("DATE-OBS");
     if (epochs.isEmpty() && refcatName.contains("GAIA")) {
-        /*
-        QMessageBox::warning(this, tr("DATE-OBS not found"),
-                             tr("The DATE-OBS keyword was not found in the FITS headers, but is required for the GAIA reference catalog.")+
-                             tr("You must choose a different reference catalog."),
-                             QMessageBox::Ok);
-        */
-        // replace by a signal / slot to mainGUI
+        emit messageAvailable("Query::getMedianEpoch():<br>The DATE-OBS keyword was not found in the FITS headers, but is required for the GAIA reference catalog.<br>You must choose a different reference catalog.", "error");
+        emit critical();
+        successProcessing = false;
         return;
     }
     epoch = straightMedian_T(epochs);
@@ -202,6 +222,8 @@ void Query::getMedianEpoch()
 
 void Query::initAstromQuery()
 {
+    if (!successProcessing) return;
+
     // Reformat if necessary
     if (alpha_manual.contains(":")) alpha_manual = hmsToDecimal(alpha_manual);
     if (delta_manual.contains(":")) delta_manual = dmsToDecimal(delta_manual);
@@ -229,6 +251,8 @@ void Query::initAstromQuery()
 
 void Query::initGaiaQuery()
 {
+    if (!successProcessing) return;
+
     getCatalogSearchLocationAstrom();
     // search radius is provided explicitly only by the coaddition. Otherwise, we have to determine it
     if (radius_string.isEmpty()) getCatalogSearchRadiusAstrom();
@@ -243,6 +267,8 @@ void Query::initGaiaQuery()
 
 void Query::initPhotomQuery()
 {
+    if (!successProcessing) return;
+
     getCatalogSearchLocationPhotom();
     // Make declination explicitly positive (sometimes the cdsclient wants that, or wanted that)
     if (!delta_string.contains('-') && !delta_string.contains('+') ) delta_string.prepend('+');
@@ -250,6 +276,8 @@ void Query::initPhotomQuery()
 
 void Query::initColorCalibQuery()
 {
+    if (!successProcessing) return;
+
     getCatalogSearchLocationColorCalib();
     // Make declination explicitly positive (sometimes the cdsclient wants that, or wanted that)
     if (!delta_string.contains('-') && !delta_string.contains('+') ) delta_string.prepend('+');
@@ -257,10 +285,12 @@ void Query::initColorCalibQuery()
 
 void Query::buildQuerySyntaxAstrom()
 {
+    if (!successProcessing) return;
+
     // Vizier queries
 
     queryCommand = "vizquery.py ";
-    queryCommand.append("-mime=tsv -out.max=1000000 ");
+    queryCommand.append("-mime=tsv -out.max=170000 ");        // TODO: More than ~170000 crashes writeAstromScamp(), for unknown reasons
     //        queryCommand.append("-site="+downloadServer+" ");
     queryCommand.append("-c.rm="+radius_string+" ");
     queryCommand.append("-c='"+alpha_string+delta_string+"' ");
@@ -276,6 +306,8 @@ void Query::buildQuerySyntaxAstrom()
 
 void Query::buildQuerySyntaxGaia()
 {
+    if (!successProcessing) return;
+
     // Vizier query for GAIA point sources. Point sources are identified by means of proper motion, in extractRaDecGaia();
     queryCommand = "vizquery.py ";
     queryCommand.append("-mime=tsv -out.max=1000000 ");
@@ -286,6 +318,8 @@ void Query::buildQuerySyntaxGaia()
 
 void Query::buildQuerySyntaxPhotom()
 {
+    if (!successProcessing) return;
+
     // Vizier queries
 
     queryCommand = "vizquery.py ";
@@ -308,6 +342,8 @@ void Query::buildQuerySyntaxPhotom()
 
 void Query::buildQuerySyntaxColorCalib()
 {
+    if (!successProcessing) return;
+
     // Vizier queries
 
     queryCommand = "vizquery.py ";
@@ -356,6 +392,8 @@ void Query::buildQuerySyntaxColorCalib()
 
 QString Query::filterStringToVizierName(QString filter)
 {
+    if (!successProcessing) return "";
+
     if (refcatName.contains("APASS") && filter == "B") return "Bmag";
     if (refcatName.contains("APASS") && filter == "V") return "Vmag";
     if (refcatName.contains("APASS") && filter == "g") return "g\\'mag";
@@ -393,6 +431,8 @@ QString Query::filterStringToVizierName(QString filter)
 
 QString Query::resolveTarget(QString target)
 {
+    if (!successProcessing) return "Nothing found";
+
     queryCommand = "sesame -ox "+target;
 
     runCommand(queryCommand);
@@ -482,6 +522,8 @@ void Query::clearColorCalib()
 
 void Query::processAstromCatalog()
 {
+    if (!successProcessing) return;
+
     QTextStream stream(&byteArray, QIODevice::ReadOnly);
 
     clearAstrom();
@@ -517,6 +559,8 @@ void Query::processAstromCatalog()
     outcat_iview.close();
     outcat_iview.setPermissions(QFile::ReadUser | QFile::WriteUser);
 
+    qDebug() << numSources;
+
     measureBulkMotion();       // display mean bulk motion in that field
     pushNumberOfSources();     // display number of refcat sources
 
@@ -528,6 +572,8 @@ void Query::processAstromCatalog()
 
 void Query::processGaiaCatalog()
 {
+    if (!successProcessing) return;
+
     QTextStream stream(&byteArray, QIODevice::ReadOnly);
 
     clearGaia();
@@ -572,6 +618,8 @@ void Query::processGaiaCatalog()
 // difference: does not dump catalogs to drive
 void Query::processBrightStarCatalog()
 {
+    if (!successProcessing) return;
+
     QTextStream stream(&byteArray, QIODevice::ReadOnly);
 
     clearAstrom();
@@ -593,6 +641,8 @@ void Query::processBrightStarCatalog()
 
 void Query::processPhotomCatalog()
 {
+    if (!successProcessing) return;
+
     QTextStream stream(&byteArray, QIODevice::ReadOnly);
 
     clearPhotom();
@@ -631,6 +681,8 @@ void Query::processPhotomCatalog()
 
 void Query::processColorCalibCatalog()
 {
+    if (!successProcessing) return;
+
     QTextStream stream(&byteArray, QIODevice::ReadOnly);
 
     clearColorCalib();
@@ -673,8 +725,8 @@ void Query::pushNumberOfSources()
     if (numSources > 0) {
         if (!fromImage) {
             messageString = QString::number(numSources) + " " + refcatName + " reference sources retrieved at this location:"
-//                    + "<br>RA  = " + QString::number(alpha, 'f', 5)
-//                    + "<br>DEC = " + QString::number(delta, 'f', 5)
+                    //                    + "<br>RA  = " + QString::number(alpha, 'f', 5)
+                    //                    + "<br>DEC = " + QString::number(delta, 'f', 5)
                     + "<br>RA  = " + alpha_string
                     + "<br>DEC = " + delta_string
                     + "<br>radius = " + radius_string + "'";
@@ -699,6 +751,8 @@ void Query::pushNumberOfSources()
 
 void Query::identifySolarTypeStars()
 {
+    if (!successProcessing) return;
+
     if (refcatName == "SDSS") {
         c1min = sunUG;
         c1max = sunUG;
@@ -769,6 +823,8 @@ void Query::identifySolarTypeStars()
 
 void Query::measureBulkMotion()
 {
+    if (!successProcessing) return;
+
     if (!refcatName.contains("GAIA")
             && !refcatName.contains("UCAC5")) return;
 
@@ -792,6 +848,8 @@ void Query::measureBulkMotion()
 
 QString Query::extractRaDecMagAstrom(QString &line)
 {
+    if (!successProcessing) return "";
+
     // 'line' contains RA, DEC, and an arbitrary number of magnitudes (which we average)
     // Fields are separated by semi-colons
     QString result = "";
@@ -861,6 +919,8 @@ QString Query::extractRaDecMagAstrom(QString &line)
 
 QString Query::extractRaDecGaia(QString &line)
 {
+    if (!successProcessing) return "";
+
     // 'line' contains RA, DEC, pmRA, pmDE, e_pmRA, e_pmDE
     // Fields are separated by semi-colons
     QString result = "";
@@ -913,6 +973,8 @@ QString Query::extractRaDecGaia(QString &line)
 
 QString Query::extractRaDecMagPhotom(QString &line)
 {
+    if (!successProcessing) return "";
+
     // 'line' contains RA, DEC, and 2 magnitudes, and their errors
     // Fields are separated by semi-colons
     QString result = "";
@@ -944,6 +1006,8 @@ QString Query::extractRaDecMagPhotom(QString &line)
 
 QString Query::extractRaDecMagColorCalib(QString &line)
 {
+    if (!successProcessing) return "";
+
     // 'line' contains RA, DEC, and 4-5 magnitudes
     // Fields are separated by semi-colons
     QString result = "";
@@ -962,8 +1026,7 @@ QString Query::extractRaDecMagColorCalib(QString &line)
     else {
         if (list.length() == 7) mag5 = list[6].simplified();
         else {
-            qDebug() << line;
-            qDebug() << refcatName << list.length() << "Query::extractRaDecMagColorCalib(): ERROR: unexpected format.";
+            emit messageAvailable("Query::extractRaDecMagColorCalib(): Unexpected format: " + line+"<br>Ignoring PANSTARRS y-band magnitude", "warning");
             mag5 = mag1;
         }
     }
@@ -987,6 +1050,8 @@ QString Query::extractRaDecMagColorCalib(QString &line)
 // Retrieves the multi-line output of a query to one of the reference catalog servers
 void Query::runCommand(QString command)
 {
+    if (!successProcessing) return;
+
     if (*verbosity > 1) {
         emit messageAvailable("vizquery command: <br>"+queryCommand, "ignore");
     }
@@ -1010,6 +1075,8 @@ void Query::provideheaderInfo()
 
 void Query::writeAstromScamp()
 {
+    if (!successProcessing) return;
+
     // Don't write an empty catalog (so that tasks checking for failure (non-existence of the catalog) can succeed)
     if (ra_out.length() == 0) return;
 
@@ -1102,6 +1169,8 @@ void Query::writeAstromScamp()
 
 void Query::writeAstromANET()
 {
+    if (!successProcessing) return;
+
     // STEP 1: write a FITS table
 
     char xworld[100] = "RA";
@@ -1136,8 +1205,8 @@ void Query::writeAstromANET()
         QString messageString = "NOTE: More than 50000 sources were retrieved.\n"
                                 "The astrometry.net index is not being built as it is very time consuming.\n"
                                 "If you want to use astrometry.net, reduce the catalog size by imposing\n"
-                                "a magnitude limit.";
-        emit messageAvailable(messageString, "note");
+                                "a (tighter) magnitude limit.";
+        emit messageAvailable(messageString, "warning");
         return;
     }
 
@@ -1187,6 +1256,8 @@ void Query::writeAstromANET()
 
 void Query::writeAstromIview()
 {
+    if (!successProcessing) return;
+
     // The iView catalog (ASCII)
     QString outpath = mainDirName+"/"+scienceData->subDirName+"/cat/refcat/";
     mkAbsDir(outpath);
@@ -1213,6 +1284,8 @@ void Query::writeAstromIview()
 
 void Query::dumpRefcatID()
 {
+    if (!successProcessing) return;
+
     QString outpath = mainDirName+"/"+scienceData->subDirName+"/cat/refcat/";
     mkAbsDir(outpath);
 
