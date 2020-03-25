@@ -50,6 +50,8 @@ ConfDockWidget::ConfDockWidget(MainWindow *parent) :
 
     updateConfPageLabel();
 
+    ui->skyAreaComboBox->setStyleSheet("combobox-popup: 0;");   // enforcing max number of 18 entries (set in designer)
+
     doingInitialLaunch = false;
 }
 

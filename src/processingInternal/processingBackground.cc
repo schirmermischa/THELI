@@ -41,6 +41,7 @@ void Controller::taskInternalBackground()
     currentDirName = scienceDir;
 
     pushBeginMessage(taskBasename, scienceDir);
+    pushConfigBackground();
 
     // Need to fill myImageList to get Filter keyword (if the user starts fresh with this task after launching THELI)
     if (scienceData->myImageList[0].isEmpty()) scienceData->populate(scienceData->processingStatus->statusString);

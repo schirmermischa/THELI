@@ -47,6 +47,7 @@ void Controller::taskInternalProcessbias()
     memoryDecideDeletableStatus(biasData, false);
 
     pushBeginMessage(taskBasename, biasDir);
+    pushConfigProcessbias();
 
     // TODO: The following line is needed only as long as we are handling splitting of raw data by scripts.
     // The biasData imagelist is empty after splitting because the Data constructor only looks for *_chip.fits, not for raw files.
@@ -145,6 +146,7 @@ void Controller::taskInternalProcessdark()
     memoryDecideDeletableStatus(darkData, false);
 
     pushBeginMessage(taskBasename, darkDir);
+    pushConfigProcessdark();
 
     getNumberOfActiveImages(darkData);
 
@@ -213,6 +215,7 @@ void Controller::taskInternalProcessflatoff()
     memoryDecideDeletableStatus(flatoffData, false);
 
     pushBeginMessage(taskBasename, flatoffDir);
+    pushConfigProcessflat();
 
     // TODO: The following line is needed only as long as we are handling splitting of raw data by scripts.
     if (flatoffData->myImageList[0].isEmpty()) {
@@ -281,6 +284,7 @@ void Controller::taskInternalProcessflat()
     currentDirName = flatDir;
 
     pushBeginMessage(taskBasename, flatDir);
+    pushConfigProcessflatoff();
 
     // flatoff, or bias, or no bias; we call it "bias" for simplicity
     if (!mainGUI->ui->setupFlatoffLineEdit->text().isEmpty()) {

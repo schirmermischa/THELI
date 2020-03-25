@@ -472,7 +472,7 @@
        <number>1</number>
       </property>
       <property name="currentIndex">
-       <number>8</number>
+       <number>7</number>
       </property>
       <widget class="QWidget" name="HDUpage">
        <layout class="QGridLayout" name="gridLayout_31">
@@ -3265,7 +3265,7 @@
              <enum>QFrame::NoFrame</enum>
             </property>
             <property name="text">
-             <string>(2) Min / max counts [ADU] allowed</string>
+             <string>(2) Min / max counts [e-] allowed</string>
             </property>
            </widget>
           </item>
@@ -6739,7 +6739,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                 </size>
                </property>
                <property name="statusTip">
-                <string>Chips are rejected if stars are located outside the the chip less than this distance.</string>
+                <string>Chips are rejected if stars are located outside the chip less than this distance.</string>
                </property>
                <property name="text">
                 <string/>
@@ -11114,7 +11114,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <item row="1" column="0">
               <widget class="QLabel" name="label_32">
                <property name="text">
-                <string>BIAS / DARK</string>
+                <string>BIAS / DARK [e-]</string>
                </property>
                <property name="buddy">
                 <cstring>CGWdarkminLineEdit</cstring>
@@ -11162,7 +11162,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <item row="2" column="0">
               <widget class="QLabel" name="label_33">
                <property name="text">
-                <string>Norm. FLAT</string>
+                <string>Norm. FLAT [e-]</string>
                </property>
                <property name="buddy">
                 <cstring>CGWflatminLineEdit</cstring>
@@ -11216,7 +11216,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <item row="3" column="0">
               <widget class="QLabel" name="label_40">
                <property name="text">
-                <string>Background</string>
+                <string>Background [e-]</string>
                </property>
                <property name="buddy">
                 <cstring>CGWbackminLineEdit</cstring>
@@ -11730,7 +11730,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <item row="1" column="0">
               <widget class="QLabel" name="label_36">
                <property name="text">
-                <string>Kernel size</string>
+                <string>Kernel size [pix]</string>
                </property>
                <property name="buddy">
                 <cstring>CGWflatsmoothLineEdit</cstring>
@@ -12423,7 +12423,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <item row="0" column="0">
               <widget class="QLabel" name="confIndWMinLabel">
                <property name="text">
-                <string>Image min value</string>
+                <string>Image min value [e-]</string>
                </property>
                <property name="buddy">
                 <cstring>CIWminaduLineEdit</cstring>
@@ -12452,7 +12452,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <item row="1" column="0">
               <widget class="QLabel" name="confIndWMaxLabel">
                <property name="text">
-                <string>Image max value</string>
+                <string>Image max value [e-]</string>
                </property>
                <property name="buddy">
                 <cstring>CIWmaxaduLineEdit</cstring>
@@ -12924,7 +12924,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <item row="4" column="1">
               <widget class="QLabel" name="confIndWBloomMarginLabel">
                <property name="text">
-                <string>Range</string>
+                <string>Range [e-]</string>
                </property>
                <property name="buddy">
                 <cstring>CIWbloomRangeLineEdit</cstring>
@@ -12997,7 +12997,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                 </size>
                </property>
                <property name="statusTip">
-                <string>The min ADU value to cut-off the background (10 sigma above mean background if empty)</string>
+                <string>The min value to cut-off the background (10 sigma above mean background if empty)</string>
                </property>
                <property name="inputMask">
                 <string/>
@@ -13952,7 +13952,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                 <bool>false</bool>
                </property>
                <property name="text">
-                <string>Min ADU</string>
+                <string>Trigger level [e-]</string>
                </property>
                <property name="buddy">
                 <cstring>CIWbloomRangeLineEdit</cstring>
@@ -13962,7 +13962,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <item row="3" column="1">
               <widget class="QLabel" name="confIndWBloomMinLabel">
                <property name="text">
-                <string>Min value</string>
+                <string>Min value [e-]</string>
                </property>
                <property name="buddy">
                 <cstring>CIWbloomMinaduLineEdit</cstring>
@@ -13997,7 +13997,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                 </size>
                </property>
                <property name="statusTip">
-                <string>The saturation value of blooming spikes may vary by this many ADU across the CCD</string>
+                <string>The saturation value of blooming spikes may vary by this much across the CCD</string>
                </property>
                <property name="text">
                 <string/>
@@ -28787,6 +28787,9 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                </property>
                <property name="statusTip">
                 <string>The empty sky areas from which background estimates should be obtained</string>
+               </property>
+               <property name="maxVisibleItems">
+                <number>18</number>
                </property>
               </widget>
              </item>

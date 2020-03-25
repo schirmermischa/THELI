@@ -40,6 +40,7 @@ void Controller::taskInternalCollapse()
     currentDirName = scienceDir;
 
     pushBeginMessage(taskBasename, scienceDir);
+    pushConfigCollapse();
 
     memoryDecideDeletableStatus(scienceData, false);
 
@@ -167,6 +168,7 @@ void Controller::taskInternalBinnedpreview()
     currentDirName = scienceDir;
 
     pushBeginMessage(taskBasename, scienceDir);
+    pushConfigBinnedpreview();
 
     // Collect CD matrices (from first exposure in the list)
     // The transformation matrix is the CD matrix with rotation angle and plate scale stripped

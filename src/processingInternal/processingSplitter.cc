@@ -43,6 +43,7 @@ void Controller::taskInternalHDUreformat()
     data->numImages = 0;
 
     pushBeginMessage(taskBasename, dataDir);
+    pushConfigHDUreformat();
 
     // Obtain a list of files in this directory, including non-FITS files
     QString path = mainDirName + "/" + dataDir;

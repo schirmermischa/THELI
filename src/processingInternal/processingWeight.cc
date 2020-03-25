@@ -42,6 +42,7 @@ void Controller::taskInternalGlobalweight()
     currentDirName = scienceDir;
 
     pushBeginMessage(taskBasename, scienceDir);
+    pushConfigGlobalweight();
 
     // Link with the correct bias data, if any; dark preferred over bias
     // I have to select dark / bias again even though it is done in tasks.cc already
@@ -166,6 +167,7 @@ void Controller::taskInternalIndividualweight()
     currentDirName = scienceDir;
 
     pushBeginMessage(taskBasename, scienceDir);
+    pushConfigIndividualweight();
 
     memoryDecideDeletableStatus(scienceData, false);
 

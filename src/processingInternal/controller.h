@@ -263,6 +263,19 @@ private:
     void resetAltInstrumentData();
     void testOverscan(QVector<int> &overscan);
     void provideAlternativeMask();
+    void pushConfigHDUreformat();
+    void pushConfigProcessbias();
+    void pushConfigProcessdark();
+    void pushConfigProcessflat();
+    void pushConfigProcessflatoff();
+    void pushConfigBackground();
+    void pushConfigCollapse();
+    void pushConfigBinnedpreview();
+    void pushConfigGlobalweight();
+    void pushConfigIndividualweight();
+    void pushConfigSkysubModel();
+    void pushConfigSkysubConst();
+    void pushConfigSkysubPoly();
 private slots:
     // The following can also be under 'private', but then the declaration must be preceeded like this:
     // Q_INVOKABLE QString taskHDUreformat();

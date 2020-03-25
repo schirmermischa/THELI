@@ -949,7 +949,7 @@ void MainWindow::fill_setupInstrumentComboBox()
     // on_setupInstrumentComboBox_clicked();
 
     // Override user's desktop preferences, to avoid a ComboBox to fill the entire screen
-    // from top to bottom. Only show 20 items max (designer setting)
+    // from top to bottom. Only show 20 items max (designer setting, but needs to be activated here)
     ui->setupInstrumentComboBox->setStyleSheet("combobox-popup: 0;");
 }
 
