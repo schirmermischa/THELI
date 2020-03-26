@@ -35,8 +35,8 @@ Preferences::Preferences(bool running, QWidget *parent) :
 
     int maxCPU = QThread::idealThreadCount();
     if (maxCPU == -1) {
-        qDebug() << "QDEBUG: Could not determine the number of CPUs for this machine!";
-        qDebug() << "         Max number of CPUs set to 1.";
+        emit messageAvailable("Could not determine the number of CPUs for this machine! Max number of CPUs is set to 1.", "warning");
+        emit warning();
         maxCPU = 1;
     }
     ui->prefCPUSpinBox->setMaximum(maxCPU);
@@ -136,11 +136,13 @@ void Preferences::updateParallelization(bool running)
 void Preferences::closeEvent(QCloseEvent *event)
 {
     if (writeSettings() == QSettings::AccessError) {
-        qDebug() << "QDEBUG: Preferences: Could not store preferences (access error).";
+        emit messageAvailable("Could not store preferences (access error).", "warning");
+        emit warning();
         event->accept();
     }
     else if (writeSettings() == QSettings::FormatError) {
-        qDebug() << "QDEBUG: Preferences: A formatting error occurred while writing the preferences.";
+        emit messageAvailable("A formatting error occurred while writing the preferences.", "warning");
+        emit warning();
         event->accept();
     }
     else {

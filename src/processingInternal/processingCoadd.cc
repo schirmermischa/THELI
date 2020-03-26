@@ -993,7 +993,8 @@ void Controller::coaddUpdate()
     //    int status = 0;    // declared above
     if (name.isNull() || name.isEmpty()) {
         status = 1;
-        qDebug() << "QDEBUG: ERROR: MyFITS::initFITS(): file name empty or not initialized!";
+        emit messageAvailable("Controller::coaddUpdate(): file name empty or not initialized!", "error");
+        emit criticalReceived();
         return;
     }
     fits_open_file(&fptr, name.toUtf8().data(), READWRITE, &status);

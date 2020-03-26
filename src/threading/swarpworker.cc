@@ -92,8 +92,16 @@ void SwarpWorker::processExternalStderr()
     QStringList warnings;
     warnings << "WARNING: Astrometric approximation too inaccurate for this re-projection";
     warnings << "Significant inaccuracy likely to occur in projection";
+    warnings << "inaccuracies likely to occur";
+
     QStringList errors;
     errors << "Error:";
+    errors << "Null or negative global weighting factor";
+    errors << "Not enough memory";
+    errors << "Buffer overflow detected";
+    errors << "core dumped";
+    errors << "has flux scale = 0: I will take 1 instead";
+    errors << "Could not allocate memory";
 
     QString type = "normal";
     for (auto &warning : warnings) {

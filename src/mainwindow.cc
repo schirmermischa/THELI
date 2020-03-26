@@ -185,6 +185,7 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     connect(this, &MainWindow::rereadScienceDataDir, controller, &Controller::rereadScienceDataDirReceived);
     connect(this, &MainWindow::newProjectLoaded, controller, &Controller::newProjectLoadedReceived);
     connect(this, &MainWindow::messageAvailable, monitor, &Monitor::displayMessage);
+    connect(this, &MainWindow::warning, monitor, &Monitor::raise);
 
     connect(ui->setupMainLineEdit, &QLineEdit::textChanged, cdw, &ConfDockWidget::updateAPIsolutions);
     connect(ui->setupStandardLineEdit, &QLineEdit::textChanged, cdw, &ConfDockWidget::updateAPIsolutions);
@@ -726,7 +727,8 @@ void MainWindow::repaintDataDirs()
             if (test) on_startPushButton_clicked();
         }
         else {
-            qDebug() << "QDEBUG: repaintDataDirs(): bad LineEdit!";
+            emit messageAvailable("MainWindow::repaintDataDirs(): bad LineEdit", "warning");
+            emit warning();
         }
     }
 }
@@ -746,7 +748,8 @@ void MainWindow::updatePreferences()
     settings.setValue("setupProjectLineEdit", ui->setupProjectLineEdit->text());
     settings.sync();
     if (settings.status() != QSettings::NoError) {
-        qDebug() << "QDEBUG: An error occurred updating the inst category preference:" << settings.status();
+        emit messageAvailable("MainWindow::updatePreferences(): Failed updating the instrument category preference. Settings status = " + settings.status(), "error");
+        emit warning();
     }
 }
 
@@ -802,6 +805,7 @@ void MainWindow::initInstrumentData(QString instrumentNameFullPath)
     // read the instrument specific data
     if( !instDataFile.open(QIODevice::ReadOnly)) {
         emit messageAvailable("MainWindow::initInstrumentData(): "+instrumentNameFullPath+" "+instDataFile.errorString(), "error");
+        emit warning();  // to raise the monitor
         return;
     }
 
@@ -1009,8 +1013,10 @@ QString MainWindow::getInstDir(QString instname)
         file.setFileName(instrument_userDir+instname);
         if (file.exists()) return instrument_userDir;
         else {
-            qDebug() << "does not exist" << instrument_userDir+instname;
-            qDebug() << "ERROR: MainWindow::getInstDir(): Could not identify instrument directory!";
+            emit messageAvailable("Could not find instrument "+ instname +" config file in either of", "error");
+            emit messageAvailable(instrument_dir, "error");
+            emit messageAvailable(instrument_userDir, "error");
+            emit warning();
         }
     }
     return "";
@@ -1254,6 +1260,8 @@ void MainWindow::loadPreferences()
     connect(preferences, &Preferences::intermediateDataChanged, controller, &Controller::updateIntermediateDataPreference);
     connect(preferences, &Preferences::verbosityLevelChanged, controller, &Controller::updateVerbosity);
     connect(preferences, &Preferences::preferencesUpdated, controller, &Controller::loadPreferences);
+    connect(preferences, &Preferences::warning, monitor, &Monitor::raise);
+    connect(preferences, &Preferences::messageAvailable, monitor, &Monitor::displayMessage);
     connect(this, &MainWindow::runningStatusChanged, preferences, &Preferences::updateParallelization);
     connect(this, &MainWindow::sendingDefaultFont, preferences, &Preferences::receiveDefaultFont);
     QFont defaultFont = this->font();

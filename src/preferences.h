@@ -43,6 +43,8 @@ signals:
     void verbosityLevelChanged(int index);
     void preferencesUpdated();
     int switchProcessMonitorChanged(bool);
+    void messageAvailable(QString message, QString type);
+    void warning();
 
 public:
     explicit Preferences(bool running, QWidget *parent = nullptr);

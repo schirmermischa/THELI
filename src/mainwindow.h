@@ -107,6 +107,7 @@ signals:
     void newProjectLoaded();
     void rereadScienceDataDir();
     void messageAvailable(QString message, QString type);
+    void warning();
 
 public slots:
     void processMessage(QString text, QString type);

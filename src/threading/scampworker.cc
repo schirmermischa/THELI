@@ -126,9 +126,17 @@ void ScampWorker::processExternalStderr()
     if (stderr.contains(" deg ")) emit fieldMatched();
 
     QStringList warnings;
-    warnings << "WARNING: " << "Not enough matched detections";
+    warnings << "WARNING: ";
+    warnings << "Not enough matched detections";
+    warnings << "inaccuracies likely to occur";
+
     QStringList errors;
     errors << "Error: ";
+    errors << "fatal: division by zero attempted";
+    errors << "no match with reference catalog";
+    errors << "Not enough memory";
+    errors << "buffer overflow detected";
+    errors << "Could not allocate memory";
 
     QString type = "normal";
     for (auto &warning : warnings) {
