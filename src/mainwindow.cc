@@ -203,7 +203,7 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     status.updateStatus();
 
     // repaint; doesn't seem to help in painting the checkboxes correctly
-//    update();
+    //    update();
 
     estimateBinningFactor();
 }
@@ -653,7 +653,20 @@ bool MainWindow::checkPathsLineEdit(QLineEdit *lineEdit)
         paintPathLineEdit(lineEdit, dirname, "file");
         return true;
     }
-    if (dir.isAbsolute() || dirname.isEmpty() || lineEdit == ui->setupMainLineEdit) {
+    if (lineEdit == ui->setupMainLineEdit) {
+        if (dir.isAbsolute()) {
+            paintPathLineEdit(lineEdit, dirname);
+            return true;
+        }
+        else {
+            QPalette palette;
+            palette.setColor(QPalette::Base,QColor("#ff99aa"));
+            lineEdit->setPalette(palette);
+            return false;
+        }
+    }
+
+    if (dir.isAbsolute() || dirname.isEmpty()) {
         paintPathLineEdit(lineEdit, dirname);
         return true;
     }
