@@ -124,6 +124,7 @@ void ConfDockWidget::populateDefaultMap()
     defaultMap.insert("CSCmincontLineEdit", "0.0005");
     defaultMap.insert("CSCminobjectsLineEdit", "");
     defaultMap.insert("CSCsaturationLineEdit", "1.e8");
+    defaultMap.insert("CSCrejectExposureLineEdit", "");
     defaultMap.insert("SPSlengthLineEdit", "10");
     defaultMap.insert("SPSnumbergroupsLineEdit", "3");
     defaultMap.insert("biasMaxLineEdit", "");
@@ -347,7 +348,7 @@ void ConfDockWidget::loadDefaults()
         ui->CSCbackgroundLineEdit->clear();
         ui->CSCmaxflagLineEdit->setText("8");
         ui->CSCmincontLineEdit->setText("0.0005");
-        ui->CSCminobjectsLineEdit->clear();
+        ui->CSCrejectExposureLineEdit->clear();
         ui->CSCsamplingCheckBox->setChecked(false);
         ui->CSCconvolutionCheckBox->setChecked(true);
         ui->CSCsaturationLineEdit->clear();

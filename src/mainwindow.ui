@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>468</width>
-    <height>718</height>
+    <height>736</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1377,7 +1377,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="processingTabWidgetPage1">
        <attribute name="title">
@@ -1465,7 +1465,7 @@
         <item row="0" column="2">
          <widget class="QLineEdit" name="setupMainLineEdit">
           <property name="statusTip">
-           <string>The main directory containing all data</string>
+           <string>The main directory containing all data. ABSOLUTE PATH required.</string>
           </property>
           <property name="clearButtonEnabled">
            <bool>true</bool>
@@ -1482,7 +1482,7 @@
         <item row="1" column="2">
          <widget class="QLineEdit" name="setupBiasLineEdit">
           <property name="statusTip">
-           <string>BIAS directories, applied to SCIENCE and SKY, only</string>
+           <string>BIAS directories, applied to SCIENCE and SKY. Applied to FLAT if no FLAT_OFF data specified.</string>
           </property>
           <property name="clearButtonEnabled">
            <bool>true</bool>
@@ -1499,7 +1499,7 @@
         <item row="2" column="2">
          <widget class="QLineEdit" name="setupDarkLineEdit">
           <property name="statusTip">
-           <string>BIAS directories, applied to SCIENCE and SKY, only</string>
+           <string>DARK directories, applied to SCIENCE and SKY, only</string>
           </property>
           <property name="clearButtonEnabled">
            <bool>true</bool>
@@ -1550,7 +1550,7 @@
         <item row="5" column="2">
          <widget class="QLineEdit" name="setupScienceLineEdit">
           <property name="statusTip">
-           <string>Directory(ies) with SCIENCE exposures go here</string>
+           <string>Directories with SCIENCE exposures go here</string>
           </property>
           <property name="clearButtonEnabled">
            <bool>true</bool>
@@ -1567,7 +1567,7 @@
         <item row="6" column="2">
          <widget class="QLineEdit" name="setupSkyLineEdit">
           <property name="statusTip">
-           <string>Directory(ies) with blank fields for the science exposures</string>
+           <string>Directories with blank fields for the science exposures</string>
           </property>
           <property name="clearButtonEnabled">
            <bool>true</bool>

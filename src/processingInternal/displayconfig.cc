@@ -220,8 +220,8 @@ void Controller::pushConfigCreatesourcecat()
     config += "Max FLAG = " + cdw->ui->CSCmaxflagLineEdit->text() + "<br>";
     config += "Saturation [e-] = " + cdw->ui->CSCsaturationLineEdit->text() + "<br>";
     config += "Background level [e-] = " + cdw->ui->CSCbackgroundLineEdit->text() + "<br>";
-    config += "Min # of objects = " + cdw->ui->CSCminobjectsLineEdit->text() + "<br>";
     config += "Many hot pixels = " + boolToString(cdw->ui->CSCsamplingCheckBox->isChecked()) + "<br>";
+    config += "Min # of objects per detector = " + cdw->ui->CSCrejectExposureLineEdit->text() + "<br>";
     emit messageAvailable(config, "config");
 }
 

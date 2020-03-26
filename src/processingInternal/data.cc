@@ -2526,6 +2526,21 @@ void Data::removeCurrentFITSfiles()
     }
 }
 
+void Data::removeCatalogs()
+{
+    // Remove all scamp, sextractor and .anet catalogs. Keep the iview catalogs
+    // Used when recreating source catalogs
+    QDir catalogDir(dirName + "/cat/");
+    QStringList catFileNames = catalogDir.entryList(QStringList() << "*.cat" << "*.scamp" << "*.anet" );
+    for (auto &it : catFileNames) {
+        QFile catFile(dirName+"/cat/"+it);
+        if (!catFile.remove()) {
+            emit messageAvailable("Could not delete " + it, "warning");
+            emit warning();
+        }
+    }
+}
+
 // Reflecting backup parameters in Data after successful processing
 void Data::transferBackupInfo()
 {

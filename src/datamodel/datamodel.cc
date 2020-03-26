@@ -238,6 +238,7 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
                 else if (imageList[row]->activeState == MyImage::INACTIVE) return "Deactivated";
                 else if (imageList[row]->activeState == MyImage::BADBACK) return "Poor background model";
                 else if (imageList[row]->activeState == MyImage::BADSTATS) return "Poor data quality";
+                else if (imageList[row]->activeState == MyImage::LOWDETECTION) return "Insufficient sources for astrometry";
                 else if (imageList[row]->activeState == MyImage::DELETED) return "Image not found or deleted";
                 else return "";
             }
@@ -380,11 +381,11 @@ bool DataModel::setData(const QModelIndex & index, const QVariant & value, int r
     if (role == Qt::CheckStateRole && index.column() == 1) {
         if ((Qt::CheckState)value.toInt() == Qt::Checked) {
             imageList[index.row()]->oldState = imageList[index.row()]->activeState;
-            imageList[index.row()]->setActiveState(MyImage::ACTIVE); // Setting this value automatically moves the image on disk accordingly!
+            imageList[index.row()]->setActiveState(MyImage::ACTIVE); // Setting this value automatically moves the image on drive accordingly!
         }
         else {
             imageList[index.row()]->oldState = imageList[index.row()]->activeState;
-            imageList[index.row()]->setActiveState(MyImage::INACTIVE); // Setting this value automatically moves the image on disk accordingly!
+            imageList[index.row()]->setActiveState(MyImage::INACTIVE); // Setting this value automatically moves the image on drive accordingly!
         }
         emit dataChanged(index,index);
         return true;

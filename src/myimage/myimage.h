@@ -129,6 +129,7 @@ public:
         INACTIVE,         // Image is inactive (for whatever reason, parked in inactive/)
         BADSTATS,         // Image was flagged as having bad seeing/ throughput etc (parked in inactive/badStatistics/)
         BADBACK,          // Image was flagged because the background could not be modeled (parked in inactive/badBackground/)
+        LOWDETECTION,     // Image was flagged because it has insufficiently many source detections for astrometry
         DELETED,          // Image was manually deleted by the user (cannot be found anymore on disk)
     };
 
@@ -444,6 +445,7 @@ public:
     void setObjectLock(bool locked);
     void setBackgroundLock(bool locked);
     void updateCRPIXOnDrive();
+    void removeSourceCatalogs();
 signals:
     void modelUpdateNeeded(QString baseName, QString chipName);
     void messageAvailable(QString message, QString type);

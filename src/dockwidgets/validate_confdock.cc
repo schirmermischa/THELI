@@ -142,7 +142,7 @@ void ConfDockWidget::validate()
     ui->CSCbackgroundLineEdit->setValidator( validator_float );
     ui->CSCmaxflagLineEdit->setValidator( validator_int_pos );
     ui->CSCmincontLineEdit->setValidator( validator_float_pos );
-    ui->CSCminobjectsLineEdit->setValidator( validator_int_pos );
+    ui->CSCrejectExposureLineEdit->setValidator( validator_int_pos );
     ui->CSCsaturationLineEdit->setValidator( validator_int_pos );
     ui->SPSlengthLineEdit->setValidator( validator_int_pos );
     ui->SPSexcludeLineEdit->setValidator( validator_int_pos );
@@ -264,7 +264,7 @@ void ConfDockWidget::connect_validators()
     connect(ui->CSCbackgroundLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->CSCmaxflagLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->CSCmincontLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
-    connect(ui->CSCminobjectsLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
+    connect(ui->CSCrejectExposureLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->CSCsaturationLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->SPSlengthLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->SPSexcludeLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);

@@ -214,6 +214,7 @@ void ConfDockWidget::applyStyleSheets()
     confsubtitleLabelList.append(ui->confsubtitleAbsphotindirect4Label);
     confsubtitleLabelList.append(ui->confsubtitleCreatesourcecat1Label);
     confsubtitleLabelList.append(ui->confsubtitleCreatesourcecat2Label);
+    confsubtitleLabelList.append(ui->confsubtitleCreatesourcecat3Label);
     confsubtitleLabelList.append(ui->confsubtitleGetCatalog1Label);
     confsubtitleLabelList.append(ui->confsubtitleGetCatalog2Label);
     confsubtitleLabelList.append(ui->confsubtitleAstromphotom1Label);
@@ -269,6 +270,7 @@ void ConfDockWidget::applyStyleSheets()
     confFrameList.append(ui->confAstromphotom5Frame);
     confFrameList.append(ui->confCreatesourcecat1Frame);
     confFrameList.append(ui->confCreatesourcecat2Frame);
+    confFrameList.append(ui->confCreatesourcecat3Frame);
     confFrameList.append(ui->confGetCatalog1Frame);
     confFrameList.append(ui->confGetCatalog2Frame);
     confFrameList.append(ui->confStarflatFrame);

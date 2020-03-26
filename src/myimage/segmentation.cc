@@ -867,7 +867,19 @@ void MyImage::appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_strin
     fits_write_col(fptr, TFLOAT, 13, firstrow, firstelem, nrows, ell_arr, &status);
     //    fits_write_col(fptr, TSHORT, 8, firstrow, firstelem, nrows, fieldpos, &status);
 
-    messageAvailable(rootName + " : " + QString::number(nrows) + " valid sources after filtering", "image");
+    // Color-coding output lines
+    QString detStatus = "";
+    QString level = "image";
+    if (nrows<10 && nrows>3) {
+        detStatus = " (low source count)";
+        level = "warning";
+    }
+    if (nrows<=3) {
+        detStatus = " (very low source count)";
+        level = "stop";
+    }
+
+    messageAvailable(rootName + " : " + QString::number(nrows) + " sources after filtering..." +detStatus, level);
 
     printCfitsioError("MyImage::appendToScampCatalogInternal())", status);
 }

@@ -61,23 +61,22 @@ void Controller::taskInternalCreatesourcecat()
 
     getNumberOfActiveImages(scienceData);
 
+    // Cleanup the catalog directory from the results of a previous run
+    scienceData->removeCatalogs();
+
     // INTERNAL
     if (cdw->ui->CSCMethodComboBox->currentText() == "THELI") {
-        // Detect sources
         detectionInternal(scienceData, minFWHM, maxFlag);
         emit resetProgressBar();
         progressStepSize = 100. / float(scienceData->exposureList.length());
-        // Merge catalogs
         mergeInternal(scienceData, minFWHM, maxFlag);
     }
 
     // EXTERNAL (SExtractor)
     else {
-        // Detect sources
         detectionSExtractor(scienceData, minFWHM, maxFlag);
         emit resetProgressBar();
         progressStepSize = 100. / float(scienceData->exposureList.length());
-        // Merge catalogs
         mergeSExtractor(scienceData);
     }
 
@@ -113,6 +112,11 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
         }
     }
 */
+
+    QString warningLevel = "";
+    QString stopLevel = "";
+    long numExpRejected = 0;
+    long numImgRejected = 0;
 
     QList<MyImage*> allMyImages;
     long numMyImages = makeListofAllImages(allMyImages, scienceData);
@@ -153,13 +157,34 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
         }
         if (it->successProcessing) {
             long nobj = it->objectList.length();
-            emitSourceCountMessage(nobj, it->chipName);
+            emitSourceCountMessage(nobj, it->chipName, warningLevel, stopLevel);
+            if (!cdw->ui->CSCrejectExposureLineEdit->text().isEmpty()) {
+                long nReject = cdw->ui->CSCrejectExposureLineEdit->text().toLong();
+                if (nobj < nReject) {
+                    it->setActiveState(MyImage::LOWDETECTION);
+                    it->emitModelUpdateNeeded();
+                    it->removeSourceCatalogs();
+                }
+            }
         }
         else {
             scienceData->successProcessing = false;
         }
 #pragma omp atomic
         progress += progressStepSize;
+    }
+
+    // Deactivate exposures with low detections
+    if (!cdw->ui->CSCrejectExposureLineEdit->text().isEmpty()) {
+        flagLowDetectionImages(scienceData, numExpRejected, numImgRejected);
+        if (numImgRejected > 0) {
+            QString addedString = "";
+            if (instData->numChips > 1) addedString = "("+QString::number(numImgRejected)+ " detector images)";
+            emit messageAvailable("<br>"+QString::number(numExpRejected) + " exposures "+addedString+ " deactivated " +
+                                  "(low source count). Corresponding FITS files were moved to <br>" +
+                                  scienceData->subDirName+"/inactive/lowDetections/<br>", "warning");
+            emit warningReceived();
+        }
     }
 }
 
@@ -184,6 +209,11 @@ void Controller::detectionSExtractor(Data *scienceData, QString minFWHM, QString
     }
 */
 
+    QString warningLevel = "";
+    QString stopLevel = "";
+    long numExpRejected = 0;
+    long numImgRejected = 0;
+
     QList<MyImage*> allMyImages;
     long numMyImages = makeListofAllImages(allMyImages, scienceData);
 
@@ -202,7 +232,7 @@ void Controller::detectionSExtractor(Data *scienceData, QString minFWHM, QString
 
         releaseMemory(nimg*instData->storage, maxCPU);
 
-        if (verbosity > 1 ) emit messageAvailable(it->chipName + " : Creating source catalog ...", "image");
+        if (verbosity > 1) emit messageAvailable(it->chipName + " : Creating source catalog ...", "image");
         it->setupDataInMemorySimple(true);
         it->buildSexCommand();
         it->sexCommand.append(sexCommandOptions);
@@ -216,7 +246,15 @@ void Controller::detectionSExtractor(Data *scienceData, QString minFWHM, QString
         }
         if (it->successProcessing) {
             long nobj = getNumObjectsSexCat(it->path+"/cat/"+it->chipName+".cat");
-            emitSourceCountMessage(nobj, it->chipName);
+            emitSourceCountMessage(nobj, it->chipName, warningLevel, stopLevel);
+            if (!cdw->ui->CSCrejectExposureLineEdit->text().isEmpty()) {
+                long nReject = cdw->ui->CSCrejectExposureLineEdit->text().toLong();
+                if (nobj < nReject) {
+                    it->setActiveState(MyImage::LOWDETECTION);
+                    it->emitModelUpdateNeeded();
+                    it->removeSourceCatalogs();
+                }
+            }
         }
         else {
             scienceData->successProcessing = false;
@@ -225,9 +263,22 @@ void Controller::detectionSExtractor(Data *scienceData, QString minFWHM, QString
 #pragma omp atomic
         progress += progressStepSize;
     }
+
+    // Deactivate exposures with low detections
+    if (!cdw->ui->CSCrejectExposureLineEdit->text().isEmpty()) {
+        flagLowDetectionImages(scienceData, numExpRejected, numImgRejected);
+        if (numImgRejected > 0) {
+            QString addedString = "";
+            if (instData->numChips > 1) addedString = "("+QString::number(numImgRejected)+ " detector images)";
+            emit messageAvailable("<br>"+QString::number(numExpRejected) + " exposures "+addedString+ " deactivated " +
+                                  "(low source count). Corresponding FITS files were moved to <br>" +
+                                  scienceData->subDirName+"/inactive/lowDetections/", "warning");
+            emit warningReceived();
+        }
+    }
 }
 
-void Controller::emitSourceCountMessage(long &nobj, QString baseName)
+void Controller::emitSourceCountMessage(long &nobj, QString baseName, QString &warningLevel, QString &stopLevel)
 {
     // Color-coding output lines
     QString detStatus = "";
@@ -243,11 +294,51 @@ void Controller::emitSourceCountMessage(long &nobj, QString baseName)
     emit messageAvailable(baseName + " : " + QString::number(nobj) + " sources detected..."+detStatus, level);
 }
 
+void Controller::flagLowDetectionImages(Data *scienceData, long &numExpRejected, long &numImgRejected)
+{
+    numExpRejected = 0;
+    numImgRejected = 0;
+
+    scienceData->populateExposureList();
+    int numExposures = scienceData->exposureList.length();
+    for (long i=0; i<numExposures; ++i) {
+        if (abortProcess || !successProcessing) continue;
+        // Test if a single chip has low detection numbers
+        bool exposureIsBad = false;
+        for (auto &it : scienceData->exposureList[i]) {
+            if (it->activeState == MyImage::LOWDETECTION) {
+                exposureIsBad = true;
+                break;
+            }
+        }
+        // Reject all chips if a single one is bad
+        if (exposureIsBad) {
+            for (auto &it : scienceData->exposureList[i]) {
+                ++numImgRejected;
+                if (it->activeState != MyImage::LOWDETECTION) {
+                    it->setActiveState(MyImage::LOWDETECTION);
+                    it->emitModelUpdateNeeded();
+                    it->removeSourceCatalogs();
+                }
+                it->emitModelUpdateNeeded();
+            }
+            ++numExpRejected;
+        }
+    }
+}
+
 void Controller::mergeInternal(Data *scienceData, QString minFWHM, QString maxFlag)
 {
     scienceData->populateExposureList();
     emit messageAvailable("Merging source catalogs ...", "controller");
     for (long i=0; i<scienceData->exposureList.length(); ++i) {
+        // if one detector has been rejected due to low source counts, then skip this exposure
+        bool lowCounts = false;
+        for (auto &it : scienceData->exposureList[i]) {
+            if (it->activeState == MyImage::LOWDETECTION) lowCounts = true;
+        }
+        if (lowCounts) continue;
+
         fitsfile *fptr;
         int status = 0;
         QString filename = scienceData->dirName+"/cat/"+scienceData->exposureList[i][0]->rootName+".scamp";
@@ -255,10 +346,13 @@ void Controller::mergeInternal(Data *scienceData, QString minFWHM, QString maxFl
         fits_create_file(&fptr, filename.toUtf8().data(), &status);
         int counter=0;
         for (auto &it : scienceData->exposureList[i]) {
-            it->appendToScampCatalogInternal(fptr, minFWHM, maxFlag);
-            ++counter;
+            // Could exclude catalogs due to any activeState
+//            if (it->activeState != MyImage::LOWDETECTION) {
+                it->appendToScampCatalogInternal(fptr, minFWHM, maxFlag);
+                ++counter;
+//            }
         }
-//        if (counter != instData->numChips) {
+        //        if (counter != instData->numChips) {
         if (counter != instData->numUsedChips) {
             emit messageAvailable(scienceData->exposureList[i][0]->rootName + " : Merged only " + QString::number(counter)
                     + " out of " + QString::number(instData->numUsedChips) + " catalogs for scamp!", "error");
@@ -287,6 +381,13 @@ void Controller::mergeSExtractor(Data *scienceData)
 #pragma omp parallel for num_threads(maxCPU)
     for (long i=0; i<scienceData->exposureList.length(); ++i) {
         if (abortProcess || !successProcessing) continue;
+        // if one detector has been rejected due to low source counts, then skip this exposure
+        bool lowCounts = false;
+        for (auto &it : scienceData->exposureList[i]) {
+            if (it->activeState == MyImage::LOWDETECTION) lowCounts = true;
+        }
+        if (lowCounts) continue;
+
         fitsfile *fptr;
         int status = 0;
         QString filename = scienceData->dirName+"/cat/"+scienceData->exposureList[i][0]->rootName+".scamp";
@@ -412,7 +513,7 @@ bool Controller::manualCoordsUpdate(Data *scienceData, QString mode)
 
     successProcessing = true;
 
-    emit appendOK();
+    //    emit appendOK();
     return true;
 }
 
@@ -764,7 +865,7 @@ void Controller::copyZeroOrder()
         for (auto &it : scampScienceData->myImageList[chip]) {
             if (abortProcess) break;
             it->setupDataInMemorySimple(false);
-//            it->backupOrigHeader(chip);                        // Create a backup copy of the original FITS headers if it doesn't exist yet
+            //            it->backupOrigHeader(chip);                        // Create a backup copy of the original FITS headers if it doesn't exist yet
             if (it->scanAstromHeader(chip, "inHeadersDir")) {
                 it->updateZeroOrderOnDrive("update");            // Overwrite 0-th order solution in FITS header (if on drive)
                 it->updateZeroOrderInMemory();                   // Overwrite 0-th order solution in memory
@@ -824,7 +925,7 @@ void Controller::doImageQualityAnalysis()
         it->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag, instData->chipMap.value(chip));
         // match
         bool gaia = imageQuality->getSeeingFromGaia();
-//        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: Not yet implemented
+        //        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: Not yet implemented
         if (verbosity > 1) emit messageAvailable(it->chipName + " : FWHM / Ellipticity = "
                                                  + QString::number(imageQuality->fwhm, 'f', 3) + " / "
                                                  + QString::number(imageQuality->ellipticity, 'f', 3), "ignore");
@@ -926,7 +1027,7 @@ void Controller::prepareScampRun(Data *scienceData)
         return;
     }
 
-    emit appendOK();
+    //    emit appendOK();
 }
 
 long Controller::prepareScampCats(Data *scienceData, long &totNumObjects)
@@ -961,9 +1062,9 @@ long Controller::prepareScampCats(Data *scienceData, long &totNumObjects)
         }
     }
 
-//    QDir imageDir(scienceDir);
-//    statusOld = scienceData->status;
-//    QStringList imageList = imageDir.entryList(QStringList("*"+statusOld+".fits"));
+    //    QDir imageDir(scienceDir);
+    //    statusOld = scienceData->status;
+    //    QStringList imageList = imageDir.entryList(QStringList("*"+statusOld+".fits"));
     QDir catDir(scienceDir+"/cat/");
     QStringList catList = catDir.entryList(QStringList("*.scamp"));
     for (auto &cat : catList) {
@@ -990,7 +1091,7 @@ long Controller::prepareScampCats(Data *scienceData, long &totNumObjects)
         return 0;
     }
 
-    emit appendOK();
+    //    emit appendOK();
 
     return numCat;
 }

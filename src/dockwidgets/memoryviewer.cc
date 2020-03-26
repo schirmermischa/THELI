@@ -385,6 +385,9 @@ void MemoryViewer::on_memoryTableView_clicked(const QModelIndex &index)
     int cbindex = ui->datadirComboBox->currentIndex();
     if (cbindex == -1) return;
 
+    // don't show the image if the "active/deactivate" column is clicked
+    if (index.column() == 1) return;
+
     DataModel *model = dataModelList[cbindex];
     if (model->imageList.isEmpty()) return;   // Not sure this is ever happening
 

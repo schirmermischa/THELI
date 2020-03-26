@@ -1009,6 +1009,17 @@ void MyImage::writeConstSkyImage(float constValue, QString filter, float exptime
     }
 }
 
+void MyImage::removeSourceCatalogs()
+{
+    QString catName = path+"/cat/"+chipName+".cat";
+    QFile catFile1(catName);
+    if (catFile1.exists()) catFile1.remove();
+
+    catName = path+"/cat/"+chipName+".anet";
+    QFile catFile2(catName);
+    if (catFile2.exists()) catFile2.remove();
+}
+
 void MyImage::writeImageDebayer(bool addGain)
 {
     if (!successProcessing) return;
@@ -1216,6 +1227,7 @@ void MyImage::updateInactivePath()
     else if (activeState == MyImage::INACTIVE) pathExtension = "/inactive/";
     else if (activeState == MyImage::BADSTATS) pathExtension = "/inactive/badStatistics/";
     else if (activeState == MyImage::BADBACK) pathExtension = "/inactive/badBackground/";
+    else if (activeState == MyImage::LOWDETECTION) pathExtension = "/inactive/lowDetections/";
     else if (activeState == MyImage::DELETED) pathExtension = "/inactive/";
 }
 
@@ -1484,9 +1496,9 @@ void MyImage::setActiveState(active_type state)
     // TODO: DOES NOT WORK if restoring images. CurrentPath is already the full path including the "inactive" part.
     // file is moved on top of itself (and deleted beforehand).
     // Move the image accordingly
-    QString currentPath = path;                      // The path where the image is currently located (if on disk)
-    updateInactivePath();                            // Update the inactive path component according to the set state
-    QString newPath = currentPath + pathExtension;   // The path where the image should go
+    QString currentPath = path + pathExtension;      // The path where the image is currently located (if on disk)
+    updateInactivePath();                            // Update pathextension according to the set state
+    QString newPath = path + pathExtension;   // The path where the image should go
     if (!imageOnDrive) return;
     moveFile(baseName+".fits", currentPath, newPath);
     // TODO: must do a modelUpdate

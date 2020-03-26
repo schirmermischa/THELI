@@ -219,7 +219,7 @@ private:
     long getNumObjectsScampCat(QString cat);
     void satisfyMaxMemorySetting();
     long getNumObjectsSexCat(QString cat);
-    void emitSourceCountMessage(long &nobj, QString baseName);
+    void emitSourceCountMessage(long &nobj, QString baseName, QString &warningLevel, QString &stopLevel);
     void printCfitsioError(QString funcName, int status);
     void updateImageAndData(MyImage *image, Data *data);
     Data *setupDataDir();
@@ -276,6 +276,7 @@ private:
     void pushConfigSkysubModel();
     void pushConfigSkysubConst();
     void pushConfigSkysubPoly();
+    void flagLowDetectionImages(Data *scienceData, long &numExpRejected, long &numImgRejected);
 private slots:
     // The following can also be under 'private', but then the declaration must be preceeded like this:
     // Q_INVOKABLE QString taskHDUreformat();
