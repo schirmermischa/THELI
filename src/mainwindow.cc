@@ -1322,6 +1322,12 @@ void MainWindow::load_dialog_imageStatistics()
     if (controller->DT_SCIENCE.length() == 1) {
         scienceData = controller->DT_SCIENCE.at(0);
     }
+    else if (controller->DT_SCIENCE.length() == 0) {
+        QMessageBox::information(this, tr("Missing data"),
+                             tr("Image statistics:<br>No SCIENCE data were specified in the data tree.\n"),
+                             QMessageBox::Ok);
+        return;
+    }
     else {
         QMessageBox msgBox;
         msgBox.setInformativeText(tr("Image statistics: Choose SCIENCE data\n\n") +

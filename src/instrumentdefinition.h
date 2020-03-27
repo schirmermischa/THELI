@@ -51,8 +51,10 @@ private slots:
     void timerConfigDone();
     void on_clearPushButton_clicked();
     void on_bayerCheckBox_clicked(bool checked);
-
     void on_actionClose_triggered();
+    void toggleFormatPushButton();
+
+    void on_readRAWgeometryPushButton_clicked();
 
 private:
     Ui::Instrument *ui;

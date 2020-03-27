@@ -21,6 +21,8 @@ If not, see https://www.gnu.org/licenses/ .
 #include "ui_instrumentdefinition.h"
 #include "functions.h"
 
+#include "libraw/libraw.h"
+
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTimer>
@@ -84,6 +86,14 @@ Instrument::Instrument(QWidget *parent) :
     setWindowIcon(QIcon(":/images/addInst.png"));
 
     applyStyleSheets();
+
+    QButtonGroup formatButtonGroup;
+    formatButtonGroup.addButton(ui->formatFITSRadioButton);
+    formatButtonGroup.addButton(ui->formatRAWRadioButton);
+    formatButtonGroup.setExclusive(true);
+    connect(ui->formatFITSRadioButton, &QRadioButton::clicked, this, &Instrument::toggleFormatPushButton);
+    connect(ui->formatRAWRadioButton, &QRadioButton::clicked, this, &Instrument::toggleFormatPushButton);
+    toggleFormatPushButton();
 }
 
 Instrument::~Instrument()
@@ -105,10 +115,11 @@ void Instrument::applyStyleSheets()
     QList<QLabel*> subtitleList;
     subtitleList.append(ui->subtitle1Label);
     subtitleList.append(ui->subtitle2Label);
-    subtitleList.append(ui->subtitle5Label);
     for (auto &it : subtitleList) {
-        it->setStyleSheet("background-color: rgb(190,190,210);");
-        it->setMargin(4);
+        it->setStyleSheet("color: rgb(150, 240, 240); background-color: rgb(58, 78, 98);");
+        it->setMargin(8);
+//        it->setStyleSheet("background-color: rgb(190,190,210);");
+//        it->setMargin(4);
     }
 
     QList<QFrame*> frameList;
@@ -127,6 +138,36 @@ void Instrument::applyStyleSheets()
     buttonList.append(ui->bayerGRBGToolButton);
     for (auto &it : buttonList) {
         //
+    }
+}
+
+void Instrument::toggleFormatPushButton()
+{
+    if (ui->formatFITSRadioButton->isChecked()) {
+        ui->readRAWgeometryPushButton->setDisabled(true);
+        ui->overscanxMinLineEdit->setEnabled(true);
+        ui->overscanxMaxLineEdit->setEnabled(true);
+        ui->overscanyMinLineEdit->setEnabled(true);
+        ui->overscanyMaxLineEdit->setEnabled(true);
+        ui->startxLineEdit->setEnabled(true);
+        ui->startyLineEdit->setEnabled(true);
+        ui->sizexLineEdit->setEnabled(true);
+        ui->sizeyLineEdit->setEnabled(true);
+        ui->crpix1LineEdit->setEnabled(true);
+        ui->crpix2LineEdit->setEnabled(true);
+    }
+    else {
+        ui->readRAWgeometryPushButton->setEnabled(true);
+        ui->overscanxMinLineEdit->setDisabled(true);
+        ui->overscanxMaxLineEdit->setDisabled(true);
+        ui->overscanyMinLineEdit->setDisabled(true);
+        ui->overscanyMaxLineEdit->setDisabled(true);
+        ui->startxLineEdit->setDisabled(true);
+        ui->startyLineEdit->setDisabled(true);
+        ui->sizexLineEdit->setDisabled(true);
+        ui->sizeyLineEdit->setDisabled(true);
+        ui->crpix1LineEdit->setDisabled(true);
+        ui->crpix2LineEdit->setDisabled(true);
     }
 }
 
@@ -328,7 +369,7 @@ void Instrument::on_saveConfigPushButton_clicked()
 
     QMessageBox::information( this, "Restart required",
                               "User-defined instrument configurations can be found at the bottom of the instrument selection menu after restarting THELI.");
-    }
+}
 
 void Instrument::on_instrumentTypeComboBox_currentIndexChanged(int index)
 {
@@ -552,4 +593,46 @@ void Instrument::on_bayerCheckBox_clicked(bool checked)
 void Instrument::on_actionClose_triggered()
 {
     this->close();
+}
+
+
+void Instrument::on_readRAWgeometryPushButton_clicked()
+{
+
+    QString rawFileName = QFileDialog::getOpenFileName(this, tr("Select a CMOS RAW file"), QDir::homePath(),
+                                                       tr("CMOS RAW files (*.CR2 *.ARW *.DNG *.cr2 *.arw *.dng);; Other (*.*)"));
+
+    // Try opening as RAW
+    LibRaw rawProcessor;
+    int ret = rawProcessor.open_file((rawFileName).toUtf8().data());
+    if (ret == LIBRAW_SUCCESS) {
+        // Opened. Try unpacking
+        bool unpack = rawProcessor.unpack();
+        if (unpack != LIBRAW_SUCCESS) {
+            QMessageBox::warning( this, "Unknown RAW format",
+                                  "The file chosen does not have a recognized CMOS RAW format.");
+            return;
+        }
+    }
+
+#define S rawProcessor.imgdata.sizes
+
+    // Extract pixels
+    /*
+    long naxis1Raw = S.raw_width;
+    long naxis2Raw = S.raw_height;
+    long naxis1 = S.iwidth;
+    long naxis2 = S.iheight;
+    */
+
+    ui->overscanxMinLineEdit->setText("1");
+    ui->overscanxMaxLineEdit->setText(QString::number(S.left_margin));
+    ui->overscanyMinLineEdit->setText("1");
+    ui->overscanyMaxLineEdit->setText(QString::number(S.top_margin));
+    ui->startxLineEdit->setText(QString::number(S.left_margin+1));
+    ui->startyLineEdit->setText(QString::number(S.top_margin+1));
+    ui->sizexLineEdit->setText(QString::number(S.iwidth));
+    ui->sizeyLineEdit->setText(QString::number(S.iheight));
+    ui->crpix1LineEdit->setText(QString::number(S.iwidth/2));
+    ui->crpix2LineEdit->setText(QString::number(S.iheight/2));
 }
