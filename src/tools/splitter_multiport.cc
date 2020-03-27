@@ -122,7 +122,6 @@ void Splitter::getMultiportInformation(int chip)
         if (detector == "CCDz") gainValue2 = gainValue1 * 0.88904;
         multiportGains << gainValue1 << gainValue2;
         individualFixDone = true;
-        return;
     }
 
     //   if (instData.name == "GROND_NIR@MPGESO") {
@@ -135,7 +134,6 @@ void Splitter::getMultiportInformation(int chip)
         multiportChannelSections << section;
         multiportGains << 1.0;
         individualFixDone = true;
-        return;
     }
 
     if (instData.name == "SuprimeCam_200808-201705@SUBARU") {
@@ -192,7 +190,6 @@ void Splitter::getMultiportInformation(int chip)
         channelGains.clear();
         channelGains << 1.0 << 1.0 << 1.0 << 1.0;   // dummy; not used anywhere else for SuprimeCam_200808-201705
         individualFixDone = true;
-        return;
     }
 
     if (instData.name == "LIRIS_POL@WHT") {
@@ -204,7 +201,6 @@ void Splitter::getMultiportInformation(int chip)
         multiportChannelSections << section;
         multiportGains << 1.0;
         individualFixDone = true;
-        return;
     }
 
     // All Hamamatsu Gemini GMOS configurations. Single channel in single FITS extension
@@ -216,6 +212,7 @@ void Splitter::getMultiportInformation(int chip)
         else if (binString.simplified() == "2 2") binning = 2;
         else {
             emit messageAvailable(fileName + ": Invalid binning encountered: "+binString.simplified(), "error");
+            emit critical();
             successProcessing = false;
             return;
         }
@@ -289,18 +286,20 @@ void Splitter::getMultiportInformation(int chip)
         individualFixDone = true;
     }
 
-    if (multiportGains.length() != multiportOverscanSections.length()
-            || multiportGains.length() != multiportIlluminatedSections.length()) {
-        emit messageAvailable("Splitter::getMultiportInformation : Inconsistent number of channels for gain, overscan and data section: "
-                              + QString::number(channelGains.length()) + " "
-                              + QString::number(multiportOverscanSections.length()) + " "
-                              + QString::number(multiportIlluminatedSections.length()), "error");
-        emit critical();
-        successProcessing = false;
+    // If any instrument-specific stuff happened above, then we do a consistency check
+    if (individualFixDone) {
+        if (multiportGains.length() != multiportOverscanSections.length()
+                || multiportGains.length() != multiportIlluminatedSections.length()) {
+            emit messageAvailable("Splitter::getMultiportInformation : Inconsistent number of channels for gain, overscan and data section: "
+                                  + QString::number(channelGains.length()) + " "
+                                  + QString::number(multiportOverscanSections.length()) + " "
+                                  + QString::number(multiportIlluminatedSections.length()), "error");
+            emit critical();
+            successProcessing = false;
+        }
     }
-
-    // What to do for detectors that are not split up by several readout channels and overscans
-    if (!individualFixDone) {
+    else {
+        // What to do for detectors that are not split up by several readout channels and overscans
         naxis1 = dataSection[chip][1] - dataSection[chip][0] + 1;
         naxis2 = dataSection[chip][3] - dataSection[chip][2] + 1;
         // Append the overscan strips from the instrument.ini files, and padd the missing dimension

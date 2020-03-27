@@ -54,11 +54,7 @@ void Splitter::importRAW()
     naxis1 = S.iwidth;
     naxis2 = S.iheight;
 
-    bool sizeTest = checkChipGeometry();
-    if (!sizeTest) {
-        successProcessing = false;
-        return;
-    }
+    if (!checkChipGeometry()) return;
 
     long dim = naxis1Raw*naxis2Raw;
     dataRaw.clear();
@@ -121,6 +117,9 @@ bool Splitter::checkChipGeometry()
     for (int chip=0; chip<instData.numChips; ++chip) {
         if (instData.sizex[chip] != naxis1 || instData.sizey[chip] != naxis2) {
             emit showMessageBox("Splitter::IncompatibleSizeRAW", instData.name, QString::number(naxis1)+" "+QString::number(naxis2));
+            emit messageAvailable("Splitter::checkChipGeometry(): Inconsistent detector geometry", "error");
+            emit critical();
+            successProcessing = false;
             return false;
         }
     }
@@ -150,6 +149,7 @@ void Splitter::buildHeaderRAW()
     cards.append("MJD-OBS = "+QString::number(mjdobsValue, 'f', 12));
     cards.append("FILTER  = 'RGB'");
     cards.append("AIRMASS = 1.0");
+    cards.append("THELIPRO= 1");
     cards.append("BAYER   = '"+bayerPattern+"'");
     if (sensorTemp > -1000.) cards.append("DET_TEMP= "+QString::number(sensorTemp, 'f', 2));
     if (cameraTemp > -1000.) cards.append("CAM_TEMP= "+QString::number(cameraTemp, 'f', 2));
@@ -181,6 +181,7 @@ void Splitter::extractImagesRAW()
         applyMask(chip);
         buildHeaderRAW();
         writeImage(chip);
+
 #pragma omp atomic
         *progress += progressStepSize;
     }
@@ -210,12 +211,12 @@ void Splitter::overwriteCameraIniRAW()
         instData.overscan_ymax[chip] = S.top_margin < 5 ? 0 : S.top_margin - 1;
         // Deactivate overscan if area is less than 5 pixels wide
         if (instData.overscan_xmin[chip] == 0 && instData.overscan_xmax[chip] == 0) {
-            instData.overscan_xmin[chip] = -1;
-            instData.overscan_xmax[chip] = -1;
+            instData.overscan_xmin.clear();
+            instData.overscan_xmax.clear();
         }
         if (instData.overscan_ymin[chip] == 0 && instData.overscan_ymax[chip] == 0) {
-            instData.overscan_ymin[chip] = -1;
-            instData.overscan_ymax[chip] = -1;
+            instData.overscan_ymin.clear();
+            instData.overscan_ymax.clear();
         }
         instData.cutx[chip] = S.left_margin;
         instData.cuty[chip] = S.top_margin;

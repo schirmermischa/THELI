@@ -76,7 +76,9 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
         it->naxis2 = m;
         it->dataCurrent.resize(n*m);
         it->path = image->path;
+        it->weightPath = image->weightPath;
         it->baseName = image->rootName;
+        it->rootName = image->rootName;
         it->chipName = image->rootName+"_"+QString::number(image->chipNumber);
         it->exptime = image->exptime;
         it->header = image->header;

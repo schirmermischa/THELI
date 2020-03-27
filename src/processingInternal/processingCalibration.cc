@@ -699,7 +699,10 @@ void Controller::taskInternalProcessscience()
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (instData->badChips.contains(chip)) continue;
         // Update image list; remove bayer images, insert debayered images
-        if (!instData->bayer.isEmpty()) scienceData->repopulate(chip, bayerList[chip]);
+        if (!instData->bayer.isEmpty()) {
+            scienceData->repopulate(chip, bayerList[chip]);
+            emit populateMemoryView();
+        }
         /*
         if (scienceData->successProcessing) {
             for (auto &it : scienceData->myImageList[chip]) {

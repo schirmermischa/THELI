@@ -113,7 +113,7 @@ void Splitter::determineFileFormat()
         int ret = rawProcessor.open_file((path+"/"+fileName).toUtf8().data());
         if (ret == LIBRAW_SUCCESS) {
             // Opened. Try unpacking
-            getDetectorSections();
+//            getDetectorSections();
             bool unpack = rawProcessor.unpack();
             if (unpack != LIBRAW_SUCCESS) {
                 emit messageAvailable(fileName + " : Could not unpack file: " + libraw_strerror(unpack), "warning");
@@ -132,7 +132,7 @@ void Splitter::determineFileFormat()
         QDir unknownFile(path+"/UnknownFormat");
         unknownFile.mkpath(path+"/UnknownFormat/");
         moveFile(fileName, path, path+"/UnknownFormat");
-        emit messageAvailable(fileName+" : Unknown format. Moved to "+subDirName+"/UnknownFormat/", "warning");
+        emit messageAvailable(fileName+" : Unknown format. Cfitsio error code: "+QString::number(rawStatus) + ". Moved to "+subDirName+"/UnknownFormat/", "warning");
     }
 }
 
@@ -271,6 +271,8 @@ void Splitter::extractImagesFITS()
             }
 
             if (chipMapped == -1) {
+                emit messageAvailable("Splitter::extractImagesFITS(): Could not infer chip number", "error");
+                emit critical();
                 successProcessing = false;
                 continue;
             }
