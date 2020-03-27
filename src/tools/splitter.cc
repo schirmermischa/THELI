@@ -113,13 +113,13 @@ void Splitter::determineFileFormat()
         int ret = rawProcessor.open_file((path+"/"+fileName).toUtf8().data());
         if (ret == LIBRAW_SUCCESS) {
             // Opened. Try unpacking
-//            getDetectorSections();
             bool unpack = rawProcessor.unpack();
             if (unpack != LIBRAW_SUCCESS) {
                 emit messageAvailable(fileName + " : Could not unpack file: " + libraw_strerror(unpack), "warning");
                 dataFormat = "Unknown";
                 return;
             }
+            getNumberOfAmplifiers();
         }
         else dataFormat = "Unknown";
     }
@@ -678,11 +678,12 @@ void Splitter::getNumberOfAmplifiers()
 {
     if (!successProcessing) return;
 
-    numAmpPerChip = 1;     // The number of amplifiers forming data for a single detector. Aleways 1, unless stored in separate FITS extensions
+    numAmpPerChip = 1;     // The number of amplifiers forming data for a single detector. Always 1, unless stored in separate FITS extensions
     if (instData.name.contains("GMOS-N-HAM") || instData.name.contains("GMOS-S-HAM")) {
+        // update numAmpPerChip with NAMPS keyword
         fits_read_key_lng(rawFptr, "NAMPS", &numAmpPerChip, nullptr, &rawStatus);
         if (rawStatus) {
-            qDebug() << "ERROR: Splitter::getNumberOfAmplifiers()";
+            emit messageAvailable("Splitter::getNumberOfAmplifiers(): Could not read NAMPS keyword!", "error");
             numAmpPerChip = 1;
             rawStatus = 0;
         }

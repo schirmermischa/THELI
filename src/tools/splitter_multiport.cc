@@ -305,11 +305,11 @@ void Splitter::getMultiportInformation(int chip)
         // Append the overscan strips from the instrument.ini files, and padd the missing dimension
         QVector<long> overscan;
         if (!overscanX[chip].isEmpty()) {
-            overscan << overscanX[chip][0] << overscanX[chip][1] << 0 << naxis2Raw-1;     // last two elements not used
+            overscan << overscanX[chip][0] << overscanX[chip][1] << 0 << naxis2Raw-1;
             multiportOverscanDirections << "vertical";
         }
         if (!overscanY[chip].isEmpty()) {
-            overscan << 0 << naxis1Raw-1 << overscanY[chip][2] << overscanY[chip][3];     // first two elements not used
+            overscan << 0 << naxis1Raw-1 << overscanY[chip][0] << overscanY[chip][1];
             multiportOverscanDirections << "horizontal";
         }
         multiportOverscanSections << overscan;

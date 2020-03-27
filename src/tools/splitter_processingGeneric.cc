@@ -37,13 +37,29 @@ void Splitter::correctOverscan(int chip)
 
     if (multiportOverscanDirections.isEmpty()) return;
 
-    int numChannels = multiportOverscanDirections.length();       // the number of readout channels per detector
-    for (int channel=0; channel<numChannels; ++channel) {
-        if (multiportOverscanDirections[channel] == "vertical") {
-            doOverscanVertical(combineOverscan_ptr, multiportOverscanSections[channel], multiportChannelSections[channel]);
+    int numOverscans = multiportOverscanSections.length();       // the number of overscan sections per detector
+    int numDataSections = multiportChannelSections.length();     // the number of data sections per detector. A data section might have a horizontal and a vertical overscan
+
+    // One overscan per data section
+    if (numOverscans == numDataSections) {
+        for (int i=0; i<numOverscans; ++i) {
+            if (multiportOverscanDirections[i] == "vertical") {
+                doOverscanVertical(combineOverscan_ptr, multiportOverscanSections[i], multiportChannelSections[i]);
+            }
+            if (multiportOverscanDirections[i] == "horizontal") {
+                doOverscanHorizontal(combineOverscan_ptr, multiportOverscanSections[i], multiportChannelSections[i]);
+            }
         }
-        if (multiportOverscanDirections[channel] == "horizontal") {
-            doOverscanHorizontal(combineOverscan_ptr, multiportOverscanSections[channel], multiportChannelSections[channel]);
+    }
+    // Two overscans per data section, e.g. vertical and horizontal
+    else {
+        for (int i=0; i<numOverscans; ++i) {
+            if (multiportOverscanDirections[i] == "vertical") {
+                doOverscanVertical(combineOverscan_ptr, multiportOverscanSections[i], multiportChannelSections[i/2]);
+            }
+            if (multiportOverscanDirections[i] == "horizontal") {
+                doOverscanHorizontal(combineOverscan_ptr, multiportOverscanSections[i], multiportChannelSections[i/2]);
+            }
         }
     }
 }
