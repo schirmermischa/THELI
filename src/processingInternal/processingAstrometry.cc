@@ -131,6 +131,7 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
 
         auto &it = allMyImages[k];
         int chip = it->chipNumber - 1;
+
         if (!it->successProcessing) continue;
         if (instData->badChips.contains(chip)) continue;
 

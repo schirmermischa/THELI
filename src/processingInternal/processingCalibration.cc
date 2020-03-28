@@ -601,6 +601,7 @@ void Controller::taskInternalProcessscience()
 
         auto &it = allMyImages[k];
         int chip = it->chipNumber - 1;
+
         if (!it->successProcessing) continue;
         if (instData->badChips.contains(chip)) continue;     // redundant. Image not even in allMyImages[k];
         releaseMemory(nimg*instData->storage, maxCPU);
@@ -650,9 +651,9 @@ void Controller::taskInternalProcessscience()
         }
         else {
             // Create 3 new MyImages for R, G, and B
-            MyImage *debayerB = new MyImage(dataDirName, it->baseName, "P", chip+1, QVector<bool>(), false, &verbosity);
-            MyImage *debayerG = new MyImage(dataDirName, it->baseName, "P", chip+1, QVector<bool>(), false, &verbosity);
-            MyImage *debayerR = new MyImage(dataDirName, it->baseName, "P", chip+1, QVector<bool>(), false, &verbosity);
+            MyImage *debayerB = new MyImage(dataDirName, it->baseName, "P", chip+1, mask->globalMask[chip], false, &verbosity);
+            MyImage *debayerG = new MyImage(dataDirName, it->baseName, "P", chip+1, mask->globalMask[chip], false, &verbosity);
+            MyImage *debayerR = new MyImage(dataDirName, it->baseName, "P", chip+1, mask->globalMask[chip], false, &verbosity);
             debayer(chip, it, debayerB, debayerG, debayerR);
             QList<MyImage*> list; // Contains the current 3 debayered images
 
