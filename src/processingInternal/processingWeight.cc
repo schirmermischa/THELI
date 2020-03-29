@@ -152,6 +152,7 @@ void Controller::taskInternalGlobalweight()
     satisfyMaxMemorySetting();
 
     if (successProcessing) {
+        emit populateMemoryView();
         emit progressUpdate(100);
         //        pushEndMessage(taskBasename, scienceDir);
     }
@@ -259,6 +260,7 @@ void Controller::taskInternalIndividualweight()
     satisfyMaxMemorySetting();
 
     if (successProcessing) {
+        emit populateMemoryView();
         emit progressUpdate(100);
         //        pushEndMessage(taskBasename, scienceDir);
     }
