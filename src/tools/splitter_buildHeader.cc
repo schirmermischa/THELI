@@ -635,6 +635,12 @@ void Splitter::buildTheliHeaderGAIN(int chip)
         chipGain = 1.0;
     }
 
+    // Consistency checks
+    if (chipGain < 0.02 || chipGain > 50.) {
+        emit messageAvailable(fileName + " : GAIN keyword outside plausible range (0.02-50 e-/ADU): " + QString::number(chipGain)+", set to 1.0.", "warning");
+        emit warning();
+    }
+
     QString card1 = "GAINEFF = "+QString::number(chipGain, 'f', 6) + " / Effective gain for this image";
     QString card2 = "GAIN    = 1.0     / ADUs were converted to e- in this image using GAINEFF";
     card1.resize(80, ' ');
