@@ -117,6 +117,7 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
                 connect(myImage, &MyImage::modelUpdateNeeded, this, &Data::modelUpdateReceiver);
                 connect(myImage, &MyImage::critical, this, &Data::pushCritical);
                 connect(myImage, &MyImage::warning, this, &Data::pushWarning);
+                connect(myImage, &MyImage::errorOccurred, this, &Data::errorOccurredInMyImage);
                 connect(myImage, &MyImage::messageAvailable, this, &Data::pushMessageAvailable);
                 // Use a direct connection to execute the slot in the signaler's thread, not the receiver's thread
                 connect(myImage, &MyImage::setMemoryLock, this, &Data::setMemoryLockReceived, Qt::DirectConnection);
@@ -2332,6 +2333,11 @@ void Data::pushCritical()
 void Data::pushWarning()
 {
     emit warning();
+}
+
+void Data::pushErrorOccurred()
+{
+    emit errorOccurredInMyImage();
 }
 
 void Data::printCfitsioError(QString funcName, int status)

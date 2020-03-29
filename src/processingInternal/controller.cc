@@ -321,6 +321,7 @@ void Controller::parseDataDir(QLineEdit *le, QList<Data *> &DT_x)
         connect(data, &Data::setMemoryLock, this, &Controller::setMemoryLockReceived, Qt::DirectConnection);
         connect(data, &Data::setWCSLock, this, &Controller::setWCSLockReceived, Qt::DirectConnection);
         connect(data, &Data::addToProgressBar, this, &Controller::addToProgressBarReceived);
+        connect(data, &Data::errorOccurredInMyImage, this, &Controller::criticalReceived);
         //        if (memoryViewer != nullptr) {
         //            connect(data, &Data::statusChanged, memoryViewer, &MemoryViewer::updateStatusCheckBoxesReceived);
         //        }

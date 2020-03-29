@@ -453,6 +453,7 @@ signals:
     void setWCSLock(bool locked);
     void critical();
     void warning();
+    void errorOccurred();
 
 public slots:
     void messageAvailableReceived(QString message, QString type);

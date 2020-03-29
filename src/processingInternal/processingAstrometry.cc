@@ -139,7 +139,7 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
 
         if (verbosity > 1 ) emit messageAvailable(it->chipName + " : Creating source catalog ...", "image");
         it->setupDataInMemorySimple(true);
-        if (!successProcessing) {
+        if (!it->successProcessing) {
             abortProcess = true;
             continue;
         }
@@ -239,7 +239,7 @@ void Controller::detectionSExtractor(Data *scienceData, QString minFWHM, QString
 
         if (verbosity > 1) emit messageAvailable(it->chipName + " : Creating source catalog ...", "image");
         it->setupDataInMemorySimple(true);
-        if (!successProcessing) {
+        if (!it->successProcessing) {
             abortProcess = true;
             continue;
         }
@@ -499,7 +499,7 @@ bool Controller::manualCoordsUpdate(Data *scienceData, QString mode)
 
         if (!it->successProcessing) continue;
         it->setupDataInMemorySimple(false);
-        if (!successProcessing) {
+        if (!it->successProcessing) {
             abortProcess = true;
             continue;
         }
@@ -878,7 +878,7 @@ void Controller::copyZeroOrder()
         for (auto &it : scampScienceData->myImageList[chip]) {
             if (abortProcess) break;
             it->setupDataInMemorySimple(false);
-            if (!successProcessing) {
+            if (!it->successProcessing) {
                 abortProcess = true;
                 continue;
             }
@@ -930,7 +930,7 @@ void Controller::doImageQualityAnalysis()
         if (instData->badChips.contains(chip)) continue;
 
         it->setupDataInMemorySimple(false);
-        if (!successProcessing) {
+        if (!it->successProcessing) {
             abortProcess = true;
             continue;
         }
@@ -986,7 +986,7 @@ void Controller::doCrossCorrelation(Data *scienceData)
             if (!it->successProcessing) continue;
             emit messageAvailable(it->baseName + " : Building xcorrelation pixel map ...", "controller");
             it->setupDataInMemorySimple(false);
-            if (!successProcessing) {
+            if (!it->successProcessing) {
                 abortProcess = true;
                 continue;
             }

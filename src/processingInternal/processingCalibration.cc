@@ -625,7 +625,7 @@ void Controller::taskInternalProcessscience()
         it->processingStatus->Processscience = false;
 
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
-        if (!successProcessing) {
+        if (!it->successProcessing) {
             abortProcess = true;
             continue;
         }

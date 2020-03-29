@@ -236,6 +236,7 @@ public slots:
     void pushWarning();
     void pushCritical();
     void criticalFromQueryReceived();
+    void pushErrorOccurred();
 
 private:
     QString thelidir;
@@ -278,6 +279,7 @@ signals:
     void globalModelUpdateNeeded();
     void updateModelHeaderLine();
     void statusChanged(QString newStatus);
+    void errorOccurredInMyImage();
 };
 
 #endif // DATA_H

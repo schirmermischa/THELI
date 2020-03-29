@@ -152,7 +152,7 @@ void Controller::skysubPolynomialFit(Data *scienceData)
             // If not in memory, will just read it again from drive
             it->processingStatus->Skysub = false;
             it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
-            if (!successProcessing) {
+            if (!it->successProcessing) {
                 abortProcess = true;
                 continue;
             }
@@ -247,7 +247,7 @@ void Controller::skysubConstantFromArea(Data *scienceData)
         // If not in memory, will just read it again from drive
         it->processingStatus->Skysub = false;
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
-        if (!successProcessing) {
+        if (!it->successProcessing) {
             abortProcess = true;
             continue;
         }
@@ -318,7 +318,7 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
         // Does nothing if image is still in memory.
         // If not in memory, will just read it again from drive
         it->setupData(scienceData->isTaskRepeated, false, false);
-        if (!successProcessing) {
+        if (!it->successProcessing) {
             abortProcess = true;
             continue;
         }
@@ -360,7 +360,7 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
         emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2) + " e-", "image");
         it->processingStatus->Skysub = false;
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
-        if (!successProcessing) {
+        if (!it->successProcessing) {
             abortProcess = true;
             continue;
         }
@@ -444,7 +444,7 @@ void Controller::skysubConstantEachChip(Data *scienceData, QString DT, QString D
         it->processingStatus->Skysub = false;
 
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
-        if (!successProcessing) {
+        if (!it->successProcessing) {
             abortProcess = true;
             continue;
         }
@@ -567,7 +567,7 @@ void Controller::skysubModel(Data *scienceData, QString DT, QString DMIN, QStrin
         //        emit messageAvailable(it->baseName + " : Modeling the sky ...", "controller");
         it->processingStatus->Skysub = false;
         it->setupData(scienceData->isTaskRepeated, true, true, backupDirName);
-        if (!successProcessing) {
+        if (!it->successProcessing) {
             abortProcess = true;
             continue;
         }

@@ -111,7 +111,7 @@ void Controller::taskInternalCollapse()
         if (verbosity >= 0) emit messageAvailable(it->chipName + " : Collapse correction ...", "image");
         it->processingStatus->Collapse = false;
         it->setupData(scienceData->isTaskRepeated, true, true, backupDirName);  // CHECK: why do we determine the mode here?
-        if (!successProcessing) {
+        if (!it->successProcessing) {
             abortProcess = true;
             continue;
         }
