@@ -463,16 +463,27 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     naxis2 = it->naxis2;
     crval1 = it->crval1;
     crval2 = it->crval2;
-    cd1_1 = it->wcs->cd[0];
-    cd1_2 = it->wcs->cd[1];
-    cd2_1 = it->wcs->cd[2];
-    cd2_2 = it->wcs->cd[3];
     plateScale = it->plateScale;
     hasWCS = true;
     naxis1 = it->naxis1;
     naxis2 = it->naxis2;
     wcs = it->wcs;
-
+    if (it->hasWCS) {
+        cd1_1 = it->wcs->cd[0];
+        cd1_2 = it->wcs->cd[1];
+        cd2_1 = it->wcs->cd[2];
+        cd2_2 = it->wcs->cd[3];
+    }
+    else {
+        crval1 = 0.;
+        crval2 = 0.;
+        crpix1 = naxis1 / 2.;
+        crpix2 = naxis2 / 2.;
+        cd1_1 = -1.*it->plateScale/3600.;
+        cd1_2 = 0.;
+        cd2_1 = 0.;
+        cd2_2 = 1.*it->plateScale/3600.;
+    }
     this->setWindowTitle("iView --- Memory viewer : "+it->chipName);
 
     // Get the dynamic range
