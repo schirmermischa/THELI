@@ -629,7 +629,7 @@ void Splitter::buildTheliHeaderGAIN(int chip)
     if (!searchKeyValue(headerDictionary.value("GAIN"), chipGain)) {
         //        if (instData.name != "GROND_NIR@MPGESO") {    // GROND: gain determined in writeImageIndividual()
         if (instNameFromData != "GROND_NIR@MPGESO") {    // GROND: gain determined in writeImageIndividual()
-            emit messageAvailable(fileName + " : Could not determine keyword: GAIN, set to 1.0. Contact the author about this.", "warning");
+            emit messageAvailable(fileName + " : Could not determine keyword: GAIN, set to 1.0.", "warning");
             emit warning();
         }
         chipGain = 1.0;
