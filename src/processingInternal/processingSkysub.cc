@@ -102,6 +102,7 @@ void Controller::skysubPolynomialFit(Data *scienceData)
     if (!successProcessing) return;
 
     pushBeginMessage("SkysubPoly", scienceData->subDirName);
+    pushConfigSkysubPoly();
 
     scienceData->populateExposureList();
 
@@ -173,6 +174,7 @@ void Controller::skysubConstantFromArea(Data *scienceData)
     if (!successProcessing) return;
 
     pushBeginMessage("SkysubConst", scienceData->subDirName);
+    pushConfigSkysubConst();
 
     //    scienceData->populateExposureList();
 
@@ -264,6 +266,7 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
     if (!successProcessing) return;
 
     pushBeginMessage("SkysubConst", scienceData->subDirName);
+    pushConfigSkysubConst();
 
     scienceData->populateExposureList();
 
@@ -370,6 +373,9 @@ void Controller::skysubConstantEachChip(Data *scienceData, QString DT, QString D
     // Loop over all exposures (consisting of n chips)
     int kernel = kernelWidth.toInt();
 
+    pushBeginMessage("SkysubConst", scienceData->subDirName);
+    pushConfigSkysubConst();
+
     /*
 #pragma omp parallel for num_threads(maxExternalThreads)
     for (int chip=0; chip<instData->numChips; ++chip) {
@@ -470,6 +476,7 @@ void Controller::skysubModel(Data *scienceData, QString DT, QString DMIN, QStrin
     if (!successProcessing) return;
 
     pushBeginMessage("SkysubModel", scienceData->subDirName);
+    pushConfigSkysubModel();
 
     int kernel = kernelWidth.toInt();
 
