@@ -232,6 +232,10 @@ void Controller::taskInternalIndividualweight()
 
         if (verbosity >= 0) emit messageAvailable(it->chipName + " : Creating weight map ...", "image");
         it->setupDataInMemorySimple(false);
+        if (!successProcessing) {
+            abortProcess = true;
+            continue;
+        }
         // Locking, otherwise the same globalweight will be initialized several times (image geometry not threadsafe)
 #pragma omp critical
         {

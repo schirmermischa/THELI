@@ -625,6 +625,10 @@ void Controller::taskInternalProcessscience()
         it->processingStatus->Processscience = false;
 
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
+        if (!successProcessing) {
+            abortProcess = true;
+            continue;
+        }
         // TODO: check if we can just pass the data structure and chip number,
         // and test internally for nullptr and 'successProcessing'.
         // Then the "if" could go away

@@ -111,6 +111,10 @@ void Controller::taskInternalCollapse()
         if (verbosity >= 0) emit messageAvailable(it->chipName + " : Collapse correction ...", "image");
         it->processingStatus->Collapse = false;
         it->setupData(scienceData->isTaskRepeated, true, true, backupDirName);  // CHECK: why do we determine the mode here?
+        if (!successProcessing) {
+            abortProcess = true;
+            continue;
+        }
         it->backgroundModel(256, "interpolate");
         it->segmentImage(DT, DMIN, true, false);
         it->transferObjectsToMask();

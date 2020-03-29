@@ -152,6 +152,10 @@ void Controller::skysubPolynomialFit(Data *scienceData)
             // If not in memory, will just read it again from drive
             it->processingStatus->Skysub = false;
             it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
+            if (!successProcessing) {
+                abortProcess = true;
+                continue;
+            }
             it->subtractSkyFit(order, skyFit.c, cdw->ui->skySavemodelCheckBox->isChecked());
 
             updateImageAndData(it, scienceData);
@@ -243,6 +247,10 @@ void Controller::skysubConstantFromArea(Data *scienceData)
         // If not in memory, will just read it again from drive
         it->processingStatus->Skysub = false;
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
+        if (!successProcessing) {
+            abortProcess = true;
+            continue;
+        }
         it->subtract(it->meanExposureBackground);
         updateImageAndData(it, scienceData);
 
@@ -310,6 +318,10 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
         // Does nothing if image is still in memory.
         // If not in memory, will just read it again from drive
         it->setupData(scienceData->isTaskRepeated, false, false);
+        if (!successProcessing) {
+            abortProcess = true;
+            continue;
+        }
         it->resetObjectMasking();
         it->backgroundModelDone = false;
         it->readWeight();
@@ -348,6 +360,10 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
         emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2) + " e-", "image");
         it->processingStatus->Skysub = false;
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
+        if (!successProcessing) {
+            abortProcess = true;
+            continue;
+        }
         it->subtract(it->meanExposureBackground);
 
         updateImageAndData(it, scienceData);
@@ -428,6 +444,10 @@ void Controller::skysubConstantEachChip(Data *scienceData, QString DT, QString D
         it->processingStatus->Skysub = false;
 
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
+        if (!successProcessing) {
+            abortProcess = true;
+            continue;
+        }
         it->resetObjectMasking();
         it->backgroundModelDone = false;
         it->readWeight();
@@ -547,6 +567,10 @@ void Controller::skysubModel(Data *scienceData, QString DT, QString DMIN, QStrin
         //        emit messageAvailable(it->baseName + " : Modeling the sky ...", "controller");
         it->processingStatus->Skysub = false;
         it->setupData(scienceData->isTaskRepeated, true, true, backupDirName);
+        if (!successProcessing) {
+            abortProcess = true;
+            continue;
+        }
         it->readWeight();
         // Model background so we can detect objects
         it->resetObjectMasking();

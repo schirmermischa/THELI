@@ -139,6 +139,10 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
 
         if (verbosity > 1 ) emit messageAvailable(it->chipName + " : Creating source catalog ...", "image");
         it->setupDataInMemorySimple(true);
+        if (!successProcessing) {
+            abortProcess = true;
+            continue;
+        }
         it->readWeight();
         it->backgroundModel(256, "interpolate");
         it->updateSaturation(saturation);
@@ -235,6 +239,10 @@ void Controller::detectionSExtractor(Data *scienceData, QString minFWHM, QString
 
         if (verbosity > 1) emit messageAvailable(it->chipName + " : Creating source catalog ...", "image");
         it->setupDataInMemorySimple(true);
+        if (!successProcessing) {
+            abortProcess = true;
+            continue;
+        }
         it->buildSexCommand();
         it->sexCommand.append(sexCommandOptions);
         if (!it->imageOnDrive) it->writeImage();         // Must be on drive for sextractor
@@ -491,6 +499,10 @@ bool Controller::manualCoordsUpdate(Data *scienceData, QString mode)
 
         if (!it->successProcessing) continue;
         it->setupDataInMemorySimple(false);
+        if (!successProcessing) {
+            abortProcess = true;
+            continue;
+        }
         // TODO: should be sufficient, but crashes when executed right after launch
         // it->provideHeaderInfo();
         if (mode == "crval") {
@@ -866,6 +878,10 @@ void Controller::copyZeroOrder()
         for (auto &it : scampScienceData->myImageList[chip]) {
             if (abortProcess) break;
             it->setupDataInMemorySimple(false);
+            if (!successProcessing) {
+                abortProcess = true;
+                continue;
+            }
             //            it->backupOrigHeader(chip);                        // Create a backup copy of the original FITS headers if it doesn't exist yet
             if (it->scanAstromHeader(chip, "inHeadersDir")) {
                 it->updateZeroOrderOnDrive("update");            // Overwrite 0-th order solution in FITS header (if on drive)
@@ -914,6 +930,10 @@ void Controller::doImageQualityAnalysis()
         if (instData->badChips.contains(chip)) continue;
 
         it->setupDataInMemorySimple(false);
+        if (!successProcessing) {
+            abortProcess = true;
+            continue;
+        }
         // Setup seeing measurement
         it->estimateMatchingTolerance();
         ImageQuality *imageQuality = new ImageQuality(scampScienceData, instData, mainDirName);
@@ -966,6 +986,10 @@ void Controller::doCrossCorrelation(Data *scienceData)
             if (!it->successProcessing) continue;
             emit messageAvailable(it->baseName + " : Building xcorrelation pixel map ...", "controller");
             it->setupDataInMemorySimple(false);
+            if (!successProcessing) {
+                abortProcess = true;
+                continue;
+            }
             it->readWeight();
             it->resetObjectMasking();
             it->backgroundModel(64, "interpolate");
