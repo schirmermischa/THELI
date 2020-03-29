@@ -818,6 +818,8 @@ bool MainWindow::isRefcatRecent(QString dirname)
 //            QString deblend = cdw->ui->ARCmincontLineEdit->text();
             currentId = image+"_"+dt+"_"+dmin;
         }
+        // Uncomment this to understand why refcat is downloaded twice
+//        qDebug() << id << currentId;
         if (id != currentId) return false;
         else return true;
     }
