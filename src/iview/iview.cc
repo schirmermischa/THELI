@@ -463,6 +463,10 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     naxis2 = it->naxis2;
     crval1 = it->crval1;
     crval2 = it->crval2;
+    cd1_1 = it->wcs->cd[0];
+    cd1_2 = it->wcs->cd[1];
+    cd2_1 = it->wcs->cd[2];
+    cd2_2 = it->wcs->cd[3];
     plateScale = it->plateScale;
     hasWCS = true;
     naxis1 = it->naxis1;
