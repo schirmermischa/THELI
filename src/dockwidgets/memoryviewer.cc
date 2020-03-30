@@ -542,6 +542,18 @@ void MemoryViewer::statusCheckBoxToData()
     data->processingStatus->Skysub = ui->procstatusSkysubCheckbox->isChecked();
 }
 
+void MemoryViewer::projectResetReceived()
+{
+    ui->restoreComboBox->clear();
+    ui->procstatusHDUreformatCheckbox->setChecked(false);
+    ui->procstatusProcessscienceCheckbox->setChecked(false);
+    ui->procstatusChopnodCheckbox->setChecked(false);
+    ui->procstatusBackgroundCheckbox->setChecked(false);
+    ui->procstatusCollapseCheckbox->setChecked(false);
+    ui->procstatusStarflatCheckbox->setChecked(false);
+    ui->procstatusSkysubCheckbox->setChecked(false);
+}
+
 Data* MemoryViewer::getDataClassThisModel()
 {
     int index = ui->datadirComboBox->currentIndex();

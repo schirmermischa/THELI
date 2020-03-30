@@ -80,6 +80,7 @@ public slots:
     void populateMemoryViewReceived();
     void addBackupDirReceived(QString scienceDir, QString backupDirName);
     void updateStatusCheckBoxesReceived(QString statusstring);
+    void projectResetReceived();
 
 private slots:
     void on_datadirComboBox_currentIndexChanged(int index);

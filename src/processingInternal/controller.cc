@@ -1376,7 +1376,8 @@ void Controller::sendMemoryPreferenceToImages(QList<Data*> DT_x)
 
 void Controller::restoreAllRawData()
 {
-    // memory lock set in caller
+    // memory lock set in caller; NO IT IS NOT!
+    // restore button deactivated while task is running
 #pragma omp parallel for num_threads(maxCPU)
     for (int i=0; i<masterListDT.length(); ++i) {
         auto &DT_x = masterListDT[i];

@@ -1683,6 +1683,7 @@ void MainWindow::restoreOriginalData()
     // Restore data
     monitor->displayMessage("Freeing memory, restoring raw data ...", "ignore");
     controller->restoreAllRawData();
+    memoryViewer->projectResetReceived();
 }
 
 void MainWindow::on_actionLicense_triggered()
