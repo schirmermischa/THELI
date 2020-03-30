@@ -443,6 +443,12 @@ void MemoryViewer::on_restorePushButton_clicked()
     // ui->restoreComboBox->removeItem(ui->restoreComboBox->currentIndex());
 
     repopulateRestoreComboBox();
+
+    // header line only changes if we manually resize the viewer
+
+    // TODO: Does not work. perhaps using signal/slot mechanism?
+    //    DataModel *model = dataModelList[ui->datadirComboBox->currentIndex()];
+    //    model->updateheaderLineExternal();
 }
 
 void MemoryViewer::showhideStatusCheckBoxes(QString type)

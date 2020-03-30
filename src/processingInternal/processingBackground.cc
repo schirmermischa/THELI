@@ -82,7 +82,9 @@ void Controller::taskInternalBackground()
     retrieveBrightStars(skyData, brightStarList);
     if (!idChipsWithBrightStars(skyData, brightStarList)) return;
 
-    scienceData->checkTaskRepeatStatus(taskBasename);
+    bool success = scienceData->checkTaskRepeatStatus(taskBasename);
+    if (!success) return;
+
     getNumberOfActiveImages(scienceData);
     QVector<QString> numBackExpList(instData->numChips);
 

@@ -53,7 +53,8 @@ void Controller::taskInternalCollapse()
     QString direction = cdw->ui->COCdirectionComboBox->currentText();
     QString threshold = cdw->ui->COCrejectLineEdit->text();
 
-    scienceData->checkTaskRepeatStatus(taskBasename);
+    bool success = scienceData->checkTaskRepeatStatus(taskBasename);
+    if (!success) return;
 
     getNumberOfActiveImages(scienceData);
 

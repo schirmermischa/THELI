@@ -358,10 +358,11 @@ void Data::writeUnsavedImagesToDrive()
     emit progressUpdate(100.);
 }
 
-void Data::checkTaskRepeatStatus(QString taskBasename)
+bool Data::checkTaskRepeatStatus(QString taskBasename)
 {
     isTaskRepeated = false;
 
+    // Check the Data class. If the current task matches the status, then the task is being repeated
     if (taskBasename == "HDUreformat" && processingStatus->HDUreformat) isTaskRepeated = true;
     else if (taskBasename == "Processscience" && processingStatus->Processscience) isTaskRepeated = true;
     else if (taskBasename == "Chopnod" && processingStatus->Chopnod) isTaskRepeated = true;
@@ -370,27 +371,57 @@ void Data::checkTaskRepeatStatus(QString taskBasename)
     else if (taskBasename == "Starflat" && processingStatus->Starflat) isTaskRepeated = true;
     else if (taskBasename == "Skysub" && processingStatus->Skysub) isTaskRepeated = true;
 
+    // Check that all images have the same status
     myImageList[0][0]->checkTaskRepeatStatus(taskBasename);
-    bool comparison = myImageList[0][0]->isTaskRepeated;
+    bool imageStatus = myImageList[0][0]->isTaskRepeated;
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : myImageList[chip]) {
             it->checkTaskRepeatStatus(taskBasename);
-            if (comparison != it->isTaskRepeated) {
+            if (imageStatus != it->isTaskRepeated) {
                 emit messageAvailable(dirName + " : Data::checkTaskRepeatStatus(): Inconsistent processing status detected among images!<br>You must clean-up the data directory manually. Restart recommended.", "error");
                 emit critical();
                 it->successProcessing = false;
                 successProcessing = false;
+                return false;
             }
         }
     }
 
-    if (isTaskRepeated != comparison) {
+    // If the Data class status does not match the image status, then map the image status onto the Data class
+    if (isTaskRepeated != imageStatus) {
         // Map the imaging status onto the Data structure
-        emit messageAvailable(dirName + " : Data::checkTaskRepeatStatus(): Inconsistent processing status detected between images and Data class.<br>Attempting fix.", "warning");
-        emit critical();
+        emit messageAvailable(dirName + " : Data::checkTaskRepeatStatus(): Inconsistent processing status detected between images and Data class. Reset to image status", "warning");
+        emit warning();
         processingStatus->statusToBoolean(myImageList[0][0]->processingStatus->statusString);
         processingStatus->getStatusString();
     }
+
+    // Now check if we can actually retrieve all the data with the previous status
+    bool success = true;
+    if (isTaskRepeated) {
+        for (int chip=0; chip<instData->numChips; ++chip) {
+            for (auto &it : myImageList[chip]) {
+                // If the image is not in memory, check if it is on disk
+                if (!it->backupL1InMemory) {
+                    QString fileName = it->pathBackupL1 + "/" + it->baseNameBackupL1 + ".fits";
+                    QFile file(fileName);
+                    if (it->backupL1OnDrive && !file.exists()) success = false;
+                    else if (!it->backupL1OnDrive && !file.exists()) success = false;
+                    else if (!it->backupL1OnDrive && file.exists()) {
+                        it->backupL1OnDrive = true;
+                        emit messageAvailable(dirName + " : Data::checkTaskRepeatStatus(): Fixed wrong backup status flag, file was found on drive.", "warning");
+                        emit warning();
+                    }
+                }
+            }
+        }
+
+        if (!success) {
+            emit showMessageBox("Data::BACKUP_DATA_NOT_FOUND", "","");
+        }
+    }
+
+    return success;
 }
 
 void Data::checkPresenceOfMasterCalibs()
@@ -2467,9 +2498,7 @@ void Data::restoreBackupLevel(QString backupDirName)
 
     QDir backupDir(dirName+"/"+backupDirName);
     if (!backupDir.exists() || backupDir.isEmpty()) {
-        emit messageAvailable(dirName+"/"+backupDirName+" not found or empty, nothing to be restored!", "warning");
-        emit warning();
-        return;
+        emit messageAvailable(dirName+"/"+backupDirName+": No backup FITS files found, restoring memory only.", "data");
     }
 
     // Remove all currently present FITS files
@@ -2489,8 +2518,6 @@ void Data::restoreBackupLevel(QString backupDirName)
     QDir dc(dirName+"/"+backupDirName);
     bool success = true;
     QString newStatusRAM = "";
-
-    //    qDebug() << d1.absolutePath() << dc.absolutePath();
 
     if (d1.absolutePath() == dc.absolutePath()) success *= restoreFromBackupLevel("L1", newStatusRAM);
     else if (d2.absolutePath() == dc.absolutePath()) success *= restoreFromBackupLevel("L2", newStatusRAM);

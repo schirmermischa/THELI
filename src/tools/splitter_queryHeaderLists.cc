@@ -155,6 +155,7 @@ bool Splitter::searchKeyInHeader(const QString &searchKey, const QStringList &po
                 newCard.append("= "+keyValue);
                 newCard.resize(80, ' ');         // Header card must be 80 chars long
                 outputHeader.append(newCard);
+//                if (searchKey == "CD1_1" && possibleKey == "CDELT1") qDebug() << card << "\n" << keyValue << slashPosition << "\n" << newCard;
                 break;
             }
         }

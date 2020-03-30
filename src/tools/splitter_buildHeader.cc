@@ -636,8 +636,8 @@ void Splitter::buildTheliHeaderGAIN(int chip)
     }
 
     // Consistency checks
-    if (chipGain < 0.02 || chipGain > 50.) {
-        emit messageAvailable(fileName + " : GAIN keyword outside plausible range (0.02-50 e-/ADU): " + QString::number(chipGain)+", set to 1.0.", "warning");
+    if (chipGain < 0.02 || chipGain > 30.) {
+        emit messageAvailable(fileName + " : GAIN keyword outside plausible range (0.02-30 e-/ADU): " + QString::number(chipGain)+", set to 1.0.", "warning");
         emit warning();
         chipGain = 1.0;
     }

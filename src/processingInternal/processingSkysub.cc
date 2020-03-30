@@ -60,7 +60,8 @@ void Controller::taskInternalSkysub()
 
     scienceData->cleanBackgroundModelStatus();
 
-    scienceData->checkTaskRepeatStatus(taskBasename);
+    bool success = scienceData->checkTaskRepeatStatus(taskBasename);
+    if (!success) return;
 
     if (cdw->ui->skyModelRadioButton->isChecked()) {
         skysubModel(scienceData, DT, DMIN, expFactor, kernelWidth);
@@ -185,6 +186,8 @@ void Controller::skysubConstantFromArea(Data *scienceData)
     // Measure the sky in all blank regions, update the list of sky nodes in each chip
     QList<MyImage*> listOfAllImages = measureSkyInBlankRegions(scienceData);
 
+    emit messageAvailable("Calculating mean sky level per exposure ...", "controller");
+
     progressStepSize = 50. / float(scienceData->exposureList.length());
     // Loop over all exposures (consisting of n chips)
 #pragma omp parallel for num_threads(maxCPU)
@@ -230,6 +233,8 @@ void Controller::skysubConstantFromArea(Data *scienceData)
     releaseMemory(nimg*instData->storage*maxCPU, 1);
     scienceData->protectMemory();
 
+    emit messageAvailable("Subtracting mean sky level ...", "controller");
+
     // In principle this could be done in nicer form by including it in the last for-loop above
 #pragma omp parallel for num_threads(maxCPU) firstprivate(backupDirName)
     for (long i=0; i<listOfAllImages.length(); ++i) {
@@ -246,11 +251,13 @@ void Controller::skysubConstantFromArea(Data *scienceData)
         // Does nothing if image is still in memory.
         // If not in memory, will just read it again from drive
         it->processingStatus->Skysub = false;
+
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
         if (!it->successProcessing) {
             abortProcess = true;
             continue;
         }
+
         it->subtract(it->meanExposureBackground);
         updateImageAndData(it, scienceData);
 
@@ -680,7 +687,9 @@ QList<MyImage*> Controller::measureSkyInBlankRegions(Data *scienceData, QString 
             listOfAllImages[i]->setupData(scienceData->isTaskRepeated, false, true, backupDirName);     // 'false': do not move images to backup dir yet
             listOfAllImages[i]->evaluateSkyNodes(alpha, delta, radius);
             listOfAllImages[i]->unprotectMemory();
-            listOfAllImages[i]->freeAll();
+            if (minimizeMemoryUsage) {
+                listOfAllImages[i]->freeAll();
+            }
         }
     }
 

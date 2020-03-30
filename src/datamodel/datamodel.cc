@@ -445,6 +445,12 @@ void DataModel::modelUpdateReceiver(QString basename, QString chipName)
     emit dataChanged(indexDrive,indexL3);
 }
 
+void DataModel::updateheaderLineExternal()
+{
+    updateHeaderLine(0);
+    emit dataChanged(index(0, 0), index(0,5));
+}
+
 void DataModel::updateHeaderLine(long row)
 {
     setHeaderData(3, Qt::Horizontal, "L0 in\nRAM\n("+imageList[row]->processingStatus->statusString+")");

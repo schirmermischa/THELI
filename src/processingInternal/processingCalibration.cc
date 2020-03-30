@@ -483,7 +483,8 @@ void Controller::taskInternalProcessscience()
     // Loop over all chips
     backupDirName = scienceData->processingStatus->getStatusString() + "_IMAGES";
 
-    scienceData->checkTaskRepeatStatus(taskBasename);
+    bool success = scienceData->checkTaskRepeatStatus(taskBasename);
+    if (!success) return;
 
     getNumberOfActiveImages(scienceData);
 

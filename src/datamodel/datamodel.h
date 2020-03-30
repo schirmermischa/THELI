@@ -60,6 +60,7 @@ public:
     bool removeColumns(int column, int count, const QModelIndex &parent = QModelIndex()) override;
     void updateImageList();
 
+    void updateheaderLineExternal();
 private slots:
     void modelUpdateReceiver(QString basename, QString chipName);
     void updateHeaderLine(long row);

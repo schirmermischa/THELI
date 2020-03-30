@@ -207,6 +207,17 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
                              tr("The following ")+part1+tr(" images do not have a matching astrometric headers (headers/*.head):\n")+part2,
                              QMessageBox::Ok);
     }
+    else if (trigger == "Data::BACKUP_DATA_NOT_FOUND") {
+        QString warningText = "";
+        warningText = tr("You were about to repeat a processing task.") + " "
+                +tr("However, THELI could not find the data with the previous processing state, neither in memory nor in the backup folders on your drive.") + " "
+                +tr("You have the following options:")
+                + "\n(1) "+tr("Do not repeat this task and continue processing")
+                + "\n(2) "+tr("Restore a previous state from within the memory viewer")
+                + "\n(3) "+tr("Manually restore FITS files from a backup directory and restart THELI");
+
+        QMessageBox::warning(this, tr("ERROR: Failed to locate backup data"), warningText, QMessageBox::Ok);
+    }
 }
 
 void MainWindow::resetProcessingErrorFlags()
