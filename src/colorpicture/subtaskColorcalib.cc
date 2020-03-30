@@ -82,13 +82,23 @@ void ColorPicture::taskInternalColorCalib()
     QList<Query*> queryList = {PANSTARRSquery, SDSSquery, APASSquery};
 
     // Retrieve the photometric reference catalogs and identify solar type analogs
-    colorCalibRetrieveCatalogs(queryList);
 
-    // Extract solar analogs
-    filterSolarTypeStars(queryList);
+    // nexted paralellism within colorCalibSegmentImages();
+    //#pragma omp parallel sections
+//    {
+//#pragma omp section
+//        {
+            colorCalibRetrieveCatalogs(queryList);
 
-    // Detect sources in all images
-    colorCalibSegmentImages();
+            // Extract solar analogs
+            filterSolarTypeStars(queryList);
+//        }
+//#pragma omp section
+//        {
+            // Detect sources in all images
+            colorCalibSegmentImages();
+//        }
+//    }
 
     // Match the object catalogs with the reference catalogs, and calculate the various correction factors
     colorCalibMatchCatalogs();
@@ -209,7 +219,7 @@ void ColorPicture::colorCalibRetrieveCatalogs(QList<Query*> queryList)
 {
     // It appears that the parallel query is not threadsafe.
     // Results in not reproducible errors, at least when run through Qt5 debugger (but when run through valgrind)
-//#pragma omp parallel for num_threads(maxCPU)
+    //#pragma omp parallel for num_threads(maxCPU)
     for (int i=0; i<queryList.length(); ++i) {
         auto &query = queryList[i];
         emit messageAvailable("Querying "+query->refcatName + " ...", "ignore");
@@ -246,7 +256,7 @@ void ColorPicture::filterSolarTypeStars(QList<Query*> queryList)
                 APASS->ra.append(query->ra_out[k]);
                 APASS->de.append(query->de_out[k]);
             }
-//            qDebug() << PANSTARRS->ra << PANSTARRS->de << APASS->ra << APASS->de;
+            //            qDebug() << PANSTARRS->ra << PANSTARRS->de << APASS->ra << APASS->de;
         }
     }
 }

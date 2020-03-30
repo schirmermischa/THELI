@@ -409,8 +409,7 @@ bool Data::checkTaskRepeatStatus(QString taskBasename)
                     else if (!it->backupL1OnDrive && !file.exists()) success = false;
                     else if (!it->backupL1OnDrive && file.exists()) {
                         it->backupL1OnDrive = true;
-                        emit messageAvailable(dirName + " : Data::checkTaskRepeatStatus(): Fixed wrong backup status flag, file was found on drive.", "warning");
-                        emit warning();
+                        if (*verbosity > 2) emit messageAvailable(dirName + " : Data::checkTaskRepeatStatus(): Fixed wrong backup status flag, file was found on drive.", "warning");
                     }
                 }
             }

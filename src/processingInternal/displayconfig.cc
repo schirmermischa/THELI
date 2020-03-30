@@ -301,6 +301,12 @@ void Controller::pushConfigSkysubConst()
     QString config;
     config = "<tt>";
     config += "Constant sky measurement area = " + cdw->ui->skyAreaComboBox->currentText() + "<br>";
+    if (cdw->ui->skyAreaComboBox->currentIndex() != 0) {
+        config += "Detection threshold (DT) = " + cdw->ui->skyDTLineEdit->text() + "<br>";
+        config += "Detection min area (DMIN) = " + cdw->ui->skyDMINLineEdit->text() + "<br>";
+        config += "Kernel width [pixel] = " + cdw->ui->skyKernelLineEdit->text() + "<br>";
+        config += "Mask expansion factor = " + cdw->ui->skyMefLineEdit->text() + "<br>";
+    }
     emit messageAvailable(config, "config");
 }
 
