@@ -757,7 +757,7 @@ void AbsZeroPoint::plot()
     QCPAxisRect *AxisRectAper = new QCPAxisRect(ui->zpPlot);
     AxisRectAper->setObjectName("aperRect");
     AxisRectAper->setupFullAxesBox(true);
-    AxisRectAper->axis(QCPAxis::atBottom)->setLabel("Aperture [pixel]");
+    AxisRectAper->axis(QCPAxis::atBottom)->setLabel("Aperture diameter [pixel]");
     AxisRectAper->axis(QCPAxis::atLeft)->setLabel("ZP "+ui->zpFilterComboBox->currentText()+"  [ mag ]");
     AxisRectAper->axis(QCPAxis::atBottom)->setRange(0,100);
     AxisRectAper->axis(QCPAxis::atLeft)->setRange(24,28);
