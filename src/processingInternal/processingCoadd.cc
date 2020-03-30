@@ -1025,6 +1025,7 @@ void Controller::coaddUpdate()
 
     // Finally, do flux calibration if requested
     if (cdw->ui->COAfluxcalibCheckBox->isChecked()) {
+        emit messageAvailable("coadd.fits : Loading flux calibration module ...", "image");
         emit loadAbsZP(coaddDirName+"/coadd.fits", instData, maxVal);
     }
     else {

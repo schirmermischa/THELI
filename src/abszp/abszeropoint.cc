@@ -77,6 +77,12 @@ AbsZeroPoint::AbsZeroPoint(QString image, instrumentDataType *instrumentData, QW
     //    connect(this, &AbsZeroPoint::resetProgressBar, this, &AbsZeroPoint::resetProgressBarReceived);
 }
 
+void AbsZeroPoint::closeEvent(QCloseEvent *event)
+{
+    emit abszpClosed();
+    event->accept();
+}
+
 AbsZeroPoint::~AbsZeroPoint()
 {
     delete errordialog;
@@ -416,6 +422,7 @@ void AbsZeroPoint::queryRefCat()
 
     delete query;
     emit messageAvailable(QString::number(numRefSources) + " photometric reference sources found.", "ignore");
+    emit messageAvailable("Please wait for object detection to finish ...", "ignore");
 }
 
 void AbsZeroPoint::buildAbsPhot()
@@ -942,6 +949,7 @@ void AbsZeroPoint::plot()
 
 void AbsZeroPoint::on_actionClose_triggered()
 {
+    emit abszpClosed();
     this->close();
 }
 

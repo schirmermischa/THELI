@@ -131,6 +131,7 @@ private:
     void pushEndMessage();
     void queryRefCat();
     void loadPreferences();
+    void closeEvent(QCloseEvent *event);
 };
 
 #endif // ABSZEROPOINT_H
