@@ -310,6 +310,7 @@ QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList
 
                 if (filterArg == "all" || flag == "individual") break;
             }
+            if (filterlist.isEmpty()) updateProcessList(commandList, taskBasename, it+" "+"all");
         }
 
         // TODO
@@ -792,7 +793,7 @@ bool MainWindow::isRefcatRecent(QString dirname)
     QString currentId;
 
     if ( !file.open(QIODevice::ReadOnly)) {
-//        qDebug() << "QDEBUG: isRefcatRecent(): "+dirname+".refcatID could not be opened.";
+        //        qDebug() << "QDEBUG: isRefcatRecent(): "+dirname+".refcatID could not be opened.";
         return false;
     }
     else {
@@ -815,11 +816,11 @@ bool MainWindow::isRefcatRecent(QString dirname)
             QString image = cdw->ui->ARCselectimageLineEdit->text();
             QString dt = cdw->ui->ARCDTLineEdit->text();
             QString dmin = cdw->ui->ARCDMINLineEdit->text();
-//            QString deblend = cdw->ui->ARCmincontLineEdit->text();
+            //            QString deblend = cdw->ui->ARCmincontLineEdit->text();
             currentId = image+"_"+dt+"_"+dmin;
         }
         // Uncomment this to understand why refcat is downloaded twice
-//        qDebug() << id << currentId;
+        //        qDebug() << id << currentId;
         if (id != currentId) return false;
         else return true;
     }
@@ -881,12 +882,12 @@ QStringList MainWindow::displayCoaddFilterChoice(QString dirname, QString &filte
     dir.setNameFilters(filter);
     dir.setSorting(QDir::Name);
     QStringList list = dir.entryList();
-    if (list.isEmpty()) {
-        emit messageAvailable("MainWindow::displayCoaddFilterChoice(): No files found for coaddition!", "warning");
+    QStringList filterList;
+    if (list.isEmpty() && mode != "simulate") {
+        emit messageAvailable("MainWindow::displayCoaddFilterChoice(): No files found for coaddition!", "info");
         filterChoice = "all";
     }
 
-    QStringList filterList;
     for ( auto &fits : list) {
         int status = 0;
         fitsfile *fptr = nullptr;
@@ -901,7 +902,9 @@ QStringList MainWindow::displayCoaddFilterChoice(QString dirname, QString &filte
 
     int nfilt = filterList.length();
     if (nfilt == 0) {
-        emit messageAvailable("MainWindow::displayCoaddFilterChoice(): No filter keyword found in coadd image list!", "warning");
+        if (mode != "simulate") {
+            emit messageAvailable("MainWindow::displayCoaddFilterChoice(): No filter keyword found in coadd image list!", "warning");
+        }
         filterChoice = "all";
     }
     else if (nfilt == 1) {
