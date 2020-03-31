@@ -63,6 +63,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QTimer>
 #include <QModelIndex>
 
+
 void IView::setMiddleMouseMode(QString mode)
 {
     if (mode == "SkyMode") {

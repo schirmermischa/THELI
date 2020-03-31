@@ -376,6 +376,8 @@ void IView::closeEvent(QCloseEvent *event)
 //    fitsData.clear();
 //    fitsData.squeeze();
 
+    timer->stop();
+
     if (scampInteractiveMode && !scampCorrectlyClosed) {
         QMessageBox msgBox;
         msgBox.setText("Accept or reject the astrometric solution.");
@@ -402,6 +404,7 @@ void IView::closeEvent(QCloseEvent *event)
 
 IView::~IView()
 {
+
     if (dataIntSet) delete [] dataInt;
     if (dataIntRSet) delete [] dataIntR;
     if (dataIntGSet) delete [] dataIntG;
@@ -660,3 +663,4 @@ void IView::addDockWidgets()
         connect(icdw, &IvConfDockWidget::zoomZeroPushButton_clicked, this, &IView::zoomZeroPushButton_clicked_receiver);
     }
 }
+
