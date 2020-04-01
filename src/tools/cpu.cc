@@ -137,6 +137,8 @@ void CPU::init()
     if (kernelType == "darwin") {
         // nothing to be done
     }
+
+    delete sysInfo;
 }
 
 float CPU::getCurrentValue()

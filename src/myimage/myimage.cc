@@ -54,7 +54,7 @@ MyImage::MyImage(QString pathname, QString filename, QString statusString, int c
     makeBackup = makebackup;
     weightName = chipName+".weight";
 
-    processingStatus = new ProcessingStatus(path);
+    processingStatus = new ProcessingStatus(path, this);
     processingStatus->statusString = statusString;
     processingStatus->statusToBoolean(processingStatus->statusString);
 

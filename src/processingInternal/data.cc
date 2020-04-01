@@ -75,7 +75,7 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
     mask = detectorMask;
 
     // Get the recorded processing status from the .processingStatus file (if any)
-    processingStatus = new ProcessingStatus(dirName);
+    processingStatus = new ProcessingStatus(dirName, this);
     processingStatus->readFromDrive();
 
     QString backupStatus = processingStatus->statusString;
