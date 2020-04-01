@@ -1382,7 +1382,15 @@ void Controller::restoreAllRawData()
     for (int i=0; i<masterListDT.length(); ++i) {
         auto &DT_x = masterListDT[i];
         for (auto &it : DT_x) {
-            it->restoreRAWDATA();
+            // Just a paranoid safety barrier, in case the user provides incomplete data and then clicks on 'restore'
+            if (it->dir.absolutePath() == QDir::homePath()) {
+                QMessageBox::warning( this, "Dangerous data tree",
+                                      "The full path to " + it->dirName+"is identical to your home directory!\nTHELI will not delete / restore any data in this directory.");
+                continue;
+            }
+            else {
+                it->restoreRAWDATA();
+            }
         }
     }
 

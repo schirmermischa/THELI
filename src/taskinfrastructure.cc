@@ -884,7 +884,7 @@ QStringList MainWindow::displayCoaddFilterChoice(QString dirname, QString &filte
     QStringList list = dir.entryList();
     QStringList filterList;
     if (list.isEmpty() && mode != "simulate") {
-        emit messageAvailable("MainWindow::displayCoaddFilterChoice(): No files found for coaddition!", "info");
+//        emit messageAvailable("MainWindow::displayCoaddFilterChoice(): No files found for coaddition!", "info");
         filterChoice = "all";
     }
 
@@ -903,7 +903,7 @@ QStringList MainWindow::displayCoaddFilterChoice(QString dirname, QString &filte
     int nfilt = filterList.length();
     if (nfilt == 0) {
         if (mode != "simulate") {
-            emit messageAvailable("MainWindow::displayCoaddFilterChoice(): No filter keyword found in coadd image list!", "warning");
+//            emit messageAvailable("MainWindow::displayCoaddFilterChoice(): No filter keyword found in coadd image list!", "info");
         }
         filterChoice = "all";
     }
