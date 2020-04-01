@@ -109,6 +109,9 @@ void Controller::taskInternalHDUreformat()
         splitter->determineFileFormat();
         splitter->extractImages();
         if (!splitter->successProcessing) successProcessing = false;
+
+        delete splitter;     // Hogging lots of memory otherwise!
+
         // splitter handles the progress counter
         // No memory management needed, splitter simply runs out of scope
     }
