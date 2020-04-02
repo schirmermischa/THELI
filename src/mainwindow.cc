@@ -66,10 +66,6 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     // them to execute all of their code, for example when they are called during the first init of the GUI.
     doingInitialLaunch = true;
 
-    // Setup the status object, and hide some GUI elements we don't need
-    // for the user (but internally, to simplify code)
-    // status.init();
-
     initProcessingStatus();
 
     initEnvironment(thelidir, userdir, tmpdir);
