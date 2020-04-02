@@ -68,7 +68,7 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
 
     // Setup the status object, and hide some GUI elements we don't need
     // for the user (but internally, to simplify code)
-    status.init();
+    // status.init();
 
     initProcessingStatus();
 
@@ -1362,35 +1362,6 @@ void MainWindow::load_dialog_colorpicture()
 void MainWindow::load_dialog_newinst()
 {
     instrument->show();
-}
-
-QString MainWindow::getStatusForSettings()
-{
-    QString statusString = "";
-    for (auto &it : status.listHistory) {
-        if (it) statusString.append("1");
-        else statusString.append("0");
-    }
-    return statusString;
-}
-
-void MainWindow::setStatusFromSettings(QString statusString)
-{
-    // Enforce that the status string is no longer than the maximum string
-    // (this is in case I change the number of task checkboxes at some point)
-    statusString.truncate(19);
-    QStringList list = statusString.split("");
-    // The call above results in empty strings at the first and last place of the list.
-    // We need to remove them:
-    list.removeFirst();
-    list.removeLast();
-    int i = 0;
-    for (auto &it : list) {
-        if (it == "0") status.listHistory.operator[](i) = false;
-        else status.listHistory.operator[](i) = true;
-        ++i;
-    }
-    status.updateStatus();
 }
 
 void MainWindow::loadIView()

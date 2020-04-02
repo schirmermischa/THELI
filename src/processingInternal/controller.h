@@ -365,6 +365,7 @@ public:
     QString instrument_dir;
 
     Query *gaiaQuery;
+    bool gaiaQueryDone = false;
 
     bool alwaysStoreData = false;
     bool minimizeMemoryUsage = false;

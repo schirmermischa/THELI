@@ -43,7 +43,8 @@ If not, see https://www.gnu.org/licenses/ .
 void Controller::taskInternalCoaddition()
 {
     coaddScienceDir = instructions.split(" ").at(1);
-    QString filterArg = instructions.split(" ").at(3);
+    QString filterArg = instructions.split(" ").at(2);
+
     coaddScienceData = getData(DT_SCIENCE, coaddScienceDir);
     if (coaddScienceData == nullptr) return;      // Error triggered by getData();
 
@@ -974,6 +975,8 @@ void Controller::coaddUpdate()
     else {
         emit messageAvailable("Seeing will not be determined because no reference point sources were retrieved.", "warning");
     }
+
+    delete gaiaQuery;
 
     /*
     // TODO: that should be redone using the new gaia matching method

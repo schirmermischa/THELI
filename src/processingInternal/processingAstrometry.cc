@@ -39,7 +39,7 @@ If not, see https://www.gnu.org/licenses/ .
 void Controller::taskInternalCreatesourcecat()
 {
     QString scienceDir = instructions.split(" ").at(1);
-    QString updateMode = instructions.split(" ").at(3);
+    QString updateMode = instructions.split(" ").at(2);
     Data *scienceData = getData(DT_SCIENCE, scienceDir);
     if (scienceData == nullptr) return;      // Error triggered by getData();
 
@@ -962,6 +962,8 @@ void Controller::doImageQualityAnalysis()
     }
 
     workerThread->quit();
+
+    delete gaiaQuery;
 
     successProcessing = true;
     //    pushEndMessage("ImageQuality", scampScienceDir);

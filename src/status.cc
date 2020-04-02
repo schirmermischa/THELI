@@ -27,11 +27,13 @@ Status::Status()
 
 }
 
+/*
 void Status::init()
 {
     // connect the statusChanged signal with the corresponding slot
 //    connect(this, &Status::statusChanged, this, &Status::updateStatus);
 }
+*/
 
 // Set the background of the checkboxes according to the processing history
 void Status::history2checkbox()
@@ -130,6 +132,7 @@ int Status::lastExecutedTaskId()
 }
 
 // Predicts the status string at a given checkbox based on previous checkbox states
+/*
 QString Status::predictStatus(QString taskBasename)
 {
     // Get the current processing status, including all blanks
@@ -171,14 +174,17 @@ QString Status::predictStatus(QString taskBasename)
     predictedStatus.remove(" ");
     return predictedStatus.simplified();
 }
+*/
 
 // Predicts the status string after a given Checkbox has been executed
+/*
 QString Status::predictStatusAfter(QString taskBasename)
 {
     QString statusstring = predictStatus(taskBasename);
     statusstring.append(listFixedValue[indexMap.value(taskBasename)]);
     return statusstring.simplified();
 }
+*/
 
 // If the status changed, e.g. by restoring a previous processing stage, then
 // we must reflect this in the history, the checkboxes, and the action status

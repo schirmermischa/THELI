@@ -42,19 +42,18 @@ void MainWindow::deleteDummyLineEdits(QLineEdit *le1, QLineEdit *le2)
 QStringList MainWindow::taskHDUreformat(bool &stop, QString mode)
 {
     QString taskBasename = "HDUreformat";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupBiasLineEdit, le1, le2, statusString, success);
-    handleDataDirs(goodDirList, ui->setupDarkLineEdit, le1, le2, statusString, success);
-    handleDataDirs(goodDirList, ui->setupFlatoffLineEdit, le1, le2, statusString, success);
-    handleDataDirs(goodDirList, ui->setupFlatLineEdit, le1, le2, statusString, success);
-    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, statusString, success);
-    handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, statusString, success);
-    handleDataDirs(goodDirList, ui->setupStandardLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupBiasLineEdit, le1, le2, "", success);
+    handleDataDirs(goodDirList, ui->setupDarkLineEdit, le1, le2, "", success);
+    handleDataDirs(goodDirList, ui->setupFlatoffLineEdit, le1, le2, "", success);
+    handleDataDirs(goodDirList, ui->setupFlatLineEdit, le1, le2, "", success);
+    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
+    handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, "", success);
+    handleDataDirs(goodDirList, ui->setupStandardLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -64,13 +63,12 @@ QStringList MainWindow::taskHDUreformat(bool &stop, QString mode)
 QStringList MainWindow::taskProcessbias(bool &stop, QString mode)
 {
     QString taskBasename = "Processbias";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;   
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupBiasLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupBiasLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -80,13 +78,12 @@ QStringList MainWindow::taskProcessbias(bool &stop, QString mode)
 QStringList MainWindow::taskProcessdark(bool &stop, QString mode)
 {
     QString taskBasename = "Processdark";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupDarkLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupDarkLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -96,13 +93,12 @@ QStringList MainWindow::taskProcessdark(bool &stop, QString mode)
 QStringList MainWindow::taskProcessflatoff(bool &stop, QString mode)
 {
     QString taskBasename = "Processflatoff";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupFlatoffLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupFlatoffLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -112,7 +108,6 @@ QStringList MainWindow::taskProcessflatoff(bool &stop, QString mode)
 QStringList MainWindow::taskProcessflat(bool &stop, QString mode)
 {
     QString taskBasename = "Processflat";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
@@ -126,7 +121,7 @@ QStringList MainWindow::taskProcessflat(bool &stop, QString mode)
     else if (!bias.isEmpty()) le1 = ui->setupBiasLineEdit;
     else le1->setText("theli_nobias");
 
-    handleDataDirs(goodDirList, ui->setupFlatLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupFlatLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -136,7 +131,6 @@ QStringList MainWindow::taskProcessflat(bool &stop, QString mode)
 QStringList MainWindow::taskProcessscience(bool &stop, QString mode)
 {
     QString taskBasename = "Processscience";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
@@ -168,14 +162,13 @@ QStringList MainWindow::taskProcessscience(bool &stop, QString mode)
 QStringList MainWindow::taskChopnod(bool &stop, QString mode)
 {
     QString taskBasename = "Chopnod";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, statusString, success);
-    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
+    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -185,7 +178,6 @@ QStringList MainWindow::taskChopnod(bool &stop, QString mode)
 QStringList MainWindow::taskBackground(bool &stop, QString mode)
 {
     QString taskBasename = "Background";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
@@ -199,10 +191,10 @@ QStringList MainWindow::taskBackground(bool &stop, QString mode)
     auto *nosky = new QLineEdit();
     nosky->setText("noskydir");
 
-    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
 
-    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, statusString, success);
-    handleDataDirs(goodDirList, ui->setupStandardLineEdit, nosky, le2, statusString, success);
+    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, "", success);
+    handleDataDirs(goodDirList, ui->setupStandardLineEdit, nosky, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -212,15 +204,14 @@ QStringList MainWindow::taskBackground(bool &stop, QString mode)
 QStringList MainWindow::taskCollapse(bool &stop, QString mode)
 {
     QString taskBasename = "Collapse";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, statusString, success);
-    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, statusString, success);
-    handleDataDirs(goodDirList, ui->setupStandardLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
+    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, "", success);
+    handleDataDirs(goodDirList, ui->setupStandardLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -230,14 +221,13 @@ QStringList MainWindow::taskCollapse(bool &stop, QString mode)
 QStringList MainWindow::taskBinnedpreview(bool &stop, QString mode)
 {
     QString taskBasename = "Binnedpreview";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, statusString, success);
-    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
+    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -247,7 +237,6 @@ QStringList MainWindow::taskBinnedpreview(bool &stop, QString mode)
 QStringList MainWindow::taskGlobalweight(bool &stop, QString mode)
 {
     QString taskBasename = "Globalweight";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
@@ -263,11 +252,9 @@ QStringList MainWindow::taskGlobalweight(bool &stop, QString mode)
     if (!dark.isEmpty()) le2 = ui->setupDarkLineEdit;
     else if (!bias.isEmpty()) le2 = ui->setupBiasLineEdit;
     else le2->setText("theli_nobias");
-    // We don't need the statusString here
-    statusString = "";
 
-    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, statusString, success);
-    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
+    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -277,15 +264,14 @@ QStringList MainWindow::taskGlobalweight(bool &stop, QString mode)
 QStringList MainWindow::taskIndividualweight(bool &stop, QString mode)
 {
     QString taskBasename = "Individualweight";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, statusString, success);
-    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, statusString, success);
-    handleDataDirs(goodDirList, ui->setupStandardLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
+    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, "", success);
+    handleDataDirs(goodDirList, ui->setupStandardLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -295,14 +281,13 @@ QStringList MainWindow::taskIndividualweight(bool &stop, QString mode)
 QStringList MainWindow::taskSeparate(bool &stop, QString mode)
 {
     QString taskBasename = "Separate";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, statusString, success);
-    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
+    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -312,13 +297,12 @@ QStringList MainWindow::taskSeparate(bool &stop, QString mode)
 QStringList MainWindow::taskAbsphotindirect(bool &stop, QString mode)
 {
     QString taskBasename = "Absphotindirect";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -328,14 +312,13 @@ QStringList MainWindow::taskAbsphotindirect(bool &stop, QString mode)
 QStringList MainWindow::taskCreatesourcecat(bool &stop, QString mode)
 {
     QString taskBasename = "Createsourcecat";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, statusString, success);
-    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
+    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -345,14 +328,13 @@ QStringList MainWindow::taskCreatesourcecat(bool &stop, QString mode)
 QStringList MainWindow::taskAstromphotom(bool &stop, QString mode)
 {
     QString taskBasename = "Astromphotom";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, statusString, success);
-    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
+    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -362,13 +344,12 @@ QStringList MainWindow::taskAstromphotom(bool &stop, QString mode)
 QStringList MainWindow::taskGetCatalogFromWEB(bool &stop, QString mode)
 {
     QString taskBasename = "GetCatalogFromWEB";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -378,13 +359,12 @@ QStringList MainWindow::taskGetCatalogFromWEB(bool &stop, QString mode)
 QStringList MainWindow::taskGetCatalogFromIMAGE(bool &stop, QString mode)
 {
     QString taskBasename = "GetCatalogFromIMAGE";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -394,13 +374,12 @@ QStringList MainWindow::taskGetCatalogFromIMAGE(bool &stop, QString mode)
 QStringList MainWindow::taskRestoreHeader(bool &stop, QString mode)
 {
     QString taskBasename = "RestoreHeader";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -410,14 +389,13 @@ QStringList MainWindow::taskRestoreHeader(bool &stop, QString mode)
 QStringList MainWindow::taskSkysub(bool &stop, QString mode)
 {
     QString taskBasename = "Skysub";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, statusString, success);
-    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
+    if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();
@@ -427,13 +405,12 @@ QStringList MainWindow::taskSkysub(bool &stop, QString mode)
 QStringList MainWindow::taskCoaddition(bool &stop, QString mode)
 {
     QString taskBasename = "Coaddition";
-    QString statusString = status.predictStatus(taskBasename);
     QStringList goodDirList;    
     auto *le1 = new QLineEdit();
     auto *le2 = new QLineEdit();
     bool success = true;
 
-    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, statusString, success);
+    handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
     deleteDummyLineEdits(le1, le2);
 
     if (!success) return QStringList();

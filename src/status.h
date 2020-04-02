@@ -27,10 +27,8 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QLineEdit>
 #include <QObject>
 
-// This class keeps track of the actual processing status (what has been done to the data)
-// and of the predicted processing status (based on what has been done and which check boxes are marked)
-// It also contains lists of all relevant widgets (CheckBoxes, configure Buttons, Actions)
-// so that common actions can be coded using loops instead of explicitly typing everything out.
+// This class keeps track of the data processing, mainly so that the GUI displays background color of tasks correctly.
+// The 'status' is not used to reflect the actual processing status of data. This is handled internally to the Data and MyImage classes.
 class Status : public QObject
 {
     Q_OBJECT
@@ -41,9 +39,9 @@ public:
     void history2checkbox();
 //    void history2actions();
     QString getStatusFromHistory(bool keepblanks = false);
-    QString predictStatus(QString taskBasename);
+//    QString predictStatus(QString taskBasename);
     QString checkboxStatus(QCheckBox *cb);
-    QString predictStatusAfter(QString taskBasename);
+//    QString predictStatusAfter(QString taskBasename);
 
     // These lists contain the tasks, in the order in which they occur in the GUI
     QList<bool> listHistory;                // Whether a task has been executed or not; this is the central piece that rules it all
@@ -60,7 +58,7 @@ public:
     // The number of task checkboxes in the GUI; sorry, hardcoded.
     const int numtasks = 19;
 
-    void init();
+//    void init();
     void statusstringToHistory(QString &statusstring);
     void clearAllCheckBoxes();
 

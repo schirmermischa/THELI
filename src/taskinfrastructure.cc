@@ -74,7 +74,7 @@ QStringList MainWindow::matchCalibToScience(const QStringList scienceList, const
 
 void MainWindow::handleDataDirs(QStringList &goodDirList,
                                 QLineEdit *scienceLineEdit, QLineEdit *calib1LineEdit,
-                                QLineEdit *calib2LineEdit, QString statusString, bool success)
+                                QLineEdit *calib2LineEdit, QString flagString, bool success)
 {
     // This function assigns the correct calibration directories (if any)
     // and status strings (if any) to the science directories.
@@ -107,14 +107,14 @@ void MainWindow::handleDataDirs(QStringList &goodDirList,
     QDir scienceDir;
 
     // Loop over directories, prepend maindir if necessary;
-    // The idea is to produce strings "main science calib" separated by blanks, or "main science statusString".
+    // The idea is to produce strings "main science calib" separated by blanks, or "main science flagString".
     // We check elsewhere in areAllPathsValid() whether directories are good
 
     for (int i=0; i<scienceList.size(); ++i) {
         //        scriptArg = main + "/" + scienceList.at(i);
         scriptArg_blank = main + " " + scienceList.at(i) + " "
                 + newCalib1List.at(i) + " "
-                + newCalib2List.at(i) + " " +statusString;
+                + newCalib2List.at(i) + " " +flagString;
         // Clean the strings
         //        scriptArg = scriptArg.simplified();
         scriptArg_blank = scriptArg_blank.simplified();
