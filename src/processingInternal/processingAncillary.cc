@@ -94,6 +94,7 @@ void Controller::downloadGaiaCatalog(Data *scienceData)
     emit messageAvailable("Querying point source catalog from GAIA ...", "ignore");
     gaiaQuery->doGaiaQuery();
     emit messageAvailable(QString::number(gaiaQuery->numSources) + " point sources retrieved for analysis of image quality ...", "ignore");
+    delete gaiaQuery;
 }
 
 // Overload, to set the image size from the coadded image, and not from the images in the Data class
@@ -111,6 +112,7 @@ void Controller::downloadGaiaCatalog(Data *scienceData, QString radius)
     emit messageAvailable("Querying point source catalog from GAIA ...", "ignore");
     gaiaQuery->doGaiaQuery();
     emit messageAvailable(QString::number(gaiaQuery->numSources) + " point sources retrieved for analysis of image quality ...", "ignore");
+    delete gaiaQuery;
 }
 
 void Controller::collectGaiaRaDec(MyImage *image, QVector<double> &dec, QVector<double> &ra, QVector<QVector<double>> &output)

@@ -632,6 +632,9 @@ void MyImage::writeObjectMask(QString fileName)
 
 void MyImage::releaseAllDetectionMemory()
 {
+    for (auto &object : objectList) {
+        delete object;
+    }
     objectList.clear();
 
     releaseDetectionPixelMemory();

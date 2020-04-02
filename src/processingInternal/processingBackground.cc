@@ -133,6 +133,8 @@ void Controller::taskInternalBackground()
     }
     */
 
+    if (!successProcessing) return;
+
     emit messageAvailable("<br>", "output");
     emit messageAvailable("Number of images used in the background models:<br>", "controller");
     for (auto &str : numBackExpList) {
@@ -517,6 +519,12 @@ bool Controller::filterBackgroundList(const int chip, const Data *skyData, MyIma
 
     // The initial list of background images. Each image has a flag whether it should contribute to the model or not.
     backgroundList = skyData->myImageList[chip];
+    if (backgroundList.length() < 2) {
+        emit messageAvailable(it->chipName + " : At least two images are required for background modeling.", "error");
+        emit criticalReceived();
+        successProcessing = false;
+        return false;
+    }
     selectImagesFromSequence(backgroundList, nGroups, nLength, currentExposure);   // Update flag: Select every n-th image if required
     if (mode == "dynamic") selectImagesDynamically(backgroundList, it->mjdobs, it->chipName);    // Update flag: dynamic or static mode
     else selectImagesStatically(backgroundList, it);                 // Already sets BADBACK flag if necessary

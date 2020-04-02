@@ -176,6 +176,10 @@ MyImage::MyImage(QString fullPathName, int *verbose, QObject *parent) : QObject(
 
 MyImage::~MyImage()
 {
+    for (auto &object : objectList) {
+        delete object;
+    }
+
     if (allocatedImageFITS) delete imageFITS;
     if (wcsInit) wcsfree(wcs);
     if (wcsInit) delete wcs;  // valgrind does not like that

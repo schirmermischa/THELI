@@ -782,7 +782,7 @@ void Splitter::buildTheliHeaderFILTER()
 
     bool keyFound = false;
     bool clearFound = false;
-    bool darkFound;
+    bool darkFound = false;
     // Loop over headers
     for (auto &header : headers) {
         for (auto &possibleKey : possibleKeyNames) {
