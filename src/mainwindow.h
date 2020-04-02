@@ -295,7 +295,7 @@ private:
     void fill_setupInstrumentComboBox();
     QString getStatusForSettings();
     void handleDataDirs(QStringList &goodDirList, QLineEdit *scienceLineEdit, QLineEdit *calib1LineEdit,
-                        QLineEdit *calib2LineEdit, QString statusString, QString mode);
+                        QLineEdit *calib2LineEdit, QString statusString, bool success);
     void hasDirCurrentData(DataDir datadir, bool &stop);
     void initProcessingStatus();
     void initInstrumentData(QString instrumentNameFullPath);

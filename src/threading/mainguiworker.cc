@@ -74,27 +74,15 @@ void MainGUIWorker::runTask()
             // update the data tree here?
             controller->runTask();
         }
-        // EVENT 3: update the GUI after the task has successfully finished
+        // EVENT 3: show in the GUI which task has just successfully finished
         else if (key == "UPDATESTATUS") {
-            // Needed to show in the GUI which task has just successfully finished;
             QString taskBasename = list.at(1);
             emit updateStatus(taskBasename, true);
         }
         // EVENT 4: show that everything is done.
         else if (key == "END") {
-            QString taskBasename = list.at(1);
-//            if (taskBasename != "Astromphotom"
-//                    && taskBasename != "Coaddition") {
-                emit messageAvailable("All tasks finished.\n", "info");
-                emit finished();
-//            }
-/*
-            if (taskBasename == "Astromphotom") {
-                qDebug() << "MainGUIWorker::runTask(): FIXME";
-                emit messageAvailable("All tasks finished.\n", "info");
-                emit finished();
-            }
-*/
+            emit messageAvailable("All tasks finished.\n", "info");
+            emit finished();
         }
     }
 }

@@ -74,7 +74,7 @@ QStringList MainWindow::matchCalibToScience(const QStringList scienceList, const
 
 void MainWindow::handleDataDirs(QStringList &goodDirList,
                                 QLineEdit *scienceLineEdit, QLineEdit *calib1LineEdit,
-                                QLineEdit *calib2LineEdit, QString statusString, QString mode)
+                                QLineEdit *calib2LineEdit, QString statusString, bool success)
 {
     // This function assigns the correct calibration directories (if any)
     // and status strings (if any) to the science directories.
@@ -95,34 +95,28 @@ void MainWindow::handleDataDirs(QStringList &goodDirList,
     newCalib2List = matchCalibToScience(scienceList, calib2List);
 
     // Last consistency check:
-    //   if (mode == "execute") {
     if (scienceList.length() != newCalib1List.length()
             || scienceList.length() != newCalib2List.length()) {
-        QMessageBox::critical(this, tr("Invalid data dir configuration"),
-                              tr("You have defined an incompatible number of calibration and science directories.\n"
-                                 "Allowed setups will be displayed next."),
-                              QMessageBox::Ok);
-        on_setupReadmePushButton_clicked();
+        success = false;
         return;
     }
-    //   }
 
     QString main = ui->setupMainLineEdit->text();
-    QString scriptArg;
+    //    QString scriptArg;
     QString scriptArg_blank;
     QDir scienceDir;
 
     // Loop over directories, prepend maindir if necessary;
-    // The idea is to produce strings "main science calib" separated by blanks,
-    // or "main science statusString".
+    // The idea is to produce strings "main science calib" separated by blanks, or "main science statusString".
     // We check elsewhere in areAllPathsValid() whether directories are good
+
     for (int i=0; i<scienceList.size(); ++i) {
-        scriptArg = main + "/" + scienceList.at(i);
+        //        scriptArg = main + "/" + scienceList.at(i);
         scriptArg_blank = main + " " + scienceList.at(i) + " "
                 + newCalib1List.at(i) + " "
                 + newCalib2List.at(i) + " " +statusString;
         // Clean the strings
-        scriptArg = scriptArg.simplified();
+        //        scriptArg = scriptArg.simplified();
         scriptArg_blank = scriptArg_blank.simplified();
 
         if (QDir(scienceDir).exists()) goodDirList << scriptArg_blank;
@@ -172,7 +166,7 @@ QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList
     else taskName = "";
 
     if (goodDirList.isEmpty()) {
-        message(ui->plainTextEdit, "STOP: No data were provided for '"+taskName+"' .");
+        message(ui->plainTextEdit, "STOP: No data were provided for '"+taskName+"' , or the data tree is inconsistent.");
         stop = true;
         return QStringList();
     }
@@ -182,12 +176,10 @@ QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList
 
     // Process science can act on DT_SCIENCE, SKY, STD and thus needs to distinguish between them
     QString scienceMode = "";
-    if (!goodDirList.isEmpty()) {
-        QString last = goodDirList.last();
-        if (last == "theli_DT_SCIENCE" || last == "theli_DT_SKY" || last == "theli_DT_STANDARDD") {
-            scienceMode = last;
-            goodDirList.removeLast(); // do not interpret the last string as a data directory; in this case it's a flag
-        }
+    QString last = goodDirList.last();
+    if (last == "theli_DT_SCIENCE" || last == "theli_DT_SKY" || last == "theli_DT_STANDARDD") {
+        scienceMode = last;
+        goodDirList.removeLast(); // do not interpret the last string as a data directory; in this case it's a flag
     }
 
     // Loop over all directories found for the current task
@@ -271,7 +263,7 @@ QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList
                 }
             }
             // TODO
-            // Put other methods go here: a.net, x-corr, header-astrom
+            // Put other methods here: a.net, x-corr, header-astrom
 
             updateProcessList(commandList, taskBasename, it);
         }
@@ -648,6 +640,17 @@ bool MainWindow::OSPBC_addCommandBlock(const QString taskBasename, const QString
         return false;
     }
 
+    // If an inconsistency in the data tree was detected.
+    // Instead of checking and reporting this in handleDataDirs(), we just do it once to avoid multiple instances of the readme window shown
+    if (commandblock.isEmpty()) {
+        QMessageBox::critical(this, tr("THELI: Invalid data dir configuration"),
+                              tr("An incompatible number of directories was detected in the data tree.\n"
+                                 "Allowed setups will be displayed next."),
+                              QMessageBox::Ok);
+        on_setupReadmePushButton_clicked();
+        return false;
+    }
+
     // Add the actual processing commands (script calls) to a string list
     totalCommandList.append(commandblock);
 
@@ -884,7 +887,7 @@ QStringList MainWindow::displayCoaddFilterChoice(QString dirname, QString &filte
     QStringList list = dir.entryList();
     QStringList filterList;
     if (list.isEmpty() && mode != "simulate") {
-//        emit messageAvailable("MainWindow::displayCoaddFilterChoice(): No files found for coaddition!", "info");
+        //        emit messageAvailable("MainWindow::displayCoaddFilterChoice(): No files found for coaddition!", "info");
         filterChoice = "all";
     }
 
@@ -903,7 +906,7 @@ QStringList MainWindow::displayCoaddFilterChoice(QString dirname, QString &filte
     int nfilt = filterList.length();
     if (nfilt == 0) {
         if (mode != "simulate") {
-//            emit messageAvailable("MainWindow::displayCoaddFilterChoice(): No filter keyword found in coadd image list!", "info");
+            //            emit messageAvailable("MainWindow::displayCoaddFilterChoice(): No filter keyword found in coadd image list!", "info");
         }
         filterChoice = "all";
     }

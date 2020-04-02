@@ -488,79 +488,6 @@ void Controller::taskInternalProcessscience()
 
     getNumberOfActiveImages(scienceData);
 
-    /*
-#pragma omp parallel for num_threads(maxExternalThreads)
-    for (int chip=0; chip<instData->numChips; ++chip) {
-        incrementCurrentThreads(lock);
-        if (biasData != nullptr) biasData->loadCombinedImage(chip);  // skipped if already in memory
-        if (flatData != nullptr) flatData->loadCombinedImage(chip);  // skipped if already in memory
-
-        QList<MyImage*> bayerList;
-        for (auto &it : scienceData->myImageList[chip]) {
-            if (verbosity >= 0) emit messageAvailable(it->baseName + " : Preprocessing ...", "controller");
-            it->setupDataInMemory(isTaskRepeated, true, false); // pass statusOld? pushes split_images into dataBackupL1
-            if (biasData != nullptr && biasData->successProcessing) {
-                it->subtractBias(biasData->combinedImage[chip], biasData->dataType);
-            }
-            if (flatData != nullptr && flatData->successProcessing) {
-                it->divideFlat(flatData->combinedImage[chip]);
-            }
-            it->bitpix = -32;  // so that mode calculations later on use the right algorithm
-            // Without Bayer pattern
-            if (instData->bayer.isEmpty()) {
-                it->getMode(true);
-                it->applyMask();
-                it->imageOnDrive = false;
-                it->statusCurrent = statusNew;
-                it->baseName = it->chipName + statusNew;
-                if (alwaysStoreData) it->writeImage();
-                it->makeMemoryBackup();
-            }
-            else {
-                // Create 3 new MyImages for R, G, and B
-                QString oldName = it->baseName;
-                MyImage *debayerR = new MyImage(scienceData->dirName, it->baseName, "", chip+1, QVector<bool>(), false, &verbosity);
-                MyImage *debayerG = new MyImage(scienceData->dirName, it->baseName, "", chip+1, QVector<bool>(), false, &verbosity);
-                MyImage *debayerB = new MyImage(scienceData->dirName, it->baseName, "", chip+1, QVector<bool>(), false, &verbosity);
-                debayer(chip, it, debayerR, debayerG, debayerB);
-                QList<MyImage*> list; // Contains the current 3 debayered images
-                connect(debayerR, &MyImage::critical, this, &Controller::criticalReceived);
-                connect(debayerG, &MyImage::critical, this, &Controller::criticalReceived);
-                connect(debayerB, &MyImage::critical, this, &Controller::criticalReceived);
-                connect(debayerR, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
-                connect(debayerG, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
-                connect(debayerB, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
-                list << debayerR << debayerG << debayerB;
-                for (auto &it: list) {
-                    it->getMode(true);
-                    it->applyMask();
-                    it->baseName = it->chipName + statusNew;
-                    // status settings etc are done in the debayer() call further above
-                    updateDebayerMemoryStatus(it);
-                    // Must provide filter string explicitly (and therefore also the full path and file name)
-                    if (alwaysStoreData) it->writeImage(it->path + "/" + it->chipName + statusNew + ".fits", it->filter);
-                    it->makeDriveBackupDebayer("P_IMAGES", oldName, statusOld);
-                }
-                bayerList[chip] << debayerR << debayerG << debayerB;  // contains ALL debayered images
-            }
-            incrementProgress();
-        }
-        //        makeThreadsAvailable(lock, numInternalThreads);
-        // Update image list; remove bayer images, insert debayered images
-        if (instData->bayer == "Y") scienceData->repopulate(chip, bayerList);
-
-        if (scienceData->successProcessing) {
-            for (auto &it : scienceData->myImageList[chip]) {
-                // it->makeMemoryBackup();
-                if (instData->bayer != "Y") it->makeDriveBackup("P_IMAGES", statusOld);
-                scienceData->memorySetDeletable(chip, "dataBackupL1", true);
-            }
-        }
-
-        decrementCurrentThreads(lock);
-    }
-    */
-
     QVector<QList<MyImage*>> bayerList;
     bayerList.resize(instData->numChips);
 
@@ -736,3 +663,4 @@ void Controller::taskInternalProcessscience()
         //        pushEndMessage(taskBasename, scienceDir);
     }
 }
+
