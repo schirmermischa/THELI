@@ -99,7 +99,6 @@ public:
     bool loadData();
     void loadDataSection(long xmin, long xmax, long ymin, long ymax, QVector<float> &dataSect);
     void loadDataSection(long xmin, long xmax, long ymin, long ymax, float *dataSect);
-    bool loadGeometry(int &naxis1, int &naxis2);
     MyWCS loadWCS();
     void propagateHeader(fitsfile *fptr, QVector<QString> header);
     QString readFILTER();

@@ -150,13 +150,13 @@ void MyFITS::initFITS(fitsfile **fptr, int *status)
 {
     if (name.isNull() || name.isEmpty()) {
         *status = 1;
-        qDebug() << "QDEBUG: ERROR: MyFITS::initFITS(): file name empty or not initialized!";
+        emit messageAvailable("MyFITS::initFITS(): file name empty or not initialized!", "error");
         return;
     }
     // Bypassing a memory leak in cfitsio
     QFile file(name);
     if (!file.exists()) {
-        qDebug() << "QDEBUG: ERROR: MyFITS:initFITS(): " + name + " : file does not exist";
+        emit messageAvailable(name+" MyFITS::initFITS(): file name empty or not initialized!", "error");
         *status = 104;
         return;
     }
@@ -164,7 +164,7 @@ void MyFITS::initFITS(fitsfile **fptr, int *status)
     fits_get_num_hdus(*fptr, &numExt, status);
     if (numExt > 1) {
         QMessageBox msgBox;
-        msgBox.setText(name+"is a multi-extension FITS file, which are currently not supported.");
+        msgBox.setText(name+" is a multi-extension FITS file, which is currently not supported.");
         msgBox.exec();
         *status = 1;
     }
@@ -449,34 +449,6 @@ void MyFITS::getWCSheaderKeys(fitsfile **fptr, int *status)
     fits_read_key_lng(*fptr, "NAXIS1", &myWCS.naxis1, NULL, status);
     fits_read_key_lng(*fptr, "NAXIS2", &myWCS.naxis2, NULL, status);
     fits_read_key_dbl(*fptr, "MJD-OBS", &mjdobs, NULL, status);
-}
-
-bool MyFITS::loadGeometry(int &naxis1, int &naxis2)
-{
-    int status = 0;
-    int naxis[2];
-    fitsfile *fptr = nullptr;
-    initFITS(&fptr, &status);
-
-    // Get the linear WCS and other parameters
-    fits_get_img_dim(fptr, naxis, &status);
-    fits_close_file(fptr, &status);
-
-    printerror(status);
-    if (status) {
-        naxis1 = 0;
-        naxis2 = 0;
-        QMessageBox msgBox;
-        msgBox.setText("ERROR: Could not determine image geometry for "+name);
-        msgBox.exec();
-        return false;
-    }
-    else {
-        naxis1 = naxis[0];
-        naxis2 = naxis[1];
-        qDebug() << "CHECK: MyFITS:loadGeometry()" << naxis1 << naxis2;
-        return true;
-    }
 }
 
 void MyFITS::propagateHeader(fitsfile *fptr, QVector<QString> header)
@@ -898,7 +870,7 @@ void MyFITS::loadDataSection(long xmin, long xmax, long ymin, long ymax, float *
             || xmax != xmax_old
             || ymin != ymin_old
             || ymax != ymax_old) {
-        qDebug() << "QDEBUG: ERROR: MyFITS::loadDataSection / swarpfilter: image size was modified!";
+        emit messageAvailable("MyFITS::loadDataSection() / swarpfilter: image size was modified!", "error");
         return;
     }
 

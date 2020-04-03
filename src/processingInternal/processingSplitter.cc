@@ -237,16 +237,16 @@ bool Controller::updateDataDirs(Data *data)
         //        emit clearMemoryView();     // Manipulate sobject in different thread despite just emitting a signal. Strange
         mainDirName = mainGUI->ui->setupMainLineEdit->text();
         recurseCounter = 0;
-        QList<Data*> *DT_x;
+        QList<Data*> *DT_x; // = new QList<Data*>();
         if (data->dataType == "BIAS") DT_x = &DT_BIAS;
         else if (data->dataType == "DARK") DT_x = &DT_DARK;
         else if (data->dataType == "FLATOFF") DT_x = &DT_FLATOFF;
         else if (data->dataType == "FLAT") DT_x = &DT_FLAT;
         else if (data->dataType == "SCIENCE") DT_x = &DT_SCIENCE;
         else if (data->dataType == "SKY") DT_x = &DT_SKY;
-        else if (data->dataType == "STD") DT_x = &DT_STANDARD;
         else {
-            // nothing
+            // data->dataType == "STD")
+            DT_x = &DT_STANDARD;
         }
         updateMasterList();
         emit populateMemoryView();
@@ -257,6 +257,7 @@ bool Controller::updateDataDirs(Data *data)
         }
 
         updateDataDirDone = true;
+//        delete DT_x;
     }
 
     return updateDataDirDone;

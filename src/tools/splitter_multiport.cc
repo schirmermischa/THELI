@@ -288,11 +288,10 @@ void Splitter::getMultiportInformation(int chip)
 
     // If any instrument-specific stuff happened above, then we do a consistency check
     if (individualFixDone) {
-        if (multiportGains.length() != multiportOverscanSections.length()
-                || multiportGains.length() != multiportIlluminatedSections.length()) {
+        //        if (multiportGains.length() != multiportOverscanSections.length()              // crashes GROND-NIR data
+        if (multiportGains.length() != multiportIlluminatedSections.length()) {
             emit messageAvailable("Splitter::getMultiportInformation : Inconsistent number of channels for gain, overscan and data section: "
-                                  + QString::number(channelGains.length()) + " "
-                                  + QString::number(multiportOverscanSections.length()) + " "
+                                  + QString::number(multiportGains.length()) + " "
                                   + QString::number(multiportIlluminatedSections.length()), "error");
             emit critical();
             successProcessing = false;
