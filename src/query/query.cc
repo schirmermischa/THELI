@@ -1051,7 +1051,8 @@ void Query::runCommand(QString command)
     if (!successProcessing) return;
 
     if (*verbosity > 1) {
-        emit messageAvailable("vizquery command: <br>"+queryCommand, "ignore");
+        if (command.contains("vizquery")) emit messageAvailable("vizquery command: <br>"+queryCommand, "ignore");
+        if (command.contains("sesame")) emit messageAvailable("sesame command: <br>"+queryCommand, "ignore");
     }
 
     byteArray.clear();
