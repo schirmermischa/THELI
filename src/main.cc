@@ -74,12 +74,14 @@ void dependencyCheck()
     // Dependency checks
     QString vizquery = QStandardPaths::findExecutable("vizquery.py");
     QString sesame = QStandardPaths::findExecutable("sesame");
+    QString wwwget = QStandardPaths::findExecutable("wwwget");  // needed by sesame
     QString scamp = findExecutableName("scamp");    // testing different executable names
     QString swarp = findExecutableName("swarp");
     QString sex = findExecutableName("sex");
 
     QString vizqueryDep = "";
     QString sesameDep = "";
+    QString wwwgetDep = "";
     QString scampDep = "";
     QString swarpDep = "";
     QString sexDep = "";
@@ -93,6 +95,11 @@ void dependencyCheck()
 
     if (sesame.isEmpty()) {
         sesameDep = "'sesame' required.\nhttp://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz\n\n";
+        ++missingDep;
+    }
+
+    if (wwwget.isEmpty()) {
+        wwwgetDep = "'wwwget' required, compile with 'make wwwget' after unpacking cdsclient \nhttp://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz\n\n";
         ++missingDep;
     }
 
@@ -180,6 +187,8 @@ void dependencyCheck()
 
     QMessageBox::critical(0, "THELI", title
                           +vizqueryDep
+                          +sesameDep
+                          +wwwgetDep
                           +scampDep
                           +swarpDep
                           +sexDep,
