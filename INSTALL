@@ -26,7 +26,8 @@ swarp v2.38        https://github.com/astromatic/swarp
 scamp v2.7         https://github.com/astromatic/scamp
 sextractor v2.19   https://github.com/astromatic/sextractor
 vizquery.py        http://cds.u-strasbg.fr/resources/doku.php?id=cdsclient
-sesame             http://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz
+sesame + wwwget    http://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz
+                   NOTE: You must compile 'wwwget' separately, with 'make wwwget' 
 
 
 Environment variable
