@@ -640,7 +640,6 @@ void IView::addDockWidgets()
     else if (displayMode == "SCAMP") {
         scampdw = new IvScampDockWidget(this);
         icdw = new IvConfDockWidget(this);
-        addDockWidget(Qt::LeftDockWidgetArea, icdw);
         addDockWidget(Qt::LeftDockWidgetArea, scampdw);
         scampdw->setFloating(false);
         icdw->hide();

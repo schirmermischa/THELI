@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>180</width>
-    <height>398</height>
+    <width>186</width>
+    <height>404</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,13 +15,6 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>CD1_1</string>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="1" colspan="2">
      <widget class="QLineEdit" name="cd11LineEdit"/>
     </item>
@@ -47,6 +40,33 @@
     </item>
     <item row="2" column="1" colspan="2">
      <widget class="QLineEdit" name="cd12LineEdit"/>
+    </item>
+    <item row="10" column="2">
+     <widget class="QLineEdit" name="posAngleLineEdit">
+      <property name="statusTip">
+       <string>Position angle, counting North over East</string>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="0" colspan="3">
+     <widget class="QSlider" name="posAngleSlider">
+      <property name="minimum">
+       <number>-100</number>
+      </property>
+      <property name="maximum">
+       <number>100</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="0" colspan="3">
+     <widget class="QPushButton" name="resetPushButton">
+      <property name="text">
+       <string>Restore original WCS</string>
+      </property>
+     </widget>
     </item>
     <item row="3" column="0" colspan="3">
      <widget class="QSlider" name="cd12Slider">
@@ -141,32 +161,25 @@
       </property>
      </widget>
     </item>
-    <item row="10" column="2">
-     <widget class="QLineEdit" name="posAngleLineEdit">
-      <property name="statusTip">
-       <string>Position angle, counting North over East</string>
-      </property>
-     </widget>
-    </item>
-    <item row="11" column="0" colspan="3">
-     <widget class="QSlider" name="posAngleSlider">
-      <property name="minimum">
-       <number>-100</number>
-      </property>
-      <property name="maximum">
-       <number>100</number>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="12" column="0" colspan="3">
-     <widget class="QPushButton" name="resetPushButton">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label">
       <property name="text">
-       <string>Restore original WCS</string>
+       <string>CD1_1</string>
       </property>
      </widget>
+    </item>
+    <item row="13" column="0">
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
     </item>
    </layout>
   </widget>
