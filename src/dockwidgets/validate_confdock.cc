@@ -69,6 +69,7 @@ void ConfDockWidget::validate()
     ui->ARCradiusLineEdit->setValidator( validator_float_pos );
     ui->ARCselectimageLineEdit->setValidator( validator_string );
     ui->ARCtargetresolverLineEdit->setValidator( validator_stringdir );
+    ui->ASTastrefweightLineEdit->setValidator( validator_float_pos );
     ui->ASTastrinstrukeyLineEdit->setValidator( validator_headerkeyword );
     ui->ASTcrossidLineEdit->setValidator( validator_float_pos );
     ui->ASTdistortLineEdit->setValidator( validator_int_pos );
@@ -78,7 +79,7 @@ void ConfDockWidget::validate()
     ui->ASTpixscaleLineEdit->setValidator( validator_float_pos );
     ui->ASTposangleLineEdit->setValidator( validator_float_pos );
     ui->ASTpositionLineEdit->setValidator( validator_float_pos );
-    ui->ASTastrefweightLineEdit->setValidator( validator_float_pos );
+    ui->ASTresolutionLineEdit->setValidator( validator_int_pos );
     ui->ASTsnthreshLineEdit->setValidator( validator_int_pos_comma );
     ui->ASTxcorrDMINLineEdit->setValidator( validator_int_pos );
     ui->ASTxcorrDTLineEdit->setValidator( validator_float_pos );
@@ -193,6 +194,7 @@ void ConfDockWidget::connect_validators()
     connect(ui->ARCradiusLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->ARCselectimageLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->ARCtargetresolverLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
+    connect(ui->ASTastrefweightLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->ASTastrinstrukeyLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->ASTcrossidLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->ASTdistortLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
@@ -202,7 +204,7 @@ void ConfDockWidget::connect_validators()
     connect(ui->ASTpixscaleLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->ASTposangleLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->ASTpositionLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
-    connect(ui->ASTastrefweightLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
+    connect(ui->ASTresolutionLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->ASTsnthreshLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->BAC1nhighLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->BAC1nlowLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);

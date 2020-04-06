@@ -156,6 +156,7 @@ int MainWindow::writeGUISettings()
     settings.setValue("ASTpixscaleLineEdit", cdw->ui->ASTpixscaleLineEdit->text());
     settings.setValue("ASTposangleLineEdit", cdw->ui->ASTposangleLineEdit->text());
     settings.setValue("ASTpositionLineEdit", cdw->ui->ASTpositionLineEdit->text());
+    settings.setValue("ASTresolutionLineEdit", cdw->ui->ASTresolutionLineEdit->text());
     settings.setValue("ASTsnthreshLineEdit", cdw->ui->ASTsnthreshLineEdit->text());
     settings.setValue("ASTstabilityComboBox", cdw->ui->ASTstabilityComboBox->currentIndex());
     settings.setValue("ASTxcorrDTLineEdit", cdw->ui->ASTxcorrDTLineEdit->text());
@@ -412,6 +413,7 @@ int MainWindow::readGUISettings(QString projectname)
     cdw->ui->ASTpixscaleLineEdit->setText(settings.value("ASTpixscaleLineEdit").toString());
     cdw->ui->ASTposangleLineEdit->setText(settings.value("ASTposangleLineEdit").toString());
     cdw->ui->ASTpositionLineEdit->setText(settings.value("ASTpositionLineEdit").toString());
+    cdw->ui->ASTresolutionLineEdit->setText(settings.value("ASTresolutionLineEdit").toString());
     cdw->ui->ASTsnthreshLineEdit->setText(settings.value("ASTsnthreshLineEdit").toString());
     cdw->ui->ASTstabilityComboBox->setCurrentIndex(settings.value("ASTstabilityComboBox").toInt());
     cdw->ui->ASTxcorrDTLineEdit->setText(settings.value("ASTxcorrDTLineEdit").toString());

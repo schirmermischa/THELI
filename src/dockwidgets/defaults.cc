@@ -58,6 +58,7 @@ void ConfDockWidget::populateDefaultMap()
     defaultMap.insert("ASTpixscaleLineEdit", "1.05");
     defaultMap.insert("ASTposangleLineEdit", "2");
     defaultMap.insert("ASTpositionLineEdit", "2.0");
+    defaultMap.insert("ASTresolutionLineEdit", "1000");
     defaultMap.insert("ASTsnthreshLineEdit", "5,20");
     defaultMap.insert("BAC1nhighLineEdit", "0");
     defaultMap.insert("BAC1nlowLineEdit", "0");
@@ -366,6 +367,7 @@ void ConfDockWidget::loadDefaults()
         ui->APDfilterComboBox->setCurrentIndex(0);
         ui->APDfilterComboBox->setCurrentIndex(0);
         ui->APDmaxphoterrorLineEdit->setText("0.05");
+        ui->ASTastrefweightLineEdit->setText("1.0");
         ui->ASTastrinstrukeyLineEdit->setText("FILTER");
         ui->ASTcrossidLineEdit->setText("1.0");
         ui->ASTdistortLineEdit->setText("3");
@@ -386,7 +388,7 @@ void ConfDockWidget::loadDefaults()
         ui->ASTpixscaleLineEdit->setText("1.05");
         ui->ASTposangleLineEdit->setText("2");
         ui->ASTpositionLineEdit->setText("2.0");
-        ui->ASTastrefweightLineEdit->setText("1.0");
+        ui->ASTresolutionLineEdit->setText("800");
         ui->ASTsnthreshLineEdit->setText("5,20");
         ui->ASTstabilityComboBox->setCurrentIndex(0);
     }

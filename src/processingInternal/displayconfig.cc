@@ -282,6 +282,7 @@ void Controller::pushConfigAstromphotom()
     config += "MOSAIC_TYPE = " + cdw->ui->ASTmosaictypeComboBox->currentText() + "<br>";
     config += "FPA mode = " + cdw->ui->ASTfocalplaneComboBox->currentText() + "<br>";
     config += "Match flipped images = " + boolToString(cdw->ui->ASTmatchflippedCheckBox->isChecked()) + "<br>";
+    config += "Checkplot resolution = " + cdw->ui->ASTresolutionLineEdit->text() + "<br>";
     emit messageAvailable(config, "config");
 }
 
