@@ -193,6 +193,8 @@ void ColorPicture::addDirectories()
     QString dirName = ui->dirLineEdit->text();
     if (!QDir(dirName).exists()) return;
 
+    mainDir = ui->dirLineEdit->text();
+
     // find all coadd_xxx subdirectories
     QStringList subDirList;
     findRecursion(dirName, &subDirList);
@@ -203,7 +205,8 @@ void ColorPicture::addDirectories()
         QString tmp = it.remove(0, dirName.length());
         if (tmp.startsWith('/')) tmp = tmp.remove(0,1);
         if (tmp.startsWith("coadd_") || tmp.contains("/coadd_")) {
-            coaddList.append(tmp);
+            QFile coaddedImage(dirName+"/"+tmp+"/coadd.fits");
+            if (coaddedImage.exists()) coaddList.append(tmp);
         }
     }
     coaddDirModel->setStringList(coaddList);
