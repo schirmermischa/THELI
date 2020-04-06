@@ -67,6 +67,8 @@ IView::IView(QWidget *parent) :
     ui(new Ui::IView),
     displayMode("CLEAR")
 {
+
+    //    qDebug() << "mode 1";
     ui->setupUi(this);
     initGUI();
 
@@ -91,6 +93,8 @@ IView::IView(QString mode, QWidget *parent) :
 {
     ui->setupUi(this);
     initGUI();
+
+    //    qDebug() << "mode memview single image:" << mode;
 
     icdw->zoom2scale(zoomLevel);
     /*
@@ -118,6 +122,8 @@ IView::IView(QString mode, QList<MyImage*> &list, QString dirname, QWidget *pare
 {
     ui->setupUi(this);
     initGUI();
+
+    //    qDebug() << "mode memview list of images:" << mode;
 
     icdw->zoom2scale(zoomLevel);
 
@@ -255,6 +261,7 @@ IView::IView(QString mode, QString dirname, QString filter, QWidget *parent) :
     displayMode(mode)
 {
     ui->setupUi(this);
+    // qDebug() << "mode imstatistics 1:" << mode << dirname << filter;
 
     initGUI();
     icdw->ui->filterLineEdit->setText(filterName);
@@ -287,6 +294,8 @@ IView::IView(QString mode, QString dirname, QString fileName, QString filter, QW
 {
     ui->setupUi(this);
     initGUI();
+
+    //    qDebug() << "mode imstatistics 2:" << mode;
 
     icdw->ui->filterLineEdit->setText(filterName);
     icdw->zoom2scale(zoomLevel);
@@ -372,9 +381,9 @@ IView::IView(QString mode, QString dirname, QString rChannel, QString gChannel, 
 // by closing the window directly, not by accepting or rejecting a solution
 void IView::closeEvent(QCloseEvent *event)
 {
-//    qDebug() << fitsData.capacity();
-//    fitsData.clear();
-//    fitsData.squeeze();
+    //    qDebug() << fitsData.capacity();
+    //    fitsData.clear();
+    //    fitsData.squeeze();
 
     timer->stop();
 
@@ -413,10 +422,10 @@ IView::~IView()
     // nullptr if e.g. closing the GUI without saving the images. Don't know how that can be related, but here we go ...
     if (pixmapItem != nullptr) delete pixmapItem;
     delete ui;
-//    delete scene;
-//    delete myGraphicsView;
-//    if (icdwDefined) delete icdw;
-//    if (scampdwDefined) delete scampdw;
+    //    delete scene;
+    //    delete myGraphicsView;
+    //    if (icdwDefined) delete icdw;
+    //    if (scampdwDefined) delete scampdw;
 
     if (wcsInit) wcsfree(wcs);
     // delete wcs;
@@ -473,7 +482,7 @@ void IView::switchMode(QString mode)
         this->setWindowTitle("iView --- Scamp check plots");
         // Disable file menu. Must stay within interactive mode. Also, 'close' will cause segfault.
         ui->menuFile->setVisible(false);
-        // middleMouseActionGroup->setVisible(false);
+        middleMouseActionGroup->setVisible(false);
         // many of the settings below are handled by the modeStackedWidget already!
         ui->actionSourceCat->setVisible(false);
         ui->actionRefCat->setVisible(false);
@@ -490,7 +499,7 @@ void IView::switchMode(QString mode)
         ui->actionEnd->setEnabled(true);
     }
     else if (displayMode == "FITSmonochrome") {
-        this->setWindowTitle("iView --- FITS viewer");
+        this->setWindowTitle("iView --- FITS file viewer");
         middleMouseActionGroup->setVisible(true);
         ui->actionSourceCat->setVisible(true);
         ui->actionRefCat->setVisible(true);
@@ -506,7 +515,7 @@ void IView::switchMode(QString mode)
     }
     else if (displayMode == "MEMview") {
         this->setWindowTitle("iView --- Memory viewer");
-        middleMouseActionGroup->setVisible(false);
+        middleMouseActionGroup->setVisible(true);
         ui->actionSourceCat->setVisible(true);
         ui->actionRefCat->setVisible(true);
         pageLabel->show();
@@ -521,7 +530,7 @@ void IView::switchMode(QString mode)
         ui->actionEnd->setEnabled(true);
     }
     else if (displayMode == "FITScolor") {
-        this->setWindowTitle("iView --- FITS viewer");
+        this->setWindowTitle("iView --- FITS file viewer");
         middleMouseActionGroup->setVisible(false);
         ui->actionSourceCat->setVisible(false);
         ui->actionRefCat->setVisible(false);
@@ -536,7 +545,7 @@ void IView::switchMode(QString mode)
         ui->actionEnd->setVisible(false);
     }
     else if (displayMode == "CLEAR") {
-        this->setWindowTitle("iView --- FITS viewer");
+        this->setWindowTitle("iView --- FITS file viewer");
         middleMouseActionGroup->setVisible(true);
         ui->actionBack->setDisabled(true);
         ui->actionForward->setDisabled(true);
@@ -561,18 +570,18 @@ void IView::initGUI()
     screenHeight = rec.height();
     screenWidth = rec.width();
 
-    if (displayMode != "SCAMP") {
-        //        middleMouseActionGroup->setExclusive(true);
-        //        middleMouseActionGroup->addAction(ui->actionDragMode);
-        //        middleMouseActionGroup->addAction(ui->actionSkyMode);
-        //        ui->actionDragMode->setChecked(true);
+    middleMouseActionGroup->setExclusive(true);
+    middleMouseActionGroup->addAction(ui->actionDragMode);
+    middleMouseActionGroup->addAction(ui->actionSkyMode);
+    middleMouseActionGroup->addAction(ui->actionWCSMode);
+    ui->actionDragMode->setChecked(true);
+    wcsdw->hide();
+
+    if (displayMode == "SCAMP") {
+        middleMouseActionGroup->setVisible(false);     // NOTE: must add actions above before we can "hide" them simply by hiding the group
     }
     else {
-        middleMouseActionGroup->setExclusive(true);
-        middleMouseActionGroup->addAction(ui->actionDragMode);
-        middleMouseActionGroup->addAction(ui->actionSkyMode);
-        middleMouseActionGroup->addAction(ui->actionWCSMode);
-        ui->actionDragMode->setChecked(true);
+        middleMouseActionGroup->setVisible(true);
     }
 
     readPreferenceSettings();

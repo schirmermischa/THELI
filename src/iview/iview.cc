@@ -91,6 +91,8 @@ void IView::setMiddleMouseMode(QString mode)
 
 void IView::showWCSdockWidget()
 {
+    if (wcsdw->isVisible()) return;
+
     // Copy the CD matrix to the WCS dock widget and init()
     wcsdw->cd11_orig = cd1_1;
     wcsdw->cd12_orig = cd1_2;
@@ -333,7 +335,7 @@ void IView::loadFITSexternalRAM(int index)
 void IView::loadPNG(QString filename, int currentId)
 {
     if (imageList.isEmpty() || dirName.isEmpty()) {
-        qDebug() << "loadPNG(): No scamp checkplots found!";
+        qDebug() << "IView::loadPNG(): No scamp checkplots found!";
         return;
     }
 
@@ -372,8 +374,7 @@ void IView::loadPNG(QString filename, int currentId)
     this->setWindowTitle("iView ---   "+path+"/ ---   "+showName);
     pageLabel->setText(" Image "+QString::number(currentId+1)+" / "+QString::number(numImages));
 
-    // TODO: why do this again?
-    icdw->zoom2scale(zoomLevel);
+  //  icdw->zoom2scale(zoomLevel);
     myGraphicsView->resetMatrix();
 
     myGraphicsView->setMinimumSize(naxis1,naxis2);
@@ -563,7 +564,7 @@ void IView::loadColorFITS(qreal scaleFactor)
 bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMode)
 {    
     if (displayMode == "SCAMP" || displayMode == "CLEAR") {
-        qDebug() << "Invalid mode in loadFITSdata().";
+        qDebug() << "IView::loadFitsData(): Invalid mode";
         return false;
     }
 
