@@ -98,6 +98,7 @@ void MyGraphicsView::mousePressEvent(QMouseEvent *event)
             //    event->accept();
         }
         else if (middleMouseMode == "WCSMode") {
+            emit middlePressResetCRPIX();
             middleButtonPressed = true;
             wcsStart = event->pos();
             setCursor(Qt::SizeAllCursor);

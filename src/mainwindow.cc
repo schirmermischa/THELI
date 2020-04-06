@@ -544,7 +544,7 @@ void MainWindow::establish_connections()
     // Connect validators
     connect_validators();
 
-    connect(ui->setupProjectResetToolButton, &QPushButton::clicked, this, &MainWindow::reset);
+    connect(ui->setupProjectResetToolButton, &QPushButton::clicked, this, &MainWindow::resetParameters);
     connect(ui->setupProjectResetDataToolButton, &QPushButton::clicked, this, &MainWindow::restoreOriginalData);
 }
 
@@ -1390,9 +1390,10 @@ void MainWindow::launchCoaddFluxcal(QString coaddImage)
 }
 */
 
-void MainWindow::reset()
+void MainWindow::resetParameters()
 {
     // First of all, check if we have unsaved images in memory
+
     long numUnsavedImages = controller->checkForUnsavedImages();
     if (numUnsavedImages > 0) {
         long mBytes = numUnsavedImages*(instData.sizex[0]*instData.sizey[0]*4./1024/1024);
@@ -1651,6 +1652,9 @@ void MainWindow::restoreOriginalData()
     monitor->displayMessage("Freeing memory, restoring raw data ...", "ignore");
     controller->restoreAllRawData();
     memoryViewer->projectResetReceived();
+
+    // Switch to first processing tab page
+    ui->processingTabWidget->setCurrentIndex(1);
 }
 
 void MainWindow::on_actionLicense_triggered()

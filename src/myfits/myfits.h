@@ -23,7 +23,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QMap>
 #include <QObject>
 #include <QVector>
-#include "mywcs.h"
+//#include "mywcs.h"
 #include "fitsio2.h"
 
 using namespace std;
@@ -86,7 +86,7 @@ public:
     int numHeaderKeys = 0;
     bool fullheaderAllocated = false;
 
-    MyWCS myWCS;
+//    MyWCS myWCS;
 
     bool inMemory = false;
 
@@ -99,7 +99,7 @@ public:
     bool loadData();
     void loadDataSection(long xmin, long xmax, long ymin, long ymax, QVector<float> &dataSect);
     void loadDataSection(long xmin, long xmax, long ymin, long ymax, float *dataSect);
-    MyWCS loadWCS();
+//    MyWCS loadWCS();
     void propagateHeader(fitsfile *fptr, QVector<QString> header);
     QString readFILTER();
     void stayWithinBounds(QVector<long> &vertices);
@@ -118,7 +118,7 @@ signals:
 private:
     void stayWithinBounds(long &coord, QString axis);   // Overloaded function, see above
     void populateCfitsioErrorKeyMap();
-    void getWCSheaderKeys(fitsfile **fptr, int *status);
+//    void getWCSheaderKeys(fitsfile **fptr, int *status);
     void readHeader(fitsfile **fptr, int *status);
     void readData(fitsfile **fptr, int *status);
     void initWCS(int *status);

@@ -246,9 +246,9 @@ void MyImage::readImage(bool determineMode)
         }
         // Attempt to read image. Order of calls is important!
         if (imageFITS->loadData()) {
+            transferWCS();        // must be done first to instantiate wcs
             transferDataToMyImage();
             transferMetadataToMyImage();
-            transferWCS();
             cornersToRaDec();
             getMode(determineMode);
             imageInMemory = true;
@@ -279,9 +279,9 @@ void MyImage::readImageBackupL1Launch()
     // Attempt to read image. Order of calls is important!
     imageFITS->name = pathBackupL1 + "/" + baseNameBackupL1 + ".fits";
     if (imageFITS->loadData()) {
+        transferWCS();   // must be done first to instantiate wcs
         transferDataToMyImage();
         transferMetadataToMyImage();
-        transferWCS();
         cornersToRaDec();
         getMode(determineMode);
         dataBackupL1 = dataCurrent;
@@ -301,7 +301,8 @@ void MyImage::readImageBackupL1Launch()
     emit modelUpdateNeeded(baseName, chipName);
 }
 
-// when MyImage has been read before and all members are setup correctly
+// when MyImage has been read before and all members are setup correctly, just the pixel data are missing.
+// This function is used if the pixel data were discared due to memory constraints, and now they are needed again
 void MyImage::readImageBackupL1()
 {
     dataCurrent_deletable = false;
@@ -369,8 +370,8 @@ void MyImage::provideHeaderInfo()
             emit critical();
             return;
         }
+        transferWCS();  // must be done first to instantiate wcs
         transferMetadataToMyImage();
-        transferWCS();
         cornersToRaDec();
         if (*verbosity > 2) emit messageAvailable(chipName + " : Image header loaded", "image");
     }
@@ -390,8 +391,8 @@ void MyImage::transferMetadataToMyImage()
     naxis1 = imageFITS->naxis1;
     naxis2 = imageFITS->naxis2;
     bitpix = imageFITS->bitpix;
-    crval1 = imageFITS->crval1;
-    crval2 = imageFITS->crval2;
+//    crval1 = imageFITS->crval1;
+//    crval2 = imageFITS->crval2;
     exptime = imageFITS->exptime;
     airmass = imageFITS->airmass;
     fwhm = imageFITS->fwhm;
@@ -399,9 +400,11 @@ void MyImage::transferMetadataToMyImage()
     ellipticity = imageFITS->ellipticity;
     RZP = imageFITS->RZP;
     dateobs = imageFITS->dateobs;
-    plateScale = imageFITS->plateScale;
     gainNormalization = imageFITS->gainNormalization;
     hasMJDread = imageFITS->hasMJDread;
+
+    getPlateScale();
+
     /*
     if (processingStatus->statusString.isEmpty()) {
         // We are reading a split image. Store its size (before overscan trimming)
@@ -410,7 +413,7 @@ void MyImage::transferMetadataToMyImage()
     }
     */
     dim = naxis1*naxis2;
-    myWCS = imageFITS->myWCS;
+//    myWCS = imageFITS->myWCS;
     skyValue = imageFITS->skyValue;
     if (skyValue != -1e9) modeDetermined = true;
     else modeDetermined = false;
@@ -447,6 +450,7 @@ bool MyImage::scanAstromHeader(int chip, QString mode)
         if (line.isEmpty()) continue;
         QStringList list = line.split(" ");
         if (list.length() < 3) continue;
+        /*
         if (line.contains("CRVAL1")) astromCRVAL1 = list[2].toDouble();
         if (line.contains("CRVAL2")) astromCRVAL2 = list[2].toDouble();
         if (line.contains("CRPIX1")) astromCRPIX1 = list[2].toFloat();
@@ -455,9 +459,19 @@ bool MyImage::scanAstromHeader(int chip, QString mode)
         if (line.contains("CD1_2")) astromCD12 = list[2].toDouble();
         if (line.contains("CD2_1")) astromCD21 = list[2].toDouble();
         if (line.contains("CD2_2")) astromCD22 = list[2].toDouble();
+        */
+        if (line.contains("CRVAL1")) wcs->crval[0] = list[2].toDouble();
+        if (line.contains("CRVAL2")) wcs->crval[1] = list[2].toDouble();
+        if (line.contains("CRPIX1")) wcs->crpix[0] = list[2].toFloat();
+        if (line.contains("CRPIX2")) wcs->crpix[1] = list[2].toFloat();
+        if (line.contains("CD1_1")) wcs->cd[0] = list[2].toDouble();
+        if (line.contains("CD1_2")) wcs->cd[1] = list[2].toDouble();
+        if (line.contains("CD2_1")) wcs->cd[2] = list[2].toDouble();
+        if (line.contains("CD2_2")) wcs->cd[3] = list[2].toDouble();
         if (line.contains("FLXSCALE")) FLXSCALE = list[2].toFloat();
         if (line.contains("RZP")) RZP = list[2].toFloat();
     }
+    wcs->flag = 0;  // Trigger recomputation
     file.close();
     return true;
 }
@@ -486,7 +500,7 @@ void MyImage::backupOrigHeader(int chip)
     char card[FLEN_CARD];
     // Must read from pathBackupL1
     QString filename = pathBackupL1+"/"+baseNameBackupL1+".fits";
-//    QString filename = path+"/"+baseName+".fits";
+    //    QString filename = path+"/"+baseName+".fits";
     fits_open_file(&fptr, filename.toUtf8().data(), READWRITE, &status);
     fits_get_hdrpos(fptr, &nkeys, &keypos, &status); // get number of keywords
     for (int i=1; i<=nkeys; ++i) {
@@ -507,7 +521,7 @@ void MyImage::transferWCS()
 {
     if (!successProcessing) return;
 
-    emit setWCSLock(true);
+    emit setWCSLock(true);          // It appears that not everything in the wcslib is threadsafe
     fullheader = imageFITS->fullheader;
     int nreject;
     int nwcs;
@@ -518,7 +532,19 @@ void MyImage::transferWCS()
         emit critical();
         return;
     }
-    (void) wcsset(wcs);
+    int wcsCheck = wcsset(wcs);
+    if (wcsCheck > 0) {
+        emit messageAvailable("MyImage::transferWCS(): wcsset() returned error " + QString::number(wcsCheck), "error");
+        if (wcsCheck == 1) emit messageAvailable("Null wcsprm pointer passed", "error");
+        if (wcsCheck == 2) emit messageAvailable("Memory allocation failed", "error");
+        if (wcsCheck == 3) emit messageAvailable("Linear transformation matrix is singular", "error");
+        if (wcsCheck == 4) emit messageAvailable("Inconsistent or unrecognized coordinate axis types", "error");
+        if (wcsCheck == 5) emit messageAvailable("Invalid parameter value", "error");
+        if (wcsCheck == 6) emit messageAvailable("Invalid coordinate transformation parameters", "error");
+        if (wcsCheck == 7) emit messageAvailable("Ill-conditioned coordinate transformation parameters", "error");
+        emit critical();
+        successProcessing = false;
+    }
     wcsInit = true;
     if (*verbosity > 2) {
         emit messageAvailable(chipName + " : RA / DEC = "
@@ -628,6 +654,14 @@ void MyImage::updateHeaderValueInFITS(QString keyName, QString keyValue)
     fits_update_key_str(fptr, keyName.toUtf8().data(), keyValue.toUtf8().data(), nullptr, &status);
     fits_close_file(fptr, &status);
     printCfitsioError("updateHeaderValueInFITS", status);
+}
+
+double MyImage::getPlateScale()
+{
+    // replace with sth more sophisticated
+    plateScale = sqrt(wcs->cd[0] * wcs->cd[0] + wcs->cd[2] * wcs->cd[2]) * 3600.;
+    if (plateScale == 0.) plateScale = 1.0;
+    return plateScale;
 }
 
 void MyImage::getMode(bool determineMode)
@@ -936,10 +970,11 @@ void MyImage::makeCutout(long xmin, long xmax, long ymin, long ymax)
 
     naxis1 = nsub;
     naxis2 = msub;
-    myWCS.crpix1 = myWCS.crpix1 - xmin + 1;
-    myWCS.crpix2 = myWCS.crpix2 - ymin + 1;
-    wcs->crpix[0] = myWCS.crpix1;
-    wcs->crpix[1] = myWCS.crpix2;
+    //    myWCS.crpix1 = myWCS.crpix1 - xmin + 1;
+    //    myWCS.crpix2 = myWCS.crpix2 - ymin + 1;
+    wcs->crpix[0] = wcs->crpix[0]- xmin + 1;
+    wcs->crpix[1] = wcs->crpix[1] - ymin + 1;
+    wcs->flag = 0;
 
     dataCurrent.swap(dataCut);
 }
@@ -1082,8 +1117,8 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
     if (!imageOnDrive) return;
 
     // Must write file to disk (scamp reads the header information) if it does not exist yet
-//    QFile file(path+ "/" + baseName + ".fits");
-//    if (!file.exists()) writeImage(path+ "/" + baseName + ".fits");
+    //    QFile file(path+ "/" + baseName + ".fits");
+    //    if (!file.exists()) writeImage(path+ "/" + baseName + ".fits");
 
     int status = 0;
     char zerohead[80] = {0};
@@ -1100,6 +1135,7 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
     }
     else zeroheadString.fromLatin1(zerohead);
 
+    /*
     fits_update_key_dbl(fptr, "CRVAL1", astromCRVAL1, 9, nullptr, &status);
     fits_update_key_dbl(fptr, "CRVAL2", astromCRVAL2, 9, nullptr, &status);
     fits_update_key_flt(fptr, "CRPIX1", astromCRPIX1, 3, nullptr, &status);
@@ -1108,6 +1144,16 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
     fits_update_key_dbl(fptr, "CD1_2", astromCD12, 9, nullptr, &status);
     fits_update_key_dbl(fptr, "CD2_1", astromCD21, 9, nullptr, &status);
     fits_update_key_dbl(fptr, "CD2_2", astromCD22, 9, nullptr, &status);
+    */
+
+    fits_update_key_dbl(fptr, "CRVAL1", wcs->crval[0], 9, nullptr, &status);
+    fits_update_key_dbl(fptr, "CRVAL2", wcs->crval[1], 9, nullptr, &status);
+    fits_update_key_flt(fptr, "CRPIX1", wcs->crpix[0], 3, nullptr, &status);
+    fits_update_key_flt(fptr, "CRPIX2", wcs->crpix[1], 3, nullptr, &status);
+    fits_update_key_dbl(fptr, "CD1_1", wcs->cd[0], 9, nullptr, &status);
+    fits_update_key_dbl(fptr, "CD1_2", wcs->cd[1], 9, nullptr, &status);
+    fits_update_key_dbl(fptr, "CD2_1", wcs->cd[2], 9, nullptr, &status);
+    fits_update_key_dbl(fptr, "CD2_2", wcs->cd[3], 9, nullptr, &status);
     if (isnan(RZP)) {
         RZP = 0.;
         FLXSCALE = 0.;
@@ -1128,11 +1174,13 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
 }
 
 // Used by iview
+//UNUSED
+/*
 void MyImage::updateCRPIXOnDrive()
 {
-//    qDebug() << "H1" << successProcessing << imageOnDrive;
+    //    qDebug() << "H1" << successProcessing << imageOnDrive;
     if (!successProcessing) return;
-//    qDebug() << "H2" << path << chipName << processingStatus->statusString;
+    //    qDebug() << "H2" << path << chipName << processingStatus->statusString;
 
     int status = 0;
     fitsfile *fptr = nullptr;
@@ -1140,9 +1188,10 @@ void MyImage::updateCRPIXOnDrive()
     fits_update_key_flt(fptr, "CRPIX1", astromCRPIX1, 3, nullptr, &status);
     fits_update_key_flt(fptr, "CRPIX2", astromCRPIX2, 3, nullptr, &status);
     fits_close_file(fptr, &status);
-//    qDebug() << "H3" << status;
+    //    qDebug() << "H3" << status;
     printCfitsioError("updateZeroOrderOnDrive()", status);
 }
+*/
 
 void MyImage::updateZeroOrderInMemory()
 {
@@ -1150,6 +1199,8 @@ void MyImage::updateZeroOrderInMemory()
 
     // Update the data in memory
     // TODO: if no more issues with wcslib, we can remove all use of myWCS
+
+    /*
     myWCS.crval1 = astromCRVAL1;
     myWCS.crval2 = astromCRVAL2;
     myWCS.crpix1 = astromCRPIX1;
@@ -1158,6 +1209,7 @@ void MyImage::updateZeroOrderInMemory()
     myWCS.cd1_2 = astromCD12;
     myWCS.cd2_1 = astromCD21;
     myWCS.cd2_2 = astromCD22;
+    */
 
     // WCSLIB threading issue (probably solved by wcsLock in transferWCS()
     // Can be removed if we don't see this again
@@ -1176,6 +1228,7 @@ void MyImage::updateZeroOrderInMemory()
     }
 
     // TODO: could be moved into scanAstromheader()
+    /*
     wcs->crval[0] = astromCRVAL1;
     wcs->crval[1] = astromCRVAL2;
     wcs->crpix[0] = astromCRPIX1;
@@ -1185,6 +1238,9 @@ void MyImage::updateZeroOrderInMemory()
     wcs->cd[2] = astromCD21;
     wcs->cd[3] = astromCD22;
 
+    wcs->flag = 0;
+    */
+
     cornersToRaDec();
 }
 
@@ -1192,15 +1248,15 @@ void MyImage::updateCRVALinHeaderOnDrive()
 {
     // Must write file to drive (scamp reads the header information) if it does not exist yet
     QString outfile = path+"/"+chipName+processingStatus->statusString+".fits";
-   //  QFile file(path+ "/" + baseName + ".fits");
+    //  QFile file(path+ "/" + baseName + ".fits");
     QFile file(outfile);
     if (!file.exists()) writeImage(outfile);
 
     int status = 0;
     fitsfile *fptr = nullptr;
     fits_open_file(&fptr, (outfile).toUtf8().data(), READWRITE, &status);
-    fits_update_key_dbl(fptr, "CRVAL1", crval1, 6, nullptr, &status);
-    fits_update_key_dbl(fptr, "CRVAL2", crval2, 6, nullptr, &status);
+    fits_update_key_dbl(fptr, "CRVAL1", wcs->crval[0], 6, nullptr, &status);
+    fits_update_key_dbl(fptr, "CRVAL2", wcs->crval[1], 6, nullptr, &status);
     fits_close_file(fptr, &status);
     printCfitsioError("updateCRVALinHeaderOnDrive()", status);
 }
@@ -1215,12 +1271,20 @@ void MyImage::updateCRVALCDinHeaderOnDrive()
     int status = 0;
     fitsfile *fptr = nullptr;
     fits_open_file(&fptr, (outfile).toUtf8().data(), READWRITE, &status);
+    /*
     fits_update_key_dbl(fptr, "CRVAL1", crval1, 6, nullptr, &status);
     fits_update_key_dbl(fptr, "CRVAL2", crval2, 6, nullptr, &status);
     fits_update_key_flt(fptr, "CD1_1", myWCS.cd1_1, 6, nullptr, &status);
     fits_update_key_flt(fptr, "CD1_2", myWCS.cd1_2, 6, nullptr, &status);
     fits_update_key_flt(fptr, "CD2_1", myWCS.cd2_1, 6, nullptr, &status);
     fits_update_key_flt(fptr, "CD2_2", myWCS.cd2_2, 6, nullptr, &status);
+    */
+    fits_update_key_dbl(fptr, "CRVAL1", wcs->crval[0], 6, nullptr, &status);
+    fits_update_key_dbl(fptr, "CRVAL2", wcs->crval[1], 6, nullptr, &status);
+    fits_update_key_flt(fptr, "CD1_1", wcs->cd[0], 6, nullptr, &status);
+    fits_update_key_flt(fptr, "CD1_2", wcs->cd[1], 6, nullptr, &status);
+    fits_update_key_flt(fptr, "CD2_1", wcs->cd[2], 6, nullptr, &status);
+    fits_update_key_flt(fptr, "CD2_2", wcs->cd[3], 6, nullptr, &status);
     fits_close_file(fptr, &status);
     printCfitsioError("updateCRVALCDinHeaderOnDrive()", status);
 }
@@ -1296,13 +1360,13 @@ void MyImage::checkBrightStars(QList<QVector<double>> &brightStarList, float saf
 
     hasBrightStars = false;
 
-    if (!hasWCS) myWCS = imageFITS->loadWCS();
-    if (myWCS.naxis1 == 0) {
-        emit messageAvailable("MyImage::checkBrightStars(): " + baseName + " : Could not load WCS!", "error");
-        emit critical();
-        successProcessing = false;
-        return;
-    }
+    //    if (!hasWCS) myWCS = imageFITS->loadWCS();
+    //    if (myWCS.naxis1 == 0) {
+    //        emit messageAvailable("MyImage::checkBrightStars(): " + baseName + " : Could not load WCS!", "error");
+    //        emit critical();
+    //        successProcessing = false;
+    //        return;
+    //    }
 
     // Loop over all bright stars and check whether they are inside the chip
     for (auto &it : brightStarList) {
@@ -1339,29 +1403,58 @@ void MyImage::checkBrightStars(QList<QVector<double>> &brightStarList, float saf
     }
 }
 
+bool MyImage::containsRaDec(QString alphaStr, QString deltaStr)
+{
+    double alpha_ul;
+    double alpha_ur;
+    double alpha_ll;
+    double alpha_lr;
+    double delta_ul;
+    double delta_ur;
+    double delta_ll;
+    double delta_lr;
+
+    // Convert the cartesian image vertices to RA/DEC
+    xy2sky(1, 1, alpha_ll, delta_ll);
+    xy2sky(naxis1, 1, alpha_lr, delta_lr);
+    xy2sky(1, naxis2, alpha_ul, delta_ul);
+    xy2sky(naxis1, naxis2, alpha_ur, delta_ur);
+
+    // Check if the sky coordinates are contained in this picture frame
+    QVector<double> raVec;
+    QVector<double> decVec;
+    // order is important! we don't want a line crossing in the polygon line
+    raVec << alpha_ll << alpha_lr << alpha_ur << alpha_ul;
+    decVec << delta_ll << delta_lr << delta_ur << delta_ul;
+
+    // Convert to decimal if required
+    if (alphaStr.contains(":")) alphaStr = hmsToDecimal(alphaStr);
+    if (deltaStr.contains(":")) deltaStr = dmsToDecimal(deltaStr);
+    return pnpoly_T(raVec, decVec, alphaStr.toDouble(), deltaStr.toDouble());
+}
+
 // TODO: check against wcslib whether valid or not
 void MyImage::cornersToRaDec()
 {
-    if (myWCS.isValid) {
-        // Convert the cartesian image vertices to RA/DEC
-        /*
+    //    if (myWCS.isValid) {
+    // Convert the cartesian image vertices to RA/DEC
+    /*
         myWCS.xy2sky(1, 1, alpha_ll, delta_ll);
         myWCS.xy2sky(naxis1, 1, alpha_lr, delta_lr);
         myWCS.xy2sky(1, naxis2, alpha_ul, delta_ul);
         myWCS.xy2sky(naxis1, naxis2, alpha_ur, delta_ur);
         */
-        // using wcslib
-        //        QTest::qWait(100);
-        // without the qwait(), sometimes wcslib stumbles and does not calculate the values correctly in multi-threaded mode.
-        // correct way would be a global omp_lock, but i could not get that initialized correctly
-        // Update: setting wcsLock in transferWCS()
-        xy2sky(1, 1, alpha_ll, delta_ll);
-        xy2sky(naxis1, 1, alpha_lr, delta_lr);
-        xy2sky(1, naxis2, alpha_ul, delta_ul);
-        xy2sky(naxis1, naxis2, alpha_ur, delta_ur);
-        xy2sky(naxis1/2, naxis2/2, alpha_ctr, delta_ctr);
-        //        qDebug() << baseName << alpha_ctr << delta_ctr << alpha_ul << alpha_ll << delta_ul << delta_ll;
-    }
+    // using wcslib
+    //        QTest::qWait(100);
+    // without the qwait(), sometimes wcslib stumbles and does not calculate the values correctly in multi-threaded mode.
+    // Update: setting wcsLock in transferWCS()
+    xy2sky(1, 1, alpha_ll, delta_ll);
+    xy2sky(naxis1, 1, alpha_lr, delta_lr);
+    xy2sky(1, naxis2, alpha_ul, delta_ul);
+    xy2sky(naxis1, naxis2, alpha_ur, delta_ur);
+    xy2sky(naxis1/2, naxis2/2, alpha_ctr, delta_ctr);
+    //        qDebug() << baseName << alpha_ctr << delta_ctr << alpha_ul << alpha_ll << delta_ul << delta_ll;
+    //    }
 }
 
 QVector<float> MyImage::retainUnmaskedDataThresholded(float minVal, float maxVal, int sampleDensity)

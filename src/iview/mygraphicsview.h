@@ -74,6 +74,7 @@ signals:
     void leftButtonReleased();
     void rightButtonReleased();
     void middleButtonReleased();
+    void middlePressResetCRPIX();
 
 public slots:
     void updateMiddleMouseMode(QString mode);

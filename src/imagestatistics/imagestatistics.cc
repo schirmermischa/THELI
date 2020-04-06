@@ -170,7 +170,7 @@ void ImageStatistics::on_statisticsPushButton_clicked()
     if (!ra.isEmpty() && !dec.isEmpty()) {
         for (int k=0; k<allMyImages.length(); ++k) {
             auto &it = allMyImages[k];
-            if (it->myWCS.containsRaDec(ra,dec)) coordImageList << it->chipName;
+            if (it->containsRaDec(ra,dec)) coordImageList << it->chipName;
         }
     }
     else {

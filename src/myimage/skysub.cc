@@ -119,8 +119,8 @@ void MyImage::subtractSkyFit(int order, gsl_vector *c, bool saveSkyModel)
     for (long j=0; j<naxis2; ++j) {
         for (long i=0; i<naxis1; ++i) {
             // Calculate RA / DEC from linear WCS model
-            // double ra_pix  = myWCS.cd1_1 * (double(i)-myWCS.crpix1) + myWCS.cd1_2 * (double(j)-myWCS.crpix2) + myWCS.crval1;
-            // double dec_pix = myWCS.cd2_1 * (double(i)-myWCS.crpix1) + myWCS.cd2_2 * (double(j)-myWCS.crpix2) + myWCS.crval2;
+            // double ra_pix  = wcs->cd[0] * (double(i)-wcs->crpix[0]) + wcs->cd[1] * (double(j)-wcs->crpix[1]) + wcs->crval[0];
+            // double dec_pix = wcs->cd[2] * (double(i)-wcs->crpix[0]) + wcs->cd[3] * (double(j)-wcs->crpix[1]) + wcs->crval[1];
 
             // Potentially very slow!
             double ra_pix;

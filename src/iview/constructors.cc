@@ -453,8 +453,9 @@ void IView::makeConnections()
     connect(myGraphicsView, &MyGraphicsView::rightDragTravelled, this, &IView::adjustBrightnessContrast);
     connect(myGraphicsView, &MyGraphicsView::leftDragTravelled, this, &IView::drawSeparationVector);
     connect(myGraphicsView, &MyGraphicsView::middleDragTravelled, this, &IView::drawSkyCircle);
-    connect(myGraphicsView, &MyGraphicsView::middleWCSTravelled, this, &IView::updateWCS);
+    connect(myGraphicsView, &MyGraphicsView::middleWCSTravelled, this, &IView::updateCRPIX);
     connect(myGraphicsView, &MyGraphicsView::middleWCSreleased, this, &IView::updateImageWCS);
+    connect(myGraphicsView, &MyGraphicsView::middlePressResetCRPIX, this, &IView::middlePressResetCRPIXreceived);
     connect(myGraphicsView, &MyGraphicsView::rightPress, this, &IView::initDynrangeDrag);
     connect(myGraphicsView, &MyGraphicsView::leftPress, this, &IView::initSeparationVector);
     connect(myGraphicsView, &MyGraphicsView::leftPress, this, &IView::sendStatisticsCenter);

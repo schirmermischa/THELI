@@ -174,13 +174,16 @@ public:
     QString baseNameBackupL3 = "";
     MyFITS *imageFITS = nullptr;
     MyFITS *weightFITS = nullptr;
-    MyWCS myWCS;
+//    MyWCS myWCS;
     bool makeBackup = true;  // used when reading an image for the first time in the pipeline context
     bool metadataTransferred = false;
     int groupNumber = -1; // The association of images this image belongs to (an overlapping group on sky)
 
     bool minimizeMemoryUsage = false;
     bool headerInfoProvided = false;
+
+    bool processingFinished = false;          // Reset to false every time a process starts; If finised, external jobs use this flag to force a
+                                              // dump to drive to be able to release memory
 
     bool isTaskRepeated = false;
 
@@ -444,8 +447,11 @@ public:
     void readImageBackupL1Launch();
     void setObjectLock(bool locked);
     void setBackgroundLock(bool locked);
-    void updateCRPIXOnDrive();
+//    void updateCRPIXOnDrive();
     void removeSourceCatalogs();
+    void dumpToDriveIfPossible();
+    bool containsRaDec(QString alphaStr, QString deltaStr);
+    double getPlateScale();
 signals:
     void modelUpdateNeeded(QString baseName, QString chipName);
     void messageAvailable(QString message, QString type);

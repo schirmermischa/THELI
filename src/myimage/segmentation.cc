@@ -497,7 +497,8 @@ void MyImage::collectSeeingParameters(QVector<QVector<double>> &outputParams, QV
             // Must recalculate RA and DEC after astrometry
             double raNew;
             double decNew;
-            myWCS.xy2sky(xwin[i], ywin[i], raNew, decNew);
+            // myWCS.xy2sky(xwin[i], ywin[i], raNew, decNew);
+            xy2sky(xwin[i], ywin[i], raNew, decNew);
             // must pass dec first for tools::match2D() method
             // Only clean detections wanted!
             if (flag[i] == 0) {

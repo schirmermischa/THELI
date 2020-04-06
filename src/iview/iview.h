@@ -117,8 +117,8 @@ signals:
     void solutionAcceptanceState(bool state);
     void middleMouseModeChanged(QString mode);
     void currentlyDisplayedIndex(int index);
-    void crpixUpdated(double crpix1new, double crpix2new);
-    void CDmatrixUpdated(double cd11, double cd12, double cd21, double cd22);
+//    void crpixUpdated(double crpix1new, double crpix2new);
+//    void CDmatrixUpdated(double cd11, double cd12, double cd21, double cd22);
 
 private slots:
     void adjustBrightnessContrast(QPointF point);
@@ -164,11 +164,12 @@ private slots:
     //    void endPanning();
     //  void on_filterLineEdit_editingFinished();    void drawSkyRectangle(QPointF pointStart, QPointF pointEnd);
     // void on_waveletPushButton_clicked();
-    void updateWCS(QPointF pointStart, QPointF pointEnd);
+    void updateCRPIX(QPointF pointStart, QPointF pointEnd);
     void updateImageWCS();
-    void updateImageCDmatrix(double cd11, double cd12, double cd21, double cd22);
+//    void updateImageCDmatrix(double cd11, double cd12, double cd21, double cd22);
     void updateCDmatrix(double cd11, double cd12, double cd21, double cd22);
-    void test(double crpixdiff);
+    //    void test(double crpixdiff);
+    void middlePressResetCRPIXreceived();
 public slots:
     void clearAll();
     void colorFactorChanged_receiver(QString redFactor, QString blueFactor);
@@ -204,8 +205,8 @@ private:
     float rmsVal;
     double crpix1;
     double crpix2;
-    double crpix1new;
-    double crpix2new;
+    double crpix1_start;      // set when the middle mouse button is pressed in wcs mode
+    double crpix2_start;      // set when the middle mouse button is pressed in wcs mode
     double crval1;
     double crval2;
     double cd1_1;
@@ -287,13 +288,13 @@ private:
     bool readRaDecCatalog(QString fileName, QList<QGraphicsRectItem *> &items, double size, int width, QColor color);
     void readPreferenceSettings();
     void sky2xy(double ra, double dec, double &x, double &y);
-    void sky2xy_linear(double ra, double dec, double &x, double &y);
+//    void sky2xy_linear(double ra, double dec, double &x, double &y);
     void setCurrentId(QString filename);
 //    void sliderToText(int sliderValue, QString channel);
 //    void textToSlider(QString value, QString channel);
     void writePreferenceSettings();
     void xy2sky(double x, double y, QString button = "");
-    void xy2sky_linear(double x, double y, QString button = "");
+//    void xy2sky_linear(double x, double y, QString button = "");
     template <typename T> int sgn(T val) {
         return (T(0) < val) - (val < T(0));
     }
@@ -303,6 +304,8 @@ private:
     void replotCatalogAfterZoom();
     void showWCSdockWidget();
     void hideWCSdockWidget();
+    double haversine(double x1, double y1, double x2, double y2);
+    void measureAngularSeparations(QPointF pointStart, QPointF pointEnd, double &sepX, double &sepY, double &sepD);
 };
 
 #endif // IVIEW_H

@@ -18,7 +18,7 @@ If not, see https://www.gnu.org/licenses/ .
 */
 
 #include "myfits.h"
-#include "mywcs.h"
+// #include "mywcs.h"
 #include <omp.h>
 #include "../tools/cfitsioerrorcodes.h"
 
@@ -295,12 +295,14 @@ void MyFITS::erase()
     data.squeeze();
 }
 
+/*
 MyWCS MyFITS::loadWCS()
 {
     int status = 0;
     fitsfile *fptr = nullptr;
     initFITS(&fptr, &status);
-    getWCSheaderKeys(&fptr, &status);
+    fits_read_key_dbl(fptr, "MJD-OBS", &mjdobs, NULL, status);
+//    getWCSheaderKeys(&fptr, &status);
     fits_close_file(fptr, &status);
 
     printerror(status);
@@ -315,40 +317,43 @@ MyWCS MyFITS::loadWCS()
         return myWCS;
     }
 }
+*/
 
 void MyFITS::initWCS(int *status)
 {
     if (*status) return;
     for (auto &it : header) {
-        extractKeywordLong(it, "NAXIS1", myWCS.naxis1);
-        extractKeywordLong(it, "NAXIS2", myWCS.naxis2);
-        extractKeywordDouble(it, "CRPIX1", myWCS.crpix1);
-        extractKeywordDouble(it, "CRPIX2", myWCS.crpix2);
-        extractKeywordDouble(it, "CRVAL1", myWCS.crval1);
-        extractKeywordDouble(it, "CRVAL2", myWCS.crval2);
-        extractKeywordDouble(it, "CD1_1", myWCS.cd1_1);
-        extractKeywordDouble(it, "CD1_2", myWCS.cd1_2);
-        extractKeywordDouble(it, "CD2_1", myWCS.cd2_1);
-        extractKeywordDouble(it, "CD2_2", myWCS.cd2_2);
-        extractKeywordFloat(it, "EQUINOX", myWCS.equinox);
+        extractKeywordLong(it, "NAXIS1", naxis1);
+        extractKeywordLong(it, "NAXIS2", naxis2);
+//        extractKeywordLong(it, "NAXIS1", myWCS.naxis1);
+//        extractKeywordLong(it, "NAXIS2", myWCS.naxis2);
+//        extractKeywordDouble(it, "CRPIX1", myWCS.crpix1);
+//        extractKeywordDouble(it, "CRPIX2", myWCS.crpix2);
+//        extractKeywordDouble(it, "CRVAL1", myWCS.crval1);
+//        extractKeywordDouble(it, "CRVAL2", myWCS.crval2);
+//        extractKeywordDouble(it, "CD1_1", myWCS.cd1_1);
+//        extractKeywordDouble(it, "CD1_2", myWCS.cd1_2);
+//        extractKeywordDouble(it, "CD2_1", myWCS.cd2_1);
+//        extractKeywordDouble(it, "CD2_2", myWCS.cd2_2);
+//        extractKeywordFloat(it, "EQUINOX", myWCS.equinox);
     }
-    myWCS.checkValidity();
-    myWCS.getPlateScale();
-    hasWCS = myWCS.isValid;
-    plateScale = myWCS.plateScale;
+//    myWCS.checkValidity();
+//    myWCS.getPlateScale();
+//    hasWCS = myWCS.isValid;
+//    plateScale = myWCS.plateScale;
 
     // redundant, but needed (e.g. by Iview, which does not read the wcs object
-    crpix1 = myWCS.crpix1;
-    crpix2 = myWCS.crpix2;
-    crval1 = myWCS.crval1;
-    crval2 = myWCS.crval2;
-    cd1_1 = myWCS.cd1_1;
-    cd1_2 = myWCS.cd1_2;
-    cd2_1 = myWCS.cd2_1;
-    cd2_2 = myWCS.cd2_2;
-    equinox = myWCS.equinox;
-    if (naxis1 == 0) naxis1 = myWCS.naxis1;
-    if (naxis2 == 0) naxis2 = myWCS.naxis2;
+//    crpix1 = myWCS.crpix1;
+//    crpix2 = myWCS.crpix2;
+//    crval1 = myWCS.crval1;
+//    crval2 = myWCS.crval2;
+//    cd1_1 = myWCS.cd1_1;
+//    cd1_2 = myWCS.cd1_2;
+//    cd2_1 = myWCS.cd2_1;
+//    cd2_2 = myWCS.cd2_2;
+//    equinox = myWCS.equinox;
+//    if (naxis1 == 0) naxis1 = myWCS.naxis1;
+//    if (naxis2 == 0) naxis2 = myWCS.naxis2;
 }
 
 void MyFITS::initTHELIheader(int *status)
@@ -435,6 +440,7 @@ void MyFITS::extractKeywordString(QString card, QString key, QString &value)
     if (card.contains(key)) value = card.split("=")[1].split("/")[0].simplified().remove("'");
 }
 
+/*
 void MyFITS::getWCSheaderKeys(fitsfile **fptr, int *status)
 {
     if (*status) return;
@@ -450,6 +456,7 @@ void MyFITS::getWCSheaderKeys(fitsfile **fptr, int *status)
     fits_read_key_lng(*fptr, "NAXIS2", &myWCS.naxis2, NULL, status);
     fits_read_key_dbl(*fptr, "MJD-OBS", &mjdobs, NULL, status);
 }
+*/
 
 void MyFITS::propagateHeader(fitsfile *fptr, QVector<QString> header)
 {

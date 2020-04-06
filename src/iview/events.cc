@@ -143,7 +143,8 @@ void IView::showCurrentMousePos(QPointF point)
         icdw->ui->valueLabel->setText("Value = ");
     }
 
-    if (hasWCS) xy2sky(x_cursor, y_cursor);
+  //  if (hasWCS) xy2sky(x_cursor, y_cursor);
+    xy2sky(x_cursor, y_cursor);
 
     // Show the magnified area in the zoom window
     // Translate FITS pixel position in the large window to the zoom window
@@ -196,6 +197,56 @@ void IView::adjustBrightnessContrast(QPointF point)
     //ui->zoomGraphicsView->show();
 }
 
+double IView::haversine(double x1, double y1, double x2, double y2)
+{
+    double world1[2];
+    double world2[2];
+    double phi;
+    double theta;
+    double imgcrd[2];
+    double pixcrd[2];
+    int  	stat[1];
+
+    double rad = 3.1415926535 / 180.;
+
+    // Get alpha / delta for the first point
+    pixcrd[0] = x1;
+    pixcrd[1] = y1;
+    wcsp2s(wcs, 1, 2, pixcrd, imgcrd, &phi, &theta, world1, stat);
+    double alpha1 = world1[0] * rad;
+    double delta1 = world1[1] * rad;
+
+    // Get alpha / delta for the 2nd point
+    pixcrd[0] = x2;
+    pixcrd[1] = y2;
+    wcsp2s(wcs, 1, 2, pixcrd, imgcrd, &phi, &theta, world2, stat);
+    double alpha2 = world2[0] * rad;
+    double delta2 = world2[1] * rad;
+
+    double dDelta = delta2 - delta1;
+    double dAlpha = alpha2 - alpha1;
+
+    // Haversine formula to calculate angular distance between two points on a sphere in degrees, also works for very small separations
+    return 2.*asin( sqrt( pow(sin(dDelta/2.),2) + cos(delta1)*cos(delta2)*pow(sin(dAlpha/2.),2))) / rad;
+}
+
+void IView::measureAngularSeparations(QPointF pointStart, QPointF pointEnd, double &sepX, double &sepY, double &sepD)
+{
+    qreal x1 = pointStart.x();
+    qreal y1 = pointStart.y();
+    qreal x2 = pointEnd.x();
+    qreal y2 = pointEnd.y();
+
+    // The "diagonal"
+    sepD = haversine(x1, y1, x2, y2) * 3600.;
+
+    // The "horizontal"
+    sepX = haversine(x1, y1, x2, y1) * 3600.;
+
+    // The "vertical"
+    sepY = haversine(x1, y1, x1, y2) * 3600.;
+}
+
 void IView::drawSeparationVector(QPointF pointStart, QPointF pointEnd)
 {
     if (displayMode == "SCAMP" || displayMode == "CLEAR") return;
@@ -219,9 +270,11 @@ void IView::drawSeparationVector(QPointF pointStart, QPointF pointEnd)
     qreal y2 = pointEnd.y();
     qreal dy = y2-y1;
     qreal dx = x2-x1;
-    double sepX = fabs(dx)*plateScale;
-    double sepY = fabs(dy)*plateScale;
-    double sepD = sqrt(sepX*sepX + sepY*sepY);
+    double sepX = 0.;
+    double sepY = 0.;
+    double sepD = 0.;
+    measureAngularSeparations(pointStart, pointEnd, sepX, sepY, sepD);
+
     QString sepXString = getVectorLabel(sepX);
     QString sepYString = getVectorLabel(sepY);
     QString sepDString = getVectorLabel(sepD);
@@ -394,30 +447,7 @@ void IView::drawSkyRectangle(QPointF pointStart, QPointF pointEnd)
     myGraphicsView->show();
 }
 
-void IView::updateWCS(QPointF pointStart, QPointF pointEnd)
-{
-    // Do nothing if no refcat items are displayed.
-    if (refCatItems.isEmpty()) return;
-
-    // Remove items from display
-    for (auto &it: refCatItems) scene->removeItem(it);
-    refCatItems.clear();
-    myGraphicsView->setScene(scene);
-    myGraphicsView->show();
-
-    // Recalculate CRPIX offset
-    qreal dx = pointEnd.x() - pointStart.x();
-    qreal dy = -(pointEnd.y() - pointStart.y());   // Image y-axis flipped in graphics view
-
-    crpix1new = crpix1 + dx;
-    crpix2new = crpix2 + dy;
-    wcs->crpix[0] = crpix1 + dx;
-    wcs->crpix[1] = crpix2 + dy;
-    wcs->flag = 0;    // force an update of internal wcs params.
-
-    showReferenceCat();
-}
-
+/*
 void IView::test(double crpixdiff)
 {
     // Do nothing if no refcat items are displayed.
@@ -434,6 +464,34 @@ void IView::test(double crpixdiff)
 
     showReferenceCat();
 }
+*/
+
+void IView::middlePressResetCRPIXreceived()
+{
+    crpix1_start = wcs->crpix[0];
+    crpix2_start = wcs->crpix[1];
+}
+
+void IView::updateCRPIX(QPointF pointStart, QPointF pointEnd)
+{
+    // Do nothing if no refcat items are displayed.
+    if (refCatItems.isEmpty()) return;
+
+    // Remove items from display
+    for (auto &it: refCatItems) scene->removeItem(it);
+    refCatItems.clear();
+    myGraphicsView->setScene(scene);
+    myGraphicsView->show();
+
+    // Recalculate CRPIX offset
+    qreal dx = pointEnd.x() - pointStart.x();
+    qreal dy = -(pointEnd.y() - pointStart.y());   // Image y-axis flipped in graphics view
+
+    wcs->crpix[0] = crpix1_start + dx;
+    wcs->crpix[1] = crpix2_start + dy;
+    wcs->flag = 0;    // force an update of internal wcs params.
+    showReferenceCat();
+}
 
 void IView::updateCDmatrix(double cd11, double cd12, double cd21, double cd22)
 {
@@ -446,11 +504,6 @@ void IView::updateCDmatrix(double cd11, double cd12, double cd21, double cd22)
     myGraphicsView->setScene(scene);
     myGraphicsView->show();
 
-    cd1_1 = cd11;
-    cd1_2 = cd12;
-    cd2_1 = cd21;
-    cd2_2 = cd22;
-
     // Update CD matrix
     wcs->cd[0] = cd11;
     wcs->cd[1] = cd12;
@@ -460,6 +513,8 @@ void IView::updateCDmatrix(double cd11, double cd12, double cd21, double cd22)
     showReferenceCat();
 }
 
+// unused
+/*
 void IView::updateImageCDmatrix(double cd11, double cd12, double cd21, double cd22)
 {
     // Do nothing if no refcat items are displayed.
@@ -487,33 +542,36 @@ void IView::updateImageCDmatrix(double cd11, double cd12, double cd21, double cd
         if (status > 0) qDebug() << "IView::updateImageCDmatrix(): status = " << status;
     }
 }
+*/
 
+// Called when middle mouse button is released in wcs mode
 void IView::updateImageWCS()
 {
     // Do nothing if no refcat items are displayed.
     if (refCatItems.isEmpty()) return;
 
-    crpix1 = crpix1new;
-    crpix2 = crpix2new;
+    crpix1 = wcs->crpix[0];
+    crpix2 = wcs->crpix[1];
 
     if (currentMyImage != nullptr) {
         // Update in memory
         // TODO: get rid of the triple redundancy of these params
-        currentMyImage->astromCRPIX1 = crpix1new;
-        currentMyImage->astromCRPIX2 = crpix2new;
-        currentMyImage->myWCS.crpix1 = crpix1new;
-        currentMyImage->myWCS.crpix2 = crpix2new;
-        emit crpixUpdated(crpix1new, crpix2new);  // for the MyImage instance in the main GUI (wcs struct)       // TODO: signal not received anywhere by main GUI
+//        currentMyImage->astromCRPIX1 = wcs->crpix[0];
+//        currentMyImage->astromCRPIX2 = wcs->crpix[1];
+//        currentMyImage->myWCS.crpix1 = wcs->crpix[0];
+//        currentMyImage->myWCS.crpix2 = wcs->crpix[1];
+//        emit crpixUpdated(wcs->crpix[0],wcs->crpix[1]);  // for the MyImage instance in the main GUI (wcs struct)       // TODO: signal not received anywhere by main GUI
 
         // Update on drive
 
         int status = 0;
+        if (currentFileName.isEmpty()) currentFileName = currentMyImage->baseName+".fits";
         fitsfile *fptr = nullptr;
-        fits_open_file(&fptr, (dirName+"/"+currentFileName).toUtf8().data(), READWRITE, &status);
-        fits_update_key_flt(fptr, "CRPIX1", crpix1new, -5, nullptr, &status);
-        fits_update_key_flt(fptr, "CRPIX2", crpix2new, -5, nullptr, &status);
+        fits_open_file(&fptr, (dirName+"/"+currentMyImage->pathExtension+"/"+currentFileName).toUtf8().data(), READWRITE, &status);
+        fits_update_key_flt(fptr, "CRPIX1", wcs->crpix[0], -5, nullptr, &status);
+        fits_update_key_flt(fptr, "CRPIX2", wcs->crpix[1], -5, nullptr, &status);
         fits_close_file(fptr, &status);
-        if (status > 0) qDebug() << "IView::updateImageWCS(): status = " << status;
+        if (status > 0) qDebug() << "IView::updateImageWCS(): cfitsio error code = " << status << dirName+"/"+currentFileName;
     }
 }
 
@@ -670,6 +728,8 @@ void IView::xy2sky(double x, double y, QString button)
     icdw->ui->deltaHexLabel->setText("Dec  = "+deltaHex);
 }
 
+// Unused
+/*
 void IView::xy2sky_linear(double x, double y, QString button)
 {
     double pi = 3.14159265;
@@ -696,3 +756,4 @@ void IView::xy2sky_linear(double x, double y, QString button)
     icdw->ui->deltaDecLabel->setText("Dec  = "+deltaDec);
     icdw->ui->deltaHexLabel->setText("Dec  = "+deltaHex);
 }
+*/

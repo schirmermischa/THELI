@@ -146,7 +146,7 @@ protected:
     QString productName;
 
 private slots:
-    void reset();
+    void resetParameters();
     void checkPaths();
     void connect_validators();
     void establish_connections();

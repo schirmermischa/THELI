@@ -94,10 +94,10 @@ void IView::showWCSdockWidget()
     if (wcsdw->isVisible()) return;
 
     // Copy the CD matrix to the WCS dock widget and init()
-    wcsdw->cd11_orig = cd1_1;
-    wcsdw->cd12_orig = cd1_2;
-    wcsdw->cd21_orig = cd2_1;
-    wcsdw->cd22_orig = cd2_2;
+    wcsdw->cd11_orig = wcs->cd[0];
+    wcsdw->cd12_orig = wcs->cd[1];
+    wcsdw->cd21_orig = wcs->cd[2];
+    wcsdw->cd22_orig = wcs->cd[3];
     wcsdw->init();
 
     addDockWidget(Qt::LeftDockWidgetArea, wcsdw);
@@ -224,7 +224,7 @@ void IView::setCurrentId(QString filename)
     setImageList(filterName);
     currentId = imageList.indexOf(QFileInfo(filename).fileName());
     if (currentId == -1) {
-        qDebug() << "QDEBUG: IView::getCurrentId(): Image not found in list." << filterName << numImages << filename;
+        qDebug() << "IView::getCurrentId(): Image not found in list." << filterName << numImages << filename;
     }
 }
 
@@ -239,9 +239,16 @@ void IView::loadImage()
     }
 
     if (!QDir(dirName).exists()) dirName = QDir::homePath();
-    currentFileName =
-            QFileDialog::getOpenFileName(this, tr("Select image"), dirName,
-                                         tr("Images and Scamp checkplots (")+filter+" *.png)");
+    if (displayMode == "SCAMP") {
+        currentFileName =
+                QFileDialog::getOpenFileName(this, tr("Select image"), dirName,
+                                             tr("Images and Scamp checkplots (")+filter+" *.png)");
+    }
+    else {
+        currentFileName =
+        QFileDialog::getOpenFileName(this, tr("Select image"), dirName,
+                                     tr("Images ")+filter);
+    }
 
     if (currentFileName.isEmpty()) return;
 
@@ -374,7 +381,7 @@ void IView::loadPNG(QString filename, int currentId)
     this->setWindowTitle("iView ---   "+path+"/ ---   "+showName);
     pageLabel->setText(" Image "+QString::number(currentId+1)+" / "+QString::number(numImages));
 
-  //  icdw->zoom2scale(zoomLevel);
+    //  icdw->zoom2scale(zoomLevel);
     myGraphicsView->resetMatrix();
 
     myGraphicsView->setMinimumSize(naxis1,naxis2);
@@ -463,29 +470,33 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     }
     naxis1 = it->naxis1;
     naxis2 = it->naxis2;
-    crval1 = it->crval1;
-    crval2 = it->crval2;
+//    crval1 = it->crval1;
+//    crval2 = it->crval2;
     plateScale = it->plateScale;
-    hasWCS = true;
+ //   hasWCS = true;
     naxis1 = it->naxis1;
     naxis2 = it->naxis2;
     wcs = it->wcs;
-    if (it->hasWCS) {
-        cd1_1 = it->wcs->cd[0];
-        cd1_2 = it->wcs->cd[1];
-        cd2_1 = it->wcs->cd[2];
-        cd2_2 = it->wcs->cd[3];
-    }
-    else {
-        crval1 = 0.;
-        crval2 = 0.;
-        crpix1 = naxis1 / 2.;
-        crpix2 = naxis2 / 2.;
-        cd1_1 = -1.*it->plateScale/3600.;
-        cd1_2 = 0.;
-        cd2_1 = 0.;
-        cd2_2 = 1.*it->plateScale/3600.;
-    }
+ //   if (it->hasWCS) {
+        /*
+                cd1_1 = it->wcs->cd[0];
+                cd1_2 = it->wcs->cd[1];
+                cd2_1 = it->wcs->cd[2];
+                cd2_2 = it->wcs->cd[3];
+            */
+  //  }
+ //  else {
+//        crval1 = 0.;
+//        crval2 = 0.;
+//        crpix1 = naxis1 / 2.;
+//        crpix2 = naxis2 / 2.;
+        /*
+                cd1_1 = -1.*it->plateScale/3600.;
+                cd1_2 = 0.;
+                cd2_1 = 0.;
+                cd2_2 = 1.*it->plateScale/3600.;
+        */
+ //   }
     this->setWindowTitle("iView --- Memory viewer : "+it->chipName);
 
     // Get the dynamic range
@@ -537,7 +548,7 @@ void IView::loadColorFITS(qreal scaleFactor)
     bool testG = loadFITSdata(dirName+'/'+ChannelG, fitsDataG, "greenChannel");
     bool testB = loadFITSdata(dirName+'/'+ChannelB, fitsDataB, "blueChannel");
     if (!testR || !testG || !testB) {
-        qDebug() << "QDEBUG: loadColorFits: One or more of the three color channels could not be read!";
+        qDebug() << "IView::loadColorFits: One or more of the three color channels could not be read!";
         qDebug() << ChannelR << ChannelG << ChannelB;
         return;
     }
@@ -562,7 +573,7 @@ void IView::loadColorFITS(qreal scaleFactor)
 }
 
 bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMode)
-{    
+{
     if (displayMode == "SCAMP" || displayMode == "CLEAR") {
         qDebug() << "IView::loadFitsData(): Invalid mode";
         return false;
@@ -572,16 +583,16 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
         filename.replace(".fits", ".weight.fits");
     }
     MyFITS image(filename, "Read");
-    crpix1 = image.crpix1;
-    crpix2 = image.crpix2;
-    crval1 = image.crval1;
-    crval2 = image.crval2;
-    cd1_1 = image.cd1_1;
-    cd1_2 = image.cd1_2;
-    cd2_1 = image.cd2_1;
-    cd2_2 = image.cd2_2;
+//    crpix1 = image.crpix1;
+//    crpix2 = image.crpix2;
+//    crval1 = image.crval1;
+//    crval2 = image.crval2;
+//    cd1_1 = image.cd1_1;
+//    cd1_2 = image.cd1_2;
+//    cd2_1 = image.cd2_1;
+//    cd2_2 = image.cd2_2;
     plateScale = image.plateScale;
-    hasWCS = image.hasWCS;
+ //   hasWCS = image.hasWCS;
     naxis1 = image.naxis1;
     naxis2 = image.naxis2;
 
@@ -679,7 +690,7 @@ void IView::mapFITS()
         scene->addItem(pixmapItem);
     }
     else {
-        qDebug() << "Invalid mode in mapFITS()";
+        qDebug() << "IView::mapFITS(): Invalid mode in mapFITS()";
     }
     // Replot the source and reference catalogs (if the corresponding actions are checked)
     if (sourceCatShown && ui->actionSourceCat->isVisible()) {
@@ -747,12 +758,12 @@ void IView::showSourceCat()
 
     if (ui->actionSourceCat->isChecked()) {
         /*
-        QString imageName = imageList.at(currentId);
-        QFileInfo fi(imageName);
-        QString baseName = fi.completeBaseName();
-        // The catalog is also valid for skysubtracted images
-        if (baseName.endsWith(".sub")) baseName.chop(4);
-        */
+                QString imageName = imageList.at(currentId);
+                QFileInfo fi(imageName);
+                QString baseName = fi.completeBaseName();
+                // The catalog is also valid for skysubtracted images
+                if (baseName.endsWith(".sub")) baseName.chop(4);
+                */
 
         QString chipName = imageListChipName.at(currentId);
         QFile catalog(dirName+"/cat/iview/"+chipName+".iview");
@@ -792,15 +803,15 @@ void IView::showSourceCat()
                 sourceCatItems.append(scene->addEllipse(point.x(), point.y(), size, size, pen));
 
                 /*
-                // Does not draw ellipses in the right position. Some offset...
-                qreal aell = 6.*lineList.at(2).toFloat();
-                qreal bell = 6.*lineList.at(3).toFloat();
-                qreal theta = lineList.at(4).toFloat();
-                QGraphicsEllipseItem *ellipse = scene->addEllipse(point.x(), point.y(), aell, bell, pen);
-                ellipse->setTransformOriginPoint(x+1,y+1.);
-                ellipse->setRotation(-theta);
-                sourceCatItems.append(ellipse);
-                */
+                        // Does not draw ellipses in the right position. Some offset...
+                        qreal aell = 6.*lineList.at(2).toFloat();
+                        qreal bell = 6.*lineList.at(3).toFloat();
+                        qreal theta = lineList.at(4).toFloat();
+                        QGraphicsEllipseItem *ellipse = scene->addEllipse(point.x(), point.y(), aell, bell, pen);
+                        ellipse->setTransformOriginPoint(x+1,y+1.);
+                        ellipse->setRotation(-theta);
+                        sourceCatItems.append(ellipse);
+                        */
             }
             catalog.close();
         }
@@ -962,22 +973,25 @@ void IView::sky2xy(double alpha, double delta, double &x, double &y)
     y = naxis2 - pixcrd[1];
 }
 
-void IView::sky2xy_linear(double alpha, double delta, double &x, double &y)
-{
-    double pi = 3.14159265;
-    double cosd = cos(delta * pi/180.);
-    double cd12 = cd1_2;
-    // for some reason the y-axis is sheared, probably because y starts at the top and not at the bottom
-    // in QImage, differential with respect
-    double cd21 = cd2_1;
-    double cd11 = cd1_1;
-    double cd22 = cd2_2;
-    double detCD = (cd11 * cd22 - cd12 * cd21);
-    x = ( (alpha-crval1)*cd22*cosd - cd12*cd21*crpix1 + cd11*cd22*crpix1 + (crval2-delta)*cd12) / detCD;
-    y = ( (crval1-alpha)*cd21*cosd - cd12*cd21*crpix2 + cd11*cd22*crpix2 + (delta-crval2)*cd11) / detCD;
-    // flip y
-    y = naxis2 - y;
-}
+// Unused
+/*
+        void IView::sky2xy_linear(double alpha, double delta, double &x, double &y)
+        {
+            double pi = 3.14159265;
+            double cosd = cos(delta * pi/180.);
+            double cd12 = cd1_2;
+            // for some reason the y-axis is sheared, probably because y starts at the top and not at the bottom
+            // in QImage, differential with respect
+            double cd21 = cd2_1;
+            double cd11 = cd1_1;
+            double cd22 = cd2_2;
+            double detCD = (cd11 * cd22 - cd12 * cd21);
+            x = ( (alpha-crval1)*cd22*cosd - cd12*cd21*crpix1 + cd11*cd22*crpix1 + (crval2-delta)*cd12) / detCD;
+            y = ( (crval1-alpha)*cd21*cosd - cd12*cd21*crpix2 + cd11*cd22*crpix2 + (delta-crval2)*cd11) / detCD;
+            // flip y
+            y = naxis2 - y;
+        }
+        */
 
 QString IView::dec2hex(double angle)
 {
@@ -1022,7 +1036,7 @@ void IView::getImageStatistics(QString colorMode)
         else return;
     }
     else {
-        qDebug() << "QDEBUG: Invalid mode in getImageStatistics()";
+        qDebug() << "IView::getImageStatistics(): Invalid mode";
     }
 
     medVal = medianMask_T(subSample, QVector<bool>(), "ignoreZeroes");
@@ -1045,7 +1059,7 @@ void IView::autoContrast(QString colorMode)
         else return;
     }
     else {
-        qDebug() << "QDEBUG: Invalid displayMode in autoContrast():" << displayMode;
+        qDebug() << "IView::autoContrast(): Invalid displayMode:" << displayMode;
     }
 
     dynRangeMin = medVal - 2.*rmsVal;
@@ -1209,190 +1223,190 @@ void IView::colorFactorChanged_receiver(QString redFactor, QString blueFactor)
 }
 
 /*
-void IView::on_waveletPushButton_clicked()
-{
-    // Map the image onto a stl-type vector
-    vector<vector<double>> vec1(naxis2, vector<double>(naxis1));
-    for (int j=0; j<naxis2; ++j) {
-        for (int i=0; i<naxis1; ++i){
-            vec1[j][i] = fitsData[i+naxis1*j];
-        }
-    }
-
-    // The mother wavelet
-    QString name = "bior3.9";
-
-    // Finding 2D DWT Transform of the image using symmetric extension algorithm
-    // Extension is set to 0 (eg., int e = 0)
-    vector<int> length;
-    vector<double> output, flag;
-    int J = 8; // number of sequential wavelet decompositions
-    vector<long> boundaries;
-    // dwt_2d(vec1, J, name, output, flag, length, boundaries);
-    // dwt_2d_sym(vec1, J, name, output, flag, length, boundaries);   // not working properly. Image geometry different
-    swt_2d(vec1, J, name, output, length, boundaries);
-
-    // The DWT processes images of arbitrary size. To this end, the images must be "squared".
-    // length and length2 contain the dimensions of the respective wavelet sub-images (dyadic), starting with the smallest.
-    // The last two entries of length2 contain the size of the DWT (rows_n by cols_n)
-
-    // Store the various wavelet decompositions
-    for (int level=0; level<J; ++level) {
-        qDebug() << "extracting level " << level;
-        vector<double> dwt_coef = output;
-
-        // Remove all but level J
-        long dwt_size = dwt_coef.size();
-        for (int i=0; i<dwt_size; ++i) {
-            if (i<boundaries[level] || i>=boundaries[level+1]){
-                dwt_coef[i] = 0.0;
-            }
-        }
-
-        // Inverse wavelet transform
-        vector<vector<double> > idwt_output(naxis1, vector<double>(naxis2));
-        // idwt_2d(dwt_coef, flag, name, idwt_output, length);
-        // idwt_2d_sym(dwt_coef, flag, name, idwt_output, length);
-        iswt_2d(dwt_coef, J, name, idwt_output, naxis1, naxis2);
-
-        int naxis1_out = idwt_output[0].size();
-        int naxis2_out = idwt_output.size();
-
-        // There is an issue with even odd NAXIS lengths that I don't understand:
-        if (naxis1 % 2 != 0) naxis1_out -= 1;
-        if (naxis2 % 2 != 0) naxis2_out -= 1;
-
-        if (naxis1 != naxis1_out || naxis2 != naxis2_out) {
-            qDebug() << "ERROR: Image geometry of wavelet reconstructed image not identical to input image!";
-            qDebug() << "Original geometry:   " << naxis1 << naxis2;
-            qDebug() << "Transformed geometry:" << naxis1_out << naxis2_out;
-            return;
-        }
-
-        QVector<float> dataRec(naxis1_out*naxis2_out);
-        for (int j=0; j<naxis2_out; ++j) {
-            for (int i=0; i<naxis1_out; ++i) {
-                dataRec[i+naxis1_out*j] = idwt_output[j][i];
-            }
-        }
-
-        MyFITS imageOut("/home/mischa/dwt"+QString::number(level)+".fits", naxis1, naxis2, dataRec);
-        imageOut.write("");
-    }
-}
-*/
-/*
-void IView::on_waveletPushButton_clicked()
-{
-    int filterSize = 150;
-    int gridStep = filterSize / 2.;
-    QVector<float> data_padded;
-    QVector<bool> mask_padded;
-    QVector<bool> maskData(naxis1*naxis2,false);
-    // Add a (dyadic) border around the image to reduce boundary effects
-    // We use twice the grid step so that we have sufficient space to comfortably place a grid over the image including the boundaries.
-    // By making it twice as large, we don't need to introduce boundary conditions when evaluating histograms outside the nominal image area.
-    QVector<long>padDims = padImage(fitsData, data_padded, maskData, mask_padded,
-                                    naxis1, naxis2, 2*gridStep, "normal");
-
-    long npad = padDims[4];
-    long mpad = padDims[5];
-
-//    MyFITS out("/home/mischa/pad.fits", npad, mpad, data_padded);
-//    out.write("");
-
-    // Place a grid over the image
-    int ngrid;
-    int mgrid;
-    QVector<QVector<long>> grid = makeGrid(npad, mpad, gridStep, ngrid, mgrid);
-    // Calculate modes by stepping through grid points
-    long nGridPoints = grid[0].length();
-    QVector<float> modes(nGridPoints);
-    QVector<float> backgroundSample;
-    QVector<bool> backgroundMask;
-    backgroundSample.reserve(gridStep*gridStep);
-    backgroundMask.reserve(gridStep*gridStep);
-    for (long index=0; index<nGridPoints; ++index) {
-        // Select data points in a square around the current grid point
-        for (long j=grid[1][index]-gridStep/2; j<grid[1][index]+gridStep/2; ++j) {
-            for (long i=grid[0][index]-gridStep/2; i<grid[0][index]+gridStep/2; ++i) {
-                backgroundSample.push_back(data_padded[i+npad*j]);
-                backgroundMask.push_back(mask_padded[i+npad*j]);
-            }
-        }
-        modes[index] = mode(backgroundSample, backgroundMask);
-        backgroundSample.clear();
-        backgroundMask.clear();
-    }
-
-    // Median filter the modes
-    QVector<float> medianSample(9);   // maximally 3x3
-    QVector<float> modesFiltered(nGridPoints);
-    for (long j=0; j<mgrid; ++j) {
-        // Stay within bounds
-        int jmin = j-1 < 0 ? 0 : j-1;
-        int jmax = j+1 >= mgrid ? mgrid-1 : j+1;
-        for (long i=0; i<ngrid; ++i) {
-            int imin = i-1 < 0 ? 0 : i-1;
-            int imax = i+1 >= ngrid ? ngrid-1 : i+1;
-            for (int jj=jmin; jj<=jmax; ++jj) {
-                for (int ii=imin; ii<=imax; ++ii) {
-                    medianSample.push_back(modes[ii+ngrid*jj]);
+        void IView::on_waveletPushButton_clicked()
+        {
+            // Map the image onto a stl-type vector
+            vector<vector<double>> vec1(naxis2, vector<double>(naxis1));
+            for (int j=0; j<naxis2; ++j) {
+                for (int i=0; i<naxis1; ++i){
+                    vec1[j][i] = fitsData[i+naxis1*j];
                 }
             }
-            modesFiltered[i+ngrid*j] = medianFlag(medianSample);
-            medianSample.clear();
+
+            // The mother wavelet
+            QString name = "bior3.9";
+
+            // Finding 2D DWT Transform of the image using symmetric extension algorithm
+            // Extension is set to 0 (eg., int e = 0)
+            vector<int> length;
+            vector<double> output, flag;
+            int J = 8; // number of sequential wavelet decompositions
+            vector<long> boundaries;
+            // dwt_2d(vec1, J, name, output, flag, length, boundaries);
+            // dwt_2d_sym(vec1, J, name, output, flag, length, boundaries);   // not working properly. Image geometry different
+            swt_2d(vec1, J, name, output, length, boundaries);
+
+            // The DWT processes images of arbitrary size. To this end, the images must be "squared".
+            // length and length2 contain the dimensions of the respective wavelet sub-images (dyadic), starting with the smallest.
+            // The last two entries of length2 contain the size of the DWT (rows_n by cols_n)
+
+            // Store the various wavelet decompositions
+            for (int level=0; level<J; ++level) {
+                qDebug() << "extracting level " << level;
+                vector<double> dwt_coef = output;
+
+                // Remove all but level J
+                long dwt_size = dwt_coef.size();
+                for (int i=0; i<dwt_size; ++i) {
+                    if (i<boundaries[level] || i>=boundaries[level+1]){
+                        dwt_coef[i] = 0.0;
+                    }
+                }
+
+                // Inverse wavelet transform
+                vector<vector<double> > idwt_output(naxis1, vector<double>(naxis2));
+                // idwt_2d(dwt_coef, flag, name, idwt_output, length);
+                // idwt_2d_sym(dwt_coef, flag, name, idwt_output, length);
+                iswt_2d(dwt_coef, J, name, idwt_output, naxis1, naxis2);
+
+                int naxis1_out = idwt_output[0].size();
+                int naxis2_out = idwt_output.size();
+
+                // There is an issue with even odd NAXIS lengths that I don't understand:
+                if (naxis1 % 2 != 0) naxis1_out -= 1;
+                if (naxis2 % 2 != 0) naxis2_out -= 1;
+
+                if (naxis1 != naxis1_out || naxis2 != naxis2_out) {
+                    qDebug() << "ERROR: Image geometry of wavelet reconstructed image not identical to input image!";
+                    qDebug() << "Original geometry:   " << naxis1 << naxis2;
+                    qDebug() << "Transformed geometry:" << naxis1_out << naxis2_out;
+                    return;
+                }
+
+                QVector<float> dataRec(naxis1_out*naxis2_out);
+                for (int j=0; j<naxis2_out; ++j) {
+                    for (int i=0; i<naxis1_out; ++i) {
+                        dataRec[i+naxis1_out*j] = idwt_output[j][i];
+                    }
+                }
+
+                MyFITS imageOut("/home/mischa/dwt"+QString::number(level)+".fits", naxis1, naxis2, dataRec);
+                imageOut.write("");
+            }
         }
-    }
+        */
+/*
+        void IView::on_waveletPushButton_clicked()
+        {
+            int filterSize = 150;
+            int gridStep = filterSize / 2.;
+            QVector<float> data_padded;
+            QVector<bool> mask_padded;
+            QVector<bool> maskData(naxis1*naxis2,false);
+            // Add a (dyadic) border around the image to reduce boundary effects
+            // We use twice the grid step so that we have sufficient space to comfortably place a grid over the image including the boundaries.
+            // By making it twice as large, we don't need to introduce boundary conditions when evaluating histograms outside the nominal image area.
+            QVector<long>padDims = padImage(fitsData, data_padded, maskData, mask_padded,
+                                            naxis1, naxis2, 2*gridStep, "normal");
 
-    // * SPLINTER implementation
-    // Add grid points and values to the splinter data table
-    DataTable sample;
-    for (long i=0; i<nGridPoints; ++i) {
-//    for (long j=0; j<mgrid; ++j) {
-//        for (long i=0; i<ngrid; ++i) {
-            vector<double> gridPoint;
-            gridPoint.push_back(double(grid[0][i]));
-            gridPoint.push_back(double(grid[1][i]));
-            DataPoint dataPoint(gridPoint, modesFiltered[i]);
-            sample.add_sample(dataPoint);
-//        }
-    }
+            long npad = padDims[4];
+            long mpad = padDims[5];
 
-    // build the b-spline
-    // BSpline bspline3 = bspline_interpolator(sample, 2);
-    // Not clear what alpha=10 exactly does. Smoothing length across the grid?
-    BSpline bspline3 = bspline_smoother(sample, 2, BSpline::Smoothing::PSPLINE, 10);
+        //    MyFITS out("/home/mischa/pad.fits", npad, mpad, data_padded);
+        //    out.write("");
 
-    // Evaluate b-spline (remove padding at the same time)
-    long n = naxis1;
-    long m = naxis2;
-    QVector<float> backgroundModel(n*m);
-    for (long j=padDims[1]; j<mpad-padDims[3]; ++j) {
-        for (long i=padDims[0]; i<npad-padDims[2]; ++i) {
-            vector<double> gridPoint;
-            gridPoint.push_back(double(i));
-            gridPoint.push_back(double(j));
-            backgroundModel[i-padDims[0]+n*(j-padDims[1])] = bspline3.eval(gridPoint)[0];
+            // Place a grid over the image
+            int ngrid;
+            int mgrid;
+            QVector<QVector<long>> grid = makeGrid(npad, mpad, gridStep, ngrid, mgrid);
+            // Calculate modes by stepping through grid points
+            long nGridPoints = grid[0].length();
+            QVector<float> modes(nGridPoints);
+            QVector<float> backgroundSample;
+            QVector<bool> backgroundMask;
+            backgroundSample.reserve(gridStep*gridStep);
+            backgroundMask.reserve(gridStep*gridStep);
+            for (long index=0; index<nGridPoints; ++index) {
+                // Select data points in a square around the current grid point
+                for (long j=grid[1][index]-gridStep/2; j<grid[1][index]+gridStep/2; ++j) {
+                    for (long i=grid[0][index]-gridStep/2; i<grid[0][index]+gridStep/2; ++i) {
+                        backgroundSample.push_back(data_padded[i+npad*j]);
+                        backgroundMask.push_back(mask_padded[i+npad*j]);
+                    }
+                }
+                modes[index] = mode(backgroundSample, backgroundMask);
+                backgroundSample.clear();
+                backgroundMask.clear();
+            }
+
+            // Median filter the modes
+            QVector<float> medianSample(9);   // maximally 3x3
+            QVector<float> modesFiltered(nGridPoints);
+            for (long j=0; j<mgrid; ++j) {
+                // Stay within bounds
+                int jmin = j-1 < 0 ? 0 : j-1;
+                int jmax = j+1 >= mgrid ? mgrid-1 : j+1;
+                for (long i=0; i<ngrid; ++i) {
+                    int imin = i-1 < 0 ? 0 : i-1;
+                    int imax = i+1 >= ngrid ? ngrid-1 : i+1;
+                    for (int jj=jmin; jj<=jmax; ++jj) {
+                        for (int ii=imin; ii<=imax; ++ii) {
+                            medianSample.push_back(modes[ii+ngrid*jj]);
+                        }
+                    }
+                    modesFiltered[i+ngrid*j] = medianFlag(medianSample);
+                    medianSample.clear();
+                }
+            }
+
+            // * SPLINTER implementation
+            // Add grid points and values to the splinter data table
+            DataTable sample;
+            for (long i=0; i<nGridPoints; ++i) {
+        //    for (long j=0; j<mgrid; ++j) {
+        //        for (long i=0; i<ngrid; ++i) {
+                    vector<double> gridPoint;
+                    gridPoint.push_back(double(grid[0][i]));
+                    gridPoint.push_back(double(grid[1][i]));
+                    DataPoint dataPoint(gridPoint, modesFiltered[i]);
+                    sample.add_sample(dataPoint);
+        //        }
+            }
+
+            // build the b-spline
+            // BSpline bspline3 = bspline_interpolator(sample, 2);
+            // Not clear what alpha=10 exactly does. Smoothing length across the grid?
+            BSpline bspline3 = bspline_smoother(sample, 2, BSpline::Smoothing::PSPLINE, 10);
+
+            // Evaluate b-spline (remove padding at the same time)
+            long n = naxis1;
+            long m = naxis2;
+            QVector<float> backgroundModel(n*m);
+            for (long j=padDims[1]; j<mpad-padDims[3]; ++j) {
+                for (long i=padDims[0]; i<npad-padDims[2]; ++i) {
+                    vector<double> gridPoint;
+                    gridPoint.push_back(double(i));
+                    gridPoint.push_back(double(j));
+                    backgroundModel[i-padDims[0]+n*(j-padDims[1])] = bspline3.eval(gridPoint)[0];
+                }
+            }
+
+            QVector<float> backgroundModelPad(npad*mpad);
+            for (long j=0; j<mpad; ++j) {
+                for (long i=0; i<npad; ++i) {
+                    vector<double> gridPoint;
+                    gridPoint.push_back(double(i));
+                    gridPoint.push_back(double(j));
+                    backgroundModelPad[i+npad*j] = bspline3.eval(gridPoint)[0];
+                }
+            }
+
+            MyFITS out2("/home/mischa/backpad.fits", npad, mpad, backgroundModelPad);
+            out2.write("");
+
+            MyFITS out1("/home/mischa/back.fits", n, m, backgroundModel);
+            out1.write("");
+            qDebug() << "done";
         }
-    }
 
-    QVector<float> backgroundModelPad(npad*mpad);
-    for (long j=0; j<mpad; ++j) {
-        for (long i=0; i<npad; ++i) {
-            vector<double> gridPoint;
-            gridPoint.push_back(double(i));
-            gridPoint.push_back(double(j));
-            backgroundModelPad[i+npad*j] = bspline3.eval(gridPoint)[0];
-        }
-    }
-
-    MyFITS out2("/home/mischa/backpad.fits", npad, mpad, backgroundModelPad);
-    out2.write("");
-
-    MyFITS out1("/home/mischa/back.fits", n, m, backgroundModel);
-    out1.write("");
-    qDebug() << "done";
-}
-
-*/
+        */

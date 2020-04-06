@@ -68,7 +68,6 @@ SOURCES += \
     myimage/skysub.cc \
     myimage/tifftools.cc \
     myimage/weighting.cc \
-    mywcs.cc \
     preferences.cc \
     processingExternal/errordialog.cc \
     processingInternal/controller.cc \
@@ -157,7 +156,6 @@ HEADERS += \
     iview/wavelet/wavelet.h \
     myfits/myfits.h \
     myimage/myimage.h \
-    mywcs.h \
     preferences.h \
     processingExternal/errordialog.h \
     processingInternal/controller.h \
