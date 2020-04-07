@@ -446,6 +446,7 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
 
 void IView::loadFromRAMlist(const QModelIndex &index)
 {
+    clearItems();
     loadFromRAM(myImageList[index.row()], index.column());
 }
 
