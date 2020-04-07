@@ -23,7 +23,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QMap>
 #include <QObject>
 #include <QVector>
-//#include "mywcs.h"
 #include "fitsio2.h"
 
 using namespace std;
@@ -34,7 +33,6 @@ class MyFITS : public QObject
 public:
     explicit MyFITS(QObject *parent = nullptr);
     explicit MyFITS(long n, long m, QObject *parent = nullptr);
-//    explicit MyFITS(MyFITS &myfits, QObject *parent = nullptr);
     explicit MyFITS(const MyFITS &myfits, QObject *parent = nullptr);
     explicit MyFITS(QString fileName, QString mode = "", QObject *parent = nullptr);
     explicit MyFITS(QString fileName, const long n, const long m, QVector<float> &, QObject *parent = nullptr);
@@ -48,20 +46,11 @@ public:
     QString headerRef = "";
     QString fullHeaderString = "";
     QString dateobs = "";
-    bool hasWCS = false;
     bool hasMJDread = false;
     bool hasTHELIheader = false;
     bool addGainNormalization = false;
     float gainNormalization = 1.0;
     int numExt = 0;
-    double crpix1 = 0.0;
-    double crpix2 = 0.0;
-    double crval1 = 0.0;
-    double crval2 = 0.0;
-    double cd1_1 = 0.0;
-    double cd1_2 = 0.0;
-    double cd2_1 = 0.0;
-    double cd2_2 = 0.0;
     float gain = 1.0;
     float equinox = 0.;
     double plateScale = 0.0;
@@ -69,7 +58,9 @@ public:
     double mjdobs = 0.0;
     float airmass = 1.0;
     float ellipticity = -1.0;
+    float ellipticity_est = -1.0;
     float fwhm = -1.0;
+    float fwhm_est = -1.0;
     float RZP = -1.0;
     float skyValue = -1e9;
     QString filter;
@@ -79,17 +70,11 @@ public:
     QVector<float> data;
     QVector<QString> header;
     bool errorMapPopulated = false;
-
-    float constValue;
-
+    float constValue = 0.;
     char *fullheader = nullptr;
     int numHeaderKeys = 0;
     bool fullheaderAllocated = false;
-
-//    MyWCS myWCS;
-
     bool inMemory = false;
-
     bool headerInfoProvided = false;
 
     void erase();
@@ -99,7 +84,6 @@ public:
     bool loadData();
     void loadDataSection(long xmin, long xmax, long ymin, long ymax, QVector<float> &dataSect);
     void loadDataSection(long xmin, long xmax, long ymin, long ymax, float *dataSect);
-//    MyWCS loadWCS();
     void propagateHeader(fitsfile *fptr, QVector<QString> header);
     QString readFILTER();
     void stayWithinBounds(QVector<long> &vertices);
@@ -118,7 +102,6 @@ signals:
 private:
     void stayWithinBounds(long &coord, QString axis);   // Overloaded function, see above
     void populateCfitsioErrorKeyMap();
-//    void getWCSheaderKeys(fitsfile **fptr, int *status);
     void readHeader(fitsfile **fptr, int *status);
     void readData(fitsfile **fptr, int *status);
     void initWCS(int *status);

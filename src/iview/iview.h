@@ -109,6 +109,7 @@ public:
     MyImage *currentMyImage = nullptr;
     QString currentFileName = "";
 
+    void updateCDmatrixFITS();
 signals:
     void abortPlay();
     void colorFactorChanged(QString redFactor, QString blueFactor);
@@ -117,15 +118,11 @@ signals:
     void solutionAcceptanceState(bool state);
     void middleMouseModeChanged(QString mode);
     void currentlyDisplayedIndex(int index);
-//    void crpixUpdated(double crpix1new, double crpix2new);
-//    void CDmatrixUpdated(double cd11, double cd12, double cd21, double cd22);
 
 private slots:
     void adjustBrightnessContrast(QPointF point);
     void appendSkyCircle();
     void backAction_triggered();
-//    void blueSliderMoved(const int &sliderValue);
-//    void blueFactorEdited(const QString &value);
     void clearSeparationVector();
     void drawSeparationVector(QPointF pointStart, QPointF pointEnd);
     void drawSkyCircle(QPointF pointStart, QPointF pointEnd);
@@ -136,39 +133,19 @@ private slots:
     void initSeparationVector(QPointF pointStart);
     void loadImage();
     void nextAction_triggered();
-    //    void on_zoomInPushButton_clicked();
-    //    void on_zoomOutPushButton_clicked();
-    //    void on_zoomZeroPushButton_clicked();
-    //    void on_zoomFitPushButton_clicked();
-    //    void on_autocontrastPushButton_clicked();
-    //    void on_minLineEdit_returnPressed();
-    //    void on_maxLineEdit_returnPressed();
     void on_actionDragMode_triggered();
     void on_actionSkyMode_triggered();
     void on_actionWCSMode_triggered();
-    //    void on_filterLineEdit_textChanged(const QString &arg1);
     void previousAction_triggered();
-//    void redSliderMoved(const int &sliderValue);
-//    void redFactorEdited(const QString &value);
-//    void resetRedFactor();
-//    void resetBlueFactor();
     void startAction_triggered();
     void showCurrentMousePos(QPointF point);
     void sendStatisticsCenter(QPointF point);
     void showSourceCat();
     void showReferenceCat();
     void updateSkyCircles();
-//    void validate();
-    //    void initPanning();
-    //    void centerView(QPointF point);
-    //    void endPanning();
-    //  void on_filterLineEdit_editingFinished();    void drawSkyRectangle(QPointF pointStart, QPointF pointEnd);
-    // void on_waveletPushButton_clicked();
     void updateCRPIX(QPointF pointStart, QPointF pointEnd);
-    void updateImageWCS();
-//    void updateImageCDmatrix(double cd11, double cd12, double cd21, double cd22);
+    void updateCRPIXFITS();
     void updateCDmatrix(double cd11, double cd12, double cd21, double cd22);
-    //    void test(double crpixdiff);
     void middlePressResetCRPIXreceived();
 public slots:
     void clearAll();
@@ -203,24 +180,11 @@ private:
     float dynRangeMaxDragStart = 0.;
     float medVal;
     float rmsVal;
-    double crpix1;
-    double crpix2;
     double crpix1_start;      // set when the middle mouse button is pressed in wcs mode
     double crpix2_start;      // set when the middle mouse button is pressed in wcs mode
-    double crval1;
-    double crval2;
-    double cd1_1;
-    double cd1_2;
-    double cd2_1;
-    double cd2_2;
-    double cd1_1new;
-    double cd1_2new;
-    double cd2_1new;
-    double cd2_2new;
     double plateScale = 0.;
     double skyRa;
     double skyDec;
-    bool hasWCS = false;
     bool startLeftClickInsideItem = false;
     QString displayMode = "CLEAR";
     int timerId;
@@ -288,13 +252,9 @@ private:
     bool readRaDecCatalog(QString fileName, QList<QGraphicsRectItem *> &items, double size, int width, QColor color);
     void readPreferenceSettings();
     void sky2xy(double ra, double dec, double &x, double &y);
-//    void sky2xy_linear(double ra, double dec, double &x, double &y);
     void setCurrentId(QString filename);
-//    void sliderToText(int sliderValue, QString channel);
-//    void textToSlider(QString value, QString channel);
     void writePreferenceSettings();
     void xy2sky(double x, double y, QString button = "");
-//    void xy2sky_linear(double x, double y, QString button = "");
     template <typename T> int sgn(T val) {
         return (T(0) < val) - (val < T(0));
     }

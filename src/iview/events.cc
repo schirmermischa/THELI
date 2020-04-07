@@ -43,24 +43,6 @@ If not, see https://www.gnu.org/licenses/ .
 
 using namespace std;
 
-/*return
-void IView::centerView(QPointF point)
-{
-    // not centering correctly
-    //    myGraphicsView->centerOn(point);
-}
-*/
-
-//void IView::initPanning()
-//{
-//    myGraphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
-//}
-
-//void IView::endPanning()
-//{
-//    myGraphicsView->setDragMode(QGraphicsView::NoDrag);
-//}
-
 void IView::initSeparationVector(QPointF pointStart)
 {
     if (displayMode == "SCAMP" || displayMode == "CLEAR") return;
@@ -143,7 +125,6 @@ void IView::showCurrentMousePos(QPointF point)
         icdw->ui->valueLabel->setText("Value = ");
     }
 
-  //  if (hasWCS) xy2sky(x_cursor, y_cursor);
     xy2sky(x_cursor, y_cursor);
 
     // Show the magnified area in the zoom window
@@ -447,25 +428,6 @@ void IView::drawSkyRectangle(QPointF pointStart, QPointF pointEnd)
     myGraphicsView->show();
 }
 
-/*
-void IView::test(double crpixdiff)
-{
-    // Do nothing if no refcat items are displayed.
-    if (refCatItems.isEmpty()) return;
-
-    // Remove items from display
-    for (auto &it: refCatItems) scene->removeItem(it);
-    refCatItems.clear();
-    myGraphicsView->setScene(scene);
-    myGraphicsView->show();
-
-    crpix1new = crpix1 + crpixdiff;
-    wcs->cd[0] = crpixdiff;
-
-    showReferenceCat();
-}
-*/
-
 void IView::middlePressResetCRPIXreceived()
 {
     crpix1_start = wcs->crpix[0];
@@ -513,57 +475,13 @@ void IView::updateCDmatrix(double cd11, double cd12, double cd21, double cd22)
     showReferenceCat();
 }
 
-// unused
-/*
-void IView::updateImageCDmatrix(double cd11, double cd12, double cd21, double cd22)
-{
-    // Do nothing if no refcat items are displayed.
-    if (refCatItems.isEmpty()) return;
-
-    if (currentMyImage != nullptr) {
-        // Update in memory
-        // TODO: get rid of the triple redundancy of these params
-        currentMyImage->myWCS.cd1_1 = cd11;
-        currentMyImage->myWCS.cd1_2 = cd12;
-        currentMyImage->myWCS.cd2_1 = cd21;
-        currentMyImage->myWCS.cd2_2 = cd22;
-        emit CDmatrixUpdated(cd11, cd12, cd21, cd22);  // for the MyImage instance in the main GUI (wcs struct)       // TODO: signal not received anywhere by main GUI
-
-        // Update on drive
-
-        int status = 0;
-        fitsfile *fptr = nullptr;
-        fits_open_file(&fptr, (dirName+"/"+currentFileName).toUtf8().data(), READWRITE, &status);
-        fits_update_key_dbl(fptr, "CD1_1", cd11, 8, nullptr, &status);
-        fits_update_key_dbl(fptr, "CD1_2", cd12, 8, nullptr, &status);
-        fits_update_key_dbl(fptr, "CD2_1", cd21, 8, nullptr, &status);
-        fits_update_key_dbl(fptr, "CD2_2", cd22, 8, nullptr, &status);
-        fits_close_file(fptr, &status);
-        if (status > 0) qDebug() << "IView::updateImageCDmatrix(): status = " << status;
-    }
-}
-*/
-
 // Called when middle mouse button is released in wcs mode
-void IView::updateImageWCS()
+void IView::updateCRPIXFITS()
 {
     // Do nothing if no refcat items are displayed.
     if (refCatItems.isEmpty()) return;
 
-    crpix1 = wcs->crpix[0];
-    crpix2 = wcs->crpix[1];
-
     if (currentMyImage != nullptr) {
-        // Update in memory
-        // TODO: get rid of the triple redundancy of these params
-//        currentMyImage->astromCRPIX1 = wcs->crpix[0];
-//        currentMyImage->astromCRPIX2 = wcs->crpix[1];
-//        currentMyImage->myWCS.crpix1 = wcs->crpix[0];
-//        currentMyImage->myWCS.crpix2 = wcs->crpix[1];
-//        emit crpixUpdated(wcs->crpix[0],wcs->crpix[1]);  // for the MyImage instance in the main GUI (wcs struct)       // TODO: signal not received anywhere by main GUI
-
-        // Update on drive
-
         int status = 0;
         if (currentFileName.isEmpty()) currentFileName = currentMyImage->baseName+".fits";
         fitsfile *fptr = nullptr;
@@ -571,7 +489,27 @@ void IView::updateImageWCS()
         fits_update_key_flt(fptr, "CRPIX1", wcs->crpix[0], -5, nullptr, &status);
         fits_update_key_flt(fptr, "CRPIX2", wcs->crpix[1], -5, nullptr, &status);
         fits_close_file(fptr, &status);
-        if (status > 0) qDebug() << "IView::updateImageWCS(): cfitsio error code = " << status << dirName+"/"+currentFileName;
+        if (status > 0) qDebug() << "IView::updateCRPIXFITS(): cfitsio error code = " << status << dirName+"/"+currentFileName;
+    }
+}
+
+// Called when slider is released in wcs mode
+void IView::updateCDmatrixFITS()
+{
+    // Do nothing if no refcat items are displayed.
+    if (refCatItems.isEmpty()) return;
+
+    if (currentMyImage != nullptr) {
+        int status = 0;
+        if (currentFileName.isEmpty()) currentFileName = currentMyImage->baseName+".fits";
+        fitsfile *fptr = nullptr;
+        fits_open_file(&fptr, (dirName+"/"+currentMyImage->pathExtension+"/"+currentFileName).toUtf8().data(), READWRITE, &status);
+        fits_update_key_dbl(fptr, "CD1_1", wcs->cd[0], 8, nullptr, &status);
+        fits_update_key_dbl(fptr, "CD1_2", wcs->cd[1], 8, nullptr, &status);
+        fits_update_key_dbl(fptr, "CD2_1", wcs->cd[2], 8, nullptr, &status);
+        fits_update_key_dbl(fptr, "CD2_2", wcs->cd[3], 8, nullptr, &status);
+        fits_close_file(fptr, &status);
+        if (status > 0) qDebug() << "IView::updateCDmatrixFITS(): cfitsio error code = " << status << dirName+"/"+currentFileName;
     }
 }
 

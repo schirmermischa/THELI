@@ -62,6 +62,7 @@ bool ImageQuality::getSeeingFromGaia()
 //        emit messageAvailable(baseName + " : No usable reference point sources identified for IQ analysis. Using rh-mag method ...", "warning");
         fwhm = -1.0;
         ellipticity = -1.0;
+        numSources = 0;
         return false;
     }
 
@@ -78,6 +79,7 @@ bool ImageQuality::getSeeingFromGaia()
 //    ellipticity = meanMask_T(ellipticityVec, QVector<bool>());
     fwhm = straightMedian_T(fwhmVec) * instData->pixscale;
     ellipticity = straightMedian_T(ellipticityVec);
+    numSources = fwhmVec.length();
 
     return true;
 }

@@ -72,6 +72,8 @@ private slots:
     void validate();
 
     void currentlyDisplayedIndexReceived(int currentId);
+    void on_fwhmunitsComboBox_currentIndexChanged(const QString &arg1);
+
 private:
     QString mainDir;
     QString statusString;
@@ -93,7 +95,9 @@ private:
     QVector<double> dataFWHM = QVector<double>();
     QVector<double> dataRZP = QVector<double>();
     QVector<double> dataEllipticity = QVector<double>();
+    bool skyData = true;
     bool seeingData = true;
+    bool seeingFromGaia = false;            // A flag whether the seeing was estimated from medians of all sources, or from a match with GAIA point sources
     bool airmassData = true;
     bool rzpData = true;
     bool ellipticityData = true;

@@ -125,6 +125,59 @@ void MyImage::filterSextractorCatalog(QString minFWHM, QString maxFlag)
     // printCfitsioError("MyImage::filterSextractorCatalog()", status);
 }
 
+void MyImage::calcMedianSeeingEllipticitySex()
+{
+    if (!successProcessing) return;
+
+    fitsfile *fptr;
+    int status = 0;
+
+    QString catName = path+"/cat/"+chipName+".cat";
+    fits_open_file(&fptr, catName.toUtf8().data(), READONLY, &status);
+
+    // Move to the LDAC_OBJECTS table
+    char tblname[100] = "LDAC_OBJECTS";
+    int extver = 0;
+    fits_movnam_hdu(fptr, BINARY_TBL, tblname, extver, &status);
+
+    long nrows = 0;
+    int fwhmColNum = -1;
+    int ellColNum = -1;
+
+    fits_get_num_rows(fptr, &nrows, &status);
+    char fwhmName[100] = "FWHM_IMAGE";
+    char ellName[100] = "ELLIPTICITY";
+    fits_get_colnum(fptr, CASESEN, fwhmName, &fwhmColNum, &status);
+    fits_get_colnum(fptr, CASESEN, ellName, &ellColNum, &status);
+    int firstrow = 1;
+    int firstelem = 1;
+    int anynul = 0;
+    double *fwhm = new double[nrows];
+    double *ell = new double[nrows];
+
+    fits_read_col(fptr, TDOUBLE, fwhmColNum, firstrow, firstelem, nrows, NULL, fwhm, &anynul, &status);
+    fits_read_col(fptr, TDOUBLE, ellColNum, firstrow, firstelem, nrows, NULL, ell, &anynul, &status);
+    fits_close_file(fptr, &status);
+
+    printCfitsioError("MyImage::calcMedianSeeingEllipticitySex()", status);
+
+    // Put into a vector so we can do calculations
+    QVector<double> fwhmVec(nrows);
+    QVector<double> ellVec(nrows);
+    for (long i=0; i<nrows; ++i) {
+        fwhmVec[i] = fwhm[i];
+        ellVec[i] = ell[i];
+    }
+
+    fwhm_est = straightMedianInline(fwhmVec) * plateScale;
+    ellipticity_est = straightMedianInline(ellVec);
+    updateHeaderValueInFITS("FWHMEST", QString::number(fwhm_est, 'f', 2));
+    updateHeaderValueInFITS("ELLIPEST", QString::number(ellipticity_est, 'f', 3));
+
+    delete fwhm;
+    delete ell;
+}
+
 void MyImage::sexcatToIview()
 {
     if (!successProcessing) return;

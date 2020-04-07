@@ -25,7 +25,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../iview/iview.h"
 #include "../myfits/myfits.h"
 #include "../myimage/myimage.h"
-#include "../mywcs.h"
 #include "../processingStatus/processingStatus.h"
 
 #include <QSettings>
@@ -54,7 +53,7 @@ ImageStatistics::ImageStatistics(QVector<QList<MyImage*>> &imlist, QString main,
         for (int chip=0; chip<instData->numChips; ++chip) {
             if (instData->badChips.contains(chip)) continue;
             auto &it = myImageList[k][chip];
-            it->provideHeaderInfo();
+            it->provideHeaderInfo();       // if not yet in memory
             allMyImages.append(it);
         }
     }
@@ -237,30 +236,58 @@ void ImageStatistics::readStatisticsData()
         dataImageNr.append(numObj+1);
 
         // Default values and flags if data not available
+
+        // Background
         if (it->skyValue == 0.0) {      // poor default of -1e9 in myimage.h
-            seeingData = false;
+            skyData = false;
             dataSky.append(0.0);
         }
         else dataSky.append(it->skyValue);
 
+        // Do we have GAIA seeing?
         if (it->fwhm == -1.0) {
-            seeingData = false;
-            dataFWHM.append(0.0);
+            // No. Do we have median estimate?
+            if (it->fwhm_est == -1.0) {
+                // No
+                seeingData = false;
+                dataFWHM.append(0.0);
+            }
+            else {
+                dataFWHM.append(it->fwhm_est);
+                seeingFromGaia = false;
+            }
         }
-        else dataFWHM.append(it->fwhm);
+        else {
+            dataFWHM.append(it->fwhm);
+            seeingFromGaia = true;
+        }
 
+        // Do we have GAIA ellipticity?
+        if (it->ellipticity == -1.0) {
+            // No. Do we have median estimate?
+            if (it->ellipticity_est == -1.0) {
+                // No
+                ellipticityData = false;
+                dataEllipticity.append(-0.1);
+            }
+            else {
+                dataEllipticity.append(it->ellipticity_est);
+                seeingFromGaia = false;
+            }
+        }
+        else {
+            dataEllipticity.append(it->ellipticity);
+            seeingFromGaia = true;
+        }
+
+        // Airmass
         if (it->airmass == 0.0) {
             airmassData = false;
             dataAirmass.append(2.5);
         }
         else dataAirmass.append(it->airmass);
 
-        if (it->ellipticity == -1.0) {
-            ellipticityData = false;
-            dataEllipticity.append(-0.1);
-        }
-        else dataEllipticity.append(it->ellipticity);
-
+        // Relative zeropoint
         if (it->RZP == -1.0) {
             rzpData = false;
             dataRZP.append(-0.5);
@@ -427,4 +454,9 @@ void ImageStatistics::on_readmePushButton_clicked()
 {
     imstatsReadme = new ImstatsReadme(this);
     imstatsReadme->show();
+}
+
+void ImageStatistics::on_fwhmunitsComboBox_currentIndexChanged(const QString &arg1)
+{
+    plot();
 }

@@ -18,7 +18,6 @@ If not, see https://www.gnu.org/licenses/ .
 */
 
 #include "myfits.h"
-// #include "mywcs.h"
 #include <omp.h>
 #include "../tools/cfitsioerrorcodes.h"
 
@@ -96,17 +95,8 @@ MyFITS::MyFITS(const MyFITS &myfits, QObject *parent) : QObject(parent)
     headerRef = myfits.headerRef;
     numExt = myfits.numExt;
     plateScale = myfits.plateScale;
-    hasWCS = myfits.hasWCS;
     naxis1 = myfits.naxis1;
     naxis2 = myfits.naxis2;
-    crval1 = myfits.crval1;
-    crval2 = myfits.crval2;
-    crpix1 = myfits.crpix1;
-    crpix2 = myfits.crpix2;
-    cd1_1 = myfits.cd1_1;
-    cd1_2 = myfits.cd1_2;
-    cd2_1 = myfits.cd2_1;
-    cd2_2 = myfits.cd2_2;
     data.resize(naxis1*naxis2);
     data = myfits.data;
 }
@@ -118,7 +108,6 @@ QString MyFITS::readFILTER()
     fitsfile *fptr = nullptr;
     initFITS(&fptr, &status);
     char filter[80];
-//    fits_open_file(&fptr, name.toUtf8().data(), READONLY, &status);
     fits_read_key_str(fptr, "FILTER", filter, NULL, &status);
     fits_close_file(fptr, &status);
     QString filterString(filter);
@@ -133,7 +122,6 @@ bool MyFITS::informSwarpfilter(long &naxis1, long &naxis2, double &crpix1, doubl
     int status = 0;
     fitsfile *fptr = nullptr;
     initFITS(&fptr, &status);
-//    fits_open_file(&fptr, name.toUtf8().data(), READONLY, &status);
     fits_read_key_dbl(fptr, "CRPIX1", &crpix1, NULL, &status);
     fits_read_key_dbl(fptr, "CRPIX2", &crpix2, NULL, &status);
     fits_read_key_lng(fptr, "NAXIS1", &naxis1, NULL, &status);
@@ -174,15 +162,12 @@ void MyFITS::readHeader(fitsfile **fptr, int *status)
 {
     if (*status) return;
     // Read the entire header. This should always work!
-//    char *fullheader = nullptr;
     fits_hdr2str(*fptr, 0, NULL, 0, &fullheader, &numHeaderKeys, status);
 
     fullheaderAllocated = true;
     if (*status) return;
 
     fullHeaderString = QString::fromUtf8(fullheader);
-    // freed in destructor
-    //    fits_free_memory(fullheader, status);
 
     // Map the header onto a QVector<QString>
     int cardLength = 80;
@@ -295,65 +280,13 @@ void MyFITS::erase()
     data.squeeze();
 }
 
-/*
-MyWCS MyFITS::loadWCS()
-{
-    int status = 0;
-    fitsfile *fptr = nullptr;
-    initFITS(&fptr, &status);
-    fits_read_key_dbl(fptr, "MJD-OBS", &mjdobs, NULL, status);
-//    getWCSheaderKeys(&fptr, &status);
-    fits_close_file(fptr, &status);
-
-    printerror(status);
-    if (status) {
-        hasWCS = false;
-        plateScale = 1.0;
-        return myWCS;
-    }
-    else {
-        hasWCS = true;
-        plateScale = myWCS.getPlateScale();
-        return myWCS;
-    }
-}
-*/
-
 void MyFITS::initWCS(int *status)
 {
     if (*status) return;
     for (auto &it : header) {
         extractKeywordLong(it, "NAXIS1", naxis1);
         extractKeywordLong(it, "NAXIS2", naxis2);
-//        extractKeywordLong(it, "NAXIS1", myWCS.naxis1);
-//        extractKeywordLong(it, "NAXIS2", myWCS.naxis2);
-//        extractKeywordDouble(it, "CRPIX1", myWCS.crpix1);
-//        extractKeywordDouble(it, "CRPIX2", myWCS.crpix2);
-//        extractKeywordDouble(it, "CRVAL1", myWCS.crval1);
-//        extractKeywordDouble(it, "CRVAL2", myWCS.crval2);
-//        extractKeywordDouble(it, "CD1_1", myWCS.cd1_1);
-//        extractKeywordDouble(it, "CD1_2", myWCS.cd1_2);
-//        extractKeywordDouble(it, "CD2_1", myWCS.cd2_1);
-//        extractKeywordDouble(it, "CD2_2", myWCS.cd2_2);
-//        extractKeywordFloat(it, "EQUINOX", myWCS.equinox);
     }
-//    myWCS.checkValidity();
-//    myWCS.getPlateScale();
-//    hasWCS = myWCS.isValid;
-//    plateScale = myWCS.plateScale;
-
-    // redundant, but needed (e.g. by Iview, which does not read the wcs object
-//    crpix1 = myWCS.crpix1;
-//    crpix2 = myWCS.crpix2;
-//    crval1 = myWCS.crval1;
-//    crval2 = myWCS.crval2;
-//    cd1_1 = myWCS.cd1_1;
-//    cd1_2 = myWCS.cd1_2;
-//    cd2_1 = myWCS.cd2_1;
-//    cd2_2 = myWCS.cd2_2;
-//    equinox = myWCS.equinox;
-//    if (naxis1 == 0) naxis1 = myWCS.naxis1;
-//    if (naxis2 == 0) naxis2 = myWCS.naxis2;
 }
 
 void MyFITS::initTHELIheader(int *status)
@@ -369,8 +302,10 @@ void MyFITS::initTHELIheader(int *status)
         extractKeywordFloat(it, "SKYVALUE", skyValue);
         extractKeywordFloat(it, "AIRMASS", airmass);
         extractKeywordFloat(it, "FWHM", fwhm);
+        extractKeywordFloat(it, "FWHMEST", fwhm_est);
         extractKeywordFloat(it, "GAIN", gain);
         extractKeywordFloat(it, "ELLIP", ellipticity);
+        extractKeywordFloat(it, "ELLIPEST", ellipticity_est);
         extractKeywordFloat(it, "RZP", RZP);
     }
     if (mjdobs != 0.0) hasMJDread = true;
@@ -439,24 +374,6 @@ void MyFITS::extractKeywordString(QString card, QString key, QString &value)
     key.append("=");
     if (card.contains(key)) value = card.split("=")[1].split("/")[0].simplified().remove("'");
 }
-
-/*
-void MyFITS::getWCSheaderKeys(fitsfile **fptr, int *status)
-{
-    if (*status) return;
-    fits_read_key_dbl(*fptr, "CRPIX1", &myWCS.crpix1, NULL, status);
-    fits_read_key_dbl(*fptr, "CRPIX2", &myWCS.crpix2, NULL, status);
-    fits_read_key_dbl(*fptr, "CRVAL1", &myWCS.crval1, NULL, status);
-    fits_read_key_dbl(*fptr, "CRVAL2", &myWCS.crval2, NULL, status);
-    fits_read_key_dbl(*fptr, "CD1_1", &myWCS.cd1_1, NULL, status);
-    fits_read_key_dbl(*fptr, "CD1_2", &myWCS.cd1_2, NULL, status);
-    fits_read_key_dbl(*fptr, "CD2_1", &myWCS.cd2_1, NULL, status);
-    fits_read_key_dbl(*fptr, "CD2_2", &myWCS.cd2_2, NULL, status);
-    fits_read_key_lng(*fptr, "NAXIS1", &myWCS.naxis1, NULL, status);
-    fits_read_key_lng(*fptr, "NAXIS2", &myWCS.naxis2, NULL, status);
-    fits_read_key_dbl(*fptr, "MJD-OBS", &mjdobs, NULL, status);
-}
-*/
 
 void MyFITS::propagateHeader(fitsfile *fptr, QVector<QString> header)
 {

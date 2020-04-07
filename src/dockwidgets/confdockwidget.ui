@@ -472,7 +472,7 @@
        <number>1</number>
       </property>
       <property name="currentIndex">
-       <number>6</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="HDUpage">
        <layout class="QGridLayout" name="gridLayout_31">
@@ -21455,7 +21455,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                 <bool>true</bool>
                </property>
                <property name="currentIndex">
-                <number>1</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="page">
                 <layout class="QGridLayout" name="gridLayout_36">
@@ -22068,7 +22068,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                  <item row="2" column="0">
                   <widget class="QLabel" name="ARCraLabel">
                    <property name="text">
-                    <string>RA</string>
+                    <string>R.A.</string>
                    </property>
                    <property name="buddy">
                     <cstring>ARCraLineEdit</cstring>

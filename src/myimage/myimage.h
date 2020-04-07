@@ -174,17 +174,14 @@ public:
     QString baseNameBackupL3 = "";
     MyFITS *imageFITS = nullptr;
     MyFITS *weightFITS = nullptr;
-//    MyWCS myWCS;
     bool makeBackup = true;  // used when reading an image for the first time in the pipeline context
     bool metadataTransferred = false;
     int groupNumber = -1; // The association of images this image belongs to (an overlapping group on sky)
 
     bool minimizeMemoryUsage = false;
     bool headerInfoProvided = false;
-
     bool processingFinished = false;          // Reset to false every time a process starts; If finised, external jobs use this flag to force a
                                               // dump to drive to be able to release memory
-
     bool isTaskRepeated = false;
 
     QList<DetectedObject*> objectList;
@@ -199,8 +196,6 @@ public:
     int chipNumber = 0;
     int naxis1 = 0;
     int naxis2 = 0;
-    //    int naxis1_split = 0;   // must remember size before overscan trimming, in case we go back and redo a task
-    //    int naxis2_split = 0;
 
     float matchingTolerance = 2./3600.;   // default matching tolerance = 2 arcsec;
 
@@ -220,7 +215,6 @@ public:
     bool headerRead = false;
     bool modeDetermined = false;
     bool hasMJDread = false;
-    bool hasWCS = false;
     bool validFile = true;         // Is the file valid
     bool validMode = true;         // Is the statistical mode within accepted range
     bool validBackground = true;   // Is the image accepted to contribute to a background model (no if e.g. bright star)
@@ -230,11 +224,13 @@ public:
     double crval1 = 0.;
     double crval2 = 0.;
     double mjdobs = 0;
-    float fwhm = 0;
+    float fwhm = -1.0;             // FWHM estimate based on GAIA point sources
+    float fwhm_est = -1.0;         // median FWHM of all detected sources in an image
     float RZP = 0;                 // SCAMP output
     float exptime = 0;
     float airmass = 1.0;
-    float ellipticity = 0.;
+    float ellipticity = -1.0;      // estimate based on GAIA point sources
+    float ellipticity_est = -1.0;  // median ellipticity based on all detected sources
     float FLXSCALE = 0.;           // SCAMP output
     float skyValue = -1e9;         // previously set to zero
     float skySigma = -1;
@@ -301,15 +297,6 @@ public:
     bool allocatedImageFITS = false;
 
     // =============== Astrometric solution ===================
-    double astromCRVAL1 = 0.;
-    double astromCRVAL2 = 0.;
-    double astromCD11 = 0.;
-    double astromCD12 = 0.;
-    double astromCD21 = 0.;
-    double astromCD22 = 0.;
-    float astromCRPIX1 = 0.;
-    float astromCRPIX2 = 0.;
-    float astromRZP = 0.;
     QVector<float> dataXcorr;
 
     // ================= BACKGROUND MODELING ===========================
@@ -452,6 +439,7 @@ public:
     void dumpToDriveIfPossible();
     bool containsRaDec(QString alphaStr, QString deltaStr);
     double getPlateScale();
+    void calcMedianSeeingEllipticitySex();
 signals:
     void modelUpdateNeeded(QString baseName, QString chipName);
     void messageAvailable(QString message, QString type);

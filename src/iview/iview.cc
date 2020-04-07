@@ -218,7 +218,7 @@ void IView::setCurrentId(QString filename)
     // The number of the file in the list of all images (PNG or FITS) in this directory
     if (filterName.isEmpty() || icdw->ui->filterLineEdit->text().isEmpty()) {
         if (displayMode != "SCAMP") filterName = "*.fits";
-        filterName = "*.png";
+        else filterName = "*.png";
         icdw->ui->filterLineEdit->setText(filterName);
     }
     setImageList(filterName);
@@ -232,7 +232,7 @@ void IView::loadImage()
 {
     QString filter = icdw->ui->filterLineEdit->text();
     if (filter.isEmpty()
-            || !filter.contains(".fits")
+            || !filter.contains(".fit")
             || !filter.contains("*")) {
         filter = "*.fits";
         icdw->ui->filterLineEdit->setText(filter);
@@ -245,6 +245,7 @@ void IView::loadImage()
                                              tr("Images and Scamp checkplots (")+filter+" *.png)");
     }
     else {
+        filter = "*.fits *.fit";
         currentFileName =
         QFileDialog::getOpenFileName(this, tr("Select image"), dirName,
                                      tr("Images ")+filter);
@@ -470,33 +471,10 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     }
     naxis1 = it->naxis1;
     naxis2 = it->naxis2;
-//    crval1 = it->crval1;
-//    crval2 = it->crval2;
     plateScale = it->plateScale;
- //   hasWCS = true;
     naxis1 = it->naxis1;
     naxis2 = it->naxis2;
     wcs = it->wcs;
- //   if (it->hasWCS) {
-        /*
-                cd1_1 = it->wcs->cd[0];
-                cd1_2 = it->wcs->cd[1];
-                cd2_1 = it->wcs->cd[2];
-                cd2_2 = it->wcs->cd[3];
-            */
-  //  }
- //  else {
-//        crval1 = 0.;
-//        crval2 = 0.;
-//        crpix1 = naxis1 / 2.;
-//        crpix2 = naxis2 / 2.;
-        /*
-                cd1_1 = -1.*it->plateScale/3600.;
-                cd1_2 = 0.;
-                cd2_1 = 0.;
-                cd2_2 = 1.*it->plateScale/3600.;
-        */
- //   }
     this->setWindowTitle("iView --- Memory viewer : "+it->chipName);
 
     // Get the dynamic range
@@ -583,16 +561,7 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
         filename.replace(".fits", ".weight.fits");
     }
     MyFITS image(filename, "Read");
-//    crpix1 = image.crpix1;
-//    crpix2 = image.crpix2;
-//    crval1 = image.crval1;
-//    crval2 = image.crval2;
-//    cd1_1 = image.cd1_1;
-//    cd1_2 = image.cd1_2;
-//    cd2_1 = image.cd2_1;
-//    cd2_2 = image.cd2_2;
     plateScale = image.plateScale;
- //   hasWCS = image.hasWCS;
     naxis1 = image.naxis1;
     naxis2 = image.naxis2;
 
@@ -972,26 +941,6 @@ void IView::sky2xy(double alpha, double delta, double &x, double &y)
     x = pixcrd[0];
     y = naxis2 - pixcrd[1];
 }
-
-// Unused
-/*
-        void IView::sky2xy_linear(double alpha, double delta, double &x, double &y)
-        {
-            double pi = 3.14159265;
-            double cosd = cos(delta * pi/180.);
-            double cd12 = cd1_2;
-            // for some reason the y-axis is sheared, probably because y starts at the top and not at the bottom
-            // in QImage, differential with respect
-            double cd21 = cd2_1;
-            double cd11 = cd1_1;
-            double cd22 = cd2_2;
-            double detCD = (cd11 * cd22 - cd12 * cd21);
-            x = ( (alpha-crval1)*cd22*cosd - cd12*cd21*crpix1 + cd11*cd22*crpix1 + (crval2-delta)*cd12) / detCD;
-            y = ( (crval1-alpha)*cd21*cosd - cd12*cd21*crpix2 + cd11*cd22*crpix2 + (delta-crval2)*cd11) / detCD;
-            // flip y
-            y = naxis2 - y;
-        }
-        */
 
 QString IView::dec2hex(double angle)
 {

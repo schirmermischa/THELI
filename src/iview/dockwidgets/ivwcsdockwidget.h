@@ -30,6 +30,10 @@ private slots:
     void on_plateScaleSlider_sliderMoved(int position);
     void on_posAngleSlider_sliderMoved(int position);
     void on_resetPushButton_clicked();
+    void on_cd11Slider_sliderReleased();
+    void on_cd12Slider_sliderReleased();
+    void on_cd21Slider_sliderReleased();
+    void on_cd22Slider_sliderReleased();
 
 private:
     Ui::IvWCSDockWidget *ui;
@@ -48,6 +52,7 @@ private:
 
 signals:
     void CDmatrixChanged(double cd11, double cd12, double cd21, double cd22);
+    void CDmatrixChangedFITS(double cd11, double cd12, double cd21, double cd22);
     void CRPIXchanged(double crpix);
 };
 

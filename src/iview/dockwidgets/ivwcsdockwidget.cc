@@ -175,3 +175,23 @@ void IvWCSDockWidget::restoreSliders()
     ui->plateScaleSlider->setValue(0);
     ui->posAngleSlider->setValue(0);
 }
+
+void IvWCSDockWidget::on_cd11Slider_sliderReleased()
+{
+    emit CDmatrixChangedFITS(cd11, cd12, cd21, cd22);
+}
+
+void IvWCSDockWidget::on_cd12Slider_sliderReleased()
+{
+    emit CDmatrixChangedFITS(cd11, cd12, cd21, cd22);
+}
+
+void IvWCSDockWidget::on_cd21Slider_sliderReleased()
+{
+    emit CDmatrixChangedFITS(cd11, cd12, cd21, cd22);
+}
+
+void IvWCSDockWidget::on_cd22Slider_sliderReleased()
+{
+    emit CDmatrixChangedFITS(cd11, cd12, cd21, cd22);
+}

@@ -391,13 +391,13 @@ void MyImage::transferMetadataToMyImage()
     naxis1 = imageFITS->naxis1;
     naxis2 = imageFITS->naxis2;
     bitpix = imageFITS->bitpix;
-//    crval1 = imageFITS->crval1;
-//    crval2 = imageFITS->crval2;
     exptime = imageFITS->exptime;
     airmass = imageFITS->airmass;
     fwhm = imageFITS->fwhm;
+    fwhm_est = imageFITS->fwhm_est;
     gain = imageFITS->gain;
     ellipticity = imageFITS->ellipticity;
+    ellipticity_est = imageFITS->ellipticity_est;
     RZP = imageFITS->RZP;
     dateobs = imageFITS->dateobs;
     gainNormalization = imageFITS->gainNormalization;
@@ -405,15 +405,7 @@ void MyImage::transferMetadataToMyImage()
 
     getPlateScale();
 
-    /*
-    if (processingStatus->statusString.isEmpty()) {
-        // We are reading a split image. Store its size (before overscan trimming)
-        naxis1_split = naxis1;
-        naxis2_split = naxis2;
-    }
-    */
     dim = naxis1*naxis2;
-//    myWCS = imageFITS->myWCS;
     skyValue = imageFITS->skyValue;
     if (skyValue != -1e9) modeDetermined = true;
     else modeDetermined = false;
@@ -450,16 +442,6 @@ bool MyImage::scanAstromHeader(int chip, QString mode)
         if (line.isEmpty()) continue;
         QStringList list = line.split(" ");
         if (list.length() < 3) continue;
-        /*
-        if (line.contains("CRVAL1")) astromCRVAL1 = list[2].toDouble();
-        if (line.contains("CRVAL2")) astromCRVAL2 = list[2].toDouble();
-        if (line.contains("CRPIX1")) astromCRPIX1 = list[2].toFloat();
-        if (line.contains("CRPIX2")) astromCRPIX2 = list[2].toFloat();
-        if (line.contains("CD1_1")) astromCD11 = list[2].toDouble();
-        if (line.contains("CD1_2")) astromCD12 = list[2].toDouble();
-        if (line.contains("CD2_1")) astromCD21 = list[2].toDouble();
-        if (line.contains("CD2_2")) astromCD22 = list[2].toDouble();
-        */
         if (line.contains("CRVAL1")) wcs->crval[0] = list[2].toDouble();
         if (line.contains("CRVAL2")) wcs->crval[1] = list[2].toDouble();
         if (line.contains("CRPIX1")) wcs->crpix[0] = list[2].toFloat();
@@ -711,35 +693,6 @@ void MyImage::transferDataToMyWeight()
     weightFITS->data.squeeze();
 }
 
-/*
-void MyImage::resetDataCurrent(QString statusBackup)
-{
-    if (!successProcessing) return;
-
-    // Return if image isn't yet in memory (will crash otherwise).
-    // This function is only called after MyImage->readImage(), hence the image should always be in memory
-    if (!imageInMemory) {
-        qDebug() << "QDEBUG: MyImage::resetDataCurrent(): Image not loaded. This should never happen!";
-        return;
-    }
-
-    // Reset the status to backup status
-    processingStatus->statusString = statusBackupL1;
-
-    // Copy level 1 backup data into dataCurrent
-    if (processingStatus->statusString.isEmpty()) {
-        if (naxis1_split == 0) {
-            qDebug() << "QDEBUG: MyImage::ERROR: image size for split image not defined. Cannot restore previous state!";
-        }
-        else {
-            naxis1 = naxis1_split;
-            naxis2 = naxis2_split;
-        }
-    }
-    dataCurrent = dataBackupL1;
-}
-*/
-
 // Flag the image if its mode is outside the acceptable range
 void MyImage::setModeFlag(QString min, QString max)
 {
@@ -970,8 +923,6 @@ void MyImage::makeCutout(long xmin, long xmax, long ymin, long ymax)
 
     naxis1 = nsub;
     naxis2 = msub;
-    //    myWCS.crpix1 = myWCS.crpix1 - xmin + 1;
-    //    myWCS.crpix2 = myWCS.crpix2 - ymin + 1;
     wcs->crpix[0] = wcs->crpix[0]- xmin + 1;
     wcs->crpix[1] = wcs->crpix[1] - ymin + 1;
     wcs->flag = 0;
@@ -1135,17 +1086,6 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
     }
     else zeroheadString.fromLatin1(zerohead);
 
-    /*
-    fits_update_key_dbl(fptr, "CRVAL1", astromCRVAL1, 9, nullptr, &status);
-    fits_update_key_dbl(fptr, "CRVAL2", astromCRVAL2, 9, nullptr, &status);
-    fits_update_key_flt(fptr, "CRPIX1", astromCRPIX1, 3, nullptr, &status);
-    fits_update_key_flt(fptr, "CRPIX2", astromCRPIX2, 3, nullptr, &status);
-    fits_update_key_dbl(fptr, "CD1_1", astromCD11, 9, nullptr, &status);
-    fits_update_key_dbl(fptr, "CD1_2", astromCD12, 9, nullptr, &status);
-    fits_update_key_dbl(fptr, "CD2_1", astromCD21, 9, nullptr, &status);
-    fits_update_key_dbl(fptr, "CD2_2", astromCD22, 9, nullptr, &status);
-    */
-
     fits_update_key_dbl(fptr, "CRVAL1", wcs->crval[0], 9, nullptr, &status);
     fits_update_key_dbl(fptr, "CRVAL2", wcs->crval[1], 9, nullptr, &status);
     fits_update_key_flt(fptr, "CRPIX1", wcs->crpix[0], 3, nullptr, &status);
@@ -1173,44 +1113,11 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
     printCfitsioError("updateZeroOrderOnDrive()", status);
 }
 
-// Used by iview
-//UNUSED
-/*
-void MyImage::updateCRPIXOnDrive()
-{
-    //    qDebug() << "H1" << successProcessing << imageOnDrive;
-    if (!successProcessing) return;
-    //    qDebug() << "H2" << path << chipName << processingStatus->statusString;
-
-    int status = 0;
-    fitsfile *fptr = nullptr;
-    fits_open_file(&fptr, (path+"/"+chipName+processingStatus->statusString+".fits").toUtf8().data(), READWRITE, &status);
-    fits_update_key_flt(fptr, "CRPIX1", astromCRPIX1, 3, nullptr, &status);
-    fits_update_key_flt(fptr, "CRPIX2", astromCRPIX2, 3, nullptr, &status);
-    fits_close_file(fptr, &status);
-    //    qDebug() << "H3" << status;
-    printCfitsioError("updateZeroOrderOnDrive()", status);
-}
-*/
-
 void MyImage::updateZeroOrderInMemory()
 {
     if (!successProcessing) return;
 
     // Update the data in memory
-    // TODO: if no more issues with wcslib, we can remove all use of myWCS
-
-    /*
-    myWCS.crval1 = astromCRVAL1;
-    myWCS.crval2 = astromCRVAL2;
-    myWCS.crpix1 = astromCRPIX1;
-    myWCS.crpix2 = astromCRPIX2;
-    myWCS.cd1_1 = astromCD11;
-    myWCS.cd1_2 = astromCD12;
-    myWCS.cd2_1 = astromCD21;
-    myWCS.cd2_2 = astromCD22;
-    */
-
     // WCSLIB threading issue (probably solved by wcsLock in transferWCS()
     // Can be removed if we don't see this again
     if (wcs->naxis != 2) {
@@ -1226,20 +1133,6 @@ void MyImage::updateZeroOrderInMemory()
             emit messageAvailable(chipName + " : Reload success!", "note");
         }
     }
-
-    // TODO: could be moved into scanAstromheader()
-    /*
-    wcs->crval[0] = astromCRVAL1;
-    wcs->crval[1] = astromCRVAL2;
-    wcs->crpix[0] = astromCRPIX1;
-    wcs->crpix[1] = astromCRPIX2;
-    wcs->cd[0] = astromCD11;
-    wcs->cd[1] = astromCD12;
-    wcs->cd[2] = astromCD21;
-    wcs->cd[3] = astromCD22;
-
-    wcs->flag = 0;
-    */
 
     cornersToRaDec();
 }
@@ -1271,14 +1164,6 @@ void MyImage::updateCRVALCDinHeaderOnDrive()
     int status = 0;
     fitsfile *fptr = nullptr;
     fits_open_file(&fptr, (outfile).toUtf8().data(), READWRITE, &status);
-    /*
-    fits_update_key_dbl(fptr, "CRVAL1", crval1, 6, nullptr, &status);
-    fits_update_key_dbl(fptr, "CRVAL2", crval2, 6, nullptr, &status);
-    fits_update_key_flt(fptr, "CD1_1", myWCS.cd1_1, 6, nullptr, &status);
-    fits_update_key_flt(fptr, "CD1_2", myWCS.cd1_2, 6, nullptr, &status);
-    fits_update_key_flt(fptr, "CD2_1", myWCS.cd2_1, 6, nullptr, &status);
-    fits_update_key_flt(fptr, "CD2_2", myWCS.cd2_2, 6, nullptr, &status);
-    */
     fits_update_key_dbl(fptr, "CRVAL1", wcs->crval[0], 6, nullptr, &status);
     fits_update_key_dbl(fptr, "CRVAL2", wcs->crval[1], 6, nullptr, &status);
     fits_update_key_flt(fptr, "CD1_1", wcs->cd[0], 6, nullptr, &status);
@@ -1360,14 +1245,6 @@ void MyImage::checkBrightStars(QList<QVector<double>> &brightStarList, float saf
 
     hasBrightStars = false;
 
-    //    if (!hasWCS) myWCS = imageFITS->loadWCS();
-    //    if (myWCS.naxis1 == 0) {
-    //        emit messageAvailable("MyImage::checkBrightStars(): " + baseName + " : Could not load WCS!", "error");
-    //        emit critical();
-    //        successProcessing = false;
-    //        return;
-    //    }
-
     // Loop over all bright stars and check whether they are inside the chip
     for (auto &it : brightStarList) {
         QVector<double> raVec;
@@ -1436,25 +1313,11 @@ bool MyImage::containsRaDec(QString alphaStr, QString deltaStr)
 // TODO: check against wcslib whether valid or not
 void MyImage::cornersToRaDec()
 {
-    //    if (myWCS.isValid) {
-    // Convert the cartesian image vertices to RA/DEC
-    /*
-        myWCS.xy2sky(1, 1, alpha_ll, delta_ll);
-        myWCS.xy2sky(naxis1, 1, alpha_lr, delta_lr);
-        myWCS.xy2sky(1, naxis2, alpha_ul, delta_ul);
-        myWCS.xy2sky(naxis1, naxis2, alpha_ur, delta_ur);
-        */
-    // using wcslib
-    //        QTest::qWait(100);
-    // without the qwait(), sometimes wcslib stumbles and does not calculate the values correctly in multi-threaded mode.
-    // Update: setting wcsLock in transferWCS()
     xy2sky(1, 1, alpha_ll, delta_ll);
     xy2sky(naxis1, 1, alpha_lr, delta_lr);
     xy2sky(1, naxis2, alpha_ul, delta_ul);
     xy2sky(naxis1, naxis2, alpha_ur, delta_ur);
     xy2sky(naxis1/2, naxis2/2, alpha_ctr, delta_ctr);
-    //        qDebug() << baseName << alpha_ctr << delta_ctr << alpha_ul << alpha_ll << delta_ul << delta_ll;
-    //    }
 }
 
 QVector<float> MyImage::retainUnmaskedDataThresholded(float minVal, float maxVal, int sampleDensity)

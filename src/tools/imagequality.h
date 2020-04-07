@@ -39,6 +39,7 @@ public:
     QString baseName;
     double fwhm = -1.0;
     double ellipticity = -1.0;
+    long numSources = 0;
 
     QVector<double> source;
     QVector<QVector<double>> sourceCat;

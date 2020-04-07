@@ -583,7 +583,7 @@ void Query::processGaiaCatalog()
     QFile outcat_iview(outpath+"/theli_pointsources.iview");
     QTextStream stream_iview(&outcat_iview);
     if( !outcat_iview.open(QIODevice::WriteOnly)) {
-        emit messageAvailable("Query::processGaiaCatalog(): ERROR writing "+outpath+outcat_iview.fileName()+" : "+outcat_iview.errorString(), "error");
+        emit messageAvailable("Query::processGaiaCatalog(): "+outpath+outcat_iview.fileName()+" : "+outcat_iview.errorString(), "error");
         emit critical();
         return;
     }
@@ -597,7 +597,7 @@ void Query::processGaiaCatalog()
                 || line.contains("deg")
                 || line.contains("RA")
                 || line.contains("---")) continue;
-        QString result = extractRaDecGaia(line);
+        QString result = extractRaDecGaia(line);         // includes point source filtering
         if (!result.isEmpty()) {
             stream_iview << result << "\n";
             ++numSources;
@@ -607,7 +607,7 @@ void Query::processGaiaCatalog()
     outcat_iview.close();
     outcat_iview.setPermissions(QFile::ReadUser | QFile::WriteUser);
 
-    pushNumberOfSources();     // display number of refcat sources
+//    pushNumberOfSources();     // display number of refcat sources
 
     dumpRefcatID();            // writes refcat/.refcatID, used to check whether the catalog needs to be recreated
 }
@@ -951,7 +951,7 @@ QString Query::extractRaDecGaia(QString &line)
     float sn;
     if (e_pm <= 0.) sn = 0.;
     else sn = pm / e_pm;
-    // Minimum SN to detect a moving point source: Should be 95% credible for our purposes
+    // Minimum SN for the proper motion detection: 95% confidence, and therefore it must be a point source (stars move, distant galaxies don't)
     if (sn < 2.) return "";
 
     // Correct coordinates for proper motion.

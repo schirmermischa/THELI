@@ -192,6 +192,7 @@ void MyImage::segmentImage(QString DTstring, QString DMINstring, bool convolutio
     if (writeSegImage) writeSegmentation(path + "/" + baseName+".seg.fits");
 }
 
+// getting a rough first estimate ion image quality; refined after astrometric solution
 void MyImage::calcMedianSeeingEllipticity()
 {
     QVector<double> fwhmVec;
@@ -204,10 +205,10 @@ void MyImage::calcMedianSeeingEllipticity()
             ellipticityVec.append(float(object->ELLIPTICITY));
         }
     }
-    fwhm = straightMedianInline(fwhmVec);
-    ellipticity = straightMedianInline(ellipticityVec);
-    updateHeaderValueInFITS("FWHM", QString::number(fwhm, 'f', 2));
-    updateHeaderValueInFITS("ELLIP", QString::number(ellipticity, 'f', 3));
+    fwhm_est = straightMedianInline(fwhmVec) * plateScale;
+    ellipticity_est = straightMedianInline(ellipticityVec);
+    updateHeaderValueInFITS("FWHMEST", QString::number(fwhm_est, 'f', 2));
+    updateHeaderValueInFITS("ELLIPEST", QString::number(ellipticity_est, 'f', 3));
 }
 
 // Flood fill an individual object with the objectID and calculate object area
@@ -389,7 +390,6 @@ void MyImage::collectSeeingParameters(QVector<QVector<double>> &outputParams, QV
             double raNew;
             double decNew;
             xy2sky(object->XWIN, object->YWIN, raNew, decNew);
-//          myWCS.xy2sky(object->XWIN, object->YWIN, raNew, decNew);
             // must pass dec first for tools::match2D() method
             if (object->FLAGS == 0) {
                 param << decNew << raNew << object->FWHM << object->ELLIPTICITY;
@@ -497,7 +497,6 @@ void MyImage::collectSeeingParameters(QVector<QVector<double>> &outputParams, QV
             // Must recalculate RA and DEC after astrometry
             double raNew;
             double decNew;
-            // myWCS.xy2sky(xwin[i], ywin[i], raNew, decNew);
             xy2sky(xwin[i], ywin[i], raNew, decNew);
             // must pass dec first for tools::match2D() method
             // Only clean detections wanted!

@@ -142,14 +142,6 @@ void ColorPicture::taskInternalCropCoadds()
     QVector<float> d2;
     for (int i=0; i<coaddList.length(); ++i) {
         auto &it = coaddList[i];
-        /*
-        crpix1 << it->myWCS.crpix1;
-        crpix2 << it->myWCS.crpix2;
-        naxis1 << it->myWCS.naxis1;
-        naxis2 << it->myWCS.naxis2;
-        d1 << it->myWCS.naxis1 - it->myWCS.crpix1;
-        d2 << it->myWCS.naxis2 - it->myWCS.crpix2;
-        */
         crpix1 << it->wcs->crpix[0];
         crpix2 << it->wcs->crpix[1];
         naxis1 << it->naxis1;

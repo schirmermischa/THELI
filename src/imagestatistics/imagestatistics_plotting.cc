@@ -25,7 +25,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../iview/iview.h"
 #include "../myfits/myfits.h"
 #include "../myimage/myimage.h"
-#include "../mywcs.h"
 
 #include <QSettings>
 #include <QValidator>
@@ -73,11 +72,15 @@ void ImageStatistics::plot(QString init)
     rectSky->axis(QCPAxis::atLeft)->setLabel("Background [ e- ]");
     rectAirmass->axis(QCPAxis::atLeft)->setLabel("Airmass");
     rectAirmass->axis(QCPAxis::atLeft)->setRangeReversed(true);
-    rectSeeing->axis(QCPAxis::atLeft)->setLabel("Seeing [ arcsec ]");
+    QString unit = ui->fwhmunitsComboBox->currentText();
+    if (seeingFromGaia || !seeingData) rectSeeing->axis(QCPAxis::atLeft)->setLabel("Stellar FWHM [ "+unit+" ]");
+    else rectSeeing->axis(QCPAxis::atLeft)->setLabel("Median FWHM [ "+unit+" ]");
+
     //    rectSeeing->addAxis(QCPAxis::atRight)->setLabel("Seeing [ pixel ]");
     //    QCPAxis *seeingPixelAxis = rectSeeing->axis(QCPAxis::atRight);
     rectRZP->axis(QCPAxis::atLeft)->setLabel("Relative zeropoint [ mag ]");
-    rectEllipticity->axis(QCPAxis::atLeft)->setLabel("Ellipticity");
+    if (seeingFromGaia || !ellipticityData) rectEllipticity->axis(QCPAxis::atLeft)->setLabel("Stellar ellipticity [ % ]");
+    else rectEllipticity->axis(QCPAxis::atLeft)->setLabel("Median ellipticity [ % ]");
 
     subLayout->addElement(0, 0, rectSky);
     subLayout->addElement(0, 1, rectAirmass);
@@ -131,7 +134,11 @@ void ImageStatistics::plot(QString init)
             it->setData(dataImageNr, dataPtr);
         }
         else if (it == seeingGraph) {
+            float unitsRescale = 1.0;
+            if (ui->fwhmunitsComboBox->currentText() == "arcsec") unitsRescale = 1.0;
+            else unitsRescale = instData->pixscale;
             dataPtr = dataFWHM;
+            for (auto &it : dataPtr) it /= unitsRescale;
             it->setSelectionDecorator(decoratorSeeing);
             //            if (seeingData)
             it->setData(dataImageNr, dataPtr);
