@@ -176,9 +176,9 @@ QRect IView::adjustGeometry()
 void IView::setImageList(QString filter)
 {
     QDir dir(dirName);
-    QStringList filterList;
+    QStringList filterList = filter.split(" ");
     if (dir.exists()) {
-        filterList << filter;
+//        filterList << filter;
         dir.setNameFilters(filterList);
         imageList = dir.entryList();
     }
@@ -928,6 +928,8 @@ bool IView::readRaDecCatalog(QString fileName, QList<QGraphicsRectItem*> &items,
 
 void IView::sky2xy(double alpha, double delta, double &x, double &y)
 {
+    if (!wcsInit) return;
+
     double world[2];
     double phi;
     double theta;

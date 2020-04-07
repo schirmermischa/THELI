@@ -964,7 +964,6 @@ void Controller::releaseMemory(float RAMneededThisThread, int numThreads, QStrin
     if (RAMfreed >= RAMneededThisThread && RAMwasReallyReleased) {
         if (verbosity >= 2) emit messageAvailable("Released "+QString::number(long(RAMfreed)) + " MB", "note");
     }
-
 }
 
 // This function is called after each task to respect the maximum amount of memory allowed by the user.

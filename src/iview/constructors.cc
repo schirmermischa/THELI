@@ -295,7 +295,7 @@ IView::IView(QString mode, QString dirname, QString fileName, QString filter, QW
     ui->setupUi(this);
     initGUI();
 
-    //    qDebug() << "mode imstatistics 2:" << mode;
+    // qDebug() << "mode imstatistics 2:" << mode << filterName;
 
     icdw->ui->filterLineEdit->setText(filterName);
     icdw->zoom2scale(zoomLevel);

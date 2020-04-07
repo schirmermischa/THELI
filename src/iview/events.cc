@@ -180,6 +180,8 @@ void IView::adjustBrightnessContrast(QPointF point)
 
 double IView::haversine(double x1, double y1, double x2, double y2)
 {
+    if (!wcsInit) return 0.;
+
     double world1[2];
     double world2[2];
     double phi;
@@ -430,12 +432,16 @@ void IView::drawSkyRectangle(QPointF pointStart, QPointF pointEnd)
 
 void IView::middlePressResetCRPIXreceived()
 {
+    if (!wcsInit) return;
+
     crpix1_start = wcs->crpix[0];
     crpix2_start = wcs->crpix[1];
 }
 
 void IView::updateCRPIX(QPointF pointStart, QPointF pointEnd)
 {
+    if (!wcsInit) return;
+
     // Do nothing if no refcat items are displayed.
     if (refCatItems.isEmpty()) return;
 
@@ -457,6 +463,8 @@ void IView::updateCRPIX(QPointF pointStart, QPointF pointEnd)
 
 void IView::updateCDmatrix(double cd11, double cd12, double cd21, double cd22)
 {
+    if (!wcsInit) return;
+
     // Do nothing if no refcat items are displayed.
     if (refCatItems.isEmpty()) return;
 
@@ -478,6 +486,8 @@ void IView::updateCDmatrix(double cd11, double cd12, double cd21, double cd22)
 // Called when middle mouse button is released in wcs mode
 void IView::updateCRPIXFITS()
 {
+    if (!wcsInit) return;
+
     // Do nothing if no refcat items are displayed.
     if (refCatItems.isEmpty()) return;
 
@@ -496,6 +506,8 @@ void IView::updateCRPIXFITS()
 // Called when slider is released in wcs mode
 void IView::updateCDmatrixFITS()
 {
+    if (!wcsInit) return;
+
     // Do nothing if no refcat items are displayed.
     if (refCatItems.isEmpty()) return;
 
@@ -639,6 +651,8 @@ void IView::clearSeparationVector()
 
 void IView::xy2sky(double x, double y, QString button)
 {
+    if (!wcsInit) return;
+
     double world[2];
     double phi;
     double theta;
