@@ -463,10 +463,10 @@ void Controller::coaddPrepareProjectRotation()
 
     // PA of the original data (taken from first image)
 
-    double cd11 = coaddScienceData->myImageList[0][0]->myWCS.cd1_1;
-    double cd12 = coaddScienceData->myImageList[0][0]->myWCS.cd1_2;
-    double cd21 = coaddScienceData->myImageList[0][0]->myWCS.cd2_1;
-    double cd22 = coaddScienceData->myImageList[0][0]->myWCS.cd2_2;
+    double cd11 = coaddScienceData->myImageList[0][0]->wcs->cd[0];
+    double cd12 = coaddScienceData->myImageList[0][0]->wcs->cd[1];
+    double cd21 = coaddScienceData->myImageList[0][0]->wcs->cd[2];
+    double cd22 = coaddScienceData->myImageList[0][0]->wcs->cd[3];
     double PAold = -1. * getPosAnglefromCD(cd11, cd12, cd21, cd22);
     double PAnew = cdw->ui->COAskypaLineEdit->text().toDouble();
 

@@ -556,16 +556,6 @@ void Data::forceStatus(int chip, QString status)
     }
 }
 
-// Reset MyImage::dataCurrent to MyImage::dataX, depending on processing status
-/*
-void Data::resetDataCurrentToBackup(int chip)
-{
-    for (auto &it : myImageList[chip]) {
-        it->resetDataCurrentToBackup();
-    }
-}
-*/
-
 void Data::resetSuccessProcessing()
 {
     successProcessing = true;
@@ -1698,13 +1688,16 @@ float Data::memoryCurrentFootprint(bool globalweights)
             || !processingStatus->HDUreformat
             || !dataInitialized) return 0.;   // MyImageList undefined, or no data loaded yet
 
+    long debayerCorrection = 1;
+    if (currentlyDebayering) debayerCorrection = 4;
+
     // For an unknown reason, I cannot access myImageList for GLOBALWEIGHTS when changing a project; memoryprogressbar then crashes the UI
     if (!globalweights) {
         if (!myImageList.isEmpty()) {  // e.g. if RAWDATA are restored
             for (int chip=0; chip<instData->numChips; ++chip) {
                 if (instData->badChips.contains(chip)) continue;
                 for (auto &it: myImageList[chip]) {
-                    footprint += it->dataCurrent.capacity() * sizeof(float);
+                    footprint += it->dataCurrent.capacity() * sizeof(float) * debayerCorrection;   // debayered images are not mapped here while still being created
                     footprint += it->dataBackupL1.capacity() * sizeof(float);
                     footprint += it->dataBackupL2.capacity() * sizeof(float);
                     footprint += it->dataBackupL3.capacity() * sizeof(float);
@@ -1799,7 +1792,7 @@ float Data::releaseMemory(float RAMneededThisThread, float RAMneededAllThreads, 
     float RAMfreed = 0.;
 
     // We release memory in a different order, depending on the process:
-    // If creating master calibrators, we we release the previous master calibs and then the raw data.
+    // If creating master calibrators, we release the previous master calibs and then the raw data.
     // If we calibrate the science data, we release the raw data in the calibrators first, and then the combined images
     if (mode == "calibrator") {
         releaseMemoryCombined(RAMfreed, RAMneededThisThread);
@@ -2228,8 +2221,8 @@ bool Data::getPointingCharacteristics()
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : myImageList[chip]) {
             it->provideHeaderInfo();
-            crval1Exposure << it->crval1;
-            crval2Exposure << it->crval2;
+            crval1Exposure << it->wcs->crval[0];
+            crval2Exposure << it->wcs->crval[1];
             crval1Vertex << it->alpha_ll;
             crval1Vertex << it->alpha_lr;
             crval1Vertex << it->alpha_ul;
@@ -2317,12 +2310,12 @@ QVector<double> Data::getKeyFromAllImages(QString key)
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : myImageList[chip]) {
             if (!it->metadataTransferred) it->provideHeaderInfo();  // needed if data requested immediately after launch
-            if (key == "CRVAL1") data << it->myWCS.crval1;
-            else if (key == "CRVAL2") data << it->myWCS.crval2;
-            else if (key == "CRPIX1") data << it->myWCS.crpix1;
-            else if (key == "CRPIX2") data << it->myWCS.crpix2;
-            else if (key == "NAXIS1") data << it->myWCS.naxis1;
-            else if (key == "NAXIS2") data << it->myWCS.naxis2;
+            if (key == "CRVAL1") data << it->wcs->crval[0];
+            else if (key == "CRVAL2") data << it->wcs->crval[1];
+            else if (key == "CRPIX1") data << it->wcs->crpix[0];
+            else if (key == "CRPIX2") data << it->wcs->crpix[1];
+            else if (key == "NAXIS1") data << it->naxis1;
+            else if (key == "NAXIS2") data << it->naxis2;
             else if (key == "CORNERS_CRVAL1") {
                 data << it->alpha_ll;
                 data << it->alpha_lr;
@@ -2435,10 +2428,10 @@ void Data::doImagesOverlap(MyImage &imgRef, MyImage &imgTest, float tolerance)
     if (!successProcessing) return;
 
     double rad = 3.1415926535 / 180.;
-    double alpha1 = rad * imgRef.crval1;
-    double delta1 = rad * imgRef.crval2;
-    double alpha2 = rad * imgTest.crval1;
-    double delta2 = rad * imgTest.crval2;
+    double alpha1 = rad * imgRef.wcs->crval[0];
+    double delta1 = rad * imgRef.wcs->crval[1];
+    double alpha2 = rad * imgTest.wcs->crval[0];
+    double delta2 = rad * imgTest.wcs->crval[1];
     double dDelta = delta2 - delta1;
     double dAlpha = alpha2 - alpha1;
 

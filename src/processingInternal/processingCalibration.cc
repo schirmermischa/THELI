@@ -67,6 +67,8 @@ void Controller::taskInternalProcessbias()
     QString dataSubDirName = biasData->subDirName;       // copies for thread safety
     QString dataDataType = biasData->dataType;
 
+    doDataFitInRAM(nimg*instData->numUsedChips, instData->storage);
+
     // Loop over all chips
     // NOTE: QString is not threadsafe, must create copies for threads!
     // NOTE: a 'bad' chip will 'continue', but openMP waits until at least one of the other threads has finished
@@ -165,6 +167,8 @@ void Controller::taskInternalProcessdark()
     QString dataSubDirName = darkData->subDirName;       // copies for thread safety
     QString dataDataType = darkData->dataType;
 
+    doDataFitInRAM(nimg*instData->numUsedChips, instData->storage);
+
     // Loop over all chips
 #pragma omp parallel for num_threads(maxExternalThreads) firstprivate(nlow, nhigh, min, max, dataDirName, dataSubDirName)
     for (int chip=0; chip<instData->numChips; ++chip) {
@@ -233,6 +237,8 @@ void Controller::taskInternalProcessflatoff()
     QString dataDirName = flatoffData->dirName;             // copies for thread safety
     QString dataSubDirName = flatoffData->subDirName;       // copies for thread safety
     QString dataDataType = flatoffData->dataType;
+
+    doDataFitInRAM(nimg*instData->numUsedChips, instData->storage);
 
     // Loop over all chips
 #pragma omp parallel for num_threads(maxExternalThreads) firstprivate(nlow, nhigh, min, max, dataDirName, dataSubDirName)
@@ -350,6 +356,8 @@ void Controller::taskInternalProcessflat()
     if (biasData != nullptr) biasDataType = biasData->dataType;
 
     if (biasData != nullptr) biasData->protectMemory();
+
+    doDataFitInRAM(nimg*instData->numUsedChips, instData->storage);
 
     // Loop over all chips
 #pragma omp parallel for num_threads(maxExternalThreads) firstprivate(nlow, nhigh, min, max, dataDirName, dataSubDirName)
@@ -522,6 +530,11 @@ void Controller::taskInternalProcessscience()
             }
         }
     }
+    if (instData->bayer.isEmpty()) doDataFitInRAM(numMyImages*instData->numUsedChips, instData->storage);
+    else {
+        scienceData->currentlyDebayering = true;
+        doDataFitInRAM(4*numMyImages*instData->numUsedChips, instData->storage);
+    }
 
 #pragma omp parallel for num_threads(maxCPU) firstprivate(dataDirName, biasDataType)
     for (int k=0; k<numMyImages; ++k) {
@@ -587,31 +600,39 @@ void Controller::taskInternalProcessscience()
             MyImage *debayerG = new MyImage(dataDirName, it->baseName, "P", chip+1, mask->globalMask[chip], false, &verbosity);
             MyImage *debayerR = new MyImage(dataDirName, it->baseName, "P", chip+1, mask->globalMask[chip], false, &verbosity);
             debayer(chip, it, debayerB, debayerG, debayerR);
+            it->unprotectMemory();
             QList<MyImage*> list; // Contains the current 3 debayered images
 
             list << debayerB << debayerG << debayerR;
-            for (auto &it: list) {
+            for (auto &it_deb: list) {
                 if (abortProcess) break;
-                connect(it, &MyImage::modelUpdateNeeded, scienceData, &Data::modelUpdateReceiver);
-                connect(it, &MyImage::critical, this, &Controller::criticalReceived);
-                connect(it, &MyImage::warning, this, &Controller::warningReceived);
-                connect(it, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
-                connect(it, &MyImage::setMemoryLock, this, &Controller::setMemoryLockReceived, Qt::DirectConnection);
-                it->getMode(true);
-                it->applyMask();
-                it->backupOrigHeader(chip);
-                it->imageInMemory = true;
-                it->backupL1InMemory = true;
-                it->processingStatus->HDUreformat = true;
+                connect(it_deb, &MyImage::modelUpdateNeeded, scienceData, &Data::modelUpdateReceiver);
+                connect(it_deb, &MyImage::critical, this, &Controller::criticalReceived);
+                connect(it_deb, &MyImage::warning, this, &Controller::warningReceived);
+                connect(it_deb, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
+                connect(it_deb, &MyImage::setMemoryLock, this, &Controller::setMemoryLockReceived, Qt::DirectConnection);
+                it_deb->getMode(true);
+                it_deb->applyMask();
+                it_deb->backupOrigHeader(chip);
+                it_deb->imageInMemory = true;
+                it_deb->backupL1InMemory = true;
+                it_deb->processingStatus->HDUreformat = true;
 
-                updateImageAndData(it, scienceData);
+                updateImageAndData(it_deb, scienceData);
 
                 // Must provide filter string explicitly (and therefore also the full path and file name.
                 // Always store debayered images
                 //                it->writeImageDebayer(it->path + "/" + it->chipName + "PA.fits", it->filter, it->exptime, it->mjdobs);
-                it->writeImageDebayer();
-                it->unprotectMemory();
+                it_deb->writeImageDebayer();
+                it_deb->unprotectMemory();
+                if (minimizeMemoryUsage) {
+                    it_deb->freeAll();
+                }
             }
+            if (minimizeMemoryUsage) {
+                it->freeAll();
+            }
+
 #pragma omp critical
             {
                 // The order in which we insert the images here is important for data::writeGlobalWeights()!
@@ -628,6 +649,8 @@ void Controller::taskInternalProcessscience()
             if (flatData != nullptr) flatData->unprotectMemory(chip);
         }
     }
+
+    if (!instData->bayer.isEmpty()) scienceData->currentlyDebayering = false;
 
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (instData->badChips.contains(chip)) continue;

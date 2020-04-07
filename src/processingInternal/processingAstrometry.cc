@@ -125,6 +125,8 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
     releaseMemory(nimg*instData->storage*maxCPU, 1);
     scienceData->protectMemory();
 
+    doDataFitInRAM(numMyImages*instData->numUsedChips, instData->storage);
+
 #pragma omp parallel for num_threads(maxCPU)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
@@ -248,6 +250,7 @@ void Controller::detectionSExtractor(Data *scienceData, QString minFWHM, QString
         if (!it->imageOnDrive) it->writeImage();         // Must be on drive for sextractor
         it->createSextractorCatalog();
         it->filterSextractorCatalog(minFWHM, maxFlag);
+        it->calcMedianSeeingEllipticitySex();
         it->sexcatToIview();
         it->unprotectMemory();
         if (minimizeMemoryUsage) {
@@ -356,10 +359,10 @@ void Controller::mergeInternal(Data *scienceData, QString minFWHM, QString maxFl
         int counter=0;
         for (auto &it : scienceData->exposureList[i]) {
             // Could exclude catalogs due to any activeState
-//            if (it->activeState != MyImage::LOWDETECTION) {
-                it->appendToScampCatalogInternal(fptr, minFWHM, maxFlag);
-                ++counter;
-//            }
+            //            if (it->activeState != MyImage::LOWDETECTION) {
+            it->appendToScampCatalogInternal(fptr, minFWHM, maxFlag);
+            ++counter;
+            //            }
         }
         //        if (counter != instData->numChips) {
         if (counter != instData->numUsedChips) {
@@ -464,30 +467,6 @@ bool Controller::manualCoordsUpdate(Data *scienceData, QString mode)
 
     getNumberOfActiveImages(scienceData);
 
-    /*
-#pragma omp parallel for num_threads(maxExternalThreads)
-    for (int chip=0; chip<instData->numChips; ++chip) {
-        for (auto &it : scienceData->myImageList[chip]) {
-            it->setupDataInMemory(false, false, false);
-            // TODO: should be sufficient, but crashes when executed right after launch
-            // it->provideHeaderInfo();
-            if (mode == "crval") {
-                it->crval1 = targetAlpha.toDouble();
-                it->crval2 = targetDelta.toDouble();
-                it->updateCRVALinHeaderOnDisk();
-            }
-            if (mode == "crval+cd") {
-                it->crval1 = targetAlpha.toDouble();
-                it->crval2 = targetDelta.toDouble();
-                it->myWCS.cd1_1 = -1.*it->plateScale/3600.;
-                it->myWCS.cd1_2 = 0.;
-                it->myWCS.cd2_1 = 0.;
-                it->myWCS.cd2_2 = it->plateScale/3600.;
-                it->updateCRVALCDinHeaderOnDisk();
-            }
-        }
-    }
-    */
     QList<MyImage*> allMyImages;
     long numMyImages = makeListofAllImages(allMyImages, scienceData);
 
@@ -506,17 +485,19 @@ bool Controller::manualCoordsUpdate(Data *scienceData, QString mode)
         // TODO: should be sufficient, but crashes when executed right after launch
         // it->provideHeaderInfo();
         if (mode == "crval") {
-            it->crval1 = targetAlpha.toDouble();
-            it->crval2 = targetDelta.toDouble();
+            it->wcs->crval[0] = targetAlpha.toDouble();
+            it->wcs->crval[1] = targetDelta.toDouble();
             it->updateCRVALinHeaderOnDrive();        // TODO: check why we force write file here
+            it->wcs->flag = 0;
         }
         if (mode == "crval+cd") {
-            it->crval1 = targetAlpha.toDouble();
-            it->crval2 = targetDelta.toDouble();
-            it->myWCS.cd1_1 = -1.*it->plateScale/3600.;
-            it->myWCS.cd1_2 = 0.;
-            it->myWCS.cd2_1 = 0.;
-            it->myWCS.cd2_2 = it->plateScale/3600.;
+            it->wcs->crval[0] = targetAlpha.toDouble();
+            it->wcs->crval[1] = targetDelta.toDouble();
+            it->wcs->cd[0] = -1.*it->plateScale/3600.;
+            it->wcs->cd[1] = 0.;
+            it->wcs->cd[2] = 0.;
+            it->wcs->cd[3] = it->plateScale/3600.;
+            it->wcs->flag = 0;
             it->updateCRVALCDinHeaderOnDrive();        // TODO: check why we force write file here
             if (!it->successProcessing) scienceData->successProcessing = false;
         }
@@ -942,18 +923,19 @@ void Controller::doImageQualityAnalysis()
         // pass the reference data
         collectGaiaRaDec(it, gaiaQuery->de_out, gaiaQuery->ra_out, imageQuality->refCat);
         // pass the source data (dec, ra, fwhm, ell on one hand, and mag separately)
-        // CHECK: this does not seem to work for chip #3 in WFC@INT: signifiant offset in calculated RA/DEC and downloaded RA/DEC. O-order solution insufficient?
         it->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag, instData->chipMap.value(chip));
         // match
         bool gaia = imageQuality->getSeeingFromGaia();
-        //        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: Not yet implemented
-        if (verbosity > 1) emit messageAvailable(it->chipName + " : FWHM / Ellipticity = "
-                                                 + QString::number(imageQuality->fwhm, 'f', 3) + " / "
-                                                 + QString::number(imageQuality->ellipticity, 'f', 3), "ignore");
-        it->updateHeaderValue("FWHM", imageQuality->fwhm);           // Optionally, updates the FITS file as well (if on drive)
+        it->fwhm = imageQuality->fwhm;                                                     // Updating MyImage fwhm parameter
+        it->updateHeaderValue("FWHM", imageQuality->fwhm);                                 // Updating MyImage header string
         it->updateHeaderValue("ELLIP", imageQuality->ellipticity);
-        it->updateHeaderValueInFITS("FWHM", QString::number(imageQuality->fwhm, 'f', 3));
+        it->updateHeaderValueInFITS("FWHM", QString::number(imageQuality->fwhm, 'f', 3));  // Updating the current FITS image on drive
         it->updateHeaderValueInFITS("ELLIP", QString::number(imageQuality->ellipticity, 'f', 3));
+        //        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: Not yet implemented
+        if (verbosity > 1) emit messageAvailable(it->chipName + " : FWHM / Ellipticity / # stars = "
+                                                 + QString::number(imageQuality->fwhm, 'f', 3) + " / "
+                                                 + QString::number(imageQuality->ellipticity, 'f', 3) + " / "
+                                                 + QString::number(imageQuality->numSources), "ignore");
         delete imageQuality;
         it->unprotectMemory();
         if (minimizeMemoryUsage) {
@@ -1194,6 +1176,7 @@ void Controller::buildScampCommand(Data *scienceData)
     scampCommand += " -STABILITY_TYPE "  + getUserParamComboBox(cdw->ui->ASTstabilityComboBox);
     scampCommand += " -MOSAIC_TYPE "     + getUserParamComboBox(cdw->ui->ASTmosaictypeComboBox);
     scampCommand += " -MATCH_FLIPPED "   + getUserParamCheckBox(cdw->ui->ASTmatchflippedCheckBox);
+    scampCommand += " -CHECKPLOT_RES "   + getUserParamLineEdit(cdw->ui->ASTresolutionLineEdit);
 
     QString value = cdw->ui->ASTastrinstrukeyLineEdit->text();
     if (value == "") value = "NONE";

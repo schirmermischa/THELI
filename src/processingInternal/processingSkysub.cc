@@ -121,6 +121,8 @@ void Controller::skysubPolynomialFit(Data *scienceData)
     releaseMemory(nimg*instData->storage*maxCPU, 1);
     scienceData->protectMemory();
 
+    doDataFitInRAM(numExposures, instData->storageExposure);
+
 #pragma omp parallel for num_threads(maxCPU) firstprivate(backupDirName)
     for (long i=0; i<numExposures; ++i) {
         if (abortProcess || !successProcessing) continue;
@@ -188,10 +190,14 @@ void Controller::skysubConstantFromArea(Data *scienceData)
 
     emit messageAvailable("Calculating mean sky level per exposure ...", "controller");
 
+    int numExposures = scienceData->exposureList.length();
+
+    doDataFitInRAM(numExposures, instData->storageExposure);
+
     progressStepSize = 50. / float(scienceData->exposureList.length());
     // Loop over all exposures (consisting of n chips)
 #pragma omp parallel for num_threads(maxCPU)
-    for (long i=0; i<scienceData->exposureList.length(); ++i) {
+    for (long i=0; i<numExposures; ++i) {
         if (abortProcess || !successProcessing) continue;
         // Calculate the mean sky background for the exposure
         QVector<float> skyBackground;
@@ -309,8 +315,12 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
     releaseMemory(nimg*instData->storage*maxCPU, 1);
     scienceData->protectMemory();
 
+    int numExposures = scienceData->exposureList.length();
+
+    doDataFitInRAM(numExposures, instData->storageExposure);
+
 #pragma omp parallel for num_threads(maxCPU) firstprivate(DT, DMIN, expFactor)
-    for (long i=0; i<scienceData->exposureList.length(); ++i) {
+    for (long i=0; i<numExposures; ++i) {
         if (abortProcess || !successProcessing) continue;
 
         releaseMemory(nimg*instData->storage, maxCPU);
@@ -438,6 +448,8 @@ void Controller::skysubConstantEachChip(Data *scienceData, QString DT, QString D
     releaseMemory(nimg*instData->storage*maxCPU, 1);
     scienceData->protectMemory();
 
+    doDataFitInRAM(numMyImages*instData->numUsedChips, instData->storage);
+
 #pragma omp parallel for num_threads(maxCPU) firstprivate(DT, DMIN, expFactor, backupDirName)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
@@ -558,6 +570,8 @@ void Controller::skysubModel(Data *scienceData, QString DT, QString DMIN, QStrin
     float nimg = 5;  // wild guess
     releaseMemory(nimg*instData->storage*maxCPU, 1);
     scienceData->protectMemory();
+
+    doDataFitInRAM(numMyImages*instData->numUsedChips, instData->storage);
 
     emit messageAvailable(" Calculating sky models ...", "controller");
 

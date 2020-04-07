@@ -113,6 +113,8 @@ public:
     bool isTaskRepeated = false;
     QVector<bool> staticModelDone;
 
+    bool currentlyDebayering = false;
+
     // A 2D list, 1st axis has one entry for each chip.
     // The 2nd axis keeps references to all FITS files of that chip (in memory or on disk)
     QVector<QList<MyImage*>> myImageList;   // A list of all images per chip    [chip][image]

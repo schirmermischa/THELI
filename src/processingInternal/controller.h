@@ -277,6 +277,7 @@ private:
     void pushConfigSkysubConst();
     void pushConfigSkysubPoly();
     void flagLowDetectionImages(Data *scienceData, long &numExpRejected, long &numImgRejected);
+    void doDataFitInRAM(long nImages, long storageSize);
 private slots:
     // The following can also be under 'private', but then the declaration must be preceeded like this:
     // Q_INVOKABLE QString taskHDUreformat();

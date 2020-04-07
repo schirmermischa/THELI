@@ -905,6 +905,25 @@ void Controller::releaseAllMemory()
     }
 }
 
+void Controller::doDataFitInRAM(long nImages, long storageSize)
+{
+    if (alwaysStoreData) return;    // we are good
+
+    if (nImages*storageSize > 0.9*maxRAM) {            // Slightly conservative: 90% of RAM is the reference
+        alwaysStoreData = true;
+        QSettings settings("THELI", "PREFERENCES");
+        settings.setValue("prefIntermediateDataComboBox", "Always");
+        if (settings.status() != QSettings::NoError) {
+            emit messageAvailable("Could not update preferences concerning intermediate data storage", "warning");
+        }
+        else {
+            emit messageAvailable("******************************************************<br>", "note");
+            emit messageAvailable("Insufficient RAM to keep all data in memory. Will write FITS images to drive on the fly.", "note");
+            emit messageAvailable("******************************************************<br>", "note");
+        }
+    }
+}
+
 void Controller::releaseMemory(float RAMneededThisThread, int numThreads, QString mode)
 {
     // Requested by several threads, hence this must be locked
@@ -921,7 +940,7 @@ void Controller::releaseMemory(float RAMneededThisThread, int numThreads, QStrin
     for (auto &DT_x : masterListDT) {
         for (auto &data : DT_x) {
             if (data == nullptr) continue;
-            // memviewer updated by signalsemitted by MyImage class
+            // memviewer updated by signals emitted by MyImage class
             float released = data->releaseMemory(RAMneededThisThread, RAMneededThisThread*numThreads, currentTotalMemoryUsed, mode);
             if (released >= 0.) {
                 RAMfreed += released;
@@ -930,20 +949,22 @@ void Controller::releaseMemory(float RAMneededThisThread, int numThreads, QStrin
         }
     }
 
+    omp_unset_lock(&memoryLock);
+
     if (RAMfreed < RAMneededThisThread
             && RAMwasReallyReleased
-            && currentTotalMemoryUsed > 0.
-            && !swapWarningShown) {
+            && currentTotalMemoryUsed > 0.) {
+//            && !swapWarningShown) {
         emit messageAvailable(QString::number(long(RAMneededThisThread)) + " MB requested, " + QString::number(long(RAMfreed))
                               + " MB released. Try fewer CPUs to avoid swapping.", "warning");
         swapWarningShown = true;
     }
 
+//    emit messageAvailable("Released "+QString::number(long(RAMfreed)) + " MB", "note");
     if (RAMfreed >= RAMneededThisThread && RAMwasReallyReleased) {
         if (verbosity >= 2) emit messageAvailable("Released "+QString::number(long(RAMfreed)) + " MB", "note");
     }
 
-    omp_unset_lock(&memoryLock);
 }
 
 // This function is called after each task to respect the maximum amount of memory allowed by the user.

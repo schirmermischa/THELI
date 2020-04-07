@@ -508,6 +508,15 @@ void MyImage::setupCalibDataInMemory(bool createBackup, bool determineMode, bool
     emit modelUpdateNeeded(baseName, chipName);
 }
 
+// unused
+void MyImage::dumpToDriveIfPossible()
+{
+    if (processingFinished && !imageOnDrive && imageInMemory) {
+        writeImage();
+        unprotectMemory();
+    }
+}
+
 void MyImage::freeData(QVector<float> &data)
 {
     data.clear();

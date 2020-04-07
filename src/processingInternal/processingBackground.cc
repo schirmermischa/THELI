@@ -97,6 +97,8 @@ void Controller::taskInternalBackground()
     scienceData->protectMemory();
     skyData->protectMemory();
 
+    doDataFitInRAM(scienceData->myImageList[0].length()*instData->numUsedChips, instData->storage);
+
     QString dt = cdw->ui->BACDTLineEdit->text();
     QString dmin = cdw->ui->BACDMINLineEdit->text();
     QString expFactor = cdw->ui->BACmefLineEdit->text();

@@ -95,9 +95,11 @@ void Controller::taskInternalCollapse()
 
     // Release as much memory as maximally necessary
     float nimg = 7; // old, new, background, segmentation, measure, mask, margin
-    releaseMemory(nimg*instData->storage*maxCPU, 1);
+    releaseMemory(numMyImages*instData->storage*maxCPU, 1);
     // Protect the rest, will be unprotected as needed
     scienceData->protectMemory();
+
+    doDataFitInRAM(numMyImages*instData->numUsedChips, instData->storage);
 
 #pragma omp parallel for num_threads(maxCPU)
     for (int k=0; k<numMyImages; ++k) {
@@ -211,6 +213,8 @@ void Controller::taskInternalBinnedpreview()
     float nimg = (1 + 1./(binFactor*binFactor)) * instData->numChips;
     releaseMemory(nimg*instData->storage*maxCPU, 1);
     scienceData->protectMemory();
+
+    doDataFitInRAM(numExp, instData->storageExposure);
 
     QString statusString = scienceData->processingStatus->statusString;
     // Loop over all exposures

@@ -217,6 +217,8 @@ void Controller::taskInternalIndividualweight()
     releaseMemory(nimg*instData->storage*maxCPU, 1);
     scienceData->protectMemory();
 
+    doDataFitInRAM(numMyImages*instData->numUsedChips, instData->storage);
+
     QString instType = instData->type;
 
 #pragma omp parallel for num_threads(maxCPU) firstprivate(instType, mainDirName)
