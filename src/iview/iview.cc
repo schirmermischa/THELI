@@ -476,6 +476,7 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     naxis1 = it->naxis1;
     naxis2 = it->naxis2;
     wcs = it->wcs;
+    wcsInit = it->wcsInit;
     this->setWindowTitle("iView --- Memory viewer : "+it->chipName);
 
     // Get the dynamic range
@@ -921,8 +922,8 @@ bool IView::readRaDecCatalog(QString fileName, QList<QGraphicsRectItem*> &items,
             return false;
         }
     }
-    else
-    {
+    else {
+        qDebug() << "IView::readRaDecCatalog: could not open" << fileName;
         return false;
     }
 }
