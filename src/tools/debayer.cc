@@ -85,6 +85,8 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
         it->pathBackupL1 = image->pathBackupL1;
         it->baseNameBackupL1 = image->baseNameBackupL1;
         it->imageInMemory = true;
+        it->wcs = image->wcs;
+        it->wcsInit = image->wcsInit;
         // Data::populateExposureList() will group debayered images into one exposure, and then
         // mergeScampCatalogs() will create three extensions. But we need them individually.
         // Hence introducing a 0.1 s offset in MJD-OBS.

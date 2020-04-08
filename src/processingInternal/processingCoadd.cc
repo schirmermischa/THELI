@@ -47,6 +47,7 @@ void Controller::taskInternalCoaddition()
 
     coaddScienceData = getData(DT_SCIENCE, coaddScienceDir);
     if (coaddScienceData == nullptr) return;      // Error triggered by getData();
+    if (!testResetDesire(coaddScienceData)) return;
 
     currentData = coaddScienceData;
     currentDirName = coaddScienceDir;
@@ -960,13 +961,20 @@ void Controller::coaddUpdate()
         coadd->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag, 0);
         // match
         bool gaia = imageQuality->getSeeingFromGaia();
-//        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: not yet implemented
+        //        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: not yet implemented
         seeing_world = imageQuality->fwhm;
         seeing_image = seeing_world / pixelScale.toFloat();
-        emit messageAvailable("coadd.fits : FWHM = " + QString::number(seeing_world, 'f', 2) + "\"  ("
-                              + QString::number(seeing_image, 'f', 2) + " pixel)", "image");
-        emit messageAvailable("coadd.fits : Ellipticity = " + QString::number(imageQuality->ellipticity, 'f', 3), "image");
-
+        if (imageQuality->numSources > 0) {
+            emit messageAvailable("coadd.fits : FWHM = " + QString::number(seeing_world, 'f', 2) + "\"  ("
+                                  + QString::number(seeing_image, 'f', 2) + " pixel)", "image");
+            emit messageAvailable("coadd.fits : Ellipticity = " + QString::number(imageQuality->ellipticity, 'f', 3), "image");
+//            emit messageAvailable("coadd.fits : # stars used for IQ analysis = " + QString::number(imageQuality->numSources), "image");
+        }
+        else {
+            emit messageAvailable("coadd.fits : FWHM = undetermined", "image");
+            emit messageAvailable("coadd.fits : Ellipticity = undetermined", "image");
+//            emit messageAvailable("coadd.fits : # stars used for IQ analysis = 0", "image");
+        }
         coadd->releaseAllDetectionMemory();
         coadd->releaseBackgroundMemory("entirely");
         coadd->freeAll();

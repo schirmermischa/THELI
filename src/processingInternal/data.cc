@@ -2737,9 +2737,18 @@ bool Data::hasMatchingPartnerFiles(QString testDirName, QString suffix)
 
     // List of images
     QStringList imageList;
-    for (int chip=0; chip<instData->numChips; ++chip) {
-        for (auto &it : myImageList[chip]) {
-            imageList.append(it->chipName);
+    if (suffix == ".scamp") {
+        for (int chip=0; chip<instData->numChips; ++chip) {
+            for (auto &it : myImageList[chip]) {
+                if (!imageList.contains(it->rootName)) imageList.append(it->rootName);
+            }
+        }
+    }
+    else {
+        for (int chip=0; chip<instData->numChips; ++chip) {
+            for (auto &it : myImageList[chip]) {
+                imageList.append(it->chipName);
+            }
         }
     }
 
@@ -2777,7 +2786,7 @@ bool Data::hasMatchingPartnerFiles(QString testDirName, QString suffix)
                 break;  // Do not show more than 20 items
             }
             missingItems.append(it);
-            missingItems.append(suffix);
+            //            missingItems.append(suffix);
             missingItems.append("\n");
             ++i;
         }
@@ -2791,6 +2800,9 @@ bool Data::hasMatchingPartnerFiles(QString testDirName, QString suffix)
         }
         else if (suffix.contains("head")) {
             emit showMessageBox("Data::HEADER_DATA_NOT_FOUND", QString::number(nbad), missingItems);
+        }
+        else if (suffix.contains("scamp")) {
+            emit showMessageBox("Data::SCAMP_CATS_NOT_FOUND", QString::number(nbad), missingItems);
         }
         return false;
     }

@@ -842,7 +842,7 @@ QString MainWindow::manualCoordsUpdate(QString science, QString mode)
         msgBox.setText(science+": Overwrite CRVAL1/2 and CDi_j keywords?");
         msgBox.setInformativeText("Manual coordinates were provided. "
                                   "Do you want to overwrite the CRVAL1/2 "
-                                  "keywords in the FITS headers with the values for RA and DEC entered above?\n"
+                                  "keywords with the values for RA and DEC entered above?\n"
                                   "Optionally, you can also force the CD matrix to have North up and East left.\n\n");
         QAbstractButton *pButtonCrval = msgBox.addButton(tr("Update Ra/DEC"), QMessageBox::YesRole);
         QAbstractButton *pButtonCrvalCD = msgBox.addButton(tr("Update RA/DEC, reset CD matrix"), QMessageBox::YesRole);

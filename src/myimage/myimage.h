@@ -440,6 +440,8 @@ public:
     bool containsRaDec(QString alphaStr, QString deltaStr);
     double getPlateScale();
     void calcMedianSeeingEllipticitySex();
+    void updateCRVALinHeader();
+    void updateCRVALCDinHeader();
 signals:
     void modelUpdateNeeded(QString baseName, QString chipName);
     void messageAvailable(QString message, QString type);

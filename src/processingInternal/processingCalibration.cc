@@ -36,6 +36,7 @@ void Controller::taskInternalProcessbias()
     QString biasDir = instructions.split(" ").at(1);
     Data *biasData = getData(DT_BIAS, biasDir);
     if (biasData == nullptr) return;      // Error triggered by getData();
+    if (!testResetDesire(biasData)) return;
 
     QString min = cdw->ui->biasMinLineEdit->text();
     QString max = cdw->ui->biasMaxLineEdit->text();
@@ -137,6 +138,7 @@ void Controller::taskInternalProcessdark()
     QString darkDir = instructions.split(" ").at(1);
     Data *darkData = getData(DT_DARK, darkDir);
     if (darkData == nullptr) return;      // Error triggered by getData();
+    if (!testResetDesire(darkData)) return;
 
     QString min = cdw->ui->darkMinLineEdit->text();
     QString max = cdw->ui->darkMaxLineEdit->text();
@@ -208,6 +210,7 @@ void Controller::taskInternalProcessflatoff()
     QString flatoffDir = instructions.split(" ").at(1);
     Data *flatoffData = getData(DT_FLATOFF, flatoffDir);
     if (flatoffData == nullptr) return;      // Error triggered by getData();
+    if (!testResetDesire(flatoffData)) return;
 
     QString min = cdw->ui->flatoffMinLineEdit->text();
     QString max = cdw->ui->flatoffMaxLineEdit->text();
@@ -280,6 +283,7 @@ void Controller::taskInternalProcessflat()
     QString biasDir = instructions.split(" ").at(2);
     Data *flatData = getData(DT_FLAT, flatDir);
     if (flatData == nullptr) return;      // Error triggered by getData();
+    if (!testResetDesire(flatData)) return;
 
     Data *biasData = nullptr;
     QString min = cdw->ui->flatMinLineEdit->text();
@@ -441,6 +445,7 @@ void Controller::taskInternalProcessscience()
     }
 
     if (scienceData == nullptr) return;      // Error triggered by getData();
+    if (!testResetDesire(scienceData)) return;
 
     Data *biasData = nullptr;  // Can also point to a dark
     Data *flatData = nullptr;

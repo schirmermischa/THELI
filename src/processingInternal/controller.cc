@@ -203,6 +203,7 @@ void Controller::getNumberOfActiveImages(Data *&data)
             if (it->activeState == MyImage::ACTIVE) ++numActiveImages;
         }
     }
+
     progressStepSize = 100./(float(numActiveImages));
     progressHalfStepSize = 0.5*progressStepSize;
 
@@ -954,13 +955,13 @@ void Controller::releaseMemory(float RAMneededThisThread, int numThreads, QStrin
     if (RAMfreed < RAMneededThisThread
             && RAMwasReallyReleased
             && currentTotalMemoryUsed > 0.) {
-//            && !swapWarningShown) {
+        //            && !swapWarningShown) {
         emit messageAvailable(QString::number(long(RAMneededThisThread)) + " MB requested, " + QString::number(long(RAMfreed))
                               + " MB released. Try fewer CPUs to avoid swapping.", "warning");
         swapWarningShown = true;
     }
 
-//    emit messageAvailable("Released "+QString::number(long(RAMfreed)) + " MB", "note");
+    //    emit messageAvailable("Released "+QString::number(long(RAMfreed)) + " MB", "note");
     if (RAMfreed >= RAMneededThisThread && RAMwasReallyReleased) {
         if (verbosity >= 2) emit messageAvailable("Released "+QString::number(long(RAMfreed)) + " MB", "note");
     }
@@ -1043,10 +1044,21 @@ void Controller::checkSuccessProcessing(Data *data)
     if (!data->successProcessing) {
         successProcessing = false;
         if (!messageShown) {
-            emit messageAvailable("An error occurred while processing data in " + data->dirName, "error");
+            emit messageAvailable("Data processing in " + data->dirName + " unsuccessful.", "error");
             criticalReceived();
         }
     }
+}
+
+// Shows a message box where the user can optionally trigger a clearance of the error state.
+// The task that triggers this
+bool Controller::testResetDesire(Data *data)
+{
+    if (!data->successProcessing) {
+        emit showMessageBox("Controller::RESET_REQUESTED", data->subDirName, "");
+        return false;
+    }
+    return true;
 }
 
 // UNUSED
@@ -1125,6 +1137,15 @@ QList<QVector<float>> Controller::getNonlinearityCoefficients()
     }
 
     return coeffs;
+}
+
+void Controller::resetErrorStatusReceived(QString dirName)
+{
+    Data *data = getDataAll(dirName);
+
+    if (data != nullptr) {
+        data->resetSuccessProcessing();
+    }
 }
 
 QVector<QString> Controller::getBackgroundThresholds(const int loop, const bool twoPass, const QString DT, const QString DMIN, bool &doSourceDetection)

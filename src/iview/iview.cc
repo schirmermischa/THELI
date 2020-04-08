@@ -923,7 +923,7 @@ bool IView::readRaDecCatalog(QString fileName, QList<QGraphicsRectItem*> &items,
         }
     }
     else {
-        qDebug() << "IView::readRaDecCatalog: could not open" << fileName;
+//        qDebug() << "IView::readRaDecCatalog: could not open" << fileName;
         return false;
     }
 }

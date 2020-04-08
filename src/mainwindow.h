@@ -108,6 +108,7 @@ signals:
     void rereadScienceDataDir();
     void messageAvailable(QString message, QString type);
     void warning();
+    void resetErrorStatus(QString dirName);
 
 public slots:
     void processMessage(QString text, QString type);

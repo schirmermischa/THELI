@@ -179,6 +179,20 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
                              tr("<br>Check for typos, or try a different name of the same target."),
                              QMessageBox::Ok);
     }
+    else if (trigger == "Controller::RESET_REQUESTED") {
+        const QMessageBox::StandardButton ret
+                = QMessageBox::warning(this, tr("Clearing error status?"),
+                             tr("The data in ") + part1 + tr(" is in an error state due to an earlier processing failure.")+
+                             tr("<br>Do you want to clear the error state to allow reprocessing (you must re-execute the task)?"),
+                             QMessageBox::Ok | QMessageBox::Cancel);
+        switch (ret) {
+        case QMessageBox::Ok:
+            emit resetErrorStatus(part1);
+            break;
+        default:
+            break;
+        }
+    }
     else if (trigger == "Controller::UNKNOWN_HOST") {
         QMessageBox::warning(this, tr("Unknown host"),
                              tr("The host used by the 'sesame' service to resolve the coordinates for ")+
@@ -204,7 +218,12 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
     }
     else if (trigger == "Data::HEADER_DATA_NOT_FOUND") {
         QMessageBox::warning(this, tr("Missing astrometric headers"),
-                             tr("The following ")+part1+tr(" images do not have a matching astrometric headers (headers/*.head):\n")+part2,
+                             tr("The following ")+part1+tr(" images do not have matching astrometric headers (headers/*.head):\n")+part2,
+                             QMessageBox::Ok);
+    }
+    else if (trigger == "Data::SCAMP_CATS_NOT_FOUND") {
+        QMessageBox::warning(this, tr("Missing scamp catalogs"),
+                             tr("The following ")+part1+tr(" images do not have matching scamp catalogs (cat/*.scamp):\n")+part2,
                              QMessageBox::Ok);
     }
     else if (trigger == "Data::BACKUP_DATA_NOT_FOUND") {

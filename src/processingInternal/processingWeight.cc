@@ -35,6 +35,7 @@ void Controller::taskInternalGlobalweight()
     QString biasDir = instructions.split(" ").at(3);
     Data *scienceData = getData(DT_SCIENCE, scienceDir);
     if (scienceData == nullptr) return;      // Error triggered by getData();
+    if (!testResetDesire(scienceData)) return;
 
     Data *biasData = nullptr;  // Can also point to a dark
     Data *flatData = nullptr;
@@ -163,6 +164,7 @@ void Controller::taskInternalIndividualweight()
     QString scienceDir = instructions.split(" ").at(1);
     Data *scienceData = getData(DT_SCIENCE, scienceDir);
     if (scienceData == nullptr) return;      // Error triggered by getData();
+    if (!testResetDesire(scienceData)) return;
 
     currentData = scienceData;
     currentDirName = scienceDir;
@@ -280,6 +282,7 @@ void Controller::taskInternalSeparate()
     QString scienceDir = instructions.split(" ").at(1);
     Data *scienceData = getData(DT_SCIENCE, scienceDir);
     if (scienceData == nullptr) return;      // Error triggered by getData();
+    if (!testResetDesire(scienceData)) return;
 
     currentData = scienceData;
     currentDirName = scienceDir;

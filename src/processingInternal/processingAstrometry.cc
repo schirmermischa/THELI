@@ -42,6 +42,7 @@ void Controller::taskInternalCreatesourcecat()
     QString updateMode = instructions.split(" ").at(2);
     Data *scienceData = getData(DT_SCIENCE, scienceDir);
     if (scienceData == nullptr) return;      // Error triggered by getData();
+    if (!testResetDesire(scienceData)) return;
 
     currentData = scienceData;
     currentDirName = scienceDir;
@@ -455,7 +456,7 @@ bool Controller::manualCoordsUpdate(Data *scienceData, QString mode)
     if (targetDelta.contains(':')) targetDelta = dmsToDecimal(targetDelta);
 
     if (mode == "crval") {
-        emit messageAvailable("Updating FITS headers:<br>CRVAL1 = "+targetAlpha + " ...<br>CRVAL2 = "+targetDelta+" ...", "controller");
+        emit messageAvailable("Updating:<br>CRVAL1 = "+targetAlpha + " ...<br>CRVAL2 = "+targetDelta+" ...", "controller");
     }
     else if (mode == "crval+cd") {
         emit messageAvailable("Updating:<br>CRVAL1 = "+targetAlpha + " ...<br>CRVAL2 = "+targetDelta+" ...", "controller");
@@ -487,8 +488,9 @@ bool Controller::manualCoordsUpdate(Data *scienceData, QString mode)
         if (mode == "crval") {
             it->wcs->crval[0] = targetAlpha.toDouble();
             it->wcs->crval[1] = targetDelta.toDouble();
-            it->updateCRVALinHeaderOnDrive();        // TODO: check why we force write file here
             it->wcs->flag = 0;
+            it->updateCRVALinHeader();
+            it->updateCRVALinHeaderOnDrive();
         }
         if (mode == "crval+cd") {
             it->wcs->crval[0] = targetAlpha.toDouble();
@@ -498,9 +500,10 @@ bool Controller::manualCoordsUpdate(Data *scienceData, QString mode)
             it->wcs->cd[2] = 0.;
             it->wcs->cd[3] = it->plateScale/3600.;
             it->wcs->flag = 0;
-            it->updateCRVALCDinHeaderOnDrive();        // TODO: check why we force write file here
-            if (!it->successProcessing) scienceData->successProcessing = false;
+            it->updateCRVALCDinHeader();
+            it->updateCRVALCDinHeaderOnDrive();
         }
+        if (!it->successProcessing) scienceData->successProcessing = false;
 #pragma omp atomic
         progress += progressStepSize;
     }
@@ -516,6 +519,7 @@ void Controller::taskInternalAstromphotom()
     QString scienceDir = instructions.split(" ").at(1);
     Data *scienceData = getData(DT_SCIENCE, scienceDir);
     if (scienceData == nullptr) return;      // Error triggered by getData();
+    if (!testResetDesire(scienceData)) return;
 
     currentData = scienceData;
     currentDirName = scienceDir;
@@ -537,6 +541,9 @@ void Controller::taskInternalAstromphotom()
     // which in turn triggers the header update
 
     if (cdw->ui->ASTmethodComboBox->currentText() == "Scamp") {
+        QString catDirName = mainDirName + "/" + scienceDir + "/cat/";
+        if (!scienceData->hasMatchingPartnerFiles(catDirName, ".scamp")) return;
+
         // Prepare scamp directories and perform consistency checks
         prepareScampRun(scienceData);
         // Collect scamp input catalogs
@@ -1062,7 +1069,6 @@ long Controller::prepareScampCats(Data *scienceData, long &totNumObjects)
 
     // Link scamp catalogs (only those for currently active images)
     long numCat = 0;
-
     QStringList imageList;
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (instData->badChips.contains(chip)) continue;

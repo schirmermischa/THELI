@@ -1137,6 +1137,24 @@ void MyImage::updateZeroOrderInMemory()
     cornersToRaDec();
 }
 
+// Update the 'header' QVector passed onto any newly ritten FITS file
+void MyImage::updateCRVALinHeader()
+{
+    updateHeaderValue("CRVAL1", wcs->crval[0]);
+    updateHeaderValue("CRVAL2", wcs->crval[1]);
+}
+
+// Update the 'header' QVector passed onto any newly ritten FITS file
+void MyImage::updateCRVALCDinHeader()
+{
+    updateHeaderValue("CRVAL1", wcs->crval[0]);
+    updateHeaderValue("CRVAL2", wcs->crval[1]);
+    updateHeaderValue("CD1_1", wcs->cd[0]);
+    updateHeaderValue("CD1_2", wcs->cd[1]);
+    updateHeaderValue("CD2_1", wcs->cd[2]);
+    updateHeaderValue("CD2_2", wcs->cd[3]);
+}
+
 void MyImage::updateCRVALinHeaderOnDrive()
 {
     // Must write file to drive (scamp reads the header information) if it does not exist yet

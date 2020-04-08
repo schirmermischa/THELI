@@ -36,6 +36,7 @@ void Controller::taskInternalBackground()
     QString skyDir = instructions.split(" ").at(2);
     Data *scienceData = getData(DT_SCIENCE, scienceDir);
     if (scienceData == nullptr) return;      // Error triggered by getData();
+    if (!testResetDesire(scienceData)) return;
 
     currentData = scienceData;
     currentDirName = scienceDir;
