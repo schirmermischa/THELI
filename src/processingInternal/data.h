@@ -231,6 +231,7 @@ public:
     void applyMask(int chip, QString filter);
     void resetBackupInfo();
     void removeCatalogs();
+    float releaseMemoryStringent(float RAMneededThisThread, float RAMneededAllThreads, float currentTotalMemoryUsed, QString mode);
 public slots:
     void setMemoryLockReceived(bool locked);
     void setWCSLockReceived(bool locked);

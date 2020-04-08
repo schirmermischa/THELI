@@ -656,6 +656,12 @@ void MyImage::unprotectMemory()
     dataRaw_deletable = true;
 }
 
+void MyImage::unprotectMemoryWeight()
+{
+    // Memory is up for grabs
+    dataWeight_deletable = true;
+}
+
 // UNUSED
 /*
 // Selective deletable status
