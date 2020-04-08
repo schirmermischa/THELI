@@ -117,8 +117,9 @@ public:
 
     // A 2D list, 1st axis has one entry for each chip.
     // The 2nd axis keeps references to all FITS files of that chip (in memory or on disk)
-    QVector<QList<MyImage*>> myImageList;   // A list of all images per chip    [chip][image]
-    QVector<QList<MyImage*>> exposureList;  // A list of all images per exposure   [exposure][chip]
+    QVector<QList<MyImage*>> myImageList;        // A list of all images per chip    [chip][image]
+    QVector<QList<MyImage*>> bayerList;          // A list of all debayered images    (only needed for memory calculations)
+    QVector<QList<MyImage*>> exposureList;       // A list of all images per exposure   [exposure][chip]
 
     // A list of master calibration files, one for each chip (if applicable for this structure)
     QVector<MyImage*> combinedImage;
@@ -262,6 +263,7 @@ private:
     void releaseMemoryCombined(float &RAMfreed, const float RAMneededThisThread);
     void releaseMemoryIndividual(const QStringList &datalist, float &RAMfreed, const float RAMneededThisThread);
     void removeCurrentFITSfiles();
+    void releaseMemoryDebayer(float &RAMfreed, const float RAMneededThisThread);
 
 private slots:
 

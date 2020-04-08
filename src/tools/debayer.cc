@@ -135,9 +135,11 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
       gBgBgBgBg
     */
 
+    /*
     imageB->dataCurrent.resize(n*m);
     imageG->dataCurrent.resize(n*m);
     imageR->dataCurrent.resize(n*m);
+    */
 
     // correct Offset & correct colors
     // for bayerfilter RGBG colorbalance:

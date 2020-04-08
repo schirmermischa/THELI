@@ -22,6 +22,7 @@ If not, see https://www.gnu.org/licenses/ .
 
 #include <QObject>
 #include <QVector>
+#include <QList>
 #include "instrumentdata.h"
 #include "../myimage/myimage.h"
 

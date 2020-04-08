@@ -100,27 +100,6 @@ void Controller::taskInternalProcessbias()
         progress += progressCombinedStepSize;
     }
 
-    /*
-    QList<MyImage*> allMyImages;
-    long numMyImages = makeListofAllImages(allMyImages, biasData);
-
-#pragma omp parallel for num_threads(maxCPU)
-    for (int k=0; k<numMyImages; ++k) {
-        auto &it = allMyImages[k];
-        int chip = it->chipNumber - 1;
-        for (auto &it : biasData->myImageList[chip]) {
-            it->setupCalibDataInMemory(false, true, false);    // Read image (if not already in memory), do not create backup copy, do not read or measure the mode
-            it->setModeFlag(min, max);                 // Flag the image if its mode is outside acceptable ranges
-            incrementProgressHalfStep();
-        }
-        biasData->combineImagesCalib(chip, combineBias_ptr, "forCalibration", nlow, nhigh);  // Combine images
-        biasData->getModeCombineImages(chip);
-        biasData->writeCombinedImage(chip);                                // Write combined image
-        biasData->memorySetDeletable(chip, "dataCurrent", true);           // Split data may be deleted from memory
-        incrementProgressCombinedStep();
-    }
-    */
-
     biasData->reportModeCombineImages();
 
     checkSuccessProcessing(biasData);
@@ -501,8 +480,8 @@ void Controller::taskInternalProcessscience()
 
     getNumberOfActiveImages(scienceData);
 
-    QVector<QList<MyImage*>> bayerList;
-    bayerList.resize(instData->numChips);
+    scienceData->bayerList.clear();
+    scienceData->bayerList.resize(instData->numChips);
 
     QList<MyImage*> allMyImages;
     long numMyImages = makeListofAllImages(allMyImages, scienceData);
@@ -540,6 +519,10 @@ void Controller::taskInternalProcessscience()
         scienceData->currentlyDebayering = true;
         doDataFitInRAM(4*numMyImages*instData->numUsedChips, instData->storage);
     }
+
+    // Must keep track of memory consumption
+    scienceData->bayerList.clear();
+    scienceData->bayerList.resize(instData->numChips);
 
 #pragma omp parallel for num_threads(maxCPU) firstprivate(dataDirName, biasDataType)
     for (int k=0; k<numMyImages; ++k) {
@@ -606,6 +589,12 @@ void Controller::taskInternalProcessscience()
             MyImage *debayerR = new MyImage(dataDirName, it->baseName, "P", chip+1, mask->globalMask[chip], false, &verbosity);
             debayer(chip, it, debayerB, debayerG, debayerR);
             it->unprotectMemory();
+            it->freeAll();
+#pragma omp critical
+            {
+                // The order in which we insert the images here is important for data::writeGlobalWeights()!
+                scienceData->bayerList[chip] << debayerB << debayerG << debayerR;
+            }
             QList<MyImage*> list; // Contains the current 3 debayered images
 
             list << debayerB << debayerG << debayerR;
@@ -634,15 +623,6 @@ void Controller::taskInternalProcessscience()
                     it_deb->freeAll();
                 }
             }
-            if (minimizeMemoryUsage) {
-                it->freeAll();
-            }
-
-#pragma omp critical
-            {
-                // The order in which we insert the images here is important for data::writeGlobalWeights()!
-                bayerList[chip] << debayerB << debayerG << debayerR;  // contains ALL debayered images
-            }
         }
 #pragma omp atomic
         progress += progressStepSize;
@@ -655,13 +635,21 @@ void Controller::taskInternalProcessscience()
         }
     }
 
-    if (!instData->bayer.isEmpty()) scienceData->currentlyDebayering = false;
+    // Clear memory from pre-debayered data
+    if (!instData->bayer.isEmpty()) {
+        for (int chip=0; chip<instData->numChips; ++chip) {
+            if (instData->badChips.contains(chip)) continue;
+            for (auto &it : scienceData->myImageList[chip]) {
+                it->freeAll();
+            }
+        }
+    }
 
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (instData->badChips.contains(chip)) continue;
         // Update image list; remove bayer images, insert debayered images
         if (!instData->bayer.isEmpty()) {
-            scienceData->repopulate(chip, bayerList[chip]);
+            scienceData->repopulate(chip, scienceData->bayerList[chip]);
             emit populateMemoryView();
         }
         /*
@@ -678,6 +666,9 @@ void Controller::taskInternalProcessscience()
         if (biasData != nullptr) biasData->unprotectMemory(chip);
         if (flatData != nullptr) flatData->unprotectMemory(chip);
     }
+
+    if (!instData->bayer.isEmpty()) scienceData->currentlyDebayering = false;
+    scienceData->bayerList.clear();
 
     checkSuccessProcessing(scienceData);
     satisfyMaxMemorySetting();

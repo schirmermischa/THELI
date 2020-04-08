@@ -1688,16 +1688,13 @@ float Data::memoryCurrentFootprint(bool globalweights)
             || !processingStatus->HDUreformat
             || !dataInitialized) return 0.;   // MyImageList undefined, or no data loaded yet
 
-    long debayerCorrection = 1;
-    if (currentlyDebayering) debayerCorrection = 4;
-
     // For an unknown reason, I cannot access myImageList for GLOBALWEIGHTS when changing a project; memoryprogressbar then crashes the UI
     if (!globalweights) {
         if (!myImageList.isEmpty()) {  // e.g. if RAWDATA are restored
             for (int chip=0; chip<instData->numChips; ++chip) {
                 if (instData->badChips.contains(chip)) continue;
                 for (auto &it: myImageList[chip]) {
-                    footprint += it->dataCurrent.capacity() * sizeof(float) * debayerCorrection;   // debayered images are not mapped here while still being created
+                    footprint += it->dataCurrent.capacity() * sizeof(float);
                     footprint += it->dataBackupL1.capacity() * sizeof(float);
                     footprint += it->dataBackupL2.capacity() * sizeof(float);
                     footprint += it->dataBackupL3.capacity() * sizeof(float);
@@ -1711,7 +1708,17 @@ float Data::memoryCurrentFootprint(bool globalweights)
                 }
             }
         }
+        // Also check for debayered images that are not yet in the nominal myimage list
+        if (!bayerList.isEmpty()) {
+            for (int chip=0; chip<instData->numChips; ++chip) {
+                if (instData->badChips.contains(chip)) continue;
+                for (auto &it: bayerList[chip]) {
+                    footprint += it->dataCurrent.capacity() * sizeof(float);
+                }
+            }
+        }
     }
+
 
     if (!combinedImage.isEmpty()) {
         for (int chip=0; chip<instData->numChips; ++chip) {
@@ -1800,6 +1807,7 @@ float Data::releaseMemory(float RAMneededThisThread, float RAMneededAllThreads, 
     }
     else {
         releaseMemoryIndividual(datalist, RAMfreed, RAMneededThisThread);
+        releaseMemoryDebayer(RAMfreed, RAMneededThisThread);
         releaseMemoryCombined(RAMfreed, RAMneededThisThread);
     }
 
@@ -1827,6 +1835,18 @@ void Data::releaseMemoryIndividual(const QStringList &datalist, float &RAMfreed,
                 RAMfreed += it->freeData(datatype);
                 if (RAMfreed > RAMneededThisThread) break;
             }
+            if (RAMfreed > RAMneededThisThread) break;
+        }
+        if (RAMfreed > RAMneededThisThread) break;
+    }
+}
+
+void Data::releaseMemoryDebayer(float &RAMfreed, const float RAMneededThisThread)
+{
+    if (!currentlyDebayering) return;
+    for (int chip=0; chip<instData->numChips; ++chip) {
+        for (auto &it : bayerList[chip]) {
+            RAMfreed += it->freeData("dataCurrent");
             if (RAMfreed > RAMneededThisThread) break;
         }
         if (RAMfreed > RAMneededThisThread) break;
