@@ -642,6 +642,14 @@ float Controller::getMemoryTotalUsed()
     return totalMemory;
 }
 
+void Controller::splitterMemoryReceived(long memoryUsed)
+{
+#pragma omp atomic
+    splitterMemoryUsed += memoryUsed;
+
+    emit updateMemoryProgressBar(splitterMemoryUsed / 1024 / 1024);
+}
+
 void Controller::displayCPUload()
 {
     //    int CPUload = myCPU->getCPUload();

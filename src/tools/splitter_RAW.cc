@@ -63,6 +63,9 @@ void Splitter::importRAW()
         dataRaw.append(rawProcessor.imgdata.rawdata.raw_image[i]);
     }
 
+    memoryUsed += dataRaw.capacity()*sizeof(float);
+    emit splitterMemoryIncreased(memoryUsed);
+
     // Extract metadata
 #define P1 rawProcessor.imgdata.idata
 #define P2 rawProcessor.imgdata.other

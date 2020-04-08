@@ -109,6 +109,8 @@ private:
 
     bool globalweights_created = false;
 
+    long splitterMemoryUsed = 0;
+
     QString statusAtDistribute = "";
 
     instrumentDataType altInstData;   // For instruments with e.g. simultaneous optical and NIR detectors requiring different masks during HDU reformatting
@@ -322,6 +324,7 @@ private slots:
     void copyZeroOrder();
     void errorFoundReceived();
     void addToProgressBarReceived(float differential);
+    void splitterMemoryReceived(long memoryUsed);
 
 public:
     explicit Controller(instrumentDataType *instrumentData, QString statusold, ConfDockWidget *cdw, Monitor *processMonitor,
@@ -489,6 +492,7 @@ signals:
     void stopFileProgressTimer();
     void addBackupDirToMemoryviewer(QString scienceDir, QString backupDirName);
     void loadAbsZP(QString coaddImagePath, instrumentDataType *instData, float maxVal);
+    void updateMemoryProgressBar(long splitterMemory);
 
 public slots:
     void updateAll();

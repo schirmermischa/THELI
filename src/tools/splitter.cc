@@ -136,6 +136,11 @@ void Splitter::determineFileFormat()
     }
 }
 
+void Splitter::emitMemoryReleased()
+{
+    emit splitterMemoryDecreased(-memoryUsed);
+}
+
 void Splitter::uncompress()
 {
     if (!successProcessing) return;
@@ -196,7 +201,7 @@ void Splitter::consistencyChecks()
 
             successProcessing = false;
         }
-        // euqal or more numHDUs than chips is fine (e.g. multi-channel cameras, or multiple readout ports per detector)
+        // equal or more numHDUs than chips is fine (e.g. multi-channel cameras, or multiple readout ports per detector)
     }
 
     printCfitsioError("consistencyChecks()", rawStatus);
@@ -523,6 +528,9 @@ void Splitter::getCurrentExtensionData()
 
     delete [] buffer;
 
+    memoryUsed += dataRaw.capacity()*sizeof(float);
+    emit splitterMemoryIncreased(memoryUsed);
+
     printCfitsioError("getCurrentExtensionData()", rawStatus);
 }
 
@@ -592,6 +600,9 @@ void Splitter::getDataInCube()
             dataCubeRaw.append(val);
         }
     }
+
+    memoryUsed += dataCubeRaw.capacity()*sizeof(float);
+    emit splitterMemoryIncreased(memoryUsed);
 
     delete [] bufferAll;
 
@@ -756,7 +767,7 @@ void Splitter::writeImage(int chipMapped)
     QString outName = "!"+path+"/"+baseName+"_"+QString::number(chipID)+"P.fits";
     // If renaming active, and dateobs was determined successfully
     if (cdw->ui->theliRenamingCheckBox->isChecked() && dateObsValue != "2020-01-01T00:00:00.000") {
-        if (dataFormat == "RAW") {
+        if (dataFormat == "RAW" || !instData.bayer.isEmpty()) {
             // No filter name for bayer matrix images
             outName = "!"+path+"/"+instData.shortName+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
         }

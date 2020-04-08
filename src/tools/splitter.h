@@ -41,6 +41,7 @@ public:
 
     void extractImages();
     void determineFileFormat();
+    void emitMemoryReleased();
 
     // Pixel processing
     // x-talk
@@ -58,6 +59,8 @@ public:
     int xtalkRowMethod = -1;
     bool alreadyProcessed = false;
     bool MEFpastingFinished = true;
+
+    long memoryUsed = 0;
 
     // Nonlinearity
     QList<QVector<float>> nonlinearityCoefficients;
@@ -286,6 +289,8 @@ signals:
     void warning();
     void critical();
     void showMessageBox(QString trigger, QString part1, QString part2);
+    void splitterMemoryIncreased(long memory);
+    void splitterMemoryDecreased(long memory);
 
 public slots:
 };

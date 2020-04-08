@@ -178,6 +178,7 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     connect(controller, &Controller::resetProgressBar, this, &MainWindow::resetProgressBarReceived);
     connect(controller, &Controller::targetResolved, cdw, &ConfDockWidget::targetResolvedReceived);
     connect(controller, &Controller::scienceDataDirUpdated, this, &MainWindow::scienceDataDirUpdatedReceived);
+    connect(controller, &Controller::updateMemoryProgressBar, this, &MainWindow::updateMemoryProgressBarReceived);
     connect(this, &MainWindow::resetErrorStatus, controller, &Controller::resetErrorStatusReceived);
     connect(this, &MainWindow::rereadScienceDataDir, controller, &Controller::rereadScienceDataDirReceived);
     connect(this, &MainWindow::newProjectLoaded, controller, &Controller::newProjectLoadedReceived);
@@ -1681,4 +1682,11 @@ int MainWindow::estimateBinningFactor()
     if (binFactor < 1) binFactor = 1;
 
     return binFactor;
+}
+
+void MainWindow::updateMemoryProgressBarReceived(long memoryUsed)
+{
+    QString memoryString = QString::number(long(memoryUsed)) + " MB";
+    memoryProgressBar->setFormat("RAM: %p% ("+memoryString+")");
+    memoryProgressBar->setValue(memoryUsed);
 }
