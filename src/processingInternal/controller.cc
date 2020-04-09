@@ -962,7 +962,8 @@ void Controller::releaseMemory(float RAMneededThisThread, int numThreads, QStrin
 
     if (RAMfreed < RAMneededThisThread
             && RAMwasReallyReleased
-            && currentTotalMemoryUsed > 0.) {
+            && currentTotalMemoryUsed > 0.
+            && RAMfreed < currentTotalMemoryUsed - 100) {              // 100 is to suppress insignificant warnings
         //            && !swapWarningShown) {
         emit messageAvailable(QString::number(long(RAMneededThisThread)) + " MB requested, " + QString::number(long(RAMfreed))
                               + " MB released. Try fewer CPUs to avoid swapping.", "warning");

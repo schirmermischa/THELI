@@ -108,13 +108,13 @@ void Controller::taskInternalHDUreformat()
         connect(splitter, &Splitter::critical, this, &Controller::criticalReceived);
         connect(splitter, &Splitter::warning, this, &Controller::warningReceived);
         connect(splitter, &Splitter::showMessageBox, this, &Controller::showMessageBoxReceived);
-        connect(splitter, &Splitter::splitterMemoryIncreased, this, &Controller::splitterMemoryReceived);
-        connect(splitter, &Splitter::splitterMemoryDecreased, this, &Controller::splitterMemoryReceived);
+//        connect(splitter, &Splitter::splitterMemoryIncreased, this, &Controller::splitterMemoryReceived);
+//        connect(splitter, &Splitter::splitterMemoryDecreased, this, &Controller::splitterMemoryReceived);
         // Extract images. This also handles all low-level pixel processing.
         splitter->determineFileFormat();
         splitter->extractImages();
         if (!splitter->successProcessing) successProcessing = false;
-        splitter->emitMemoryReleased();
+//        splitter->emitMemoryReleased();
         delete splitter;     // Hogging lots of memory otherwise!
 
         // splitter handles the progress counter
