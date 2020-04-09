@@ -968,12 +968,18 @@ void Controller::coaddUpdate()
             emit messageAvailable("coadd.fits : FWHM = " + QString::number(seeing_world, 'f', 2) + "\"  ("
                                   + QString::number(seeing_image, 'f', 2) + " pixel)", "image");
             emit messageAvailable("coadd.fits : Ellipticity = " + QString::number(imageQuality->ellipticity, 'f', 3), "image");
-//            emit messageAvailable("coadd.fits : # stars used for IQ analysis = " + QString::number(imageQuality->numSources), "image");
+            //            emit messageAvailable("coadd.fits : # stars used for IQ analysis = " + QString::number(imageQuality->numSources), "image");
         }
         else {
             emit messageAvailable("coadd.fits : FWHM = undetermined", "image");
             emit messageAvailable("coadd.fits : Ellipticity = undetermined", "image");
-//            emit messageAvailable("coadd.fits : # stars used for IQ analysis = 0", "image");
+            //            emit messageAvailable("coadd.fits : # stars used for IQ analysis = 0", "image");
+        }
+        if (seeing_image < 2.0 && seeing_image > 0. &&
+                (cdw->ui->COAkernelComboBox->currentText() == "LANCZOS3" ||
+                 cdw->ui->COAkernelComboBox->currentText() == "LANCZOS4")) {
+            emit messageAvailable("<br>Undersampling detected. The chosen "+cdw->ui->COAkernelComboBox->currentText()
+                                  +" resampling kernel could lead to artifacts in compact sources (stars). The LANCZOS2 kernel likely gives a better result.", "warning");
         }
         coadd->releaseAllDetectionMemory();
         coadd->releaseBackgroundMemory("entirely");

@@ -455,15 +455,18 @@ bool Controller::manualCoordsUpdate(Data *scienceData, QString mode)
     if (targetAlpha.contains(':')) targetAlpha = hmsToDecimal(targetAlpha);
     if (targetDelta.contains(':')) targetDelta = dmsToDecimal(targetDelta);
 
+    emit messageAvailable("Updating WCS:", "controller");
     if (mode == "crval") {
-        emit messageAvailable("Updating:<br>CRVAL1 = "+targetAlpha + " ...<br>CRVAL2 = "+targetDelta+" ...", "controller");
+        emit messageAvailable("CRVAL1 = "+targetAlpha + "<br>" +
+                              "CRVAL2 = "+targetDelta, "data");
     }
     else if (mode == "crval+cd") {
-        emit messageAvailable("Updating:<br>CRVAL1 = "+targetAlpha + " ...<br>CRVAL2 = "+targetDelta+" ...", "controller");
-        emit messageAvailable("CD1_1 = "+QString::number(-1.*instData->pixscale/3600.)+" ...<br>" +
+        emit messageAvailable("CRVAL1 = "+targetAlpha + "<br>" +
+                              "CRVAL2 = "+targetDelta + "<br>" +
+                              "CD1_1 = "+QString::number(-1.*instData->pixscale/3600.) + "<br>" +
                               "CD1_2 = 0.0<br>" +
                               "CD2_1 = 0.0<br>" +
-                              "CD2_2 = "+QString::number(instData->pixscale/3600.)+" ...<br>", "controller");
+                              "CD2_2 = "+QString::number(instData->pixscale/3600.), "data");
     }
 
     getNumberOfActiveImages(scienceData);
@@ -509,6 +512,8 @@ bool Controller::manualCoordsUpdate(Data *scienceData, QString mode)
     }
 
     successProcessing = true;
+
+    emit messageAvailable("<br>Now running source detection ...", "controller");
 
     //    emit appendOK();
     return true;

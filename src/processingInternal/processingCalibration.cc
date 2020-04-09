@@ -550,7 +550,11 @@ void Controller::taskInternalProcessscience()
                 else message.append(" and " + flatData->subDirName);
             }
         }
-        if (verbosity >= 0 && !message.isEmpty()) emit messageAvailable(it->chipName + " : Correcting with "+message, "image");
+        if (verbosity >= 0) {
+            if (!message.isEmpty() && instData->bayer.isEmpty()) emit messageAvailable(it->chipName + " : Correcting with "+message, "image");
+            if (!message.isEmpty() && !instData->bayer.isEmpty()) emit messageAvailable(it->chipName + " : Correcting with "+message+", debayering", "image");
+            if (message.isEmpty() && !instData->bayer.isEmpty()) emit messageAvailable(it->chipName + " : Debayering", "image");
+        }
         it->processingStatus->Processscience = false;
 
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
