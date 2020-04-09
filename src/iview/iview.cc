@@ -294,6 +294,7 @@ void IView::clearItems() {
     if (!sourceCatItems.isEmpty()) {
         for (auto &it: sourceCatItems) scene->removeItem(it);
         sourceCatItems.clear();
+        sourcecatSourcesShown = false;
         ui->actionSourceCat->setChecked(false);
     }
     if (!refCatItems.isEmpty()) {
@@ -308,6 +309,15 @@ void IView::clearItems() {
     }
 }
 
+void IView::setCatalogOverlaysExternally(bool sourcecatShown, bool refcatShown)
+{
+    ui->actionSourceCat->setChecked(sourcecatShown);
+    ui->actionRefCat->setChecked(refcatShown);
+    sourcecatSourcesShown = sourcecatShown;
+    refcatSourcesShown = refcatShown;
+}
+
+// Used by imagestatistics
 void IView::clearAll()
 {
     clearItems();
@@ -452,6 +462,7 @@ void IView::loadFromRAMlist(const QModelIndex &index)
 
 void IView::loadFromRAM(MyImage *it, int indexColumn)
 {
+    currentMyImage = it;
     if (indexColumn == 0 || indexColumn == 3) {
         // Load image into memory if not yet present
         if (!weightMode) {
@@ -725,6 +736,8 @@ void IView::showSourceCat()
 {
     // Leave if no image is displayed
 
+    sourcecatSourcesShown = false;
+
     if (scene->items().isEmpty()) return;
 
     if (ui->actionSourceCat->isChecked()) {
@@ -793,6 +806,8 @@ void IView::showSourceCat()
             sourceCatItems.clear();
         }
     }
+    if (!sourceCatItems.isEmpty()) sourcecatSourcesShown = true;
+    else sourcecatSourcesShown = false;
 
     myGraphicsView->setScene(scene);
     myGraphicsView->show();

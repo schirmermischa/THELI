@@ -93,6 +93,7 @@ private slots:
     void updateProcessingStatusOnDriveAndInData();
     void updateStatusTipRestoreButton();
     void on_restoreComboBox_currentTextChanged(const QString &arg1);
+    void iViewClosed_received();
 
 signals:
     void beginResetModel();

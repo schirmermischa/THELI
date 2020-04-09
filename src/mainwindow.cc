@@ -1369,7 +1369,7 @@ void MainWindow::loadIView()
     QString dirname = main+"/"+science;
     if (!QDir(dirname).exists()) dirname = QDir::homePath();
 
-    IView *iView = new IView("FITSmonochrome", dirname, "*.fits *.fit *.fts *.FITS *.FIT *.FTS", this);
+    IView *iView = new IView("FITSmonochrome", dirname, "*.fits *.fit *.FITS *.FIT", this);
     iView->show();
 }
 

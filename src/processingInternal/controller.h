@@ -101,6 +101,8 @@ private:
     QString scampDir;
     int processID;
 
+    bool scampSolutionAcceptanceState = false;
+
     QVector<PhotInst*> photInstruments;
 
     QVector<QVector<long>> overscanX;
@@ -320,7 +322,8 @@ private slots:
     void finishedScampReceived();
     void fieldMatchedReceived();
     void showScampCheckPlotsReceived();
-    void checkScampSolutionAcceptance(bool scampSolutionAccepted);
+    void registerScampSolutionAcceptance(bool scampSolutionAccepted);
+    void continueWithCopyZeroOrder();
     void copyZeroOrder();
     void errorFoundReceived();
     void addToProgressBarReceived(float differential);
@@ -433,7 +436,6 @@ public:
     QThread *workerThread;
     SwarpWorker *swarpWorker;
     ScampWorker *scampWorker;
-    bool scampSolutionAccepted = false;
 
     bool workerInit = false;
     bool workerThreadInit = false;

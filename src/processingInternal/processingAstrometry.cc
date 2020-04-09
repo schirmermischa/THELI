@@ -827,22 +827,30 @@ void Controller::showScampCheckPlotsReceived()
     // blocks until seeing determination is done, which is silly and i don't understand why
     // checkplotViewer->setWindowModality(Qt::ApplicationModal);
     checkplotViewer->show();
-    connect(checkplotViewer, &IView::solutionAcceptanceState, this, &Controller::checkScampSolutionAcceptance);
+    connect(checkplotViewer, &IView::solutionAcceptanceState, this, &Controller::registerScampSolutionAcceptance);
     // Avoid THELI hogging memory during the session with every call to iview
     connect(checkplotViewer, &IView::closed, checkplotViewer, &IView::deleteLater);
+    connect(checkplotViewer, &IView::closed, this, &Controller::continueWithCopyZeroOrder);
 }
 
-void Controller::checkScampSolutionAcceptance(bool scampSolutionAccepted)
+void Controller::registerScampSolutionAcceptance(bool scampSolutionAccepted)
 {
-    if (!successProcessing) return;
+    scampSolutionAcceptanceState = scampSolutionAccepted;
 
     if (scampSolutionAccepted) {
         emit messageAvailable("*** Scamp solution accepted ***<br>", "note");
-        // continue with zero-order WCS header update
-        copyZeroOrder();
     }
     else {
         emit messageAvailable("*** Scamp solution rejected ***<br>", "warning");
+    }
+}
+
+void Controller::continueWithCopyZeroOrder()
+{
+    if (!successProcessing) return;
+
+    if (scampSolutionAcceptanceState) copyZeroOrder();
+    else {
         monitor->raise();
         successProcessing = false;
         workerThread->quit();
@@ -958,6 +966,8 @@ void Controller::doImageQualityAnalysis()
     workerThread->quit();
 
     delete gaiaQuery;
+
+//    emit messageAvailable("You can display the results of the image quality analysis in the statistics module", "note");
 
     successProcessing = true;
     //    pushEndMessage("ImageQuality", scampScienceDir);

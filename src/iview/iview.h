@@ -80,10 +80,12 @@ public:
     void autoContrast(QString colorMode = "");
     void setImageList(QString filter);
     void redrawSkyCirclesAndCats();
+    void clearItems();
 
     bool weightMode = false;   // whether iview displays the image data or the weight
 
     bool refcatSourcesShown = false;
+    bool sourcecatSourcesShown = false;
 
     IvConfDockWidget *icdw;
     IvScampDockWidget *scampdw;
@@ -110,6 +112,7 @@ public:
     QString currentFileName = "";
 
     void updateCDmatrixFITS();
+    void setCatalogOverlaysExternally(bool sourcecatShown, bool refcatShown);
 signals:
     void abortPlay();
     void colorFactorChanged(QString redFactor, QString blueFactor);
@@ -232,7 +235,6 @@ private:
     QVector<float> fitsDataB;
 
     QRect adjustGeometry();
-    void clearItems();
     void clearVectorItems();
     void clearSkyRectItems();
     void clearSkyCircleItems();

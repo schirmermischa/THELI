@@ -89,7 +89,7 @@ void ScampWorker::processExternalStderr()
     stderr.remove("1M ");
     //    stderr.remove(QRegExp("![^0131m]"));
     stderr.remove("0131m");
-    stderr.remove("WARNING: scamp.conf not found, using internal defaults");
+    stderr.remove("WARNING: scamp.conf not found using internal defaults");
     stderr = stderr.simplified();
     stderr.replace(" WARNING: ", "<br>WARNING: ");
     stderr.replace(" Error: ", "<br>Error: ");

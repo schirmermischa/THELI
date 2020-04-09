@@ -407,13 +407,25 @@ void MemoryViewer::on_memoryTableView_clicked(const QModelIndex &index)
         if (model->modelType == "weight") iView->weightMode = true;
         else iView->weightMode = false;
         connect(iView, &IView::currentlyDisplayedIndex, this, &MemoryViewer::currentlyDisplayedIndex_received);
+        connect(iView, &IView::destroyed, this, &MemoryViewer::iViewClosed_received);
+        connect(iView, &IView::closed, this, &MemoryViewer::iViewClosed_received);
     }
-    iView->scene->clear();
+//    iView->scene->clear();
+    bool sourcecatShown = iView->sourcecatSourcesShown;
+    bool refcatShown = iView->refcatSourcesShown;
+    iView->clearItems();
     iView->loadFromRAMlist(index);
     iView->currentId = index.row();
     // IView needs to know the directory name so that it can overlay catalogs
+    iView->setCatalogOverlaysExternally(sourcecatShown, refcatShown);
+    iView->redrawSkyCirclesAndCats();
     iView->show();
     //    iView->raise();
+}
+
+void MemoryViewer::iViewClosed_received()
+{
+    iViewOpen = false;
 }
 
 void MemoryViewer::currentlyDisplayedIndex_received(int currentId)
