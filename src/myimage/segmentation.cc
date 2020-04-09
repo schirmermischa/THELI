@@ -70,14 +70,15 @@ void MyImage::segmentImage(QString DTstring, QString DMINstring, bool convolutio
     // Update the rms Value if it hasn't been determined yet
     // This is a fallback, because we get it through background modeling already at an earlier step.
     if (skySigma < 0.) {
-        qDebug() << "QDEBUG: MyImage::segmentImage(): code should not enter here";
+        emit messageAvailable("MyImage::segmentImage(): sky noise not yet estimated, re-computing", "warning");
+        emit critical();
         skySigma = modeMask(dataCurrent, "stable", QVector<bool>())[1];
     }
 
     // Noise clipping
     // if this doesn't work, then make controller a member of each myimage
     emit setMemoryLock(true);
-    dataSegmentation.fill(0, naxis1*naxis2);
+    dataSegmentation.resize(naxis1*naxis2);
     dataMeasure.clear();   // Must clear (if we run the detection twice, e.g. for sky modeling)
     dataMeasure.reserve(naxis1*naxis2);
     emit setMemoryLock(false);
