@@ -337,10 +337,15 @@ void MyImage::estimateMatchingTolerance()
         if (object->FLAGS == 0) sizes.append(object->FLUX_RADIUS);
     }
 
-    if (sizes.isEmpty()) matchingTolerance = 1./3600.;  // 1 arcsec
+    if (sizes.isEmpty()) {
+        matchingTolerance = 5.*plateScale/3600.;  // 5 pixel
+        if (*verbosity > 2) emit messageAvailable(chipName + " : IQ matching tolerance defaulted to "+QString::number(5.*plateScale, 'f', 1)+" arcsec (5 pixel)", "image");
+        emit warning();
+    }
     else {
         float seeing_image = 2. * meanMask_T(sizes);
         matchingTolerance = seeing_image * plateScale / 3600.;
+        if (*verbosity > 2) emit messageAvailable(chipName + " : IQ matching tolerance = "+QString::number(matchingTolerance*3600, 'f', 1)+" arcsec", "image");
     }
 }
 
@@ -401,7 +406,7 @@ void MyImage::collectSeeingParameters(QVector<QVector<double>> &outputParams, QV
         return;
     }
 
-    // Not present (if GUI launched at this position)
+    // Not present (if GUI launched at this position, or sextractor was used to compute catalogs)
     // Try external catalog
 
     else {
@@ -429,7 +434,6 @@ void MyImage::collectSeeingParameters(QVector<QVector<double>> &outputParams, QV
         int ellColNum = -1;
         int magColNum = -1;
         int flagColNum = -1;
-
         fits_get_num_rows(fptr, &nrows, &status);
         char xwinName[100] = "XWIN_IMAGE";
         char ywinName[100] = "YWIN_IMAGE";

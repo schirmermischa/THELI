@@ -1289,10 +1289,9 @@ void MainWindow::updateExcludedDetectors(QString badDetectors)
     // Map the chip numbers to the number in which they appear in order (e.g. in .scamp catalogs)
     int countGoodChip = 0;
     for (int chip=0; chip<instData.numChips; ++chip) {
-        if (instData.badChips.contains(chip)) {
-            instData.chipMap.insert(chip, countGoodChip);
-            ++countGoodChip;
-        }
+        if (instData.badChips.contains(chip)) continue;
+        instData.chipMap.insert(chip, countGoodChip);
+        ++countGoodChip;
     }
 }
 
