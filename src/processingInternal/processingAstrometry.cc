@@ -146,6 +146,7 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
             abortProcess = true;
             continue;
         }
+        it->checkWCSsanity();
         it->readWeight();
         it->backgroundModel(256, "interpolate");
         it->updateSaturation(saturation);
@@ -246,6 +247,7 @@ void Controller::detectionSExtractor(Data *scienceData, QString minFWHM, QString
             abortProcess = true;
             continue;
         }
+        it->checkWCSsanity();
         it->buildSexCommand();
         it->sexCommand.append(sexCommandOptions);
         if (!it->imageOnDrive) it->writeImage();         // Must be on drive for sextractor

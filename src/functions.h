@@ -22,6 +22,8 @@ If not, see https://www.gnu.org/licenses/ .
 
 #include <valarray>
 #include "fitsio2.h"
+#include <wcs.h>
+
 #include <QString>
 #include <QFile>
 #include <QDir>
@@ -52,6 +54,7 @@ QString get_fileHeaderParameter(QFile *file, QString parametername);
 QString get_fileparameter_vector(QFile *, QString, QString warn = "");
 QVector<int> get_fileparameter_FullVector(QFile *file, QString parametername);
 QString findExecutableName(QString program);
+QString sanityCheckWCS(wcsprm *wcs);
 void killProcessChildren(qint64 parentProcessId);
 long get_memory();
 void showLogfile(QString logname, QString line = "");

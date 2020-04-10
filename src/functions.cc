@@ -20,6 +20,8 @@ If not, see https://www.gnu.org/licenses/ .
 #include "functions.h"
 #include "preferences.h"
 #include "tools/fitgauss1d.h"
+
+#include <wcs.h>
 #include <unordered_map>
 #include <QTextStream>
 #include <QMessageBox>
@@ -113,6 +115,31 @@ QString get_fileHeaderParameter(QFile *file, QString parametername)
     return "";
 }
 
+QString sanityCheckWCS(wcsprm *wcs)
+{
+    double det = wcs->cd[0]*wcs->cd[3] - wcs->cd[1]*wcs->cd[2];
+    if (det == 0.) return "WCS matrix is singular: "+ QString::number(wcs->cd[0],'g',5) + QString::number(wcs->cd[1],'g',5) + QString::number(wcs->cd[2],'g',5) + QString::number(wcs->cd[3],'g',5);
+    else {
+        // Test for significant shear
+        double pscale1 = sqrt(wcs->cd[0]*wcs->cd[0] + wcs->cd[2]*wcs->cd[2]);
+        double pscale2 = sqrt(wcs->cd[1]*wcs->cd[1] + wcs->cd[3]*wcs->cd[3]);
+        double meanPlateScale = 0.5*(pscale1+pscale2);
+
+        // take out the pixel scale
+        double cd11 = wcs->cd[0] / meanPlateScale;
+        double cd12 = wcs->cd[1] / meanPlateScale;
+        double cd21 = wcs->cd[2] / meanPlateScale;
+        double cd22 = wcs->cd[3] / meanPlateScale;
+
+        // CD matri should be nearly orthogonal, i.e. det = +/- 1
+        det = cd11*cd22 - cd12*cd21;
+
+        if (fabs(det-1.) > 0.05) {
+              return "WCS matrix is significantly sheared";
+        }
+    }
+    return "";
+}
 
 void listSwapLastPairs(QStringList &stringlist, int n)
 {

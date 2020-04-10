@@ -443,6 +443,7 @@ public:
     void updateCRVALinHeader();
     void updateCRVALCDinHeader();
     void unprotectMemoryWeight();
+    void checkWCSsanity();
 signals:
     void modelUpdateNeeded(QString baseName, QString chipName);
     void messageAvailable(QString message, QString type);

@@ -436,6 +436,11 @@ bool MyImage::scanAstromHeader(int chip, QString mode)
         }
     }
 
+    double cd11_orig = wcs->cd[0];
+    double cd12_orig = wcs->cd[1];
+    double cd21_orig = wcs->cd[2];
+    double cd22_orig = wcs->cd[3];
+
     QTextStream in(&file);
     while(!in.atEnd()) {
         QString line = in.readLine().simplified();
@@ -453,9 +458,38 @@ bool MyImage::scanAstromHeader(int chip, QString mode)
         if (line.contains("FLXSCALE")) FLXSCALE = list[2].toFloat();
         if (line.contains("RZP")) RZP = list[2].toFloat();
     }
-    wcs->flag = 0;  // Trigger recomputation
+
     file.close();
-    return true;
+
+    // Do not update the WCS matrix if it is significantly flawed
+    if (sanityCheckWCS(wcs).isEmpty()) {
+        wcs->flag = 0;  // Trigger recomputation
+        return true;
+    }
+    else {
+        wcs->cd[0] = cd11_orig;
+        wcs->cd[1] = cd12_orig;
+        wcs->cd[2] = cd21_orig;
+        wcs->cd[3] = cd22_orig;
+        return false;
+    }
+}
+
+void MyImage::checkWCSsanity()
+{
+    // Do not update the WCS matrix if it is significantly flawed
+    if (sanityCheckWCS(wcs).isEmpty()) return;
+    else {
+        wcs->cd[0] = -1.*plateScale/3600.;
+        wcs->cd[1] = 0.;
+        wcs->cd[2] = 0.;
+        wcs->cd[3] = plateScale/3600.;
+        wcs->flag = 0;
+        updateCRVALCDinHeader();
+        updateCRVALCDinHeaderOnDrive();
+        emit messageAvailable("Singular or skewed CD matrix detected, reset to default values!", "warning");
+        emit warning();
+    }
 }
 
 void MyImage::backupOrigHeader(int chip)
