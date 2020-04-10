@@ -86,7 +86,25 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
         it->baseNameBackupL1 = image->baseNameBackupL1;
         it->imageInMemory = true;
         it->wcs = image->wcs;
+        it->plateScale = image->plateScale;
         it->wcsInit = image->wcsInit;
+        it->gain = image->gain;
+        it->airmass = image->airmass;
+        it->fwhm = image->fwhm;
+        it->fwhm_est = image->fwhm_est;
+        it->gain = image->gain;
+        it->ellipticity = image->ellipticity;
+        it->ellipticity_est = image->ellipticity_est;
+        it->RZP = image->RZP;
+        it->gainNormalization = image->gainNormalization;
+        it->hasMJDread = image->hasMJDread;
+        it->headerInfoProvided = image->headerInfoProvided;
+        it->skyValue = image->skyValue;
+        it->modeDetermined = image->modeDetermined;
+        it->fullheader = image->fullheader;
+        it->dateobs = image->dateobs;
+        it->cornersToRaDec();
+
         // Data::populateExposureList() will group debayered images into one exposure, and then
         // mergeScampCatalogs() will create three extensions. But we need them individually.
         // Hence introducing a 0.1 s offset in MJD-OBS.

@@ -768,7 +768,7 @@ void Splitter::buildTheliHeaderAIRMASS()
         if (dataType == "SCIENCE"
                 || dataType == "SKY"
                 || dataType == "STD") {
-            emit messageAvailable(fileName + " : Insufficient data to determine AIRMASS, set to 1.0", "warning");
+            emit messageAvailable(fileName + " : Could not determine keyword: AIRMASS, set to 1.0", "warning");
         }
     }
 }

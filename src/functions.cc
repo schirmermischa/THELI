@@ -131,10 +131,11 @@ QString sanityCheckWCS(wcsprm *wcs)
         double cd21 = wcs->cd[2] / meanPlateScale;
         double cd22 = wcs->cd[3] / meanPlateScale;
 
-        // CD matri should be nearly orthogonal, i.e. det = +/- 1
+        // CD matrix should be nearly orthogonal, i.e. det = +/- 1
+
         det = cd11*cd22 - cd12*cd21;
 
-        if (fabs(det-1.) > 0.05) {
+        if (fabs(det)-1. > 0.05) {
               return "WCS matrix is significantly sheared";
         }
     }

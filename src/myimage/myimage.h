@@ -47,7 +47,6 @@ private:
     void stayWithinBounds(QVector<long> &vertices);
     void mapHeader(QString fullheaderString);
     float polynomialSum(float x, QVector<float> coefficients);
-    void cornersToRaDec();
 
     // ================= BACKGROUND MODELING ===========================
     long nGridPoints = 0;           // Number of grid points
@@ -333,6 +332,7 @@ public:
     void applyPolygons(int chip);
     void backupOrigHeader(int chip);
     void buildSexCommand();
+    void cornersToRaDec();
     void createSextractorCatalog();
     void collapseCorrection(QString threshold, QString direction);
     void cosmicsFilter(QString aggressiveness);
