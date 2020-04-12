@@ -590,24 +590,37 @@ void Splitter::buildTheliHeaderDATEOBS()
 {
     if (!successProcessing) return;
 
-    bool keyFound = searchKey("DATE-OBS", headerDictionary.value("DATE-OBS"), headerTHELI);
-    if (keyFound && checkFormatDATEOBS()) return;
+    bool found = false;
+    // Lopp over all possible dateobs keywords, and break once we found one that is valid
+    for (auto &keyword : headerDictionary.value("DATE-OBS")) {
+        dateObsValue = "";
+        searchKeyValue(QStringList() << keyword, dateObsValue);
+        if (!dateObsValue.isEmpty() && checkFormatDATEOBS()) {
+            found = true;
+            break;
+        }
+    }
+
+    //    bool keyFound = searchKey("DATE-OBS", headerDictionary.value("DATE-OBS"), headerTHELI);
+    //    if (keyFound && checkFormatDATEOBS()) return;
 
     // Fallback: Try and reconstruct DATE-OBS keyword from other keywords
     // DATE-OBS has not been appended yet by searchKey() child function if format is wrong
-    QString dateValue;
-    QString timeValue;
-    bool foundDATE = searchKeyValue(headerDictionary.value("DATE"), dateValue);
-    bool foundTIME = searchKeyValue(headerDictionary.value("TIME"), timeValue);
-    if (foundDATE && foundTIME) {
-        if (dateValue.contains("-") && timeValue.contains(":")) {
-            dateObsValue = dateValue+"T"+timeValue;
-        }
-        else {
-            emit messageAvailable(fileName + " : Could not determine keyword: DATE-OBS, set to 2020-01-01T00:00:00.000", "warning");
-            emit warning();
-            dateObsValue = "2020-01-01T00:00:00.000";
-            dateObsValid = false;
+    if (!found) {
+        QString dateValue;
+        QString timeValue;
+        bool foundDATE = searchKeyValue(headerDictionary.value("DATE"), dateValue);
+        bool foundTIME = searchKeyValue(headerDictionary.value("TIME"), timeValue);
+        if (foundDATE && foundTIME) {
+            if (dateValue.contains("-") && timeValue.contains(":")) {
+                dateObsValue = dateValue+"T"+timeValue;
+            }
+            else {
+                emit messageAvailable(fileName + " : Could not determine keyword: DATE-OBS, set to 2020-01-01T00:00:00.000", "warning");
+                emit warning();
+                dateObsValue = "2020-01-01T00:00:00.000";
+                dateObsValid = false;
+            }
         }
     }
 

@@ -479,6 +479,7 @@ QString findExecutableName(QString program)
     QStringList sexlist = {"sex", "sextractor", "SExtractor", "source-extractor"};
     QStringList scamplist = {"scamp", "Scamp"};
     QStringList swarplist = {"swarp", "Swarp", "SWarp"};
+    QStringList anetlist = {"solve-field"};
 
     QString commandname = "";
     if (program == "sex") {
@@ -495,6 +496,12 @@ QString findExecutableName(QString program)
     }
     else if (program == "swarp") {
         for (auto &it : swarplist) {
+            commandname = QStandardPaths::findExecutable(it);
+            if (!commandname.isEmpty()) break;
+        }
+    }
+    else if (program == "solve-field") {
+        for (auto &it : anetlist) {
             commandname = QStandardPaths::findExecutable(it);
             if (!commandname.isEmpty()) break;
         }

@@ -23,6 +23,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../myfits/myfits.h"
 #include "../tools/detectedobject.h"
 #include "../threading/sexworker.h"
+#include "../threading/anetworker.h"
 #include "../processingStatus/processingStatus.h"
 
 #include <gsl/gsl_vector.h>
@@ -150,6 +151,7 @@ public:
 
     QThread *workerThread;
     SexWorker *sexWorker;
+    AnetWorker *anetWorker;
 
     // Defining data
     QString path = "";
@@ -188,6 +190,7 @@ public:
     QVector<QString> header;
 
     QString sexCommand;
+    QString anetCommand;
 
     // Static image characteristics
     // Once running, the chipNumber always starts with 1,
@@ -332,6 +335,7 @@ public:
     void applyPolygons(int chip);
     void backupOrigHeader(int chip);
     void buildSexCommand();
+    void buildAnetCommand();
     void cornersToRaDec();
     void createSextractorCatalog();
     void collapseCorrection(QString threshold, QString direction);
@@ -444,6 +448,8 @@ public:
     void updateCRVALCDinHeader();
     void unprotectMemoryWeight();
     void checkWCSsanity();
+    void buildAnetCommand(QString pixscale_maxerr, QString thelidir);
+    void runAnetCommand();
 signals:
     void modelUpdateNeeded(QString baseName, QString chipName);
     void messageAvailable(QString message, QString type);

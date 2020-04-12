@@ -472,7 +472,7 @@
        <number>1</number>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>6</number>
       </property>
       <widget class="QWidget" name="HDUpage">
        <layout class="QGridLayout" name="gridLayout_31">
@@ -23535,6 +23535,11 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                <item>
                 <property name="text">
                  <string>Scamp</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>astrometry.net</string>
                 </property>
                </item>
                <item>

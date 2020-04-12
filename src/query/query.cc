@@ -165,8 +165,8 @@ void Query::getCatalogSearchRadiusAstrom()
             // TODO: this is probably not necessary anymore because of the wcslock in MyImage::transferWCS()
             emit messageAvailable("Truncating the search radius to "+QString::number(radius, 'f', 1) + " arcmin", "warning");
             emit messageAvailable("Do you have different targets collected in the same directory?", "warning");
-            qDebug() << corners_crval1;
-            qDebug() << corners_crval2;
+            qDebug() << "RA corner vertices" << corners_crval1;
+            qDebug() << "DEC corner vertices" << corners_crval2;
         }
         radius_string = QString::number(radius, 'f', 3);
     }
@@ -1245,7 +1245,7 @@ void Query::writeAstromANET()
 
     buildIndexCommand.append("-i "+filename1+" ");
     buildIndexCommand.append("-o "+filename2+" ");
-    buildIndexCommand.append("-E -M -S MAG -j 0.2 -I 1 ");
+    buildIndexCommand.append("-E -M -S MAG -j 0.1 -I 1 ");
     buildIndexCommand.append("-P "+QString::number(scaleNumber));
 
     runCommand(buildIndexCommand);

@@ -128,7 +128,10 @@ SOURCES += \
     tools/splitter_multiport.cc \
     readmes/license.cc \
     readmes/acknowledging.cc \
-    iview/dockwidgets/ivwcsdockwidget.cc
+    iview/dockwidgets/ivwcsdockwidget.cc \
+    myimage/astrometrynet.cc \
+    threading/anetworker.cc \
+    processingInternal/processingCreateSourceCat.cc
 
 HEADERS += \
         mainwindow.h \
@@ -191,7 +194,8 @@ HEADERS += \
     tools/swarpfilter.h \
     tools/tools.h \
     readmes/license.h \
-    readmes/acknowledging.h
+    readmes/acknowledging.h \
+    threading/anetworker.h
 
 FORMS += \
         mainwindow.ui \

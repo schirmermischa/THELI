@@ -283,6 +283,9 @@ private:
     void flagLowDetectionImages(Data *scienceData, long &numExpRejected, long &numImgRejected);
     void doDataFitInRAM(long nImages, long storageSize);
     bool testResetDesire(Data *data);
+    void runAnet(Data *scienceData);
+    void prepareAnetRun(Data *scienceData);
+    long prepareAnetCats(Data *scienceData, long &totNumObjects);
 private slots:
     // The following can also be under 'private', but then the declaration must be preceeded like this:
     // Q_INVOKABLE QString taskHDUreformat();
