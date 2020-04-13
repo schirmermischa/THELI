@@ -143,36 +143,8 @@ void Controller::taskInternalAstromphotom()
         */
 
         progress = 0.;
-//        progressStepSize = 80. / (float) numCats;  // 80%, leaving some space for distortion solution.
-        // Build the scamp command
-        buildScampCommand(scienceData);
 
-        // Run the Scamp command
-        workerThread = new QThread();
-        scampWorker = new ScampWorker(scampCommand, scampDir, instData->shortName);
-        workerInit = true;
-        workerThreadInit = true;
-        scampWorker->moveToThread(workerThread);
-
-        connect(workerThread, &QThread::started, scampWorker, &ScampWorker::runScamp);
-        // Qt::DirectConnection is bad here, because this task runs in a different thread than the main controller,
-        // meaning that if e.g. sky sub is activated as well it will start immediately even before the scamp checkplots are shown
-        // connect(workerThread, &QThread::finished, workerThread, &QThread::deleteLater, Qt::DirectConnection);
-        // connect(scampWorker, &ScampWorker::finished, workerThread, &QThread::quit, Qt::DirectConnection);
-        // connect(scampWorker, &ScampWorker::finished, scampWorker, &QObject::deleteLater, Qt::DirectConnection);
-        connect(workerThread, &QThread::finished, workerThread, &QThread::deleteLater);
-        connect(scampWorker, &ScampWorker::errorFound, this, &Controller::errorFoundReceived);
-        connect(scampWorker, &ScampWorker::finishedScamp, this, &Controller::finishedScampReceived);
-        // Need the direct connection if we want the thread to actually return control to the main thread (activating the start button again).
-        // But then sky sub would start before checkplots are evaluated.
-        // CORRECT WAY: call workerThread->quit() at the end of the image quality analysis
-        //        connect(scampWorker, &ScampWorker::finished, workerThread, &QThread::quit, Qt::DirectConnection);
-        //       connect(scampWorker, &ScampWorker::finished, workerThread, &QThread::quit);
-        connect(scampWorker, &ScampWorker::finished, scampWorker, &QObject::deleteLater);
-        connect(scampWorker, &ScampWorker::messageAvailable, monitor, &Monitor::displayMessage);
-        connect(scampWorker, &ScampWorker::fieldMatched, this, &Controller::fieldMatchedReceived);
-        workerThread->start();
-        workerThread->wait();
+        runAnet(scienceData);
     }
     else if (cdw->ui->ASTmethodComboBox->currentText() == "Cross-correlation") {
 
@@ -506,13 +478,30 @@ void Controller::prepareAnetRun(Data *scienceData)
     headersDir.mkpath(headersPath);
 
     // Check if the reference catalog exists
-    QFile refcat(scienceDir+"/cat/refcat/theli_mystd.anet");
+    QFile refcat(scienceDir+"/cat/refcat/theli_mystd.index");
     if (!refcat.exists()) {
         emit messageAvailable("The astrometric reference catalog does not exist, or was not created!", "error");
         successProcessing = false;
         monitor->raise();
         return;
     }
+
+    // Write the config file for the solver
+    QFile backendConfig(scienceDir+"/astrom_photom_anet/backend.cfg");
+    if (backendConfig.exists()) backendConfig.remove();
+    QTextStream stream(&backendConfig);
+    if( !backendConfig.open(QIODevice::WriteOnly)) {
+        emit messageAvailable("Controller::prepareAnetRun(): ERROR writing "+scienceDir+"/astrom_photom_anet/backend.cfg : "+backendConfig.errorString(), "error");
+        emit criticalReceived();
+        return;
+    }
+    stream << "#inparallel" << "\n";
+    stream << "#depths 10 20 30 40 50 60 70 80 90 100" << "\n";
+    stream << "#cpulimit 300" << "\n";
+    stream << "add_path " << scienceDir+"/cat/refcat/" << "\n";
+    stream << "index theli_mystd.index" << "\n";
+    backendConfig.close();
+    backendConfig.setPermissions(QFile::ReadUser | QFile::WriteUser);
 }
 
 void Controller::runAnet(Data *scienceData)
@@ -526,6 +515,9 @@ void Controller::runAnet(Data *scienceData)
 
     QString pixscaleMaxerr = cdw->ui->ASTpixscaleLineEdit->text();
 
+    scienceData->populateExposureList();
+    progressStepSize = 100. / float(numMyImages);
+
 #pragma omp parallel for num_threads(maxCPU)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
@@ -537,10 +529,12 @@ void Controller::runAnet(Data *scienceData)
 
         releaseMemory(nimg*instData->storage, maxCPU);
 
-        if (verbosity > 1) emit messageAvailable(it->chipName + " : Running astrometry.net ...", "image");
+        if (verbosity >= 1) emit messageAvailable("<br>"+it->chipName + " : Running astrometry.net ...", "data");
+        it->provideHeaderInfo();         // don't need pixels, but metadata
         it->checkWCSsanity();
         it->buildAnetCommand(pixscaleMaxerr, thelidir);
         it->runAnetCommand();
+        it->reformatAnetOutput();
         it->unprotectMemory();
         if (minimizeMemoryUsage) {
             it->freeAll();
@@ -607,7 +601,7 @@ void Controller::doImageQualityAnalysis()
 
     delete gaiaQuery;
 
-//    emit messageAvailable("You can display the results of the image quality analysis in the statistics module", "note");
+    //    emit messageAvailable("You can display the results of the image quality analysis in the statistics module", "note");
 
     successProcessing = true;
     //    pushEndMessage("ImageQuality", scampScienceDir);

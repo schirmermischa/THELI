@@ -245,7 +245,8 @@ QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList
         if (taskBasename == "Astromphotom") {
             // do we need to update the reference catalog?
             if (!isRefcatRecent(main+"/"+science)) {
-                if (cdw->ui->ASTmethodComboBox->currentText() == "Scamp") {
+                if (cdw->ui->ASTmethodComboBox->currentText() == "Scamp"
+                        || cdw->ui->ASTmethodComboBox->currentText() == "astrometry.net") {
                     if (cdw->ui->ARCwebRadioButton->isChecked()) {
                         updateProcessList(commandList, "GetCatalogFromWEB", it);
                     }

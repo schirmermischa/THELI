@@ -23539,11 +23539,6 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                </item>
                <item>
                 <property name="text">
-                 <string>astrometry.net</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
                  <string>Cross-correlation</string>
                 </property>
                </item>

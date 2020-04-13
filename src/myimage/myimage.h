@@ -450,6 +450,7 @@ public:
     void checkWCSsanity();
     void buildAnetCommand(QString pixscale_maxerr, QString thelidir);
     void runAnetCommand();
+    void reformatAnetOutput();
 signals:
     void modelUpdateNeeded(QString baseName, QString chipName);
     void messageAvailable(QString message, QString type);
@@ -461,6 +462,7 @@ signals:
 
 public slots:
     void messageAvailableReceived(QString message, QString type);
+    void anetOutputReceived(QString message, QString type);
 
 private slots:
     void errorFoundReceived();

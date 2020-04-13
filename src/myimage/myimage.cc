@@ -1279,6 +1279,17 @@ void MyImage::messageAvailableReceived(QString message, QString type)
     }
 }
 
+void MyImage::anetOutputReceived(QString message, QString type)
+{
+    if (type == "error" || type == "stop") {
+        emit messageAvailable(message, type);
+        emit critical();
+    }
+    else {
+        if (*verbosity >= 1) emit messageAvailable(message, type);
+    }
+}
+
 
 QVector<double> MyImage::extractCDmatrix()
 {

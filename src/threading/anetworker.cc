@@ -45,14 +45,33 @@ void AnetWorker::runAnet()
 
 void AnetWorker::processExternalStdout()
 {
-    // Ignoring stdout
-    /*
     QProcess *process = qobject_cast<QProcess*>(sender());
     QString stdout(process->readAllStandardOutput());
-    //    QString stdout(externalProcess->readLine());
-    stdout.remove(QRegExp("[^a-zA-Z.:-\\d\\s]"));
-    emit messageAvailable(stdout.simplified(), "normal");
-    */
+
+    stdout.replace(" Field", "<br>Field");
+    stdout.replace("\nField", "<br>Field");
+    stdout.replace("Hit/miss:   Hit/miss:", "<br>Hit/miss:");
+
+    QStringList errors;
+    errors << "Did not solve (or no WCS file was written)." << "Error" << "ERROR";
+
+    // Highlight a successful solve
+    // Sometimes neighboring lines are included in one push to stdout, and then they are colored green as well.
+    //    if (stdout.contains("solved with index theli_mystd.index")) {
+//        emit messageAvailable(stdout.simplified(), "note");
+//        return;
+//    }
+
+
+    // And a field that did not solve
+    for (auto &error : errors) {
+        if (stdout.contains(error)) {
+            emit errorFound();
+            emit messageAvailable(stdout.simplified(), "stop");
+            break;
+        }
+    }
+    emit messageAvailable(stdout.simplified(), "image");
 }
 
 void AnetWorker::processExternalStderr()

@@ -1239,6 +1239,7 @@ void Query::writeAstromANET()
 
     filename1 = tmpdir+"/theli_mystd_anet.cat"; // without the exclamation mark
     QString filename2 = outpath + "/theli_mystd.index";
+    QString filename3 = userdir + "/theli_mystd.index";
     QString buildIndexCommand = "build-astrometry-index ";
     QString anetCheck = QStandardPaths::findExecutable("build-astrometry-index");
     if (anetCheck.isEmpty()) return;
@@ -1251,6 +1252,7 @@ void Query::writeAstromANET()
     runCommand(buildIndexCommand);
     QFile file(filename2);
     file.setPermissions(QFile::ReadUser | QFile::WriteUser);
+    file.copy(filename3);
 }
 
 void Query::writeAstromIview()

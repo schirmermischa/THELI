@@ -55,16 +55,18 @@ void MyImage::buildAnetCommand(QString pixscale_maxerr, QString thelidir)
     anetCommand += " -T";                         // don't compute SIP polynomials
     anetCommand += " -s MAG";                     // sort column
     anetCommand += " -a ";                        // sort order: ascending (bright sources first)
-    anetCommand += " -b "+thelidir+"/config/anet.backend.cfg";        // config file
-    anetCommand += " -R none";
-    anetCommand += " -B none";
-    anetCommand += " -S none";
-    anetCommand += " -M none";
-    anetCommand += " -W " + path + "/cat/"+chipName+".wcs";   // output file
-    anetCommand += path + "/cat/"+chipName+".anet";
+    anetCommand += " -b " + path + "/astrom_photom_anet/backend.cfg";        // config file
+    anetCommand += " -R none";                   // suppress output
+    anetCommand += " -B none";                   // suppress output
+    anetCommand += " -S none";                   // suppress output
+    anetCommand += " -M none";                   // suppress output
+    anetCommand += " -U none";                   // suppress output
+  //  anetCommand += " --axy none";              // suppress output
+    anetCommand += " --temp-axy";                // suppress output
+    anetCommand += " -W " + path + "/astrom_photom_anet/"+chipName+".wcs";   // output file
+    anetCommand += " " + path + "/cat/"+chipName+".anet";
 
-    if (*verbosity >= 1) emit messageAvailable("Executing the following astrometry.net command :<br><br>"+anetCommand+"<br><br>", "info");
-    if (*verbosity >= 1) emit messageAvailable("<br>astrometry.net output<br>", "ignore");
+    if (*verbosity > 1) emit messageAvailable("Executing the following astrometry.net command :<br><br>"+anetCommand+"<br>", "info");
 }
 
 // start in new thread
@@ -85,7 +87,71 @@ void MyImage::runAnetCommand()
     // (does not proceed to the next step in the controller's for loop)
     connect(anetWorker, &AnetWorker::finished, workerThread, &QThread::quit, Qt::DirectConnection);
     connect(anetWorker, &AnetWorker::finished, anetWorker, &QObject::deleteLater);
-    connect(anetWorker, &AnetWorker::messageAvailable, this, &MyImage::messageAvailableReceived);
+    connect(anetWorker, &AnetWorker::messageAvailable, this, &MyImage::anetOutputReceived);
     workerThread->start();
     workerThread->wait();
+}
+
+void MyImage::reformatAnetOutput()
+{
+    QString anetOutput = path + "/astrom_photom_anet/"+chipName+".wcs";
+    QFile wcsOutput(anetOutput);
+    if (!wcsOutput.exists()) {
+        emit messageAvailable(chipName + " : Did not find astrometry.net output!", "error");
+        emit critical();
+        return;
+    }
+    else {
+       emit messageAvailable(chipName + " : Successfully solved", "note");
+    }
+
+    QString header;
+
+    fitsfile *fptr;
+    int status = 0;
+    int nkeys = 0;
+    int keypos = 0;
+    char card[FLEN_CARD];   /* standard string lengths defined in fitsioc.h */
+    fits_open_file(&fptr, anetOutput.toUtf8().data(), READONLY, &status);
+    fits_get_hdrpos(fptr, &nkeys, &keypos, &status);
+    for (int jj = 1; jj <= nkeys; ++jj)  {
+        fits_read_record(fptr, jj, card, &status);
+        QString cardString(card);
+        if (cardString.contains("EQUINOX =")
+                || cardString.contains("RADESYS =")
+                || cardString.contains("CTYPE1  =")
+                || cardString.contains("CTYPE2  =")
+                || cardString.contains("CUNIT1  =")
+                || cardString.contains("CUNIT2  =")
+                || cardString.contains("CRVAL1  =")
+                || cardString.contains("CRVAL2  =")
+                || cardString.contains("CRPIX1  =")
+                || cardString.contains("CRPIX2  =")
+                || cardString.contains("CD1_1   =")
+                || cardString.contains("CD1_2   =")
+                || cardString.contains("CD2_1   =")
+                || cardString.contains("CD2_2   =")) {
+            header.append(cardString);
+            header.append("\n");
+        }
+    }
+    header.append("END\n");
+
+    if (status == END_OF_FILE) status = 0;
+    else printCfitsioError("MyImage::reformatAnetOutput()", status);
+    fits_close_file(fptr, &status);
+
+    QString anetOutputHeaderName = path + "/astrom_photom_anet/"+chipName+".head";
+    QFile wcsOutputHeaderFile(anetOutputHeaderName);
+    QTextStream stream(&wcsOutputHeaderFile);
+    if( !wcsOutputHeaderFile.open(QIODevice::WriteOnly)) {
+        emit messageAvailable("Could not write astrometry.net reformatted output to "+wcsOutputHeaderFile.fileName(), "error");
+        emit messageAvailable(wcsOutputHeaderFile.errorString(), "error");
+        emit critical();
+        successProcessing = false;
+        return;
+    }
+    stream << header;
+    wcsOutputHeaderFile.close();
+    wcsOutputHeaderFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
 }

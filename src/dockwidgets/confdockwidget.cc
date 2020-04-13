@@ -546,6 +546,7 @@ void ConfDockWidget::on_ASTmethodComboBox_currentIndexChanged(int index)
         ui->confAstromphotom3Frame->setEnabled(true);
         ui->confAstromphotom4Frame->setEnabled(true);
         ui->confAstromphotom5Frame->setEnabled(true);
+        ui->confAstromphotom6Frame->setEnabled(true);
         ui->ASTxcorrDTLineEdit->hide();
         ui->ASTxcorrDMINLineEdit->hide();
         ui->ASTxcorrDTLabel->hide();
@@ -557,6 +558,7 @@ void ConfDockWidget::on_ASTmethodComboBox_currentIndexChanged(int index)
         ui->confAstromphotom3Frame->setDisabled(true);
         ui->confAstromphotom4Frame->setDisabled(true);
         ui->confAstromphotom5Frame->setDisabled(true);
+        ui->confAstromphotom6Frame->setDisabled(true);
         ui->ASTxcorrDTLineEdit->show();
         ui->ASTxcorrDMINLineEdit->show();
         ui->ASTxcorrDTLabel->show();
@@ -568,6 +570,7 @@ void ConfDockWidget::on_ASTmethodComboBox_currentIndexChanged(int index)
         ui->confAstromphotom3Frame->setDisabled(true);
         ui->confAstromphotom4Frame->setDisabled(true);
         ui->confAstromphotom5Frame->setDisabled(true);
+        ui->confAstromphotom6Frame->setDisabled(true);
         ui->ASTxcorrDTLineEdit->hide();
         ui->ASTxcorrDMINLineEdit->hide();
         ui->ASTxcorrDTLabel->hide();
@@ -893,6 +896,7 @@ void ConfDockWidget::setupInstrumentComboBox_clicked()
         }
     }
 
+    int currentASTmethod = ui->ASTmethodComboBox->currentIndex();
     // (de)activate some GUI elements depending on wavelength regime;
     // the following two lines are needed to (de)activate some elements in a ComboBox
     const QStandardItemModel* astrom_model = dynamic_cast< QStandardItemModel * >( ui->ASTmethodComboBox->model() );
@@ -981,7 +985,8 @@ void ConfDockWidget::setupInstrumentComboBox_clicked()
         ui->confBackground4Frame->setEnabled(true);
         ui->confBackground5Frame->setEnabled(true);
         ui->confBackground6Frame->setEnabled(true);
-        ui->ASTmethodComboBox->setCurrentIndex(0);
+        if (currentASTmethod < 2) ui->ASTmethodComboBox->setCurrentIndex(currentASTmethod);
+        else ui->ASTmethodComboBox->setCurrentIndex(0);
         ui->confAstromphotom1Frame->setEnabled(true);
         ui->confAstromphotom2Frame->setEnabled(true);
         ui->confAstromphotom3Frame->setEnabled(true);
@@ -1020,7 +1025,8 @@ void ConfDockWidget::setupInstrumentComboBox_clicked()
         ui->confBackground4Frame->setEnabled(true);
         ui->confBackground5Frame->setEnabled(true);
         ui->confBackground6Frame->setEnabled(true);
-        ui->ASTmethodComboBox->setCurrentIndex(0);
+        if (currentASTmethod < 2) ui->ASTmethodComboBox->setCurrentIndex(currentASTmethod);
+        else ui->ASTmethodComboBox->setCurrentIndex(0);
         ui->confAstromphotom1Frame->setEnabled(true);
         ui->confAstromphotom2Frame->setEnabled(true);
         ui->confAstromphotom3Frame->setEnabled(true);
@@ -1059,7 +1065,8 @@ void ConfDockWidget::setupInstrumentComboBox_clicked()
         ui->confBackground4Frame->setEnabled(true);
         ui->confBackground5Frame->setEnabled(true);
         ui->confBackground6Frame->setEnabled(true);
-        ui->ASTmethodComboBox->setCurrentIndex(0);
+        if (currentASTmethod < 2) ui->ASTmethodComboBox->setCurrentIndex(currentASTmethod);
+        else ui->ASTmethodComboBox->setCurrentIndex(0);
         ui->confAstromphotom1Frame->setEnabled(true);
         ui->confAstromphotom2Frame->setEnabled(true);
         ui->confAstromphotom3Frame->setEnabled(true);
