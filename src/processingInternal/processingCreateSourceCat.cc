@@ -66,7 +66,11 @@ void Controller::taskInternalCreatesourcecat()
     scienceData->removeCatalogs();
 
     // Check if exposures have unambiguous MJD-OBS keywords, otherwise the construction of scamp catalogs will fail
-    if (!scienceData->collectMJD()) return;
+    if (!scienceData->collectMJD()) {
+        emit messageAvailable("Duplicate MJD-OBS entries found!", "error");
+        emit criticalReceived();
+        return;
+    }
 
     // INTERNAL
     if (cdw->ui->CSCMethodComboBox->currentText() == "THELI") {

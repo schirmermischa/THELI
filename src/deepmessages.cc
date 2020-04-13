@@ -163,7 +163,8 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
         DUPLICATE_MJDOBS_shown = true;
         QMessageBox::warning(this, tr("One or more images have identical MJD-OBS header keywords."),
                              tr("THELI cannot build a list of contemporal images for the background model in")+part1+
-                             tr("<br>You must first fix the MJD-OBS keywords to their correct values."),
+                             tr("<br>nor construct correct source catalogs for the astrometric solution.")+
+                             tr("<br>You must first fix the MJD-OBS keywords to their correct values, or the DATE-OBS keyword in the raw data."),
                              QMessageBox::Ok);
     }
     else if (trigger == "Data::IMAGES_NOT_FOUND" && !IMAGES_NOT_FOUND_shown) {
