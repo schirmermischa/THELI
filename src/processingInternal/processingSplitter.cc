@@ -85,7 +85,9 @@ void Controller::taskInternalHDUreformat()
 
     // Stop memory bar. Updated internally because data classes are not yet available
     // Must use signals instead, timer lives in a different thread
-   // memTimer->stop();
+    // memTimer->stop();
+
+    float dateObsIncrementor = 0;
 
     // Loop over all chips
 #pragma omp parallel for num_threads(maxCPU) firstprivate(mainDirName, dataDir, dummyKeys, nonlinearityCoefficients, headerDictionary, filterDictionary, dataType)
@@ -104,6 +106,7 @@ void Controller::taskInternalHDUreformat()
         splitter->progressLock = &progressLock;
         splitter->genericLock = &genericLock;
         splitter->progress = &progress;
+        splitter->dateObsIncrementor = &dateObsIncrementor;
         connect(splitter, &Splitter::messageAvailable, this, &Controller::messageAvailableReceived);
         connect(splitter, &Splitter::critical, this, &Controller::criticalReceived);
         connect(splitter, &Splitter::warning, this, &Controller::warningReceived);

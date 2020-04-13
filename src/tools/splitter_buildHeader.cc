@@ -591,7 +591,8 @@ void Splitter::buildTheliHeaderDATEOBS()
     if (!successProcessing) return;
 
     bool found = false;
-    // Lopp over all possible dateobs keywords, and break once we found one that is valid
+    // Lopp over all possible dateobs keywords, and break once we found one that is valid.
+    // This is different from the general strategy to go over all possible keyword variants and take the first one that exists
     for (auto &keyword : headerDictionary.value("DATE-OBS")) {
         dateObsValue = "";
         searchKeyValue(QStringList() << keyword, dateObsValue);
@@ -616,10 +617,17 @@ void Splitter::buildTheliHeaderDATEOBS()
                 dateObsValue = dateValue+"T"+timeValue;
             }
             else {
-                emit messageAvailable(fileName + " : Could not determine keyword: DATE-OBS, set to 2020-01-01T00:00:00.000", "warning");
+                // Construct a unique dummy DATE-OBS keyword, by incrementing by 0.1 seconds.
+#pragma omp critical
+                {
+                    *dateObsIncrementor += 0.1;
+                    QString timeStamp = decimalSecondsToHms(*dateObsIncrementor);
+                    dateObsValue = "2020-01-01T"+timeStamp;
+                }
+                emit messageAvailable(fileName + " : Could not determine keyword: DATE-OBS, set to "+dateObsValue, "warning");
                 emit warning();
-                dateObsValue = "2020-01-01T00:00:00.000";
-                dateObsValid = false;
+                //                dateObsValue = "2020-01-01T00:00:00.000";
+                //                dateObsValid = false;
             }
         }
     }

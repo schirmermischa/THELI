@@ -849,6 +849,25 @@ QString dmsToDecimal(QString dms)
     return QString::number(decimal,'f',12);
 }
 
+QString decimalSecondsToHms(float value)
+{
+    double h;
+    double m;
+    double s;
+    value /= 3600.;
+    value = 60.0 * modf(value, &h);
+    s = 60.0 * modf(value, &m);
+    QString hh;
+    QString mm;
+    QString ss;
+    if (h<10) hh = '0'+QString::number(int(h));
+    else hh = QString::number(int(h));
+    if (m<10) mm = '0'+QString::number(int(m));
+    else mm = QString::number(int(m));
+    ss = QString::number(s, 'f', 3);
+    return hh+":"+mm+":"+ss;
+}
+
 double dateobsToDecimal(QString dateobs)
 {
     // dateobs format: YYYY-MM-DDTHH:MM:SS.sss

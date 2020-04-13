@@ -65,6 +65,9 @@ void Controller::taskInternalCreatesourcecat()
     // Cleanup the catalog directory from the results of a previous run
     scienceData->removeCatalogs();
 
+    // Check if exposures have unambiguous MJD-OBS keywords, otherwise the construction of scamp catalogs will fail
+    if (!scienceData->collectMJD()) return;
+
     // INTERNAL
     if (cdw->ui->CSCMethodComboBox->currentText() == "THELI") {
         detectionInternal(scienceData, minFWHM, maxFlag);

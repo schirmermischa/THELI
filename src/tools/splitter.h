@@ -60,6 +60,8 @@ public:
     bool alreadyProcessed = false;
     bool MEFpastingFinished = true;
 
+    float *dateObsIncrementor;
+
     long memoryUsed = 0;
 
     // Nonlinearity
