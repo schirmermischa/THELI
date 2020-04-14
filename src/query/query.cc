@@ -36,7 +36,7 @@ If not, see https://www.gnu.org/licenses/ .
 Query::Query(int *verbose)
 {
     // Initialization
-    initEnvironment(thelidir, userdir, tmpdir);
+    initEnvironment(thelidir, userdir);
 
     QSettings settings("THELI", "PREFERENCES");
     QString server = settings.value("prefServerComboBox").toString();
@@ -1209,7 +1209,10 @@ void Query::writeAstromANET()
         return;
     }
 
-    QString filename1 = tmpdir+"/theli_mystd_anet.cat";
+    QString outpath = mainDirName+"/"+scienceData->subDirName+"/cat/refcat/";
+    mkAbsDir(outpath);
+
+    QString filename1 = outpath+"/theli_mystd_anet.cat";
     filename1 = "!"+filename1;
     fits_create_file(&fptr, filename1.toUtf8().data(), &status);
     fits_create_tbl(fptr, BINARY_TBL, nrows, tfields, ttype, tform, nullptr, "OBJECTS", &status);
@@ -1234,12 +1237,8 @@ void Query::writeAstromANET()
     if (scaleNumber<0) scaleNumber = 0;
     if (scaleNumber>19) scaleNumber = 19;
 
-    QString outpath = mainDirName+"/"+scienceData->subDirName+"/cat/refcat/";
-    mkAbsDir(outpath);
-
-    filename1 = tmpdir+"/theli_mystd_anet.cat"; // without the exclamation mark
+    filename1 = outpath+"/theli_mystd_anet.cat"; // without the exclamation mark
     QString filename2 = outpath + "/theli_mystd.index";
-    QString filename3 = userdir + "/theli_mystd.index";
     QString buildIndexCommand = "build-astrometry-index ";
     QString anetCheck = QStandardPaths::findExecutable("build-astrometry-index");
     if (anetCheck.isEmpty()) return;
@@ -1247,12 +1246,14 @@ void Query::writeAstromANET()
     buildIndexCommand.append("-i "+filename1+" ");
     buildIndexCommand.append("-o "+filename2+" ");
     buildIndexCommand.append("-E -M -S MAG -j 0.1 -I 1 ");
+    buildIndexCommand.append("-t "+outpath+" ");
     buildIndexCommand.append("-P "+QString::number(scaleNumber));
 
     runCommand(buildIndexCommand);
     QFile file(filename2);
     file.setPermissions(QFile::ReadUser | QFile::WriteUser);
-    file.copy(filename3);
+    QFile file1(filename1);
+    file1.remove();
 }
 
 void Query::writeAstromIview()

@@ -61,7 +61,6 @@ private:
 
     QString thelidir;
     QString userdir;
-    QString tmpdir;
 
     QList<QLineEdit*> geometryList;
     QList<QLineEdit*> geometryNumList;

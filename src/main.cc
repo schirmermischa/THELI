@@ -56,7 +56,6 @@ int main(int argc, char *argv[])
     QDir dotTheli(dotTheliName);
     dotTheli.mkdir(dotTheliName);
     dotTheli.mkdir(dotTheliName+"/scripts");
-    dotTheli.mkdir(dotTheliName+"/tmp");
     dotTheli.mkdir(dotTheliName+"/instruments_user");
 
     // Fetch the process ID of the main program
@@ -78,6 +77,8 @@ void dependencyCheck()
     QString scamp = findExecutableName("scamp");    // testing different executable names
     QString swarp = findExecutableName("swarp");
     QString sex = findExecutableName("sex");
+    QString solve_field = findExecutableName("solve-field");
+    QString build_astrometry_index = findExecutableName("build-astrometry-index");
 
     QString vizqueryDep = "";
     QString sesameDep = "";
@@ -85,6 +86,7 @@ void dependencyCheck()
     QString scampDep = "";
     QString swarpDep = "";
     QString sexDep = "";
+    QString anetDep = "";
 
     int missingDep = 0;
 
@@ -97,6 +99,25 @@ void dependencyCheck()
         sesameDep = "'sesame' required.\nhttp://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz\n\n";
         ++missingDep;
     }
+
+    if (wwwget.isEmpty()) {
+        wwwgetDep = "'wwwget' required, compile with 'make wwwget' after unpacking cdsclient \nhttp://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz\n\n";
+        ++missingDep;
+    }
+
+    if (solve_field.isEmpty()) {
+        anetDep = "astrometry.net 'solve-field' not found.\n";
+    }
+
+    if (build_astrometry_index.isEmpty()) {
+        anetDep += "astrometry.net 'build-astrometry-index' not found.\n";
+    }
+
+    if (!anetDep.isEmpty()) {
+        qDebug() << "Astrometry.net installation was not found. Corresponding solvers are deactivated.";
+        qDebug() << "Astrometry.net is available at https://github.com/dstndstn/astrometry.net/releases\n";
+    }
+
 
     if (wwwget.isEmpty()) {
         wwwgetDep = "'wwwget' required, compile with 'make wwwget' after unpacking cdsclient \nhttp://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz\n\n";

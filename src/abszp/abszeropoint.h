@@ -102,7 +102,6 @@ private:
     QString taskBasename = "AbsZeropoint";
     QString thelidir;
     QString userdir;
-    QString tmpdir;
     instrumentDataType *instData;
     ErrorDialog *errordialog = new ErrorDialog(this);
     QFileInfo fileInfo;

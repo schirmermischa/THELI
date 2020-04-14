@@ -111,7 +111,6 @@ private:
     QString path;
     QString thelidir;
     QString userdir;
-    QString tmpdir;
     QString instrument_dir;
 
     // The location and radius for the search, and their string representations

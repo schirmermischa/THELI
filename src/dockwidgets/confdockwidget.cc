@@ -759,44 +759,6 @@ void ConfDockWidget::on_ARCselectimagePushButton_clicked()
     ui->ARCselectimageLineEdit->setText(currentFileName);
 }
 
-
-// UNUSED
-/*
-void ConfDockWidget::readGaiaBulkMotion()
-{
-    QString fileName = tmpdir+"GAIA_bulkmotion.dat";
-    QFile file(fileName);
-    QString pmRA;
-    QString pmRAerr;
-    QString pmDEC;
-    QString pmDECerr;
-    bool success = false;
-    if ( file.open(QIODevice::ReadOnly)) {
-        QTextStream stream( &file );
-        while ( !stream.atEnd() ) {
-            QString line = stream.readLine().simplified();
-            QStringList list = line.split(" ");
-            if (!line.isEmpty() && list.length() == 4) {
-                pmRA = list.at(0);
-                pmRAerr = list.at(1);
-                pmDEC = list.at(2);
-                pmDECerr = list.at(3);
-                success = true;
-            }
-        }
-        file.close();
-    }
-    if (success) {
-        ui->ARCpmRALineEdit->setText(pmRA+" +/- "+pmRAerr);
-        ui->ARCpmDECLineEdit->setText(pmDEC+" +/- "+pmDECerr);
-    }
-    else {
-        ui->ARCpmRALineEdit->clear();
-        ui->ARCpmDECLineEdit->clear();
-    }
-}
-*/
-
 void ConfDockWidget::updateGaiaBulkMotion(const QString &pmRA, const QString &pmDE)
 {
     ui->ARCpmRALineEdit->setText(pmRA);
@@ -839,8 +801,13 @@ void ConfDockWidget::setupAstrometry()
 {
     const QStandardItemModel* astrometryMatchModel = dynamic_cast< QStandardItemModel * >( ui->ASTmatchMethodComboBox->model() );
 
+    // Enable / disable matching methods
+    QString anetSolver = findExecutableName("solve-field");
+    QString anetIndex = findExecutableName("build-astrometry-index");
+    bool anet = true;
+    if (anetSolver.isEmpty() || anetIndex.isEmpty()) anet = false;
     astrometryMatchModel->item( 0,0 )->setEnabled( true );
-    astrometryMatchModel->item( 1,0 )->setEnabled( false );
+    astrometryMatchModel->item( 1,0 )->setEnabled( anet );
     astrometryMatchModel->item( 2,0 )->setEnabled( true );
     if (!doingInitialLaunch) {
         ui->ASTmatchMethodComboBox->setCurrentIndex(0);

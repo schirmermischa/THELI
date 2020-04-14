@@ -68,7 +68,7 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
 
     initProcessingStatus();
 
-    initEnvironment(thelidir, userdir, tmpdir);
+    initEnvironment(thelidir, userdir);
     instrument_userDir = userdir+"/instruments_user/";
     instrument_dir = thelidir+"/src/config/instruments/";
 
@@ -133,9 +133,6 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     status.history2checkbox();
 
     // this->setStyleSheet("QComboBox:hover { background-color: #99ccff };");
-
-    // wipe the tmp directory upon every launch
-    wipeTmpDir();
 
     // The entity that keeps track of the data, incl connections
     QString statusOld = status.getStatusFromHistory();
@@ -375,19 +372,6 @@ void MainWindow::addDockWidgets()
     tabifyDockWidget(monitor, memoryViewer);
 
     cdw->raise();
-}
-
-void MainWindow::wipeTmpDir()
-{
-    QDir tmp(tmpdir);
-    // SAFEGUARD
-    if (tmp.exists() && tmpdir.contains(".theli/tmp")) {
-        QStringList filter("*");
-        QStringList fileList = tmp.entryList(filter);
-        for (auto &it: fileList) {
-            tmp.remove(it);
-        }
-    }
 }
 
 void MainWindow::resetProgressBarReceived()

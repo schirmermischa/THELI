@@ -64,7 +64,6 @@ private:
 
     QString thelidir;
     QString userdir;
-    QString tmpdir;
 
     QMap<QString,QString> commentMap;
 
@@ -93,6 +92,7 @@ private:
     QString coaddDirName;
     QString coaddScienceDir;
     QString scampScienceDir;
+    QString anetDir;
     QString scampHeadersDir;
     QString scampPlotsDir;
     QString coaddUniqueID;
@@ -100,8 +100,7 @@ private:
     QString sexCommandOptions;
     QString scampDir;
     int processID;
-
-    bool scampSolutionAcceptanceState = false;
+    bool scampSolutionAcceptanceState = false; 
 
     QVector<PhotInst*> photInstruments;
 
@@ -285,7 +284,9 @@ private:
     bool testResetDesire(Data *data);
     void runAnet(Data *scienceData);
     void prepareAnetRun(Data *scienceData);
-    long prepareAnetCats(Data *scienceData, long &totNumObjects);
+    long prepareAnetCats(Data *scienceData);
+    long getNumAnetChips(QString ahead);
+    long makeAnetHeaderList(Data *scienceData);
 private slots:
     // The following can also be under 'private', but then the declaration must be preceeded like this:
     // Q_INVOKABLE QString taskHDUreformat();

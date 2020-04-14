@@ -45,7 +45,7 @@ AbsZeroPoint::AbsZeroPoint(QString image, instrumentDataType *instrumentData, QW
 {
     ui->setupUi(this);
 
-    initEnvironment(thelidir, userdir, tmpdir);
+    initEnvironment(thelidir, userdir);
     initGUI();
     instData = instrumentData;
     if (!startImage.isEmpty()) {

@@ -450,7 +450,7 @@ public:
     void checkWCSsanity();
     void buildAnetCommand(QString pixscale_maxerr, QString thelidir);
     void runAnetCommand();
-    void reformatAnetOutput();
+    QString extractAnetOutput();
 signals:
     void modelUpdateNeeded(QString baseName, QString chipName);
     void messageAvailable(QString message, QString type);

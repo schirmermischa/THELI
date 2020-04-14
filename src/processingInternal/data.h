@@ -245,7 +245,6 @@ public slots:
 private:
     QString thelidir;
     QString userdir;
-    QString tmpdir;
 
     bool workerInit = false;
     bool workerThreadInit = false;

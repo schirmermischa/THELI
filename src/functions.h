@@ -63,7 +63,7 @@ void paintPathLineEdit(QLineEdit *, QString, QString check = "dir");
 bool listContains(QStringList stringList, QString string);
 void exec_system_command(QString);
 QVector<float> getSmallSample(const QVector<float> &data, const QVector<bool> &mask = QVector<bool>());
-void initEnvironment(QString &thelidir, QString &userdir, QString &tmpdir);
+void initEnvironment(QString &thelidir, QString &userdir);
 void listSwapLastPairs(QStringList &stringlist, int n);
 long numFilesDir(QString path, QString filter);
 QString countReferenceSources(QString catalog);

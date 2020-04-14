@@ -34,7 +34,7 @@ SwarpFilter::SwarpFilter(QString coadddirname, QString kappaString,
                          int maxCPU, int *verbose, QObject *parent)
 {
     // Probably not needed, unless to case distinct linux and mac
-    initEnvironment(thelidir, userdir, tmpdir);
+    initEnvironment(thelidir, userdir);
 
     coaddDirName = coadddirname;
     nthreads = maxCPU;

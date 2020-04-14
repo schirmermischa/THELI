@@ -85,7 +85,6 @@ private:
     QString coaddDirName = "";
     QString thelidir;
     QString userdir;
-    QString tmpdir;
 
     int *verbosity;
 

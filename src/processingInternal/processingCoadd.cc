@@ -658,7 +658,7 @@ void Controller::coaddResample()
     int highGroup = imageList.length() % maxCPU - 1;
     for (auto &imageName : imageList) {
         if (i==0) {
-            listName = tmpdir+"/coaddList_"+QString::number(fileCount);
+            listName = coaddDirName+"/listCoadd_"+QString::number(fileCount);
             listNames << listName;
             file.setFileName(listName);
             stream.setDevice(&file);
@@ -813,7 +813,7 @@ void Controller::coaddCoaddition()
     QDir coaddDir(coaddDirName);
     QStringList filter("*"+statusOld+"*resamp.fits");
     QStringList imageList = coaddDir.entryList(filter);
-    QString listName = tmpdir+"/coaddList";
+    QString listName = coaddDirName+"/listCoadd";
     QFile file(listName);
     QTextStream stream(&file);
     if (!file.open(QIODevice::WriteOnly)) {
@@ -896,6 +896,17 @@ void Controller::coaddUpdate()
 
     progress = 0.;
     emit resetProgressBar();
+
+    // cleanup temporary files
+    QDir coaddDir(coaddDirName);
+    QStringList filter = {"listCoadd*", "coadd.head"};
+    coaddDir.setNameFilters(filter);
+    coaddDir.setSorting(QDir::Name);
+    QStringList tempFiles = coaddDir.entryList(filter);
+    for (auto &it : tempFiles) {
+        QFile tmpFile(coaddDirName+"/"+it);
+        if (tmpFile.exists()) tmpFile.remove();
+    }
 
     emit messageAvailable("coadd.fits : Downloading GAIA point sources ...", "image");
 

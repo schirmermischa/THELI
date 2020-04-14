@@ -67,7 +67,7 @@ Instrument::Instrument(QWidget *parent) :
     connect(ui->bayerBGGRToolButton, &QToolButton::clicked, this, &Instrument::toggle_bayer_ToolButtons);
     connect(ui->bayerGRBGToolButton, &QToolButton::clicked, this, &Instrument::toggle_bayer_ToolButtons);
 
-    initEnvironment(thelidir, userdir, tmpdir);
+    initEnvironment(thelidir, userdir);
 
     ui->bayerCheckBox->setChecked(false);
     bayerButtonGroup->addButton(ui->bayerGBRGToolButton);

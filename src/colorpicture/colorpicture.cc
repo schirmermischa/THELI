@@ -43,7 +43,7 @@ ColorPicture::ColorPicture(instrumentDataType *instrumentData, QString main, QWi
     ui(new Ui::ColorPicture)
 {
     ui->setupUi(this);
-    initEnvironment(thelidir, userdir, tmpdir);
+    initEnvironment(thelidir, userdir);
     instData = instrumentData;
 
     // Model views

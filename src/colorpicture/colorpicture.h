@@ -106,7 +106,6 @@ private:
 
     QString thelidir;
     QString userdir;
-    QString tmpdir;
     instrumentDataType *instData;
     QStringListModel *coaddImageModel;
     QStringListModel *coaddDirModel;

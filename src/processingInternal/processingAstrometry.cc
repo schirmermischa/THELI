@@ -50,10 +50,11 @@ void Controller::taskInternalAstromphotom()
     mainGUI->ui->processProgressBar->setDisabled(true);
 
     scampScienceDir = mainDirName+"/"+scienceDir;
-    scampDir = scampScienceDir+"/astrom_photom_scamp/cat/";
+    scampDir = scampScienceDir+"/astrom_photom_scamp/";
     scampPlotsDir = mainDirName+"/"+scienceDir + "/plots/";
     scampHeadersDir = mainDirName+"/"+scienceDir + "/headers/";
     scampScienceData = scienceData;
+    anetDir = scampScienceDir+"/astrom_photom_anet/";
 
     pushBeginMessage(taskBasename, scienceDir);
     pushConfigAstromphotom();
@@ -64,6 +65,13 @@ void Controller::taskInternalAstromphotom()
     if (cdw->ui->ASTmethodComboBox->currentText() == "Scamp") {
         QString catDirName = mainDirName + "/" + scienceDir + "/cat/";
         if (!scienceData->hasMatchingPartnerFiles(catDirName, ".scamp")) return;
+
+        if (cdw->ui->ASTmatchMethodComboBox->currentText() == "Astrometry.net") {
+            if (!scienceData->hasMatchingPartnerFiles(catDirName, ".anet")) return;
+            prepareAnetRun(scienceData);
+            progress = 0.;
+            runAnet(scienceData);
+        }
 
         // Prepare scamp directories and perform consistency checks
         prepareScampRun(scienceData);
@@ -118,14 +126,13 @@ void Controller::taskInternalAstromphotom()
         workerThread->wait();
     }
 
+    // Currently not active, and does not write final headers/*.head files
     if (cdw->ui->ASTmethodComboBox->currentText() == "astrometry.net") {
         QString catDirName = mainDirName + "/" + scienceDir + "/cat/";
         if (!scienceData->hasMatchingPartnerFiles(catDirName, ".anet")) return;
 
         // Prepare anet directories and perform consistency checks
         prepareAnetRun(scienceData);
-        // Collect anet input catalogs
-        long totNumObjects = 0;
 
         /*
         // Release memory (assuming it is the same for a.net)
@@ -462,16 +469,12 @@ void Controller::prepareAnetRun(Data *scienceData)
     if (verbosity > 0) emit messageAvailable("Setting up astrometry.net run ...", "controller");
 
     QString scienceDir = mainDirName+"/"+scienceData->subDirName;
-    QString path = scienceDir+"/astrom_photom_anet/";
     QString headersPath = scienceDir+"/headers/";
 
     // Clean-up and recreate the anet directory trees
-    QDir dir(path);
+    QDir dir(anetDir);
     dir.removeRecursively();
-    dir.mkpath(path);
-    dir.mkdir("cat");
-    dir.mkdir("headers");
-    dir.mkdir("backup");
+    dir.mkpath(anetDir);
 
     QDir headersDir(headersPath);
     headersDir.removeRecursively();
@@ -534,7 +537,6 @@ void Controller::runAnet(Data *scienceData)
         it->checkWCSsanity();
         it->buildAnetCommand(pixscaleMaxerr, thelidir);
         it->runAnetCommand();
-        it->reformatAnetOutput();
         it->unprotectMemory();
         if (minimizeMemoryUsage) {
             it->freeAll();
@@ -542,6 +544,43 @@ void Controller::runAnet(Data *scienceData)
 #pragma omp atomic
         progress += progressStepSize;
     }
+
+    emit messageAvailable("<br>Astrometry.net summary : ", "data");
+
+    // merge the anet output of multi-chip cameras, and extract relevant keywords, only
+    for (long i=0; i<scienceData->exposureList.length(); ++i) {
+        if (abortProcess || !successProcessing) continue;
+
+        // open stream for merged output file
+        QString aheaderName = anetDir+"/"+scienceData->exposureList[i][0]->rootName+".ahead";
+        QFile aheaderFile(aheaderName);
+        QTextStream stream(&aheaderFile);
+        if( !aheaderFile.open(QIODevice::WriteOnly)) {
+            emit messageAvailable("Could not write astrometry.net reformatted output to "+aheaderFile.fileName(), "error");
+            emit messageAvailable(aheaderFile.errorString(), "error");
+            emit criticalReceived();
+            successProcessing = false;
+            break;
+        }
+
+        // Loop over chips and extract anet header data
+        bool consistent = false;
+        int count = 0;
+        for (auto &it : scienceData->exposureList[i]) {
+            stream << it->extractAnetOutput();
+            ++count;
+        }
+        if (count == instData->numUsedChips) consistent = true;
+        aheaderFile.close();
+        aheaderFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
+        if (!consistent) {
+            aheaderFile.remove();
+            emit messageAvailable(scienceData->exposureList[i][0]->rootName + " : Controller::runAnet(): Inconsistent number of detectors", "warning");
+        }
+    }
+
+    // Collect a list of the header files for scamp
+    makeAnetHeaderList(scienceData);
 }
 
 void Controller::doImageQualityAnalysis()
@@ -659,18 +698,13 @@ void Controller::prepareScampRun(Data *scienceData)
     if (verbosity > 0) emit messageAvailable("Setting up Scamp run ...", "controller");
 
     QString scienceDir = mainDirName+"/"+scienceData->subDirName;
-    QString path = scienceDir+"/astrom_photom_scamp/";
     QString headersPath = scienceDir+"/headers/";
     QString plotsPath = scienceDir+"/plots/";
 
     // Clean-up and recreate the scamp directory trees
-    QDir dir(path);
+    QDir dir(scampDir);
     dir.removeRecursively();
-    dir.mkpath(path);
-    dir.mkdir("cat");
-    dir.mkdir("headers");
-    dir.mkdir("plots");
-    dir.mkdir("backup");
+    dir.mkpath(scampDir);
 
     QDir plotsDir(plotsPath);
     plotsDir.removeRecursively();
@@ -680,7 +714,7 @@ void Controller::prepareScampRun(Data *scienceData)
     headersDir.removeRecursively();
     headersDir.mkpath(headersPath);
 
-    QFile file(tmpdir+"/scamp_global.ahead");
+    QFile file(scampDir+"/scamp_global.ahead");
     file.remove();
 
     // Check if the reference catalog exists
@@ -700,16 +734,15 @@ long Controller::prepareScampCats(Data *scienceData, long &totNumObjects)
     if (!successProcessing) return 0;
 
     QString scienceDir = mainDirName+"/"+scienceData->subDirName;
-    QString path = scienceDir+"/astrom_photom_scamp/";
 
-    if (verbosity > 0) emit messageAvailable("Linking scamp catalogs to "+path+"/cat/ ...", "controller");
+    if (verbosity > 0) emit messageAvailable("Linking scamp catalogs to "+scampDir+" ...", "controller");
 
     // Prepare a file that contains all scamp catalogs (only those for which an image is currently present in scienceDir);
-    QFile catFile(tmpdir+"/scamp_cats");
+    QFile catFile(scampDir+"/scamp_cats");
     catFile.remove();
     QTextStream stream(&catFile);
     if( !catFile.open(QIODevice::WriteOnly)) {
-        emit messageAvailable("Writing list of scamp catalogs to "+tmpdir+catFile.fileName(), "error");
+        emit messageAvailable("Writing list of scamp catalogs to "+scampDir+catFile.fileName(), "error");
         emit messageAvailable(catFile.errorString(), "error");
         successProcessing = false;
         monitor->raise();
@@ -726,9 +759,6 @@ long Controller::prepareScampCats(Data *scienceData, long &totNumObjects)
         }
     }
 
-    //    QDir imageDir(scienceDir);
-    //    statusOld = scienceData->status;
-    //    QStringList imageList = imageDir.entryList(QStringList("*"+statusOld+".fits"));
     QDir catDir(scienceDir+"/cat/");
     QStringList catList = catDir.entryList(QStringList("*.scamp"));
     for (auto &cat : catList) {
@@ -738,8 +768,8 @@ long Controller::prepareScampCats(Data *scienceData, long &totNumObjects)
         for (auto &image : imageList) {
             if (image.contains(catbase)) {
                 QFile catFile(scienceDir+"/cat/"+cat);
-                catFile.link(path+"/cat/"+cat);
-                stream << path+"/cat/"+cat+"\n";
+                catFile.link(scampDir+"/"+cat);
+                stream << scampDir+"/"+cat+"\n";
                 ++numCat;
                 break;
             }
@@ -760,28 +790,23 @@ long Controller::prepareScampCats(Data *scienceData, long &totNumObjects)
     return numCat;
 }
 
-long Controller::prepareAnetCats(Data *scienceData, long &totNumObjects)
+long Controller::makeAnetHeaderList(Data *scienceData)
 {
     if (!successProcessing) return 0;
 
-    QString scienceDir = mainDirName+"/"+scienceData->subDirName;
-    QString path = scienceDir+"/astrom_photom_scamp/";
-
-    if (verbosity > 0) emit messageAvailable("Linking scamp catalogs to "+path+"/cat/ ...", "controller");
-
-    // Prepare a file that contains all scamp catalogs (only those for which an image is currently present in scienceDir);
-    QFile catFile(tmpdir+"/scamp_cats");
-    catFile.remove();
-    QTextStream stream(&catFile);
-    if( !catFile.open(QIODevice::WriteOnly)) {
-        emit messageAvailable("Writing list of scamp catalogs to "+tmpdir+catFile.fileName(), "error");
-        emit messageAvailable(catFile.errorString(), "error");
+    // Prepare a list of all anet .ahead files (only those for which an image is currently present);
+    QFile aheadFile(anetDir+"/anet_headers");
+    aheadFile.remove();
+    QTextStream stream(&aheadFile);
+    if( !aheadFile.open(QIODevice::WriteOnly)) {
+        emit messageAvailable("Writing list of anet ehaders to "+anetDir+aheadFile.fileName(), "error");
+        emit messageAvailable(aheadFile.errorString(), "error");
         successProcessing = false;
         monitor->raise();
         return 0;
     }
 
-    // Link scamp catalogs (only those for currently active images)
+    // Link anet headers (only those for currently active images)
     long numCat = 0;
     QStringList imageList;
     for (int chip=0; chip<instData->numChips; ++chip) {
@@ -791,36 +816,31 @@ long Controller::prepareAnetCats(Data *scienceData, long &totNumObjects)
         }
     }
 
-    //    QDir imageDir(scienceDir);
-    //    statusOld = scienceData->status;
-    //    QStringList imageList = imageDir.entryList(QStringList("*"+statusOld+".fits"));
-    QDir catDir(scienceDir+"/cat/");
-    QStringList catList = catDir.entryList(QStringList("*.scamp"));
-    for (auto &cat : catList) {
-        QString catbase = cat;
-        totNumObjects += getNumObjectsScampCat(scienceDir+"/cat/"+catbase);
-        catbase.remove(".scamp");
+    QDir aheadDir(anetDir);
+    QStringList aheadList = aheadDir.entryList(QStringList("*.ahead"));
+    for (auto &ahead : aheadList) {
+        QString aheadbase = ahead;
+        int numChips = getNumAnetChips(anetDir+"/"+aheadbase);
+        if (numChips != instData->numUsedChips) continue;          // skip bad entry. Error triggered by getNumEnetChips()
+        aheadbase.remove(".ahead");
         for (auto &image : imageList) {
-            if (image.contains(catbase)) {
-                QFile catFile(scienceDir+"/cat/"+cat);
-                catFile.link(path+"/cat/"+cat);
-                stream << path+"/cat/"+cat+"\n";
+            if (image.contains(aheadbase)) {
+                stream << anetDir+"/"+ahead+"\n";
                 ++numCat;
                 break;
             }
         }
     }
-    catFile.close();
-    catFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
+    aheadFile.close();
+    aheadFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
 
     if (numCat == 0) {
-        emit messageAvailable("No cat/*.scamp catalogs were found matching the exposures in "+scienceDir+"<br>Did you create the source catalogs?", "error");
+        QString scienceDir = mainDirName+"/"+scienceData->subDirName;
+        emit messageAvailable("No *.ahead catalogs were found matching the exposures in "+scienceDir, "error");
         monitor->raise();
         successProcessing = false;
         return 0;
     }
-
-    //    emit appendOK();
 
     return numCat;
 }
@@ -844,6 +864,36 @@ long Controller::getNumObjectsScampCat(QString cat)
     printCfitsioError("getNumObjectsScampCat():<br>" + cat, status);
 
     return nobj;
+}
+
+long Controller::getNumAnetChips(QString ahead)
+{
+    // Count the number of "END" strings
+    QFile file(ahead);
+    QTextStream inStream(&file);
+    if (!file.open(QIODevice::ReadOnly)) {
+        emit messageAvailable("Controller::getNumAnetChips(): Could not open "+ahead+" " + file.errorString(), "error");
+        emit criticalReceived();
+        monitor->raise();
+        successProcessing = false;
+        return 0;
+    }
+
+    QString line;
+    int numChips = 0;
+    while (inStream.readLineInto(&line)) {
+        if (line == "END") ++numChips;
+    }
+    file.close();
+
+    if (numChips == instData->numUsedChips) return numChips;
+    else {
+        emit messageAvailable(ahead + ":<br>Expected "+QString::number(instData->numUsedChips)+" chips, but found "+QString::number(numChips), "error");
+        emit criticalReceived();
+        monitor->raise();
+        successProcessing = false;
+        return 0;
+    }
 }
 
 long Controller::getNumObjectsSexCat(QString cat)
@@ -879,7 +929,7 @@ void Controller::buildScampCommand(Data *scienceData)
     if (!distKeysUser.isEmpty()) distKeys.append(","+distKeysUser);
 
     scampCommand = findExecutableName("scamp");
-    scampCommand += " @"+tmpdir+"/scamp_cats";
+    scampCommand += " @"+scampDir+"/scamp_cats";
     scampCommand += " -NTHREADS " + QString::number(maxCPU);
     scampCommand += " -ASTREF_CATALOG FILE";
     scampCommand += " -ASTREFCAT_NAME "  + refcat;
@@ -897,6 +947,10 @@ void Controller::buildScampCommand(Data *scienceData)
     scampCommand += " -MOSAIC_TYPE "     + getUserParamComboBox(cdw->ui->ASTmosaictypeComboBox);
     scampCommand += " -MATCH_FLIPPED "   + getUserParamCheckBox(cdw->ui->ASTmatchflippedCheckBox);
     scampCommand += " -CHECKPLOT_RES "   + getUserParamLineEdit(cdw->ui->ASTresolutionLineEdit);
+
+    if (cdw->ui->ASTmatchMethodComboBox->currentText() == "Astrometry.net") {
+        scampCommand += " -AHEADER_NAME @"+anetDir+"/anet_headers";
+    }
 
     QString value = cdw->ui->ASTastrinstrukeyLineEdit->text();
     if (value == "") value = "NONE";

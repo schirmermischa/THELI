@@ -42,7 +42,7 @@ ImageStatistics::ImageStatistics(QVector<QList<MyImage*>> &imlist, QString main,
     ui(new Ui::ImageStatistics)
 {
     ui->setupUi(this);
-    initEnvironment(thelidir, userdir, tmpdir);
+    initEnvironment(thelidir, userdir);
 
     instData = instrumentData;
 

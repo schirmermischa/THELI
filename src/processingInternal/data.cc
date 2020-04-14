@@ -52,7 +52,7 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
 
     emit messageAvailable("DATA: Setting up "+subdirname, "data");
 
-    initEnvironment(thelidir, userdir, tmpdir);
+    initEnvironment(thelidir, userdir);
 
     resetSuccessProcessing();
 

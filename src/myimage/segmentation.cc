@@ -846,7 +846,7 @@ void MyImage::appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_strin
             flux_arr[k] = objectList[i]->FLUX_AUTO;
             fluxerr_arr[k] = sqrt(objectList[i]->FLUX_AUTO);
             flags_arr[k] = objectList[i]->FLAGS;
-            // The following are not needed by scamp. They is just for completeness.
+            // The following are not needed by scamp. They are just for completeness.
             alpha_arr[k] = objectList[i]->ALPHA_J2000;
             delta_arr[k] = objectList[i]->DELTA_J2000;
             fwhm_arr[k] = objectList[i]->FWHM;

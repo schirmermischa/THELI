@@ -75,7 +75,7 @@ Controller::Controller(instrumentDataType *instrumentData, QString statusold, Co
     updateMemoryPreference(minimizeMemoryUsage);
 
     // Initialization
-    initEnvironment(thelidir, userdir, tmpdir);
+    initEnvironment(thelidir, userdir);
     instrument_dir = mainGUI->instrument_dir;
 
     //    loadPreferences();

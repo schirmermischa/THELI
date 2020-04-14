@@ -107,7 +107,6 @@ private slots:
     void on_nonlinearityCheckBox_clicked();
 
 public slots:
-//    void readGaiaBulkMotion();
     void loadDefaults();
     void updateGaiaBulkMotion(const QString &pmRA, const QString &pmDE);
     void updateAPIsolutions();

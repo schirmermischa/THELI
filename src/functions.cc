@@ -446,7 +446,7 @@ QString read_MultipleLines_system_command(QString shell_command)
     return result;
 }
 
-void initEnvironment(QString &thelidir, QString &userdir, QString &tmpdir)
+void initEnvironment(QString &thelidir, QString &userdir)
 {
     // Read the THELIDIR environment variable
     thelidir = QProcessEnvironment::systemEnvironment().value("THELIDIR","");
@@ -464,12 +464,10 @@ void initEnvironment(QString &thelidir, QString &userdir, QString &tmpdir)
     if (kernelType == "Linux" && arch.contains("64")) kernelType = "Linux_64";
 
     userdir = QDir::homePath()+"/.theli/";
-    tmpdir = QDir::homePath()+"/.theli/tmp/";
 
     // Simplify strings
     thelidir.replace("//","/");
     userdir.replace("//","/");
-    tmpdir.replace("//","/");
 
     delete sysInfo;
 }
@@ -479,7 +477,8 @@ QString findExecutableName(QString program)
     QStringList sexlist = {"sex", "sextractor", "SExtractor", "source-extractor"};
     QStringList scamplist = {"scamp", "Scamp"};
     QStringList swarplist = {"swarp", "Swarp", "SWarp"};
-    QStringList anetlist = {"solve-field"};
+    QStringList anetlist1 = {"solve-field"};
+    QStringList anetlist2 = {"build-astrometry-index"};
 
     QString commandname = "";
     if (program == "sex") {
@@ -501,7 +500,13 @@ QString findExecutableName(QString program)
         }
     }
     else if (program == "solve-field") {
-        for (auto &it : anetlist) {
+        for (auto &it : anetlist1) {
+            commandname = QStandardPaths::findExecutable(it);
+            if (!commandname.isEmpty()) break;
+        }
+    }
+    else if (program == "build-astrometry-index") {
+        for (auto &it : anetlist2) {
             commandname = QStandardPaths::findExecutable(it);
             if (!commandname.isEmpty()) break;
         }

@@ -81,7 +81,6 @@ private:
     Ui::ImageStatistics *ui;
     QString thelidir;
     QString userdir;
-    QString tmpdir;
     instrumentDataType *instData;
     QVector<QList<MyImage*>> myImageList;
     QList<MyImage*> allMyImages;

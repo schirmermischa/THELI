@@ -92,14 +92,14 @@ void MyImage::runAnetCommand()
     workerThread->wait();
 }
 
-void MyImage::reformatAnetOutput()
+QString MyImage::extractAnetOutput()
 {
     QString anetOutput = path + "/astrom_photom_anet/"+chipName+".wcs";
     QFile wcsOutput(anetOutput);
     if (!wcsOutput.exists()) {
-        emit messageAvailable(chipName + " : Did not find astrometry.net output!", "error");
+        emit messageAvailable(chipName + " : Did not solve!", "error");
         emit critical();
-        return;
+        return "";
     }
     else {
        emit messageAvailable(chipName + " : Successfully solved", "note");
@@ -111,7 +111,7 @@ void MyImage::reformatAnetOutput()
     int status = 0;
     int nkeys = 0;
     int keypos = 0;
-    char card[FLEN_CARD];   /* standard string lengths defined in fitsioc.h */
+    char card[FLEN_CARD];
     fits_open_file(&fptr, anetOutput.toUtf8().data(), READONLY, &status);
     fits_get_hdrpos(fptr, &nkeys, &keypos, &status);
     for (int jj = 1; jj <= nkeys; ++jj)  {
@@ -141,17 +141,5 @@ void MyImage::reformatAnetOutput()
     else printCfitsioError("MyImage::reformatAnetOutput()", status);
     fits_close_file(fptr, &status);
 
-    QString anetOutputHeaderName = path + "/astrom_photom_anet/"+chipName+".head";
-    QFile wcsOutputHeaderFile(anetOutputHeaderName);
-    QTextStream stream(&wcsOutputHeaderFile);
-    if( !wcsOutputHeaderFile.open(QIODevice::WriteOnly)) {
-        emit messageAvailable("Could not write astrometry.net reformatted output to "+wcsOutputHeaderFile.fileName(), "error");
-        emit messageAvailable(wcsOutputHeaderFile.errorString(), "error");
-        emit critical();
-        successProcessing = false;
-        return;
-    }
-    stream << header;
-    wcsOutputHeaderFile.close();
-    wcsOutputHeaderFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
+    return header;
 }

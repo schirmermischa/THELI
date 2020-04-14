@@ -131,7 +131,6 @@ protected:
 
     QString thelidir;
     QString userdir;
-    QString tmpdir;
 
     QFile instrument_file;
     QString instrument_name;
@@ -323,7 +322,6 @@ private:
     void updateProcessList(QStringList &commandList, QString taskBasename, QString arg1, QString arg2);
     void deleteDummyLineEdits(QLineEdit *le1, QLineEdit *le2);
     void addDockWidgets();
-    void wipeTmpDir();
     void resetProcessingErrorFlags();
     bool sufficientSpaceAvailable(long spaceNeeded);
     QString getInstDir(QString instname);
