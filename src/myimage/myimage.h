@@ -46,7 +46,6 @@ private:
     void transferDataToMyImage();
     void transferMetadataToMyImage();
     void stayWithinBounds(QVector<long> &vertices);
-    void mapHeader(QString fullheaderString);
     float polynomialSum(float x, QVector<float> coefficients);
 
     // ================= BACKGROUND MODELING ===========================
@@ -115,7 +114,7 @@ private:
     void wipeL2();
     void wipeL3();
     void readImageBackupL1();
-
+    void replaceCardInFullHeaderString(QString keyname, double value);
 public:
     explicit MyImage(QString pathname, QString filename, QString statusString, int chipnumber,
                      const QVector<bool> &mask, bool masked, int *verbose, bool makebackup = true,

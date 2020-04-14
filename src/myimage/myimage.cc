@@ -573,25 +573,27 @@ void MyImage::transferWCS()
     emit setWCSLock(false);
 }
 
-// Takes the long fullheaderString and converts it to a QVector
-void MyImage::mapHeader(QString fullheaderString)
+void MyImage::replaceCardInFullHeaderString(QString keyname, double value)
 {
-    if (!successProcessing) return;
+    QString card = keyname;
+    card.resize(8, ' ');
+    card.append("= ");
+    card.append(QString::number(value, 'g', 12));
+    card.resize(80, ' ');
 
-    int cardLength = 80;
-    long length = fullheaderString.length();
-    if (length<80) return;
-    for (long i=0; i<=length-cardLength; i+=cardLength) {
-        QStringRef subString(&fullheaderString, i, cardLength);
-        QString string = subString.toString();
-        if (string.contains("SIMPLE  =")
-                || string.contains("BITPIX  =")
-                || string.contains("NAXIS   =")
-                || string.contains("NAXIS1  =")
-                || string.contains("NAXIS2  =")
-                || string.contains("EXTEND  =")
-                || string.contains("END      ")) continue;
-        header.push_back(subString.toString());
+    long dim = strlen(fullheader);
+    for (long i=0; i<dim-9; ++i) {
+        if (fullheader[i] == card.at(0)
+                &&  fullheader[i+1] == card.at(1)
+                &&  fullheader[i+2] == card.at(2)
+                &&  fullheader[i+3] == card.at(3)
+                &&  fullheader[i+4] == card.at(4)
+                &&  fullheader[i+5] == card.at(5)
+                &&  fullheader[i+6] == card.at(6)
+                &&  fullheader[i+7] == card.at(7)
+                &&  fullheader[i+8] == card.at(8)) {
+            for (int j=0; j<80; ++j) fullheader[i+j] = card.toUtf8().data()[j];
+        }
     }
 }
 
@@ -1151,30 +1153,30 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
 }
 
 /*
-void MyImage::updateZeroOrderInMemory()
-{
-    if (!successProcessing) return;
+        void MyImage::updateZeroOrderInMemory()
+        {
+            if (!successProcessing) return;
 
-    // Update the data in memory
-    // WCSLIB threading issue (probably solved by wcsLock in transferWCS()
-    // Can be removed if we don't see this again
-    if (wcs->naxis != 2) {
-        emit messageAvailable(chipName + " : MyImage::updateZeroOrder(): Incompatible NAXIS WCS dimension: "
-                              + QString::number(wcs->naxis) + ", attempting reload (actually, this is a bug!)", "warning");
-        imageInMemory = false;
-        readImage(false);
-        if (wcs->naxis != 2) {
-            emit messageAvailable(chipName + " : Reload failed!", "error");
-            return;
-        }
-        else {
-            emit messageAvailable(chipName + " : Reload success!", "note");
-        }
-    }
+            // Update the data in memory
+            // WCSLIB threading issue (probably solved by wcsLock in transferWCS()
+            // Can be removed if we don't see this again
+            if (wcs->naxis != 2) {
+                emit messageAvailable(chipName + " : MyImage::updateZeroOrder(): Incompatible NAXIS WCS dimension: "
+                                      + QString::number(wcs->naxis) + ", attempting reload (actually, this is a bug!)", "warning");
+                imageInMemory = false;
+                readImage(false);
+                if (wcs->naxis != 2) {
+                    emit messageAvailable(chipName + " : Reload failed!", "error");
+                    return;
+                }
+                else {
+                    emit messageAvailable(chipName + " : Reload success!", "note");
+                }
+            }
 
-    cornersToRaDec();
-}
-*/
+            cornersToRaDec();
+        }
+        */
 
 // Update the 'header' QVector passed onto any newly ritten FITS file
 void MyImage::updateCRVALinHeader()

@@ -58,7 +58,7 @@ void ConfDockWidget::populateDefaultMap()
     defaultMap.insert("ASTpixscaleLineEdit", "1.05");
     defaultMap.insert("ASTposangleLineEdit", "2");
     defaultMap.insert("ASTpositionLineEdit", "2.0");
-    defaultMap.insert("ASTresolutionLineEdit", "1000");
+    defaultMap.insert("ASTresolutionLineEdit", "800");
     defaultMap.insert("ASTsnthreshLineEdit", "5,20");
     defaultMap.insert("BAC1nhighLineEdit", "0");
     defaultMap.insert("BAC1nlowLineEdit", "0");

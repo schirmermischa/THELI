@@ -771,6 +771,16 @@ void MyImage::appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_strin
     // Awkward C-stuff. This is the only way I could get this to work.
     // If the tf0 string is built differently, if strcmp says they are identical, the TTYPE1 keyword is not written properly.
     // And it cannot be udpated properly with fits_update_key() either
+
+    // Update the WCS keywords in fullheader so the LDAC_IMHEAD string is correct. Not sure scamp cares, but nonetheless
+    replaceCardInFullHeaderString("CRVAL1", wcs->crval[0]);
+    replaceCardInFullHeaderString("CRVAL2", wcs->crval[1]);
+    replaceCardInFullHeaderString("CRPIX1", wcs->crpix[0]);
+    replaceCardInFullHeaderString("CRPIX2", wcs->crpix[1]);
+    replaceCardInFullHeaderString("CD1_1", wcs->cd[0]);
+    replaceCardInFullHeaderString("CD1_2", wcs->cd[1]);
+    replaceCardInFullHeaderString("CD2_1", wcs->cd[2]);
+    replaceCardInFullHeaderString("CD2_2", wcs->cd[3]);
     long headerLength = strlen(fullheader);
     char tf0[100];
     sprintf(tf0, "%ldA", headerLength);
