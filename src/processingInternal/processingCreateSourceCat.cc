@@ -52,6 +52,8 @@ void Controller::taskInternalCreatesourcecat()
 
     memoryDecideDeletableStatus(scienceData, false);
 
+    if (!scienceData->hasMatchingPartnerFiles(mainDirName+"/WEIGHTS/", ".weight.fits")) return;
+
     // Update coordinates if necessary. Leave if cancelled by the user
 
     bool check = manualCoordsUpdate(scienceData, updateMode);

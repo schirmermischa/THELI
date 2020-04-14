@@ -708,8 +708,8 @@ void MyImage::writeCatalog(QString minFWHM_string, QString maxFlag_string)
     }
 
     long nrows = numSourcesRetained;
-    float x_arr[nrows];
-    float y_arr[nrows];
+    double x_arr[nrows];
+    double y_arr[nrows];
     float mag_arr[nrows];
     long k = 0;
     for (long i=0; i<numSources; ++i) {

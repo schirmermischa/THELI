@@ -810,6 +810,8 @@ bool MainWindow::isRefcatRecent(QString dirname)
             QString catalog = cdw->ui->ARCcatalogComboBox->currentText();
             QString ra = cdw->ui->ARCraLineEdit->text();
             QString dec = cdw->ui->ARCdecLineEdit->text();
+            if (ra.contains(":")) ra = hmsToDecimal(ra);
+            if (dec.contains(":")) dec = dmsToDecimal(dec);
             QString minmag = cdw->ui->ARCminmagLineEdit->text();
             if (minmag.isEmpty()) minmag = cdw->defaultMap["ARCminmagLineEdit"];
             QString radius = cdw->ui->ARCradiusLineEdit->text();
@@ -824,7 +826,7 @@ bool MainWindow::isRefcatRecent(QString dirname)
             currentId = image+"_"+dt+"_"+dmin;
         }
         // Uncomment this to understand why refcat is downloaded twice
-        //        qDebug() << id << currentId;
+//        qDebug() << id << currentId;
         if (id != currentId) return false;
         else return true;
     }

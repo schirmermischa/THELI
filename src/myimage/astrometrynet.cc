@@ -46,13 +46,13 @@ void MyImage::buildAnetCommand(QString pixscale_maxerr)
     anetCommand += " -e "+QString::number(naxis2);
     anetCommand += " -L "+QString::number(plateScale / pixscale_maxerr.toFloat(), 'f', 5);
     anetCommand += " -H "+QString::number(plateScale * pixscale_maxerr.toFloat(), 'f', 5);
-    anetCommand += " -O";                         // suppress output
-    anetCommand += " -p";                         // suppress output plots
-    anetCommand += " -u app";                     // units arcsec per pixel
-    anetCommand += " -l 5";                       // CPU timeout after 5 seconds
-    anetCommand += " -T";                         // don't compute SIP polynomials
-    anetCommand += " -s MAG";                     // sort column
-    anetCommand += " -a ";                        // sort order: ascending (bright sources first)
+    anetCommand += " -O";                        // suppress output
+    anetCommand += " -p";                        // suppress output plots
+    anetCommand += " -u app";                    // units arcsec per pixel
+    anetCommand += " -l 5";                      // CPU timeout after 5 seconds
+    anetCommand += " -T";                        // don't compute SIP polynomials
+    anetCommand += " -s MAG";                    // sort column
+    anetCommand += " -a ";                       // sort order: ascending (bright sources first)
     anetCommand += " -b " + path + "/astrom_photom_anet/backend.cfg";        // config file
     anetCommand += " -R none";                   // suppress output
     anetCommand += " -B none";                   // suppress output
@@ -70,8 +70,6 @@ void MyImage::buildAnetCommand(QString pixscale_maxerr)
 void MyImage::runAnetCommand()
 {
     if (!successProcessing) return;
-
-    if (*verbosity >= 2) emit messageAvailable("Running the following command in " + path + " : <br>"+anetCommand, "image");
 
     // Run the solve-field command
     workerThread = new QThread();
