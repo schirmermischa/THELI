@@ -262,6 +262,7 @@ void Controller::detectionSExtractor(Data *scienceData, QString minFWHM, QString
         it->filterSextractorCatalog(minFWHM, maxFlag);
         it->calcMedianSeeingEllipticitySex();
         it->sexcatToIview();
+        it->sexcatToAnet();
         it->unprotectMemory();
         if (minimizeMemoryUsage) {
             it->freeAll();

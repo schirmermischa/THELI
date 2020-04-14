@@ -37,11 +37,9 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QProcess>
 #include <QTest>
 
-void MyImage::buildAnetCommand(QString pixscale_maxerr, QString thelidir)
+void MyImage::buildAnetCommand(QString pixscale_maxerr)
 {
     if (!successProcessing) return;
-
-    QString refcat = path + "/cat/refcat/theli_mystd.anet";
 
     anetCommand = findExecutableName("solve-field");
     anetCommand += " -w "+QString::number(naxis1);
@@ -61,7 +59,6 @@ void MyImage::buildAnetCommand(QString pixscale_maxerr, QString thelidir)
     anetCommand += " -S none";                   // suppress output
     anetCommand += " -M none";                   // suppress output
     anetCommand += " -U none";                   // suppress output
-  //  anetCommand += " --axy none";              // suppress output
     anetCommand += " --temp-axy";                // suppress output
     anetCommand += " -W " + path + "/astrom_photom_anet/"+chipName+".wcs";   // output file
     anetCommand += " " + path + "/cat/"+chipName+".anet";

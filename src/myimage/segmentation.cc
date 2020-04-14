@@ -694,8 +694,8 @@ void MyImage::writeCatalog(QString minFWHM_string, QString maxFlag_string)
     char y[100] = "Y";
     char mag[100] = "MAG";
     char *ttype[3] = {x, y, mag};
-    char tf1[10] = "1E";
-    char tf2[10] = "1E";
+    char tf1[10] = "1D";
+    char tf2[10] = "1D";
     char tf3[10] = "1E";
     char *tform[3] = {tf1, tf2, tf3};
 
@@ -730,8 +730,8 @@ void MyImage::writeCatalog(QString minFWHM_string, QString maxFlag_string)
     filename = "!"+filename;
     fits_create_file(&fptr, filename.toUtf8().data(), &status);
     fits_create_tbl(fptr, BINARY_TBL, nrows, tfields, ttype, tform, nullptr, "OBJECTS", &status);
-    fits_write_col(fptr, TFLOAT, 1, firstrow, firstelem, nrows, x_arr, &status);
-    fits_write_col(fptr, TFLOAT, 2, firstrow, firstelem, nrows, y_arr, &status);
+    fits_write_col(fptr, TDOUBLE, 1, firstrow, firstelem, nrows, x_arr, &status);
+    fits_write_col(fptr, TDOUBLE, 2, firstrow, firstelem, nrows, y_arr, &status);
     fits_write_col(fptr, TFLOAT, 3, firstrow, firstelem, nrows, mag_arr, &status);
     fits_close_file(fptr, &status);
 

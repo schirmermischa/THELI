@@ -271,5 +271,53 @@ void MyImage::appendToScampCatalogSExtractor(fitsfile *fptr)
     fits_movabs_hdu(fptrSex, 3, &hduType, &status);
     fits_copy_hdu(fptrSex, fptr, 0, &status);
     fits_close_file(fptrSex, &status);
-    printCfitsioError("appendToScampCatalogSExtractor", status);
+    printCfitsioError("MyImage::appendToScampCatalogSExtractor()", status);
+}
+
+void MyImage::sexcatToAnet()
+{
+    if (!successProcessing) return;
+
+    // Copy the XWIN_IMAGE, YWIN_IMAGE and MAG_AUTO columns to a new FITS table
+    fitsfile *fptrAnet;
+    int statusAnet = 0;
+    char x[100] = "X";
+    char y[100] = "Y";
+    char mag[100] = "MAG";
+    char *ttype[3] = {x, y, mag};
+    char tf1[10] = "1D";
+    char tf2[10] = "1D";
+    char tf3[10] = "1E";
+    char *tform[3] = {tf1, tf2, tf3};
+    QString anetName = path+"/cat/"+chipName+".anet";
+    fits_create_file(&fptrAnet, anetName.toUtf8().data(), &statusAnet);
+
+    fitsfile *fptrSex;
+    int statusSex = 0;
+    int hduType = 0;
+    int xColNum = -1;
+    int yColNum = -1;
+    int magColNum = -1;
+    long nrows = -1;
+    char xName[100] = "XWIN_IMAGE";
+    char yName[100] = "YWIN_IMAGE";
+    char magName[100] = "MAG_AUTO";
+    QString filename = path+"/cat/"+chipName+".cat";
+    fits_open_file(&fptrSex, filename.toUtf8().data(), READONLY, &statusSex);
+    fits_movabs_hdu(fptrSex, 3, &hduType, &statusSex);
+    fits_get_colnum(fptrSex, CASESEN, xName, &xColNum, &statusSex);
+    fits_get_colnum(fptrSex, CASESEN, yName, &yColNum, &statusSex);
+    fits_get_colnum(fptrSex, CASESEN, magName, &magColNum, &statusSex);
+
+    fits_get_num_rows(fptrSex, &nrows, &statusSex);
+    fits_create_tbl(fptrAnet, BINARY_TBL, nrows, 3, ttype, tform, nullptr, "OBJECTS", &statusAnet);
+
+    fits_copy_col(fptrSex, fptrAnet, xColNum, 1, FALSE, &statusSex);
+    fits_copy_col(fptrSex, fptrAnet, yColNum, 2, FALSE, &statusSex);
+    fits_copy_col(fptrSex, fptrAnet, magColNum, 3, FALSE, &statusSex);
+    fits_close_file(fptrSex, &statusSex);
+    printCfitsioError("MyImage::sexcatToAnet()", statusSex);
+
+    fits_close_file(fptrAnet, &statusAnet);
+    printCfitsioError("MyImage::sexcatToAnet()", statusAnet);
 }

@@ -448,9 +448,10 @@ public:
     void updateCRVALCDinHeader();
     void unprotectMemoryWeight();
     void checkWCSsanity();
-    void buildAnetCommand(QString pixscale_maxerr, QString thelidir);
+    void buildAnetCommand(QString pixscale_maxerr);
     void runAnetCommand();
     QString extractAnetOutput();
+    void sexcatToAnet();
 signals:
     void modelUpdateNeeded(QString baseName, QString chipName);
     void messageAvailable(QString message, QString type);
