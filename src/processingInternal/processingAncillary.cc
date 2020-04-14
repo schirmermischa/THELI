@@ -264,7 +264,7 @@ void Controller::taskInternalRestoreHeader()
             // Restore the header if a backup exists
             if (it->scanAstromHeader(chip, "inBackupDir")) {
                 it->updateZeroOrderOnDrive("restore");
-                it->updateZeroOrderInMemory();
+//                it->updateZeroOrderInMemory();
             }
         }
     }

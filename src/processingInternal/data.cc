@@ -2191,7 +2191,7 @@ bool Data::collectMJD()
     // (e.g., if the user starts THELI and continues some processing)
     // The FITS handles are always present in MyImage, even if it hasn't been read yet
 
-    if (*verbosity > 0) emit messageAvailable("Retrieving Modified Julian Dates ...", "data");
+    if (*verbosity > 0) emit messageAvailable("Retrieving Modified Julian Dates ...<br>", "data");
 
     bool duplicateFound = false;
 

@@ -464,13 +464,16 @@ bool MyImage::scanAstromHeader(int chip, QString mode)
     // Do not update the WCS matrix if it is significantly flawed
     if (sanityCheckWCS(wcs).isEmpty()) {
         wcs->flag = 0;  // Trigger recomputation
+        cornersToRaDec();
         return true;
     }
     else {
+        // Restore original values
         wcs->cd[0] = cd11_orig;
         wcs->cd[1] = cd12_orig;
         wcs->cd[2] = cd21_orig;
         wcs->cd[3] = cd22_orig;
+        cornersToRaDec();
         return false;
     }
 }
@@ -1147,6 +1150,7 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
     printCfitsioError("updateZeroOrderOnDrive()", status);
 }
 
+/*
 void MyImage::updateZeroOrderInMemory()
 {
     if (!successProcessing) return;
@@ -1170,6 +1174,7 @@ void MyImage::updateZeroOrderInMemory()
 
     cornersToRaDec();
 }
+*/
 
 // Update the 'header' QVector passed onto any newly ritten FITS file
 void MyImage::updateCRVALinHeader()

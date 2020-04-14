@@ -405,7 +405,7 @@ public:
     void updateProcInfo(QString text);
     void updateSaturation(QString saturation);
     void updateZeroOrderOnDrive(QString updateMode);
-    void updateZeroOrderInMemory();
+//    void updateZeroOrderInMemory();
     // Not sure I need the optional argument feature for the following two
     void writeImage(QString fileName = "", QString filter = "", float exptime = -1.0, bool addGain = false);
     void writeConstSkyImage(float constValue, QString filter = "", float exptime = -1.0, bool addGain = false);
