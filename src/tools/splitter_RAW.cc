@@ -58,9 +58,9 @@ void Splitter::importRAW()
 
     long dim = naxis1Raw*naxis2Raw;
     dataRaw.clear();
-    dataRaw.reserve(dim);
+    dataRaw.resize(dim);
     for (int i=0; i<dim; ++i) {
-        dataRaw.append(rawProcessor.imgdata.rawdata.raw_image[i]);
+        dataRaw[i] = rawProcessor.imgdata.rawdata.raw_image[i];
     }
 
     memoryUsed += dataRaw.capacity()*sizeof(float);

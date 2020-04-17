@@ -750,8 +750,11 @@ void MyFITS::loadDataSection(long xmin, long xmax, long ymin, long ymax, QVector
     fits_read_subset(fptr, TFLOAT, fpixel, lpixel, strides, &nullval, subarray, &anynull, &status);
     fits_close_file(fptr, &status);
 
-    dataSect.reserve(nsub*msub);
-    for (long i=0; i<nsub*msub; ++i) dataSect.push_back(subarray[i]);
+//    dataSect.reserve(nsub*msub);
+//    for (long i=0; i<nsub*msub; ++i) dataSect.push_back(subarray[i]);
+
+    dataSect.resize(nsub*msub);
+    for (long i=0; i<nsub*msub; ++i) dataSect[i] = subarray[i];
 
     // delete[] subarray;
 
