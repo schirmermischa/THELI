@@ -111,11 +111,12 @@ void MyImage::evaluateSkyNodes(const QVector<double> alpha, const QVector<double
 void MyImage::subtractSkyFit(int order, gsl_vector *c, bool saveSkyModel)
 {
     QVector<float> skymodel;
-    if (saveSkyModel) skymodel.reserve(naxis1*naxis2);
+    if (saveSkyModel) skymodel.resize(naxis1*naxis2);
 
     float skysum = 0.;
 
     if (*verbosity > 1) emit messageAvailable(baseName + " : Subtracting polynomial fit ...", "image");
+    long t = 0;
     for (long j=0; j<naxis2; ++j) {
         for (long i=0; i<naxis1; ++i) {
             // Calculate RA / DEC from linear WCS model
@@ -139,7 +140,10 @@ void MyImage::subtractSkyFit(int order, gsl_vector *c, bool saveSkyModel)
             }
             dataCurrent[i+naxis1*j] -= sky;
             skysum += sky;
-            if (saveSkyModel) skymodel.append(sky);
+            if (saveSkyModel) {
+                skymodel[t] = sky;
+                ++t;
+            }
         }
     }
 

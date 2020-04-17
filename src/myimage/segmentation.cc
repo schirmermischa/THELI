@@ -80,7 +80,8 @@ void MyImage::segmentImage(QString DTstring, QString DMINstring, bool convolutio
     emit setMemoryLock(true);
     dataSegmentation.resize(naxis1*naxis2);
     dataMeasure.clear();   // Must clear (if we run the detection twice, e.g. for sky modeling)
-    dataMeasure.reserve(naxis1*naxis2);
+  //  dataMeasure.reserve(naxis1*naxis2);
+    dataMeasure.resize(naxis1*naxis2);
     emit setMemoryLock(false);
 
     QList<long> allObjectPixelIndices;
@@ -103,7 +104,8 @@ void MyImage::segmentImage(QString DTstring, QString DMINstring, bool convolutio
         // subtract background model
         float dorig = pixel - dataBackground[i];
         float dconv = dataConv[i] - dataBackground[i];
-        dataMeasure.append(dorig);
+//        dataMeasure.append(dorig);
+        dataMeasure[i] = dorig;
         // Initialize objects in the segmentation map with a negative value (still unprocessed)
         // WARNING: Using the globalMask is essential, otherwise the floodfill alg seems to run forever. Really?
         // With global mask

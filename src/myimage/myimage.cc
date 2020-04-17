@@ -935,11 +935,23 @@ QVector<float> MyImage::extractPixelValues(long xmin, long xmax, long ymin, long
     long msub = ymax - ymin + 1;
 
     QVector<float> section;
+    /*
     section.reserve(nsub*msub);
 
     for (long j=ymin; j<=ymax; ++j) {
         for (long i=xmin; i<=xmax; ++i) {
             section.append(dataCurrent[i+naxis1*j]);
+        }
+    }
+    */
+
+    section.resize(nsub*msub);
+
+    long k=0;
+    for (long j=ymin; j<=ymax; ++j) {
+        for (long i=xmin; i<=xmax; ++i) {
+            section[k] = dataCurrent[i+naxis1*j];
+            ++k;
         }
     }
 
@@ -953,10 +965,21 @@ void MyImage::makeCutout(long xmin, long xmax, long ymin, long ymax)
 
     QVector<float> dataCut;
 
+    /*
     dataCut.reserve(nsub*msub);
     for (long j=ymin; j<=ymax; ++j) {
         for (long i=xmin; i<=xmax; ++i) {
             dataCut.append(dataCurrent[i+naxis1*j]);
+        }
+    }
+    */
+
+    long k = 0;
+    dataCut.resize(nsub*msub);
+    for (long j=ymin; j<=ymax; ++j) {
+        for (long i=xmin; i<=xmax; ++i) {
+            dataCut[k] = dataCurrent[i+naxis1*j];
+            ++k;
         }
     }
 
