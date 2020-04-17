@@ -138,7 +138,7 @@ private:
     QString subDirName;
     QString baseName;
     QString fitsType;  // SINGLE, MEF or CUBE
-    QString dataFormat;  // FITS or RAW
+    QString dataFormat;  // FITS or RAW, or UnknownFormat
     QString bayerPattern = "";
     QString filter = "Unknown";
     QString instNameFromData = "";       // needed only for a very small number of cameras, where the instrument must be deduced from the headers (GROND)

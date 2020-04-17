@@ -124,6 +124,24 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
     imageB->filter = "B";
     imageG->filter = "G";
     imageR->filter = "R";
+    for (auto &card : imageB->header) {
+        if (card.contains("FILTER  = ")) {
+            card = "FILTER  = 'B'";
+            card.resize(80, ' ');
+        }
+    }
+    for (auto &card : imageG->header) {
+        if (card.contains("FILTER  = ")) {
+            card = "FILTER  = 'G'";
+            card.resize(80, ' ');
+        }
+    }
+    for (auto &card : imageR->header) {
+        if (card.contains("FILTER  = ")) {
+            card = "FILTER  = 'R'";
+            card.resize(80, ' ');
+        }
+    }
 
     // cut all patterns to RGGB
     int xoffset;

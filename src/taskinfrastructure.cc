@@ -26,6 +26,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "processingInternal/data.h"
 #include "processingExternal/errordialog.h"
 #include "datadir.h"
+#include "tools/cfitsioerrorcodes.h"
 #include <QDebug>
 #include <QMessageBox>
 #include <QDir>
@@ -901,6 +902,7 @@ QStringList MainWindow::displayCoaddFilterChoice(QString dirname, QString &filte
         fits_open_file(&fptr, (dirname+"/"+fits).toUtf8().data(), READONLY, &status);
         fits_read_key_str(fptr, "FILTER", filter, NULL, &status);
         fits_close_file(fptr, &status);
+        printCfitsioError(fits+" : MainWindow::displayCoaddFilterChoice()", status);
         QString filterString(filter);
         filterString = filterString.simplified();
         if (!filterList.contains(filterString)) filterList.append(filterString);
@@ -942,5 +944,15 @@ QStringList MainWindow::displayCoaddFilterChoice(QString dirname, QString &filte
             if (filterChoice == "Together") filterChoice = "all";
         }
     }
+
     return filterList;
+}
+
+void MainWindow::printCfitsioError(QString funcName, int status)
+{
+    if (status) {
+        qDebug() << status;
+        CfitsioErrorCodes *errorCodes = new CfitsioErrorCodes(this);
+        emit messageAvailable(funcName+":<br>" + errorCodes->errorKeyMap.value(status), "error");
+    }
 }

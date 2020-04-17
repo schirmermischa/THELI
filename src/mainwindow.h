@@ -334,6 +334,7 @@ private:
     void addProgressBars();
     void resetInstrumentData();
     int estimateBinningFactor();
+    void printCfitsioError(QString funcName, int status);
 };
 
 // Subclassing QStringListModel to allow certain entries being shown with different colors

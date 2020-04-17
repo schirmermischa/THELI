@@ -116,15 +116,15 @@ void Splitter::determineFileFormat()
             bool unpack = rawProcessor.unpack();
             if (unpack != LIBRAW_SUCCESS) {
                 emit messageAvailable(fileName + " : Could not unpack file: " + libraw_strerror(unpack), "warning");
-                dataFormat = "Unknown";
+                dataFormat = "UnknownFormat";
                 return;
             }
             getNumberOfAmplifiers();
         }
-        else dataFormat = "Unknown";
+        else dataFormat = "UnknownFormat";
     }
 
-    if (dataFormat == "Unknown") {
+    if (dataFormat == "UnknownFormat") {
         // FITS opening error?
         //        printCfitsioError("determineFileFormat()", rawStatus);
         // successProcessing = false;    // Don not trigger an error, just skip the file
@@ -211,7 +211,7 @@ void Splitter::extractImages()
 {
     if (!successProcessing) return;
     if (alreadyProcessed) return;
-    if (dataFormat == "Unknown") return;
+    if (dataFormat == "UnknownFormat") return;
 
     emit messageAvailable(fileName + " : HDU reformatting, low-level pixel processing ...", "image");
 
