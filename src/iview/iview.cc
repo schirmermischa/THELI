@@ -415,7 +415,9 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
 
     // We need a MyImage instance to update the CRPIX1/2 in the corresponding FITS file.
     int verbose = 0;
-    currentMyImage = new MyImage(dirName, filename, "", 1, QVector<bool>(), false, &verbose);
+    QVector<bool> dummyMask;
+    dummyMask.clear();
+    currentMyImage = new MyImage(dirName, filename, "", 1, dummyMask, false, &verbose);
 
     QFileInfo fi(filename);
     QString showName = fi.fileName();

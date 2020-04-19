@@ -354,7 +354,6 @@ void MyImage::setupData(bool isTaskRepeated, bool createBackup, bool determineMo
     if (!successProcessing) return;
     if (activeState != ACTIVE) return;    // Don't change location of deactivated images
 
-
     // Protect dataCurrent
     dataCurrent_deletable = false;
 

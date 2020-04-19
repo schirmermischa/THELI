@@ -729,7 +729,7 @@ void Controller::loadPreferences()
     maxCPU = settings.value("prefCPUSpinBox").toInt();
     maxThreadsIO = settings.value("prefIOthreadsSpinBox").toInt();
     useGPU = settings.value("prefGPUCheckBox").toBool();
-    maxRAM = settings.value("prefMemorySpinBox").toInt();
+    maxRAM = 0.5 * settings.value("prefMemorySpinBox").toInt();                   // 50% of RAM
     verbosity = settings.value("prefVerbosityComboBox").toInt();
     if (settings.value("prefIntermediateDataComboBox") == "If necessary") alwaysStoreData = false;
     else alwaysStoreData = true;
@@ -918,7 +918,7 @@ void Controller::doDataFitInRAM(long nImages, long storageSize)
 {
     if (alwaysStoreData) return;    // we are good
 
-    if (nImages*storageSize > 0.9*maxRAM) {            // Slightly conservative: 90% of RAM is the reference
+    if (nImages*storageSize > maxRAM) {
         alwaysStoreData = true;
         QSettings settings("THELI", "PREFERENCES");
         settings.setValue("prefIntermediateDataComboBox", "Always");
@@ -927,7 +927,7 @@ void Controller::doDataFitInRAM(long nImages, long storageSize)
         }
         else {
             emit messageAvailable("******************************************************<br>", "note");
-            emit messageAvailable("Insufficient RAM to keep all data in memory. Will write FITS images to drive on the fly.", "note");
+            emit messageAvailable("High memory use expected. Will write FITS images to drive on the fly.", "note");
             emit messageAvailable("******************************************************<br>", "note");
         }
     }

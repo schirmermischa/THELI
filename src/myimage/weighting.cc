@@ -429,12 +429,12 @@ void MyImage::cosmicsFilter(QString aggressiveness)
     QVector<float> dataMedian(n*m);
 
     // Laplace filter, then median filter the Laplace filtered image
-    laplaceFilter(dataLaplace);
-    median2D(dataLaplace, dataMedian, 1);
+    laplaceFilter(dataLaplace);             // CHECK: hogging some memory
+    median2D(dataLaplace, dataMedian, 1);   // CHECK: hogging some memory
 
     // Remove the median image from the Laplace image.
     // Suppresses residuals from bright but unsaturated stars
-    long k=0;
+    long k = 0;
     for (auto &pixel : dataLaplace) {
         pixel -= dataMedian[k];
         ++k;

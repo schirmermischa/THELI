@@ -942,7 +942,9 @@ void Controller::coaddUpdate()
     if (gaiaQuery->numSources != 0) {
 
         // Measure the seeing
-        MyImage *coadd = new MyImage(coaddDirName, "coadd.fits", "", 1, QVector<bool>(), false, &verbosity, false);
+        QVector<bool> dummyMask;
+        dummyMask.clear();
+        MyImage *coadd = new MyImage(coaddDirName, "coadd.fits", "", 1, dummyMask, false, &verbosity, false);
         connect(coadd, &MyImage::critical, this, &Controller::criticalReceived);
         connect(coadd, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
         connect(coadd, &MyImage::warning, this, &Controller::warningReceived);
@@ -950,7 +952,7 @@ void Controller::coaddUpdate()
         coadd->chipName = "coadd.fits";
         emit messageAvailable("coadd.fits : Loading image data ...", "image");
         coadd->setupData(false, false, true);
-        coadd->globalMask = QVector<bool>();
+//        coadd->globalMask = QVector<bool>();
         coadd->globalMaskAvailable = false;
         coadd->objectMaskDone = false;
         coadd->weightInMemory = false;

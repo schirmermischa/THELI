@@ -36,7 +36,7 @@ If not, see https://www.gnu.org/licenses/ .
 // C'tor
 MyImage::MyImage(QString pathname, QString filename, QString statusString, int chipnumber,
                  const QVector<bool> &mask, bool masked, int *verbose, bool makebackup,
-                 QObject *parent) : QObject(parent)
+                 QObject *parent) : QObject(parent), globalMask(mask)
 {
     path = pathname;
     name = filename;
@@ -44,7 +44,7 @@ MyImage::MyImage(QString pathname, QString filename, QString statusString, int c
     QFileInfo fi(path+"/"+name);
     if (mask.isEmpty()) isMasked = false;
     else {
-        globalMask = mask; // This is the globalMask
+//        globalMask = mask; // This is the globalMask
         isMasked = masked;
     }
     baseName = fi.completeBaseName();
@@ -115,7 +115,7 @@ void MyImage::checkTaskRepeatStatus(QString taskBasename)
     else if (taskBasename == "Skysub" && processingStatus->Skysub) isTaskRepeated = true;
 }
 
-MyImage::MyImage(QString fullPathName, int *verbose, QObject *parent) : QObject(parent)
+MyImage::MyImage(QString fullPathName, const QVector<bool> &mask, int *verbose, QObject *parent) : QObject(parent), globalMask(mask)
 {
     QFileInfo fi(fullPathName);
 
@@ -885,7 +885,9 @@ void MyImage::illuminationCorrection(int chip, QString thelidir, QString instNam
     QString illumcorrFileName = "illumcorr_"+filter+"_"+QString::number(chip)+".fits";
     if (QFile(illumcorrPath+illumcorrFileName).exists()) {
         if (*verbosity > 1) emit messageAvailable(chipName + " : External illumination correction : <br>" + illumcorrPath+illumcorrFileName, "image");
-        MyImage *illumCorrFlat = new MyImage(illumcorrPath, illumcorrFileName, "", chip+1, QVector<bool>(), false, verbosity);
+        QVector<bool> dummyMask;
+        dummyMask.clear();
+        MyImage *illumCorrFlat = new MyImage(illumcorrPath, illumcorrFileName, "", chip+1, dummyMask, false, verbosity);
         illumCorrFlat->readImage();
         if (naxis1 != illumCorrFlat->naxis1 || naxis2 != illumCorrFlat->naxis2 ) {
             emit messageAvailable("MyImage::illuminationCorrection(): " + baseName + " : illumination correction image does not have the same size as the master flat!", "error");
@@ -1108,7 +1110,7 @@ void MyImage::setupCoaddMode()
     readImage();
 
     // Setup an empty dummy globalMask
-    globalMask = QVector<bool>();
+//    globalMask = QVector<bool>();
     globalMaskAvailable = false;
 
     // Load a matching weight image, if one exists

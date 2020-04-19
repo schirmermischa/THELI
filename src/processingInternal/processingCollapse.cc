@@ -96,7 +96,7 @@ void Controller::taskInternalCollapse()
 
     // Release as much memory as maximally necessary
     float nimg = 7; // old, new, background, segmentation, measure, mask, margin
-    releaseMemory(numMyImages*instData->storage*maxCPU, 1);
+    releaseMemory(nimg*instData->storage*maxCPU, 1);
     // Protect the rest, will be unprotected as needed
     scienceData->protectMemory();
 

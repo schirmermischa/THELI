@@ -177,7 +177,9 @@ void Query::getCatalogSearchLocationPhotom()
     if (!successProcessing) return;
 
     // Calculate RA/DEC of image center
-    photomImage = new MyImage(photomDir, photomImageName, "", 1, QVector<bool>(), false, verbosity);
+    QVector<bool> dummyMask;
+    dummyMask.clear();
+    photomImage = new MyImage(photomDir, photomImageName, "", 1, dummyMask, false, verbosity);
     photomImage->provideHeaderInfo();
     naxis1 = photomImage->naxis1;
     naxis2 = photomImage->naxis2;

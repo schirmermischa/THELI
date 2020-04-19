@@ -173,7 +173,7 @@ template<class T>
 T maxVec_T(QVector<T> const &qv)
 {
     if (qv.length() == 0) {
-        qDebug() << "QDEBUG: minVec(): vector has zero length.";
+        qDebug() << "QDEBUG: maxVec_T(): vector has zero length.";
         return 0;
     }
     T extreme = qv.at(0);

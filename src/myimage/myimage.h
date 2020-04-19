@@ -119,7 +119,7 @@ public:
     explicit MyImage(QString pathname, QString filename, QString statusString, int chipnumber,
                      const QVector<bool> &mask, bool masked, int *verbose, bool makebackup = true,
                      QObject *parent = nullptr);
-    explicit MyImage(QString fullPathName, int *verbose, QObject *parent = nullptr);
+    explicit MyImage(QString fullPathName, const QVector<bool> &mask, int *verbose, QObject *parent = nullptr);
     explicit MyImage(QObject *parent = nullptr);
 
     // A series of flags telling the status of a MyImage
@@ -246,7 +246,8 @@ public:
     QVector<float> dataBackupL2;   // Second backup level
     QVector<float> dataBackupL3;   // Third backup level
     QVector<float> dataMeasure;    // temporary (for object detection)
-    QVector<bool> globalMask;      // Global mask (e.g. vignetting, permanently bad pixels; same for all images)
+    const QVector<bool> &globalMask;      // Global mask (e.g. vignetting, permanently bad pixels; same for all images)
+//    QVector<bool> globalMask;      // Global mask (e.g. vignetting, permanently bad pixels; same for all images)
     QVector<bool> objectMask;      // Object mask (used for background modeling and sky subtraction)
     bool isMasked = false;
     bool backgroundPushedDown = false;  // Used to detect whether a backup copy was made already during twopass background correction

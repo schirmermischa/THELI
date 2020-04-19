@@ -496,7 +496,7 @@ void Data::populateExposureList()
 
 void Data::resetGlobalWeight(QString filter)
 {
-    // CHECK: not usre i need to exclude badChips here
+    // CHECK: not sure whether i need to exclude badChips here
     if (myImageList.isEmpty()) return;
     for (int chip=0; chip<instData->numChips; ++chip) {
         int removeIndex = 0;
@@ -510,7 +510,10 @@ void Data::resetGlobalWeight(QString filter)
             }
             ++i;
         }
-        if (remove) myImageList[chip].removeAt(removeIndex);
+        if (remove) {
+            myImageList[chip][removeIndex]->freeAll();
+            myImageList[chip].removeAt(removeIndex);
+        }
     }
 }
 
