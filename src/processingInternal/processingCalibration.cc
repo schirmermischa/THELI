@@ -94,6 +94,9 @@ void Controller::taskInternalProcessbias()
         biasData->getModeCombineImages(chip);
         biasData->writeCombinedImage(chip);
         biasData->unprotectMemory(chip);
+        if (minimizeMemoryUsage) {
+            for (auto &it : biasData->myImageList[chip]) it->freeAll();
+        }
         biasData->combinedImage[chip]->emitModelUpdateNeeded();
         if (!biasData->successProcessing) successProcessing = false;
 #pragma omp atomic
@@ -170,6 +173,9 @@ void Controller::taskInternalProcessdark()
         darkData->getModeCombineImages(chip);
         darkData->writeCombinedImage(chip);
         darkData->unprotectMemory(chip);
+        if (minimizeMemoryUsage) {
+            for (auto &it : darkData->myImageList[chip]) it->freeAll();
+        }
         if (!darkData->successProcessing) successProcessing = false;
 #pragma omp atomic
         progress += progressCombinedStepSize;
@@ -242,6 +248,9 @@ void Controller::taskInternalProcessflatoff()
         flatoffData->getModeCombineImages(chip);
         flatoffData->writeCombinedImage(chip);
         flatoffData->unprotectMemory(chip);
+        if (minimizeMemoryUsage) {
+            for (auto &it : flatoffData->myImageList[chip]) it->freeAll();
+        }
         if (!flatoffData->successProcessing) successProcessing = false;
 #pragma omp atomic
         progress += progressCombinedStepSize;
@@ -379,6 +388,9 @@ void Controller::taskInternalProcessflat()
         // Individual images may be released; must keep master calib for further below
         flatData->memorySetDeletable(chip, "dataCurrent", true);
         flatData->memorySetDeletable(chip, "dataBackupL1", true);
+        if (minimizeMemoryUsage) {
+            for (auto &it : flatData->myImageList[chip]) it->freeAll();
+        }
         if (!flatData->successProcessing) successProcessing = false;
 #pragma omp atomic
         progress += progressCombinedStepSize;

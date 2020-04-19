@@ -560,15 +560,14 @@ void SwarpFilter::writeWeight()
 
 #pragma omp parallel for num_threads(nthreads)
     for (long i=0; i<num_images; ++i) {
+
         long masklinemin, masklinemax;
         long maskcolmin, maskcolmax;
         long clustercount;
         long n = naxis1[i];
         long m = naxis2[i];
-        QVector<char> weight_out(n*m);
-        QVector<char> weight_cpy(n*m);
-        weight_out.fill(1);  // 1 = pixel is good, 0 = pixel is bad
-        weight_cpy.fill(1);
+        QVector<char> weight_out(n*m, 1);   // 1 = pixel is good, 0 = pixel is bad
+        QVector<char> weight_cpy(n*m, 1);
 
         long s = 0;
         long t = 0;
