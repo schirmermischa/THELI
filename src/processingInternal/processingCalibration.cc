@@ -681,6 +681,10 @@ void Controller::taskInternalProcessscience()
         // Double tapping ...
         if (biasData != nullptr) biasData->unprotectMemory(chip);
         if (flatData != nullptr) flatData->unprotectMemory(chip);
+        if (minimizeMemoryUsage) {
+            if (biasData != nullptr) biasData->releaseAllMemory();
+            if (flatData != nullptr) flatData->releaseAllMemory();
+        }
     }
 
     if (!instData->bayer.isEmpty()) scienceData->currentlyDebayering = false;

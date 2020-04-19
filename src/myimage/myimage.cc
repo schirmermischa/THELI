@@ -302,7 +302,7 @@ void MyImage::readImageBackupL1Launch()
 }
 
 // when MyImage has been read before and all members are setup correctly, just the pixel data are missing.
-// This function is used if the pixel data were discared due to memory constraints, and now they are needed again
+// This function is used if the pixel data were discarded due to memory constraints, and now they are needed again
 void MyImage::readImageBackupL1()
 {
     dataCurrent_deletable = false;
@@ -337,7 +337,7 @@ void MyImage::readImageBackupL1()
 
         dataBackupL1.resize(nelements);
         for (long i=0; i<nelements; ++i) {
-            dataCurrent[i] = buffer[i];
+            dataBackupL1[i] = buffer[i];
         }
         delete [] buffer;
         backupL1InMemory = true;
