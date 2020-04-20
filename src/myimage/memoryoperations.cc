@@ -24,8 +24,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../tools/cfitsioerrorcodes.h"
 #include "../processingInternal/data.h"
 #include "../processingStatus/processingStatus.h"
-#include "wcs.h"
-#include "wcshdr.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -539,6 +537,7 @@ void MyImage::freeData()
 }
 
 // this happens only inside memoryLock set in the controller
+// MUST USE MEMORY LOCCK!
 float MyImage::freeData(QString type)
 {
     bool released = false;
@@ -566,7 +565,10 @@ float MyImage::freeData(QString type)
     }
     else if (type == "dataBackupL2" && dataBackupL2_deletable && dataBackupL2.capacity() > 0) {
         dataBackupL2.clear();
-        dataBackupL2.squeeze();
+        dataBackupL2.squeeze();    if (type == "dataWeight") {
+            qDebug() << dataWeight_deletable << dataWeight.capacity();
+        }
+
         backupL2InMemory = false;
         released = true;
     }
@@ -607,23 +609,28 @@ float MyImage::freeData(QString type)
         if (dataBackupL1.capacity() > 0) {
             dataBackupL1.clear();
             dataBackupL1.squeeze();
+            backupL1InMemory = false;
         }
         if (dataBackupL2.capacity() > 0) {
             dataBackupL2.clear();
             dataBackupL2.squeeze();
+            backupL2InMemory = false;
         }
         if (dataBackupL3.capacity() > 0) {
             dataBackupL3.clear();
             dataBackupL3.squeeze();
+            backupL3InMemory = false;
         }
         if (dataWeight.capacity() > 0) {
             // weights are always writtwen to drive (for swarp)
             dataWeight.clear();
             dataWeight.squeeze();
+            weightInMemory = false;
         }
         if (dataCurrent.capacity() > 0) {
             dataCurrent.clear();
             dataCurrent.squeeze();
+            imageInMemory = false;
         }
     }
     emit modelUpdateNeeded(baseName, chipName);
@@ -691,10 +698,6 @@ void MyImage::freeAll()
     freeData(dataBackupL3);
     freeData(dataCurrent);
     freeData(dataWeight);
-//    globalMask.clear();         should be handled by Controller class; shared entity across all myimages
-//    globalMask.squeeze();
-//    imageInMemory = false;      // now handled in freeData(QVector<float> &data) itself
-//    weightInMemory = false;
     emit modelUpdateNeeded(baseName, chipName);
     emit setMemoryLock(false);
 }

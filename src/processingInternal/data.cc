@@ -1363,6 +1363,8 @@ void Data::initGlobalWeight(int chip, Data *flatData, QString filter, bool sameW
         else {
             if (flatData->successProcessing) {
                 if (*verbosity > 0) emit messageAvailable("Initializing globalweight for chip " + QString::number(chip+1) + " from master flat"+thresholds, "data");
+                // done before calling this function
+ //               if (!flatData->combinedImage[chip]->imageInMemory) flatData->combinedImage[chip]->setupDataInMemorySimple(true);
                 myImage->dataCurrent = flatData->combinedImage[chip]->dataCurrent;
             }
         }
@@ -1422,8 +1424,12 @@ void Data::thresholdGlobalWeight(int chip, Data *comparisonData, QString filter,
     for (auto &it: myImageList[chip]) {
         // Only process global weights that match the current science filter
         if (filter == it->filter) {
+            // done before calling this function
+            //            if (!comparisonData->combinedImage[chip]->imageInMemory) comparisonData->combinedImage[chip]->setupDataInMemorySimple(true);
+            long k = 0;
             for (auto &jt: it->dataCurrent) {
-                if (jt < threshMinVal || jt > threshMaxVal) {
+                float compVal = comparisonData->combinedImage[chip]->dataCurrent[k];
+                if (compVal < threshMinVal || compVal > threshMaxVal) {
                     jt = 0.;
                 }
             }

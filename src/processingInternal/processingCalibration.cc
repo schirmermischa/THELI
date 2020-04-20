@@ -103,7 +103,7 @@ void Controller::taskInternalProcessbias()
         progress += progressCombinedStepSize;
     }
 
-    biasData->reportModeCombineImages();
+//    biasData->reportModeCombineImages();
 
     checkSuccessProcessing(biasData);
     satisfyMaxMemorySetting();

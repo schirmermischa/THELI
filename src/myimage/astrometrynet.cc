@@ -27,8 +27,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../tools/cfitsioerrorcodes.h"
 #include "../processingInternal/data.h"
 #include "../threading/anetworker.h"
-#include "wcs.h"
-#include "wcshdr.h"
 
 #include <QFile>
 #include <QFileInfo>

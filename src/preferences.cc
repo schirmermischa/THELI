@@ -180,7 +180,6 @@ int Preferences::readSettings()
 {
     QSettings settings("THELI", "PREFERENCES");
     ui->prefDiskspacewarnSpinBox->setValue(settings.value("prefDiskspacewarnSpinBox").toInt());
-    ui->prefIntermediateDataComboBox->setCurrentText(settings.value("prefIntermediateDataComboBox").toString());
     ui->prefVerbosityComboBox->setCurrentIndex(settings.value("prefVerbosityComboBox").toInt());
     ui->prefServerComboBox->setCurrentText(settings.value("prefServerComboBox").toString());
     ui->prefCPUSpinBox->setValue(settings.value("prefCPUSpinBox").toInt());
@@ -189,8 +188,9 @@ int Preferences::readSettings()
     ui->prefProcessSkyCheckBox->setChecked(settings.value("prefProcessSkyCheckBox").toBool());
     ui->prefFontsizeSpinBox->setValue(settings.value("prefFontsizeSpinBox").toInt());
     ui->prefMemorySpinBox->setValue(settings.value("prefMemorySpinBox", maxMemoryUsed).toInt());
-    ui->prefMemoryCheckBox->setChecked(settings.value("prefMemoryCheckBox").toBool());
     ui->prefSwitchProcessMonitorCheckBox->setChecked(settings.value("prefSwitchProcessMonitorCheckBox").toBool());
+    ui->prefIntermediateDataComboBox->setCurrentText(settings.value("prefIntermediateDataComboBox").toString());
+    ui->prefMemoryCheckBox->setChecked(settings.value("prefMemoryCheckBox").toBool());
     this->setFont(settings.value("prefFont").value<QFont>());
     return settings.status();
 }
@@ -263,6 +263,8 @@ void Preferences::on_prefMemoryCheckBox_clicked()
 
 void Preferences::on_prefIntermediateDataComboBox_currentTextChanged(const QString &arg1)
 {
+    if (ui->prefIntermediateDataComboBox->currentIndex() == 0) ui->prefMemoryCheckBox->setChecked(false);
+
     emit intermediateDataChanged(arg1);
 }
 

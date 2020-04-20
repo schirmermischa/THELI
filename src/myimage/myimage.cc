@@ -44,7 +44,7 @@ MyImage::MyImage(QString pathname, QString filename, QString statusString, int c
     QFileInfo fi(path+"/"+name);
     if (mask.isEmpty()) isMasked = false;
     else {
-//        globalMask = mask; // This is the globalMask
+        //        globalMask = mask; // This is the globalMask
         isMasked = masked;
     }
     baseName = fi.completeBaseName();
@@ -549,20 +549,32 @@ void MyImage::transferWCS()
     if (check > 1) {
         emit messageAvailable("MyImage::transferWCS(): " + baseName + ": wcspih() returned" + QString::number(check), "error" );
         emit critical();
+        emit setWCSLock(false);
+        successProcessing = false;
+        wcsInit = false;
+        return;
+    }
+    if (nwcs == 0 || check == 1) {
+        // OK state, e.g. for master calibrators which don't have a valid WCS
+        if (*verbosity > 2) emit messageAvailable(chipName + " : No WCS representation found", "image");
+        emit setWCSLock(false);
+        wcsInit = false;
         return;
     }
     int wcsCheck = wcsset(wcs);
     if (wcsCheck > 0) {
-        emit messageAvailable("MyImage::transferWCS(): wcsset() returned error " + QString::number(wcsCheck), "error");
-        if (wcsCheck == 1) emit messageAvailable("Null wcsprm pointer passed", "error");
-        if (wcsCheck == 2) emit messageAvailable("Memory allocation failed", "error");
-        if (wcsCheck == 3) emit messageAvailable("Linear transformation matrix is singular", "error");
-        if (wcsCheck == 4) emit messageAvailable("Inconsistent or unrecognized coordinate axis types", "error");
-        if (wcsCheck == 5) emit messageAvailable("Invalid parameter value", "error");
-        if (wcsCheck == 6) emit messageAvailable("Invalid coordinate transformation parameters", "error");
-        if (wcsCheck == 7) emit messageAvailable("Ill-conditioned coordinate transformation parameters", "error");
+        QString wcsError = "";
+        if (wcsCheck == 1) wcsError = "Null wcsprm pointer passed";                   // Should be caught by 'if' conditions above
+        if (wcsCheck == 2) wcsError = "Memory allocation failed";
+        if (wcsCheck == 3) wcsError = "Linear transformation matrix is singular";
+        if (wcsCheck == 4) wcsError = "Inconsistent or unrecognized coordinate axis types";
+        if (wcsCheck == 5) wcsError = "Invalid parameter value";
+        if (wcsCheck == 6) wcsError = "Invalid coordinate transformation parameters";
+        if (wcsCheck == 7) wcsError = "Ill-conditioned coordinate transformation parameters";
+        emit messageAvailable("MyImage::transferWCS(): wcsset() error : " + wcsError, "error");
         emit critical();
         successProcessing = false;
+        wcsInit = false;
     }
     wcsInit = true;
     if (*verbosity > 2) {
@@ -679,6 +691,11 @@ void MyImage::updateHeaderValueInFITS(QString keyName, QString keyValue)
 
 double MyImage::getPlateScale()
 {
+    if (!wcsInit) {
+        if (*verbosity > 2) emit messageAvailable(chipName + " : No WCS. PlateScale set to 1.0", "info");
+        return 1.0;
+    }
+
     // replace with sth more sophisticated
     plateScale = sqrt(wcs->cd[0] * wcs->cd[0] + wcs->cd[2] * wcs->cd[2]) * 3600.;
     if (plateScale == 0.) plateScale = 1.0;
@@ -987,9 +1004,11 @@ void MyImage::makeCutout(long xmin, long xmax, long ymin, long ymax)
 
     naxis1 = nsub;
     naxis2 = msub;
-    wcs->crpix[0] = wcs->crpix[0]- xmin + 1;
-    wcs->crpix[1] = wcs->crpix[1] - ymin + 1;
-    wcs->flag = 0;
+    if (wcsInit) {
+        wcs->crpix[0] = wcs->crpix[0]- xmin + 1;
+        wcs->crpix[1] = wcs->crpix[1] - ymin + 1;
+        wcs->flag = 0;
+    }
 
     dataCurrent.swap(dataCut);
 }
@@ -1110,7 +1129,7 @@ void MyImage::setupCoaddMode()
     readImage();
 
     // Setup an empty dummy globalMask
-//    globalMask = QVector<bool>();
+    //    globalMask = QVector<bool>();
     globalMaskAvailable = false;
 
     // Load a matching weight image, if one exists

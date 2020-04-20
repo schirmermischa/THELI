@@ -188,13 +188,17 @@ void MyImage::writeWeightSmoothed(QString fileName)
 
 }
 
-// UNUSED
 void MyImage::freeWeight()
 {
     emit setMemoryLock(true);
-    dataWeight.clear();
-    dataWeight.squeeze();
-    weightInMemory = false;
+    if (minimizeMemoryUsage) {
+        dataWeight.clear();
+        dataWeight.squeeze();
+        weightInMemory = false;
+    }
+    else {
+        dataWeight_deletable = true;
+    }
     emit setMemoryLock(false);
 }
 

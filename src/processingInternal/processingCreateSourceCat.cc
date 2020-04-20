@@ -47,6 +47,10 @@ void Controller::taskInternalCreatesourcecat()
     currentData = scienceData;
     currentDirName = scienceDir;
 
+    // Ensure that the output path exists
+    QString outpath = mainDirName+"/"+scienceData->subDirName+"/cat/";
+    mkAbsDir(outpath);
+
     pushBeginMessage(taskBasename, scienceDir);
     pushConfigCreatesourcecat();
 
