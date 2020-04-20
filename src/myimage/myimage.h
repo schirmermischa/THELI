@@ -452,6 +452,9 @@ public:
     void runAnetCommand();
     QString extractAnetOutput();
     void sexcatToAnet();
+    void writeImageBackupL1();
+    void writeImageBackupL2();
+    void writeImageBackupL3();
 signals:
     void modelUpdateNeeded(QString baseName, QString chipName);
     void messageAvailable(QString message, QString type);

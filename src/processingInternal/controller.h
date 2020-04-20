@@ -464,9 +464,9 @@ public:
     float (*combineFlat_ptr) (const QVector<float> &, const QVector<bool> &, long);
     float (*combineBackground_ptr) (const QVector<float> &, const QVector<bool> &, long);
 
-    long checkForUnsavedImages();
+    void checkForUnsavedImages(long &numUnsavedLatest, long &numUnsavedAll);
     void wipeDataTree();
-    void writeUnsavedImagesToDrive();
+    void writeUnsavedImagesToDrive(bool includeBackup);
     //    void coaddPrepareStep2();
     QStringList getFilterList(QString scienceDir);
     void downloadGaiaCatalog(Data *scienceData);

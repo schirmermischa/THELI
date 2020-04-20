@@ -1058,6 +1058,83 @@ void MyImage::writeImage(QString fileName, QString filter, float exptime, bool a
     emit modelUpdateNeeded(baseName, chipName);
 }
 
+void MyImage::writeImageBackupL1()
+{
+    if (!successProcessing) return;
+
+    QString fileName = pathBackupL1+"/"+chipName+statusBackupL1+".fits";
+
+    MyFITS out(fileName, naxis1, naxis2, dataBackupL1);
+    out.addGainNormalization = true;
+    out.gainNormalization = gainNormalization;
+
+    QString history = "";
+    bool success = out.write(history, exptime, filter, header);
+    if (success) {
+        backupL1OnDrive = true;
+        if (*verbosity > 1) emit messageAvailable(chipName+statusBackupL1 + " : Written to drive.", "image");
+    }
+    else {
+        backupL1OnDrive = false;
+        emit messageAvailable(chipName+statusBackupL1 + " : Could not write file to drive!", "error");
+        emit critical();
+        return;
+    }
+    // For future reference, if memoryViewer gets more functionality
+    //    emit modelUpdateNeeded(baseName, chipName);
+}
+void MyImage::writeImageBackupL2()
+{
+    if (!successProcessing) return;
+
+    QString fileName = pathBackupL2+"/"+chipName+statusBackupL2+".fits";
+
+    MyFITS out(fileName, naxis1, naxis2, dataBackupL2);
+    out.addGainNormalization = true;
+    out.gainNormalization = gainNormalization;
+
+    QString history = "";
+    bool success = out.write(history, exptime, filter, header);
+    if (success) {
+        backupL2OnDrive = true;
+        if (*verbosity > 1) emit messageAvailable(chipName+statusBackupL2 + " : Written to drive.", "image");
+    }
+    else {
+        backupL2OnDrive = false;
+        emit messageAvailable(chipName+statusBackupL2 + " : Could not write file to drive!", "error");
+        emit critical();
+        return;
+    }
+    // For future reference, if memoryViewer gets more functionality
+    //    emit modelUpdateNeeded(baseName, chipName);
+}
+
+void MyImage::writeImageBackupL3()
+{
+    if (!successProcessing) return;
+
+    QString fileName = pathBackupL3+"/"+chipName+statusBackupL3+".fits";
+
+    MyFITS out(fileName, naxis1, naxis2, dataBackupL3);
+    out.addGainNormalization = true;
+    out.gainNormalization = gainNormalization;
+
+    QString history = "";
+    bool success = out.write(history, exptime, filter, header);
+    if (success) {
+        backupL3OnDrive = true;
+        if (*verbosity > 1) emit messageAvailable(chipName+statusBackupL3 + " : Written to drive.", "image");
+    }
+    else {
+        backupL3OnDrive = false;
+        emit messageAvailable(chipName+statusBackupL3 + " : Could not write file to drive!", "error");
+        emit critical();
+        return;
+    }
+    // For future reference, if memoryViewer gets more functionality
+    //    emit modelUpdateNeeded(baseName, chipName);
+}
+
 void MyImage::writeConstSkyImage(float constValue, QString filter, float exptime, bool addGain)
 {
     if (!successProcessing) return;

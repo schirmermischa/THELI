@@ -541,19 +541,18 @@ void Controller::dataTreeEditedReceived()
     dataTreeUpdateOngoing = false;
 }
 
-long Controller::checkForUnsavedImages()
+void Controller::checkForUnsavedImages(long &numUnsavedLatest, long &numUnsavedBackup)
 {
-    long numUnsavedImages = 0;
+    numUnsavedLatest = 0;
+    numUnsavedBackup = 0;
     for (auto &DT_x : masterListDT) {
         for (auto &data : DT_x) {
-            numUnsavedImages += data->countUnsavedImages();
+            data->countUnsavedImages(numUnsavedLatest, numUnsavedBackup);
         }
     }
-
-    return numUnsavedImages;
 }
 
-void Controller::writeUnsavedImagesToDrive()
+void Controller::writeUnsavedImagesToDrive(bool includeBackup)
 {
     emit messageAvailable("Writing images to disk", "controller");
     criticalReceived();
@@ -561,7 +560,7 @@ void Controller::writeUnsavedImagesToDrive()
     // Do not need to loop over globalweights (they are always saved)
     for (auto &DT_x : masterListDT) {
         for (auto &data : DT_x) {
-            data->writeUnsavedImagesToDrive();
+            data->writeUnsavedImagesToDrive(includeBackup);
         }
     }
 

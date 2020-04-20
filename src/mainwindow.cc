@@ -251,27 +251,46 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 
     // write out data in memory
-    long numUnsavedImages = controller->checkForUnsavedImages();
-    if (numUnsavedImages > 0) {
-        long mBytes = numUnsavedImages*instData.storage;
+    long numUnsavedImagesLatestStage = 0;
+    long numUnsavedImagesBackup = 0;
+    controller->checkForUnsavedImages(numUnsavedImagesLatestStage, numUnsavedImagesBackup);
+    if (numUnsavedImagesLatestStage > 0 || numUnsavedImagesBackup > 0) {
+        long mBytesLatest = numUnsavedImagesLatestStage*instData.storage;
+        long mBytesBackup = numUnsavedImagesBackup*instData.storage;
+        long mBytesAll = mBytesLatest + mBytesBackup;
+        QString saveLatestString = "";
+        QString saveAllString = "";
+        if (numUnsavedImagesLatestStage > 0) saveLatestString = "The current project keeps "+QString::number(numUnsavedImagesLatestStage)
+                + " unsaved images of the latest processing stage in memory.\n";
+        if (numUnsavedImagesBackup > 0) saveAllString = "The current project keeps "+QString::number(numUnsavedImagesBackup)
+                + " unsaved images with earlier processing stages in memory.\n";
 
         QMessageBox msgBox;
         msgBox.setModal(true);
         msgBox.setInformativeText(tr("Unsaved images detected.\n") +
-                                  tr("The current project keeps ") +
-                                  QString::number(numUnsavedImages) +
-                                  tr(" processed images in memory that have not yet been saved to drive.\n\n"));
-        QAbstractButton *pButtonSave = msgBox.addButton(tr("Save images (")+QString::number(mBytes)+" MB) and close", QMessageBox::YesRole);
+                                  saveLatestString + saveAllString + "\n");
+        QAbstractButton *pButtonSaveLatest = msgBox.addButton(tr("Save latest images (")+QString::number(mBytesLatest)+" MB) and close", QMessageBox::YesRole);
+        QAbstractButton *pButtonSaveAll = msgBox.addButton(tr("Save all images (")+QString::number(mBytesAll)+" MB) and close", QMessageBox::YesRole);
         QAbstractButton *pButtonContinue = msgBox.addButton(tr("Close without saving"), QMessageBox::YesRole);
         QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
+        if (numUnsavedImagesLatestStage == 0) pButtonSaveAll->hide();
+        if (numUnsavedImagesBackup == 0) pButtonSaveAll->hide();
         msgBox.exec();
-        if (msgBox.clickedButton() == pButtonSave) {
-            if (sufficientSpaceAvailable(mBytes)) {
-                controller->writeUnsavedImagesToDrive();
+        if (msgBox.clickedButton() == pButtonSaveLatest) {
+            if (sufficientSpaceAvailable(mBytesLatest)) {       // sufficientSpaceAvailable() displays a warning message
+                controller->writeUnsavedImagesToDrive(false);
                 accept = accept && true;
             }
             else {
-                // sufficientSpaceAvailable() displays a warning message
+                accept = accept && false;
+            }
+        }
+        else if (msgBox.clickedButton() == pButtonSaveAll) {
+            if (sufficientSpaceAvailable(mBytesAll)) {
+                controller->writeUnsavedImagesToDrive(true);
+                accept = accept && true;
+            }
+            else {
                 accept = accept && false;
             }
         }
@@ -1140,31 +1159,45 @@ bool MainWindow::sufficientSpaceAvailable(long spaceNeeded)
 void MainWindow::on_setupProjectLoadToolButton_clicked()
 {
     // First of all, check if we have unsaved images in memory
-    long numUnsavedImages = controller->checkForUnsavedImages();
-    if (numUnsavedImages > 0) {
-        long mBytes = numUnsavedImages*(instData.sizex[0]*instData.sizey[0]*4./1024/1024);
+    long numUnsavedImagesLatestStage = 0;
+    long numUnsavedImagesBackup = 0;
+    controller->checkForUnsavedImages(numUnsavedImagesLatestStage, numUnsavedImagesBackup);
+    if (numUnsavedImagesLatestStage > 0 || numUnsavedImagesBackup > 0) {
+        long mBytesLatest = numUnsavedImagesLatestStage*instData.storage;
+        long mBytesBackup = numUnsavedImagesBackup*instData.storage;
+        long mBytesAll = mBytesLatest + mBytesBackup;
+        QString saveLatestString = "";
+        QString saveAllString = "";
+        if (numUnsavedImagesLatestStage > 0) saveLatestString = "The current project keeps "+QString::number(numUnsavedImagesLatestStage)
+                + " unsaved images of the latest processing stage in memory.\n";
+        if (numUnsavedImagesBackup > 0) saveAllString = "The current project keeps "+QString::number(numUnsavedImagesBackup)
+                + " unsaved images with earlier processing stages in memory.\n";
 
         QMessageBox msgBox;
         msgBox.setModal(true);
         msgBox.setInformativeText(tr("A new project is about to be loaded.\n") +
-                                  tr("The current project keeps ") +
-                                  QString::number(numUnsavedImages) +
-                                  tr(" processed images in memory that have not yet been saved to drive.\n\n"));
-        QAbstractButton *pButtonSave = msgBox.addButton(tr("Save images (")+QString::number(mBytes)+" MB)", QMessageBox::YesRole);
-        QAbstractButton *pButtonContinue = msgBox.addButton(tr("Continue without saving"), QMessageBox::YesRole);
-        QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel loading new project"), QMessageBox::YesRole);
+                                  saveLatestString + saveAllString + "\n");
+        QAbstractButton *pButtonSaveLatest = msgBox.addButton(tr("Save latest images (")+QString::number(mBytesLatest)+" MB) and close", QMessageBox::YesRole);
+        QAbstractButton *pButtonSaveAll = msgBox.addButton(tr("Save all images (")+QString::number(mBytesAll)+" MB) and close", QMessageBox::YesRole);
+        QAbstractButton *pButtonContinue = msgBox.addButton(tr("Close without saving"), QMessageBox::YesRole);
+        QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
+        if (numUnsavedImagesLatestStage == 0) pButtonSaveAll->hide();
+        if (numUnsavedImagesBackup == 0) pButtonSaveAll->hide();
         msgBox.exec();
-        if (msgBox.clickedButton() == pButtonSave) {
-            if (sufficientSpaceAvailable(mBytes)) {
-                controller->writeUnsavedImagesToDrive();
+        if (msgBox.clickedButton() == pButtonSaveLatest) {
+            if (sufficientSpaceAvailable(mBytesLatest)) {        // sufficientSpaceAvailable() displays a warning message
+                controller->writeUnsavedImagesToDrive(false);
             }
-            else {
-                // sufficientSpaceAvailable() displays a warning message
-                return;
+            else return;
+        }
+        else if (msgBox.clickedButton() == pButtonSaveAll) {
+            if (sufficientSpaceAvailable(mBytesAll)) {
+                controller->writeUnsavedImagesToDrive(true);
             }
+            else return;
         }
         else if (msgBox.clickedButton() == pButtonContinue) {
-            // nothing yet
+            // nothing to be done
         }
         else return;
     }
@@ -1305,8 +1338,8 @@ void MainWindow::load_dialog_imageStatistics()
     }
     else if (controller->DT_SCIENCE.length() == 0) {
         QMessageBox::information(this, tr("Missing data"),
-                             tr("Image statistics:<br>No SCIENCE data were specified in the data tree.\n"),
-                             QMessageBox::Ok);
+                                 tr("Image statistics:<br>No SCIENCE data were specified in the data tree.\n"),
+                                 QMessageBox::Ok);
         return;
     }
     else {
@@ -1379,29 +1412,45 @@ void MainWindow::resetParameters()
 {
     // First of all, check if we have unsaved images in memory
 
-    long numUnsavedImages = controller->checkForUnsavedImages();
-    if (numUnsavedImages > 0) {
-        long mBytes = numUnsavedImages*(instData.sizex[0]*instData.sizey[0]*4./1024/1024);
+    long numUnsavedImagesLatestStage = 0;
+    long numUnsavedImagesBackup = 0;
+    controller->checkForUnsavedImages(numUnsavedImagesLatestStage, numUnsavedImagesBackup);
+    if (numUnsavedImagesLatestStage > 0 || numUnsavedImagesBackup > 0) {
+        long mBytesLatest = numUnsavedImagesLatestStage*instData.storage;
+        long mBytesBackup = numUnsavedImagesBackup*instData.storage;
+        long mBytesAll = mBytesLatest + mBytesBackup;
+        QString saveLatestString = "";
+        QString saveAllString = "";
+        if (numUnsavedImagesLatestStage > 0) saveLatestString = "The current project keeps "+QString::number(numUnsavedImagesLatestStage)
+                + " unsaved images of the latest processing stage in memory.\n";
+        if (numUnsavedImagesBackup > 0) saveAllString = "The current project keeps "+QString::number(numUnsavedImagesBackup)
+                + " unsaved images with earlier processing stages in memory.\n";
 
         QMessageBox msgBox;
         msgBox.setModal(true);
-        msgBox.setText(tr("Project parameter reset"));
-        msgBox.setInformativeText(tr("WARNING: You are about to reset the current project, which keeps \n") +
-                                  QString::number(numUnsavedImages) +
-                                  tr(" processed images in memory that have not yet been saved to drive.\n\n") +
-                                  tr(" All processing parameters will be reset to their default values. Processing will continue with the FITS files found on disk. Data currently kept in memory can optionally be written to disk.\n"));
-        QAbstractButton *pButtonSave = msgBox.addButton(tr("Save images (")+QString::number(mBytes)+" MB)", QMessageBox::YesRole);
-        QAbstractButton *pButtonContinue = msgBox.addButton(tr("Continue without saving"), QMessageBox::YesRole);
+        msgBox.setInformativeText(tr("The parameters in the current project are about to be reset.\n") +
+                                  saveLatestString + saveAllString +
+                                  tr("\nAll processing parameters will be reset to their default values.") +
+                                  tr(" Processing will continue with the FITS files currently found on your drive.") +
+                                  tr(" Data currently kept in memory can be saved and thus included in reprocessing.\n\n"));
+        QAbstractButton *pButtonSaveLatest = msgBox.addButton(tr("Save latest images (")+QString::number(mBytesLatest)+" MB) and close", QMessageBox::YesRole);
+        QAbstractButton *pButtonSaveAll = msgBox.addButton(tr("Save all images (")+QString::number(mBytesAll)+" MB) and close", QMessageBox::YesRole);
+        QAbstractButton *pButtonContinue = msgBox.addButton(tr("Close without saving"), QMessageBox::YesRole);
         QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
+        if (numUnsavedImagesLatestStage == 0) pButtonSaveAll->hide();
+        if (numUnsavedImagesBackup == 0) pButtonSaveAll->hide();
         msgBox.exec();
-        if (msgBox.clickedButton() == pButtonSave) {
-            if (sufficientSpaceAvailable(mBytes)) {
-                controller->writeUnsavedImagesToDrive();
+        if (msgBox.clickedButton() == pButtonSaveLatest) {
+            if (sufficientSpaceAvailable(mBytesLatest)) {        // sufficientSpaceAvailable() displays a warning message
+                controller->writeUnsavedImagesToDrive(false);
             }
-            else {
-                // sufficientSpaceAvailable() displays a warning message
-                return;      // insufficient space available
+            else return;
+        }
+        else if (msgBox.clickedButton() == pButtonSaveAll) {
+            if (sufficientSpaceAvailable(mBytesAll)) {
+                controller->writeUnsavedImagesToDrive(true);
             }
+            else return;
         }
         else if (msgBox.clickedButton() == pButtonContinue) {
             // nothing to be done
@@ -1411,8 +1460,7 @@ void MainWindow::resetParameters()
     else {
         QMessageBox msgBox;
         msgBox.setModal(true);
-        msgBox.setText(tr("Project parameter reset"));
-        msgBox.setInformativeText(tr("WARNING: You are about to reset the current project.") +
+        msgBox.setInformativeText(tr("The parameters in the current project are about to be reset. The project contains\n") +
                                   tr(" All processing parameters will be reset to their default values. Processing will continue with the FITS files found on disk.\n"));
         QAbstractButton *pButtonOK = msgBox.addButton(tr("OK"), QMessageBox::YesRole);
         QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);

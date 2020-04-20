@@ -200,9 +200,9 @@ public:
 
     void checkPresenceOfMasterCalibs();
     void reportModeCombineImages();
-    long countUnsavedImages();
-    bool containsUnsavedImages();
-    void writeUnsavedImagesToDrive();
+    void countUnsavedImages(long &numUnsavedLatest, long &numUnsavedAll);
+//    bool containsUnsavedImages();
+    void writeUnsavedImagesToDrive(bool includeBackup);
 
     void broadcastNumberOfFiles();
     int identifyClusters(QString toleranceString);

@@ -313,12 +313,12 @@ void Data::setSuccess(bool state)
     }
 }
 
-void Data::writeUnsavedImagesToDrive()
+void Data::writeUnsavedImagesToDrive(bool includeBackup)
 {
     emit resetProgressBar();
 
     /*
-     * TODO
+     * TODO: Run it as a separate process
      * CRASHES, because processes are started by the controller, which then immediately calls the destructor.
      * Better if we can wait for the processes and then delete 'data', e.g. if handled by controller directly
 
@@ -349,6 +349,11 @@ void Data::writeUnsavedImagesToDrive()
                 it->writeImage();
                 it->imageOnDrive = true;
                 it->emitModelUpdateNeeded();
+                if (includeBackup) {
+                    it->writeImageBackupL1();
+                    it->writeImageBackupL2();
+                    it->writeImageBackupL3();
+                }
 #pragma omp atomic
                 *progress += progressStepSize;
             }
@@ -2145,19 +2150,21 @@ QStringList Data::collectNamesForChip(int chip)
     return names;
 }
 
-long Data::countUnsavedImages()
+void Data::countUnsavedImages(long &numUnsavedLatest, long &numUnsavedBackup)
 {
-    long numUnsaved = 0;
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (instData->badChips.contains(chip)) continue;
         for (auto &it : myImageList[chip]) {
-            if (!it->imageOnDrive) ++numUnsaved;
+            if (!it->imageOnDrive) ++numUnsavedLatest;
+            if (it->backupL1InMemory && !it->backupL1OnDrive) ++numUnsavedBackup;
+            if (it->backupL2InMemory && !it->backupL2OnDrive) ++numUnsavedBackup;
+            if (it->backupL3InMemory && !it->backupL3OnDrive) ++numUnsavedBackup;
         }
     }
-
-    return numUnsaved;
 }
 
+// UNUSED
+/*
 bool Data::containsUnsavedImages()
 {
     for (int chip=0; chip<instData->numChips; ++chip) {
@@ -2169,6 +2176,8 @@ bool Data::containsUnsavedImages()
 
     return true;
 }
+*/
+
 
 QStringList Data::collectNamesForFilter(QString filter)
 {
