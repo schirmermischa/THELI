@@ -227,7 +227,6 @@ QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList
                 || taskBasename == "Individualweight"
                 || taskBasename == "Skysub"
                 || taskBasename == "ResolveTarget"
-                || taskBasename == "GetCatalogFromWEB"
                 || taskBasename == "GetCatalogFromIMAGE"
                 || taskBasename == "RestoreHeader"
                 || taskBasename == "Separate") {
@@ -243,12 +242,24 @@ QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList
             updateProcessList(commandList, taskBasename, it, coordsMode);
         }
 
+        if (taskBasename == "GetCatalogFromWEB") {
+            if (!checkCatalogUsability(mode)) {
+                stop = true;
+                return QStringList();
+            }
+            updateProcessList(commandList, "GetCatalogFromWEB", it);
+        }
+
         if (taskBasename == "Astromphotom") {
             // do we need to update the reference catalog?
             if (!isRefcatRecent(main+"/"+science)) {
                 if (cdw->ui->ASTmethodComboBox->currentText() == "Scamp"
                         || cdw->ui->ASTmethodComboBox->currentText() == "astrometry.net") {
                     if (cdw->ui->ARCwebRadioButton->isChecked()) {
+                        if (!checkCatalogUsability(mode)) {
+                            stop = true;
+                            return QStringList();
+                        }
                         updateProcessList(commandList, "GetCatalogFromWEB", it);
                     }
                     else {
@@ -827,7 +838,7 @@ bool MainWindow::isRefcatRecent(QString dirname)
             currentId = image+"_"+dt+"_"+dmin;
         }
         // Uncomment this to understand why refcat is downloaded twice
-//        qDebug() << id << currentId;
+        //        qDebug() << id << currentId;
         if (id != currentId) return false;
         else return true;
     }
@@ -859,6 +870,49 @@ QString MainWindow::manualCoordsUpdate(QString science, QString mode)
         else return "Cancel";
     }
     else return "empty";
+}
+
+bool MainWindow::checkCatalogUsability(QString mode)
+{
+    // Confirm the catalog choice if possible not very useful
+    if (cdw->ui->ARCwebRadioButton->isChecked()) {
+        if (instData.pixscale > 2.0 && instData.pixscale < 10.0 && mode != "simulate") {
+            QString refcatName = cdw->ui->ARCcatalogComboBox->currentText();
+            if (refcatName.contains("GAIA") ||
+                    refcatName.contains("PANSTARRS") ||
+                    refcatName.contains("SDSS") ||
+                    refcatName.contains("2MASS")) {
+                QMessageBox msgBox;
+                msgBox.setModal(true);
+                msgBox.setInformativeText(tr("Very large online query detected.\n\n") +
+                                          tr("Downloading data from ") + refcatName + tr(" for your data could take very long. ") +
+                                          tr("Since your field of view is large and the resolution less than 2 arcsec / pixel, UCAC5 is a better alternative.\n"));
+                QAbstractButton *pButtonUCAC = msgBox.addButton(tr("Use UCAC5"), QMessageBox::YesRole);
+                QAbstractButton *pButtonOrig = msgBox.addButton(tr("Use ")+refcatName, QMessageBox::YesRole);
+                QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
+                msgBox.exec();
+                if (msgBox.clickedButton() == pButtonUCAC) cdw->ui->ARCcatalogComboBox->setCurrentText("UCAC5");
+                else if (msgBox.clickedButton() == pButtonCancel) return false;
+            }
+        }
+        else if (instData.pixscale > 10.0 && mode != "simulate") {
+            QString refcatName = cdw->ui->ARCcatalogComboBox->currentText();
+            if (!refcatName.contains("ASCC") && !refcatName.contains("TYC")) {
+                QMessageBox msgBox;
+                msgBox.setModal(true);
+                msgBox.setInformativeText(tr("Very large online query detected.\n\n") +
+                                          tr("Downloading data from ") + refcatName + tr(" for your data will take very long. ") +
+                                          tr("Since your field of view is large and the resolution less than 2\" / pixel, ASCC is a better alternative.\n"));
+                QAbstractButton *pButtonUCAC = msgBox.addButton(tr("Use ASCC"), QMessageBox::YesRole);
+                QAbstractButton *pButtonOrig = msgBox.addButton(tr("Use ")+refcatName, QMessageBox::YesRole);
+                QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
+                msgBox.exec();
+                if (msgBox.clickedButton() == pButtonUCAC) cdw->ui->ARCcatalogComboBox->setCurrentText("ASCC");
+                else if (msgBox.clickedButton() == pButtonCancel) return false;
+            }
+        }
+    }
+    return true;
 }
 
 QString MainWindow::sameRefCoords(QString coordsMode) {

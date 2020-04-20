@@ -335,6 +335,7 @@ private:
     void resetInstrumentData();
     int estimateBinningFactor();
     void printCfitsioError(QString funcName, int status);
+    bool checkCatalogUsability(QString mode);
 };
 
 // Subclassing QStringListModel to allow certain entries being shown with different colors

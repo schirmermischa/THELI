@@ -472,7 +472,7 @@
        <number>1</number>
       </property>
       <property name="currentIndex">
-       <number>6</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="HDUpage">
        <layout class="QGridLayout" name="gridLayout_31">
@@ -22236,7 +22236,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                    </item>
                    <item>
                     <property name="text">
-                     <string>SDSS-DR12</string>
+                     <string>SDSS-DR12 </string>
                     </property>
                    </item>
                    <item>
@@ -22251,12 +22251,12 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                    </item>
                    <item>
                     <property name="text">
-                     <string>TYC</string>
+                     <string>ASCC</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string>ASCC</string>
+                     <string>TYC</string>
                     </property>
                    </item>
                   </widget>

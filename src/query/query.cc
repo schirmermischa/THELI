@@ -297,9 +297,9 @@ void Query::buildQuerySyntaxAstrom()
     queryCommand.append("-c.rm="+radius_string+" ");
     queryCommand.append("-c='"+alpha_string+delta_string+"' ");
 
-    if (refcatName == "ASCC") queryCommand.append("-out=_RAJ -out=_DEJ -source=I/280B -out=Vmag Vmag=0.."+magLimit_string);
-    else if (refcatName == "TYC")  queryCommand.append("-out=_RAJ -out=_DEJ -source=TYC/tyc_main -out=Vmag Vmag=0.."+magLimit_string);
-    else if (refcatName == "2MASS") queryCommand.append("-out=_RAJ -out=_DEJ -source=2MASS-PSC -out='Jmag,Hmag,Kmag' Hmag=0.."+magLimit_string);
+    if (refcatName.contains("ASCC")) queryCommand.append("-out=_RAJ -out=_DEJ -source=I/280B -out=Vmag Vmag=0.."+magLimit_string);
+    else if (refcatName.contains("TYC"))  queryCommand.append("-out=_RAJ -out=_DEJ -source=TYC/tyc_main -out=Vmag Vmag=0.."+magLimit_string);
+    else if (refcatName.contains("2MASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=2MASS-PSC -out='Jmag,Hmag,Kmag' Hmag=0.."+magLimit_string);
     else if (refcatName.contains("UCAC")) queryCommand.append("-out=RAgaia -out=DEgaia -source=I/340 -out='Gmag,RMag' -out=pmRA -out=pmDE Rmag=0.."+magLimit_string);
     else if (refcatName.contains("GAIA")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=I/345/gaia2 -out=Gmag -out=pmRA -out=pmDE Gmag=0.."+magLimit_string);
     else if (refcatName.contains("SDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=V/147 -out=gmag,rmag,imag rmag=0.."+magLimit_string);
@@ -333,7 +333,7 @@ void Query::buildQuerySyntaxPhotom()
     QString filter1 = filterStringToVizierName(refcatFilter1);
     QString filter2 = filterStringToVizierName(refcatFilter2);
 
-    if (refcatName == "2MASS") queryCommand.append("-out=_RAJ -out=_DEJ -source=2MASS-PSC ");
+    if (refcatName.contains("2MASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=2MASS-PSC ");
     else if (refcatName.contains("APASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=II/336 ");
     else if (refcatName.contains("UKIDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=II/319 ");
     else if (refcatName.contains("SDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=V/147 ");

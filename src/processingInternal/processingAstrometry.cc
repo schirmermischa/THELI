@@ -587,6 +587,15 @@ void Controller::doImageQualityAnalysis()
 {
     if (!successProcessing) return;
 
+    // Only do this for cameras which have a meaningful plate scale for this purpose, i.e. where there is
+    // a risk that background galaxies contaminate a global statistical seeing and ellipticity measurement done during 'create source cat'.
+    // Same for huge cameras such as DECam, but here simply because the catalog download would take forever.
+    if (instData->pixscale > 2.0 || instData->radius > 1.0) {
+        workerThread->quit();
+        successProcessing = true;
+        return;
+    }
+
     pushBeginMessage("ImageQuality", scampScienceDir);
 
     // Todo: replace with GAIA catalog if that was the reference catalog already!
