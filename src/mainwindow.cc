@@ -273,7 +273,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         QAbstractButton *pButtonSaveAll = msgBox.addButton(tr("Save all images (")+QString::number(mBytesAll)+" MB) and close", QMessageBox::YesRole);
         QAbstractButton *pButtonContinue = msgBox.addButton(tr("Close without saving"), QMessageBox::YesRole);
         QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
-        if (numUnsavedImagesLatestStage == 0) pButtonSaveAll->hide();
+        if (numUnsavedImagesLatestStage == 0) pButtonSaveLatest->hide();
         if (numUnsavedImagesBackup == 0) pButtonSaveAll->hide();
         msgBox.exec();
         if (msgBox.clickedButton() == pButtonSaveLatest) {
@@ -1181,7 +1181,7 @@ void MainWindow::on_setupProjectLoadToolButton_clicked()
         QAbstractButton *pButtonSaveAll = msgBox.addButton(tr("Save all images (")+QString::number(mBytesAll)+" MB) and close", QMessageBox::YesRole);
         QAbstractButton *pButtonContinue = msgBox.addButton(tr("Close without saving"), QMessageBox::YesRole);
         QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
-        if (numUnsavedImagesLatestStage == 0) pButtonSaveAll->hide();
+        if (numUnsavedImagesLatestStage == 0) pButtonSaveLatest->hide();
         if (numUnsavedImagesBackup == 0) pButtonSaveAll->hide();
         msgBox.exec();
         if (msgBox.clickedButton() == pButtonSaveLatest) {
@@ -1437,7 +1437,7 @@ void MainWindow::resetParameters()
         QAbstractButton *pButtonSaveAll = msgBox.addButton(tr("Save all images (")+QString::number(mBytesAll)+" MB) and close", QMessageBox::YesRole);
         QAbstractButton *pButtonContinue = msgBox.addButton(tr("Close without saving"), QMessageBox::YesRole);
         QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
-        if (numUnsavedImagesLatestStage == 0) pButtonSaveAll->hide();
+        if (numUnsavedImagesLatestStage == 0) pButtonSaveLatest->hide();
         if (numUnsavedImagesBackup == 0) pButtonSaveAll->hide();
         msgBox.exec();
         if (msgBox.clickedButton() == pButtonSaveLatest) {

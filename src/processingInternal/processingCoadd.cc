@@ -908,6 +908,22 @@ void Controller::coaddUpdate()
         if (tmpFile.exists()) tmpFile.remove();
     }
 
+    // Skip IQ analysis for very large data sets
+    if (instData->pixscale > 2.0 || instData->radius > 0.5) {
+        emit progressUpdate(100);
+        // Finally, do flux calibration if requested
+        if (cdw->ui->COAfluxcalibCheckBox->isChecked()) {
+            emit messageAvailable("coadd.fits : Loading flux calibration module ...", "image");
+            emit loadAbsZP(coaddDirName+"/coadd.fits", instData, 100);
+        }
+        else {
+            // Now we can quit the first coaddition thread (which spawned all the other threads).
+            // This will return control to mainGUI() (i.e. enable the start button again)
+            workerThreadPrepare->quit();
+        }
+        return;
+    }
+
     emit messageAvailable("coadd.fits : Downloading GAIA point sources ...", "image");
 
     emit loadViewer(coaddDirName, "coadd.fits", "DragMode");
