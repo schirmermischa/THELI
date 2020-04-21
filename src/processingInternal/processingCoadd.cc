@@ -889,7 +889,6 @@ long Controller::coaddCoadditionGetSize()
 void Controller::coaddUpdate()
 {
     if (!successProcessing) return;
-    pushBeginMessage("CoaddUpdate", coaddScienceDir);
 
     // Stop "measuring" the file size of coadd.fits
     emit stopFileProgressTimer();
@@ -921,8 +920,13 @@ void Controller::coaddUpdate()
             // This will return control to mainGUI() (i.e. enable the start button again)
             workerThreadPrepare->quit();
         }
+        emit loadViewer(coaddDirName, "coadd.fits", "DragMode");
+
+        emit messageAvailable("<br>Image covering very large area on sky. Image quality analysis skipped, as it would require the download of a very large point source catalog.<br>", "image");
         return;
     }
+
+    pushBeginMessage("CoaddUpdate", coaddScienceDir);
 
     emit messageAvailable("coadd.fits : Downloading GAIA point sources ...", "image");
 
