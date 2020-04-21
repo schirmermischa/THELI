@@ -85,7 +85,7 @@ void Preferences::configureMemory()
     }
     */
 
-    // MB only; Leave 512 MB min for OS
+    // MB only
     totalMemory = get_memory() / 1024;   // [ MB ]
     maxMemoryUsed = int(totalMemory);
     ui->prefMemoryLabel->setText("Max usable memory [ MB ]");

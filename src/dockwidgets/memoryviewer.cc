@@ -289,6 +289,23 @@ void MemoryViewer::addBackupDirReceived(QString scienceDir, QString backupDirNam
 void MemoryViewer::addBackupDirs(const QString &dirName)
 {
     QDir dir(dirName);
+    QDir dirCopy(dirName);
+    dirCopy.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+    if (dirCopy.count() == 0) return;
+
+    QStringList dirList = dir.entryList(QDir::Dirs);
+    for (auto &it : dirList) {
+        // add the dir to the combobox if it is a true backup dir, and not yet contained in the combobox
+        if (it.contains("_IMAGES")
+                && ui->restoreComboBox->findText(it) == -1) {
+            ui->restoreComboBox->addItem(it);
+        }
+    }
+    ui->restoreComboBox->update();
+
+    // Qt 5.9
+    /*
+    QDir dir(dirName);
     QStringList dirList = dir.entryList(QDir::Dirs);
     for (auto &it : dirList) {
         // add the dir to the combobox if it is a true backup dir, and not yet contained in the combobox
@@ -299,6 +316,7 @@ void MemoryViewer::addBackupDirs(const QString &dirName)
         }
     }
     ui->restoreComboBox->update();
+    */
 }
 
 void MemoryViewer::writeCheckBoxClicked(const QModelIndex &index)

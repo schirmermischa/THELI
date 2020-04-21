@@ -2527,9 +2527,17 @@ void Data::restoreBackupLevel(QString backupDirName)
     }
 
     QDir backupDir(dirName+"/"+backupDirName);
+    // Qt 5.7 compatibility
+    backupDir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+    if (!backupDir.exists() || backupDir.count() == 0) {
+        emit messageAvailable(dirName+"/"+backupDirName+": No backup FITS files found, restoring memory only.", "data");
+    }
+/*
+ * QT5.9
     if (!backupDir.exists() || backupDir.isEmpty()) {
         emit messageAvailable(dirName+"/"+backupDirName+": No backup FITS files found, restoring memory only.", "data");
     }
+*/
 
     // Remove all currently present FITS files
     removeCurrentFITSfiles();
@@ -2640,7 +2648,9 @@ void Data::restoreFromDirectory(QString backupDirName)
         emit critical();
         return;
     }
-    if (backupDir.isEmpty()) {
+    backupDir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);  // Qt 5.7 compatibility
+//    if (backupDir.isEmpty()) {             Qt 5.9
+    if (backupDir.count() == 0) {
         emit messageAvailable(subDirName+"/"+backupDirName+" is empty, no data were restored or deleted.", "error");
         emit critical();
         return;
@@ -2718,7 +2728,9 @@ void Data::restoreRAWDATA()
         emit warning();
         return;
     }
-    if (rawdataDir.isEmpty()) {
+    rawdataDir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);  // Qt 5.7 compatibility
+//    if (rawdataDir.isEmpty()) {             Qt 5.9
+    if (rawdataDir.count() == 0) {
         emit messageAvailable(subDirName+"/RAWDATA is empty, "+subDirName+" remains unmodified.", "note");
         emit warning();
         return;

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>673</width>
+    <width>675</width>
     <height>513</height>
    </rect>
   </property>
@@ -1724,10 +1724,13 @@
         <item row="0" column="1">
          <widget class="QSpinBox" name="prefMemorySpinBox">
           <property name="toolTip">
-           <string>The maxmimum amount of RAM THELI may use. Always less than 512 MB of the total RAM.</string>
+           <string>The maxmimum amount of RAM THELI may use (time-averaged soft limit)</string>
           </property>
           <property name="suffix">
            <string> MB</string>
+          </property>
+          <property name="minimum">
+           <number>1024</number>
           </property>
           <property name="maximum">
            <number>1000000</number>
