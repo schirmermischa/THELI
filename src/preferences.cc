@@ -87,9 +87,9 @@ void Preferences::configureMemory()
 
     // MB only; Leave 512 MB min for OS
     totalMemory = get_memory() / 1024;   // [ MB ]
-    maxMemoryUsed = int(totalMemory) - 512;
+    maxMemoryUsed = int(totalMemory);
     ui->prefMemoryLabel->setText("Max usable memory [ MB ]");
-    ui->prefMemorySpinBox->setMinimum(512);
+    ui->prefMemorySpinBox->setMinimum(1024);
     ui->prefMemorySpinBox->setMaximum(maxMemoryUsed);
 }
 

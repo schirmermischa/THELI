@@ -728,7 +728,7 @@ void Controller::loadPreferences()
     maxCPU = settings.value("prefCPUSpinBox").toInt();
     maxThreadsIO = settings.value("prefIOthreadsSpinBox").toInt();
     useGPU = settings.value("prefGPUCheckBox").toBool();
-    maxRAM = 0.5 * settings.value("prefMemorySpinBox").toInt();                   // 50% of RAM
+    maxRAM = 0.75 * settings.value("prefMemorySpinBox").toInt();                   // 75% of RAM
     verbosity = settings.value("prefVerbosityComboBox").toInt();
     if (settings.value("prefIntermediateDataComboBox") == "If necessary") alwaysStoreData = false;
     else alwaysStoreData = true;
@@ -744,7 +744,7 @@ void Controller::loadPreferences()
         maxThreadsIO = 1;
         maxExternalThreads = 1;
         maxInternalThreads = 1;
-        maxRAM = 512;
+        maxRAM = 1024;
         useGPU = false;
         verbosity = 1;
     }
@@ -925,7 +925,7 @@ void Controller::doDataFitInRAM(long nImages, long storageSize)
             emit messageAvailable("Could not update preferences concerning intermediate data storage", "warning");
         }
         else {
-            emit messageAvailable("******************************************************<br>", "note");
+            emit messageAvailable("******************************************************", "note");
             emit messageAvailable("High memory use expected. Will write FITS images to drive on the fly.", "note");
             emit messageAvailable("******************************************************<br>", "note");
         }
@@ -948,7 +948,7 @@ void Controller::releaseMemory(float RAMneededThisThread, int numThreads, QStrin
     for (auto &DT_x : masterListDT) {
         for (auto &data : DT_x) {
             if (data == nullptr) continue;
-            // memviewer updated by signals emitted by MyImage class
+            // memviewer is updated by signals emitted by MyImage class
             float released = data->releaseMemory(RAMneededThisThread, RAMneededThisThread*numThreads, currentTotalMemoryUsed, mode);
             if (released >= 0.) {
                 RAMfreed += released;
@@ -962,7 +962,8 @@ void Controller::releaseMemory(float RAMneededThisThread, int numThreads, QStrin
     if (RAMfreed < RAMneededThisThread
             && RAMwasReallyReleased
             && currentTotalMemoryUsed > 0.
-            && RAMfreed < currentTotalMemoryUsed - 100) {              // 100 is to suppress insignificant warnings
+            && RAMfreed < currentTotalMemoryUsed - 100                        // 100 is to suppress insignificant warnings
+            && RAMneededThisThread > maxRAM - currentTotalMemoryUsed) {
         //            && !swapWarningShown) {
         emit messageAvailable(QString::number(long(RAMneededThisThread)) + " MB requested, " + QString::number(long(RAMfreed))
                               + " MB released. Try fewer CPUs to avoid swapping.", "warning");

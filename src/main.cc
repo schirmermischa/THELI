@@ -40,8 +40,8 @@ int main(int argc, char *argv[])
     // Read the THELIDIR environment variable
     if (!QProcessEnvironment::systemEnvironment().contains("THELIDIR")) {
         QMessageBox::critical(0,"THELI","The THELIDIR environment variable was not set!\n\n"
-                                        "For example, if THELI was installed under"
-                                        ""+QDir::homePath()+"/THELI/ and you are using the 'bash' shell,"
+                                        "For example, if THELI was installed under \n"
+                                        ""+QDir::homePath()+"/THELI/ and you are using the 'bash' shell, "
                                                             "then you would include the following line in your .bashrc file:\n\n"
                                                             "export THELIDIR="+QDir::homePath()+"/THELI/",
                               QMessageBox::Ok);
