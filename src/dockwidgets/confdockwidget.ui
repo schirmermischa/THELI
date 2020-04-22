@@ -2453,7 +2453,7 @@
 </string>
             </property>
             <property name="text">
-             <string>Process BIAS / DARK / FLAT</string>
+             <string>Process BIAS / DARK / FLATOFF / FLAT</string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>

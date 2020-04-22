@@ -884,7 +884,7 @@
          </size>
         </property>
         <property name="statusTip">
-         <string>Stops the current task gracefully (will not finish), files on drive may need manual clean-up (hard abort).</string>
+         <string>Stops the current task gracefully (task will not finish), files on drive may need manual clean-up (hard abort).</string>
         </property>
         <property name="autoFillBackground">
          <bool>true</bool>
