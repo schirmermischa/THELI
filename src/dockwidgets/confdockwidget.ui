@@ -1458,7 +1458,7 @@
                 <string>Applies overscan correction. Note: some instruments will always be corrected.</string>
                </property>
                <property name="text">
-                <string>Overscan correction</string>
+                <string>Overscan correction :</string>
                </property>
                <property name="checked">
                 <bool>true</bool>

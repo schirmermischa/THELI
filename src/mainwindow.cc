@@ -1072,6 +1072,7 @@ void MainWindow::on_setupInstrumentComboBox_clicked()
         ui->applyBackgroundCheckBox->hide();
         ui->BACconfigureToolButton->hide();
         cdw->ui->overscanCheckBox->setDisabled(true);
+        cdw->ui->overscanMethodComboBox->setDisabled(true);
     }
     else if (instrument_type == "NIR") {
         // UNCOMMENT to see how the GUI is initialized
@@ -1081,6 +1082,7 @@ void MainWindow::on_setupInstrumentComboBox_clicked()
         ui->applyBackgroundCheckBox->show();
         ui->BACconfigureToolButton->show();
         cdw->ui->overscanCheckBox->setDisabled(true);
+        cdw->ui->overscanMethodComboBox->setDisabled(true);
     }
     else if (instrument_type == "NIRMIR") {
         // UNCOMMENT to see how the GUI is initialized
@@ -1090,6 +1092,7 @@ void MainWindow::on_setupInstrumentComboBox_clicked()
         ui->applyBackgroundCheckBox->show();
         ui->BACconfigureToolButton->show();
         cdw->ui->overscanCheckBox->setDisabled(true);
+        cdw->ui->overscanMethodComboBox->setDisabled(true);
     }
     else if (instrument_type == "OPT" || instrument_type == "") {
         // UNCOMMENT to see how the GUI is initialized
@@ -1099,6 +1102,7 @@ void MainWindow::on_setupInstrumentComboBox_clicked()
         ui->applyBackgroundCheckBox->show();
         ui->BACconfigureToolButton->show();
         cdw->ui->overscanCheckBox->setEnabled(true);
+        cdw->ui->overscanMethodComboBox->setEnabled(true);
     }
 
     cdw->ui->BIPSpinBox->setValue(estimateBinningFactor());
