@@ -58,7 +58,7 @@ public:
     void clearAllCheckBoxes();
 
 private:
-    int lastExecutedTaskId();
+//    int lastExecutedTaskId();
 
 signals:
     void statusChanged();

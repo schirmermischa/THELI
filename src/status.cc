@@ -97,6 +97,7 @@ QString Status::getStatusFromHistory(bool keepblanks)
 // Find the ID of the last task executed that could have changed the processing status string.
 // One could just hardcode the ABCDM chars and see what is the last char in the status, but
 // it's better to keep this generic. Too hard to maintain otherwise.
+/*
 int Status::lastExecutedTaskId()
 {
     QString statusString = getStatusFromHistory(true);
@@ -110,6 +111,7 @@ int Status::lastExecutedTaskId()
     }
     return lastId;
 }
+*/
 
 // If the status changed, e.g. by restoring a previous processing stage, then
 // we must reflect this in the history, the checkboxes, and the action status

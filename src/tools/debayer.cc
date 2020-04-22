@@ -17,6 +17,7 @@ along with this program in the LICENSE file.
 If not, see https://www.gnu.org/licenses/ .
 */
 
+#include <cmath>
 #include "tools.h"
 #include "../myimage/myimage.h"
 #include <QDebug>
