@@ -438,7 +438,7 @@ void DetectedObject::calcMomentsErrors()
     ERRB = sqrt(ERRB);
 
     ERRTHETA = 2.*ERRXY / (ERRX2-ERRY2);
-    ERRTHETA = abs(0.5*atan(ERRTHETA)/rad);
+    ERRTHETA = fabs(0.5*atan(ERRTHETA)/rad);
 
     // noise floor
     if (ERRTHETA < 0.01) ERRTHETA = 0.01;
@@ -481,7 +481,7 @@ void DetectedObject::calcWindowedMomentsErrors()
         ERRAWIN = sqrt(ERRAWIN);
         ERRBWIN = sqrt(ERRBWIN);
         ERRTHETAWIN = 2.*ERRXYWIN / (ERRX2WIN-ERRY2WIN);
-        ERRTHETAWIN = abs(0.5*atan(ERRTHETAWIN)/rad);
+        ERRTHETAWIN = fabs(0.5*atan(ERRTHETAWIN)/rad);
     }
     else {
         ERRX2WIN = 0.;

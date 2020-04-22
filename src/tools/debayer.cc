@@ -238,14 +238,14 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
             }
             else{
                 // gradient calculation for green values at red or blue pixels
-                float DN = abs(image->dataCurrent[(i-2*n+n*j)]-image->dataCurrent[(i+n*j)])*2.0
-                        + abs(image->dataCurrent[(i-n+n*j)]-image->dataCurrent[(i+n+n*j)]);
-                float DE = abs(image->dataCurrent[(i+n*j)]-image->dataCurrent[(i+2+n*j)])*2.0
-                        + abs(image->dataCurrent[(i-1+n*j)]-image->dataCurrent[(i+1+n*j)]);
-                float DW = abs(image->dataCurrent[(i-2+n*j)]-image->dataCurrent[(i+n*j)])*2.0
-                        + abs(image->dataCurrent[(i-1+n*j)]-image->dataCurrent[(i+1+n*j)]);
-                float DS = abs(image->dataCurrent[(i+n*j)]-image->dataCurrent[(i+2*n+n*j)])*2.0
-                        + abs(image->dataCurrent[(i-n+n*j)]-image->dataCurrent[(i+n+n*j)]);
+                float DN = fabs(image->dataCurrent[(i-2*n+n*j)]-image->dataCurrent[(i+n*j)])*2.0
+                        + fabs(image->dataCurrent[(i-n+n*j)]-image->dataCurrent[(i+n+n*j)]);
+                float DE = fabs(image->dataCurrent[(i+n*j)]-image->dataCurrent[(i+2+n*j)])*2.0
+                        + fabs(image->dataCurrent[(i-1+n*j)]-image->dataCurrent[(i+1+n*j)]);
+                float DW = fabs(image->dataCurrent[(i-2+n*j)]-image->dataCurrent[(i+n*j)])*2.0
+                        + fabs(image->dataCurrent[(i-1+n*j)]-image->dataCurrent[(i+1+n*j)]);
+                float DS = fabs(image->dataCurrent[(i+n*j)]-image->dataCurrent[(i+2*n+n*j)])*2.0
+                        + fabs(image->dataCurrent[(i-n+n*j)]-image->dataCurrent[(i+n+n*j)]);
 
                 if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 0) { // red pixel
                     imageR->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
@@ -386,16 +386,16 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
             }
             else{
                 // diagonal gradients
-                float dne = abs(image->dataCurrent[(i-n+1+n*j)]-image->dataCurrent[(i+n-1+n*j)])
-                        + abs(image->dataCurrent[(i-2*n+2+n*j)]-image->dataCurrent[(i+n*j)])
-                        + abs(image->dataCurrent[(i+n*j)]-image->dataCurrent[(i+2*n-2+n*j)])
-                        + abs(imageG->dataCurrent[(i-n+1+n*j)]-imageG->dataCurrent[(i+n*j)])
-                        + abs(imageG->dataCurrent[(i+n*j)]-imageG->dataCurrent[(i+n-1+n*j)]);
-                float dnw = abs(image->dataCurrent[(i-n-1+n*j)]-image->dataCurrent[(i+n+1+n*j)])
-                        + abs(image->dataCurrent[(i-2-2*n+n*j)]-image->dataCurrent[(i+n*j)])
-                        + abs(image->dataCurrent[(i+n*j)]-image->dataCurrent[(i+2+2*n+n*j)])
-                        + abs(imageG->dataCurrent[(i-n-1+n*j)]-imageG->dataCurrent[(i+n*j)])
-                        + abs(imageG->dataCurrent[(i+n*j)]-imageG->dataCurrent[(i+n+1+n*j)]);
+                float dne = fabs(image->dataCurrent[(i-n+1+n*j)]-image->dataCurrent[(i+n-1+n*j)])
+                        + fabs(image->dataCurrent[(i-2*n+2+n*j)]-image->dataCurrent[(i+n*j)])
+                        + fabs(image->dataCurrent[(i+n*j)]-image->dataCurrent[(i+2*n-2+n*j)])
+                        + fabs(imageG->dataCurrent[(i-n+1+n*j)]-imageG->dataCurrent[(i+n*j)])
+                        + fabs(imageG->dataCurrent[(i+n*j)]-imageG->dataCurrent[(i+n-1+n*j)]);
+                float dnw = fabs(image->dataCurrent[(i-n-1+n*j)]-image->dataCurrent[(i+n+1+n*j)])
+                        + fabs(image->dataCurrent[(i-2-2*n+n*j)]-image->dataCurrent[(i+n*j)])
+                        + fabs(image->dataCurrent[(i+n*j)]-image->dataCurrent[(i+2+2*n+n*j)])
+                        + fabs(imageG->dataCurrent[(i-n-1+n*j)]-imageG->dataCurrent[(i+n*j)])
+                        + fabs(imageG->dataCurrent[(i+n*j)]-imageG->dataCurrent[(i+n+1+n*j)]);
 
                 if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 0) { // red pixel
                     if (dne <= dnw)
