@@ -987,26 +987,6 @@
               </property>
              </widget>
             </item>
-            <item row="4" column="2">
-             <widget class="QLabel" name="label_15">
-              <property name="text">
-               <string>Det. gain</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="3" colspan="2">
-             <widget class="QLineEdit" name="gainLineEdit">
-              <property name="toolTip">
-               <string>In case of a multi-chip camera, provide the LOWEST gain of the array.</string>
-              </property>
-              <property name="statusTip">
-               <string>In case of a multi-chip camera, provide the LOWEST gain of the array.</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
             <item row="5" column="0" colspan="5">
              <layout class="QHBoxLayout" name="horizontalLayout_4">
               <item>
@@ -3664,7 +3644,6 @@
   <tabstop>latitudeLineEdit</tabstop>
   <tabstop>longitudeLineEdit</tabstop>
   <tabstop>plateScaleLineEdit</tabstop>
-  <tabstop>gainLineEdit</tabstop>
   <tabstop>overscanxMinLineEdit</tabstop>
   <tabstop>overscanxMaxLineEdit</tabstop>
   <tabstop>overscanyMinLineEdit</tabstop>

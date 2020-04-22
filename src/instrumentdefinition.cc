@@ -235,7 +235,7 @@ void Instrument::validate(QString arg1)
     QValidator* validator_intblank = new QRegExpValidator(ri4, this );
     ui->latitudeLineEdit->setValidator( validator_float );
     ui->longitudeLineEdit->setValidator( validator_float );
-    ui->gainLineEdit->setValidator( validator_floatpos );
+//    ui->gainLineEdit->setValidator( validator_floatpos );
     ui->plateScaleLineEdit->setValidator( validator_floatpos );
     ui->overscanxMinLineEdit->setValidator( validator_intposblank );
     ui->overscanxMaxLineEdit->setValidator( validator_intposblank);
@@ -326,7 +326,7 @@ void Instrument::on_saveConfigPushButton_clicked()
         outputStream << "# Plate scale\n";
         outputStream << "PIXSCALE=" << ui->plateScaleLineEdit->text().toFloat() << "\n\n";
         outputStream << "# Detector gain (lowest gain for a multi-detector instrument, i.e. brightest image)\n";
-        outputStream << "GAIN=" << ui->gainLineEdit->text() << "\n\n";
+//        outputStream << "GAIN=" << ui->gainLineEdit->text() << "\n\n";
         outputStream << "# Detector geometries\n";
         outputStream << "OVSCANX1=" << geometryToConfig(ui->overscanxMinLineEdit->text()) << "\n";
         outputStream << "OVSCANX2=" << geometryToConfig(ui->overscanxMaxLineEdit->text()) << "\n";
@@ -429,7 +429,7 @@ void Instrument::on_loadConfigPushButton_clicked()
         QTextStream stream( &instrumentFile );
         // For backwards compatibility (not all config files contain these keywords):
         ui->bayerCheckBox->setChecked(false);
-        ui->gainLineEdit->setText("1.0");
+//        ui->gainLineEdit->setText("1.0");
         ui->longitudeLineEdit->setText("0");
         while ( !stream.atEnd() ) {
             line = stream.readLine().simplified();
@@ -455,7 +455,7 @@ void Instrument::on_loadConfigPushButton_clicked()
             if (keyword == "OBSLAT") ui->latitudeLineEdit->setText(keyvalue);
             if (keyword == "OBSLONG") ui->longitudeLineEdit->setText(keyvalue);
             if (keyword == "PIXSCALE") ui->plateScaleLineEdit->setText(keyvalue);
-            if (keyword == "GAIN") ui->gainLineEdit->setText(keyvalue);
+//            if (keyword == "GAIN") ui->gainLineEdit->setText(keyvalue);
             if (keyword == "OVSCANX1") ui->overscanxMinLineEdit->setText(keyvalue);
             if (keyword == "OVSCANX2") ui->overscanxMaxLineEdit->setText(keyvalue);
             if (keyword == "OVSCANY1") ui->overscanyMinLineEdit->setText(keyvalue);
@@ -552,7 +552,7 @@ void Instrument::on_clearPushButton_clicked()
     lineeditList.append(ui->crpix1NumLineEdit);
     lineeditList.append(ui->crpix2LineEdit);
     lineeditList.append(ui->crpix2NumLineEdit);
-    lineeditList.append(ui->gainLineEdit);
+//    lineeditList.append(ui->gainLineEdit);
     lineeditList.append(ui->instrumentNameLineEdit);
     lineeditList.append(ui->latitudeLineEdit);
     lineeditList.append(ui->longitudeLineEdit);

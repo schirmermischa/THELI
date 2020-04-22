@@ -304,7 +304,7 @@ void Controller::resetAltInstrumentData()
     altInstData.bayer = "";
     altInstData.type = "OPT";
     altInstData.pixscale = 1.0; // in arcsec
-    altInstData.gain = 1.0;
+//    altInstData.gain = 1.0;
     altInstData.radius = 0.1;   // exposure coverage radius in degrees
     altInstData.storage = 0;    // MB used for a single image
     altInstData.storageExposure = 0.; // MB used for the entire (multi-chip) exposure
@@ -355,7 +355,7 @@ void Controller::initAltInstrumentData(QString instrumentNameFullPath)
         if (line.contains("OBSLAT=")) altInstData.obslat = line.split("=")[1].toFloat();
         if (line.contains("OBSLONG=")) altInstData.obslong = line.split("=")[1].toFloat();
         if (line.contains("PIXSCALE=")) altInstData.pixscale = line.split("=")[1].toFloat();
-        if (line.contains("GAIN=")) altInstData.gain = line.split("=")[1].toFloat();
+//        if (line.contains("GAIN=")) altInstData.gain = line.split("=")[1].toFloat();
 
         // vectors
         if (line.contains("OVSCANX1=")

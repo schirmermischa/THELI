@@ -34,7 +34,7 @@ typedef struct {
     QString bayer;
     QString type;
     float pixscale = 1.0; // in arcsec
-    float gain = 1.0;
+//    float gain = 1.0;
     float radius = 0.1;   // exposure coverage radius in degrees
     float storage = 0;    // MB used for a single image
     float storageExposure = 0.; // MB used for the entire (multi-chip) exposure
