@@ -183,8 +183,8 @@ void ColorPicture::taskInternalBBNBcombine()
 
     QString path = bbImage->path + "/";
 
-    MyImage *combinedImage = new MyImage(path, bbImage->name, "", 1, QVector<bool>(), false, &verbosity, false);
-    MyImage *combinedWeight = new MyImage(path, bbImage->name, "", 1, QVector<bool>(), false, &verbosity, false);
+    MyImage *combinedImage = new MyImage(path, bbImage->name, "", 1, QVector<bool>(), &verbosity, false);
+    MyImage *combinedWeight = new MyImage(path, bbImage->name, "", 1, QVector<bool>(), &verbosity, false);
     combinedImage->provideHeaderInfo();
     combinedWeight->provideHeaderInfo();
 

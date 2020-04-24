@@ -286,7 +286,6 @@ void MyImage::getGridStatistics()
             if (sky[1] > 0.) backStatsGrid[index] = sky[0];  // Histogram peak location (if rms could be evaluated, or data were present)
             if (sky[1] > 0.) rmsStatsGrid[index] = sky[1];
             backgroundSample.clear();
-//            if (baseName == "FourStar.Ks.2017-08-09T00:50:05_4PAB") qDebug() << ig << jg << backStatsGrid[index];
         }
     }
 

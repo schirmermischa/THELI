@@ -964,7 +964,7 @@ void Controller::coaddUpdate()
         // Measure the seeing
         QVector<bool> dummyMask;
         dummyMask.clear();
-        MyImage *coadd = new MyImage(coaddDirName, "coadd.fits", "", 1, dummyMask, false, &verbosity, false);
+        MyImage *coadd = new MyImage(coaddDirName, "coadd.fits", "", 1, dummyMask, &verbosity, false);
         connect(coadd, &MyImage::critical, this, &Controller::criticalReceived);
         connect(coadd, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
         connect(coadd, &MyImage::warning, this, &Controller::warningReceived);

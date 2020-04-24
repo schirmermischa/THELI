@@ -35,18 +35,15 @@ If not, see https://www.gnu.org/licenses/ .
 
 // C'tor
 MyImage::MyImage(QString pathname, QString filename, QString statusString, int chipnumber,
-                 const QVector<bool> &mask, bool masked, int *verbose, bool makebackup,
+                 const QVector<bool> &mask, int *verbose, bool makebackup,
                  QObject *parent) : QObject(parent), globalMask(mask)
 {
     path = pathname;
     name = filename;
     chipNumber = chipnumber;
     QFileInfo fi(path+"/"+name);
-    if (mask.isEmpty()) isMasked = false;
-    else {
-        //        globalMask = mask; // This is the globalMask
-        isMasked = masked;
-    }
+    if (globalMask.isEmpty()) globalMaskAvailable = false;
+
     baseName = fi.completeBaseName();
     rootName = baseName;
     rootName.truncate(rootName.lastIndexOf('_'));
@@ -122,10 +119,11 @@ MyImage::MyImage(QString fullPathName, const QVector<bool> &mask, int *verbose, 
     path = fi.absolutePath();
     name = fi.fileName();
     chipNumber = 1;
-    isMasked = false;
     baseName = fi.completeBaseName();
     makeBackup = false;
     weightName = baseName+".weight";
+
+    if (globalMask.isEmpty()) globalMaskAvailable = false;
 
     processingStatus = new ProcessingStatus(path);
     processingStatus->statusString = "";
@@ -904,7 +902,7 @@ void MyImage::illuminationCorrection(int chip, QString thelidir, QString instNam
         if (*verbosity > 1) emit messageAvailable(chipName + " : External illumination correction : <br>" + illumcorrPath+illumcorrFileName, "image");
         QVector<bool> dummyMask;
         dummyMask.clear();
-        MyImage *illumCorrFlat = new MyImage(illumcorrPath, illumcorrFileName, "", chip+1, dummyMask, false, verbosity);
+        MyImage *illumCorrFlat = new MyImage(illumcorrPath, illumcorrFileName, "", chip+1, dummyMask, verbosity);
         illumCorrFlat->readImage();
         if (naxis1 != illumCorrFlat->naxis1 || naxis2 != illumCorrFlat->naxis2 ) {
             emit messageAvailable("MyImage::illuminationCorrection(): " + baseName + " : illumination correction image does not have the same size as the master flat!", "error");
@@ -1215,7 +1213,7 @@ void MyImage::setupCoaddMode()
     QFile file(path+"/"+weightName);
     if (!file.exists()) return;
 
-    MyImage *myWeight = new MyImage(path, weightName, "", 1, QVector<bool>(), false, verbosity, false);
+    MyImage *myWeight = new MyImage(path, weightName, "", 1, QVector<bool>(), verbosity, false);
     myWeight->readImage();
     dataWeight.swap(myWeight->dataCurrent);
 
@@ -1367,7 +1365,7 @@ void MyImage::updateInactivePath()
 void MyImage::applyMask()
 {
     // Leave if the chip has no mask (save some CPU cycles)
-    if (!isMasked) return;
+    if (!globalMaskAvailable) return;
 
     if (globalMask.length() != dataCurrent.length()) {
         emit messageAvailable("MyImage::applyMask(): " + baseName + " : inconsistent sizes of mask and image", "error");

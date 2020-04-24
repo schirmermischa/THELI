@@ -602,9 +602,9 @@ void Controller::taskInternalProcessscience()
         }
         else {
             // Create 3 new MyImages for R, G, and B
-            MyImage *debayerB = new MyImage(dataDirName, it->baseName, "P", chip+1, mask->globalMask[chip], false, &verbosity);
-            MyImage *debayerG = new MyImage(dataDirName, it->baseName, "P", chip+1, mask->globalMask[chip], false, &verbosity);
-            MyImage *debayerR = new MyImage(dataDirName, it->baseName, "P", chip+1, mask->globalMask[chip], false, &verbosity);
+            MyImage *debayerB = new MyImage(dataDirName, it->baseName, "P", chip+1, mask->globalMask[chip], &verbosity);
+            MyImage *debayerG = new MyImage(dataDirName, it->baseName, "P", chip+1, mask->globalMask[chip], &verbosity);
+            MyImage *debayerR = new MyImage(dataDirName, it->baseName, "P", chip+1, mask->globalMask[chip], &verbosity);
             debayer(chip, it, debayerB, debayerG, debayerR);
             it->unprotectMemory();
             it->freeAll();

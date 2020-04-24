@@ -417,7 +417,7 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
     int verbose = 0;
     QVector<bool> dummyMask;
     dummyMask.clear();
-    currentMyImage = new MyImage(dirName, filename, "", 1, dummyMask, false, &verbose);
+    currentMyImage = new MyImage(dirName, filename, "", 1, dummyMask, &verbose);
 
     QFileInfo fi(filename);
     QString showName = fi.fileName();

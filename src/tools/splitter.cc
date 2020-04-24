@@ -1076,7 +1076,7 @@ void Splitter::initMyImage(int chip)
     // TODO: must use chipID instead of "chip", e.g. for FORS2
 
     MyImage *myImage = new MyImage(path, baseName+"_"+QString::number(chip+1)+"P.fits", "P", chip+1,
-                                   mask->globalMask[chip], mask->isChipMasked[chip], verbosity);
+                                   mask->globalMask[chip], verbosity);
     myImage->setParent(this);
     myImage->imageOnDrive = true;
     omp_set_lock(genericLock);

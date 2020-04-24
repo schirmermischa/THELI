@@ -107,8 +107,7 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
             filter << "globalweight*_"+QString::number(chip+1)+".fits";
             QStringList fitsFiles = dir.entryList(filter);
             for (auto &it : fitsFiles) {
-                MyImage *myImage = new MyImage(dirName, it, "", chip+1,
-                                               mask->globalMask[chip], mask->isChipMasked[chip], verbosity);
+                MyImage *myImage = new MyImage(dirName, it, "", chip+1, mask->globalMask[chip], verbosity);
                 myImage->setParent(this);
                 myImage->filter = myImage->imageFITS->readFILTER();
                 myImage->imageOnDrive = true;
@@ -145,8 +144,7 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
         QStringList fitsFiles = dir.entryList(filter);
         if (!fitsFiles.isEmpty()) {
             // Only one entry in this QStringList because it is the master
-            MyImage *myImage = new MyImage(dirName, fitsFiles.at(0), "", chip+1,
-                                           mask->globalMask[chip], mask->isChipMasked[chip], verbosity);
+            MyImage *myImage = new MyImage(dirName, fitsFiles.at(0), "", chip+1, mask->globalMask[chip], verbosity);
             myImage->setParent(this);
             myImage->imageOnDrive = true;
             combinedImage[chip] = myImage;
@@ -181,8 +179,7 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
             // skip master calibs
             if (it == subDirName+"_"+QString::number(chip+1)+".fits") skip = true;
             if (skip) continue;
-            MyImage *myImage = new MyImage(dirName, it, processingStatus->statusString, chip+1,
-                                           mask->globalMask[chip], mask->isChipMasked[chip], verbosity);
+            MyImage *myImage = new MyImage(dirName, it, processingStatus->statusString, chip+1, mask->globalMask[chip], verbosity);
             myImage->setParent(this);
             myImage->imageOnDrive = true;
             myImage->pathBackupL1 = pathBackupL1;
@@ -775,7 +772,7 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
 
     if (combinedImage[chip] == nullptr) {
         MyImage *combinedImageDummy = new MyImage(dirName, subDirName+"_"+QString::number(chip+1)+".fits", "", chip+1,
-                                                  mask->globalMask[chip], mask->isChipMasked[chip], verbosity);
+                                                  mask->globalMask[chip], verbosity);
         connect(combinedImageDummy, &MyImage::modelUpdateNeeded, this, &Data::modelUpdateReceiver);
         connect(combinedImageDummy, &MyImage::critical, this, &Data::pushCritical);
         connect(combinedImageDummy, &MyImage::warning, this, &Data::pushWarning);
@@ -930,7 +927,7 @@ void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const 
     // Delete the instance if it exists already from a previous run of this task to not (re)create it
     // if (combinedImage[chip] != nullptr) delete combinedImage[chip];
     if (combinedImage[chip] == nullptr) {
-        MyImage *masterCombined = new MyImage(dirName, currentImage, "", chip+1, mask->globalMask[chip], mask->isChipMasked[chip], verbosity);
+        MyImage *masterCombined = new MyImage(dirName, currentImage, "", chip+1, mask->globalMask[chip], verbosity);
         connect(masterCombined, &MyImage::modelUpdateNeeded, this, &Data::modelUpdateReceiver);
         connect(masterCombined, &MyImage::critical, this, &Data::pushCritical);
         connect(masterCombined, &MyImage::warning, this, &Data::pushWarning);
@@ -1326,8 +1323,7 @@ void Data::initGlobalWeight(int chip, Data *flatData, QString filter, bool sameW
     //    myImageList[chip].clear();
 
     QString globalWeightName = "globalweight_"+instData->name+"_"+filter+"_"+QString::number(chip+1)+".fits";
-    MyImage *myImage = new MyImage(mainDirName, globalWeightName, "", chip+1,
-                                   mask->globalMask[chip], mask->isChipMasked[chip], verbosity);
+    MyImage *myImage = new MyImage(mainDirName, globalWeightName, "", chip+1, mask->globalMask[chip], verbosity);
     //    myImage->setParent(this);
     myImage->filter = filter;
     myImage->path = mainDirName+"/GLOBALWEIGHTS/";
@@ -1579,7 +1575,7 @@ void Data::writeGlobalWeights(int chip, QString filter)
         if (myImageList[chip].length() == 1) {
             MyImage *gw2 = new MyImage(mainDirName+"/GLOBALWEIGHTS/",
                                        "globalweight_"+instData->name+"_G_"+QString::number(chip+1)+".fits",
-                                       "", chip+1, mask->globalMask[chip], mask->isChipMasked[chip], verbosity);
+                                       "", chip+1, mask->globalMask[chip], verbosity);
             gw2->filter = "G";
             gw2->dataCurrent = myImageList[chip][0]->dataCurrent;
             connect(gw2, &MyImage::modelUpdateNeeded, this, &Data::modelUpdateReceiver);
@@ -1590,7 +1586,7 @@ void Data::writeGlobalWeights(int chip, QString filter)
             connect(gw2, &MyImage::setWCSLock, this, &Data::setWCSLockReceived, Qt::DirectConnection);
             MyImage *gw3 = new MyImage(mainDirName+"/GLOBALWEIGHTS/",
                                        "globalweight_"+instData->name+"_R_"+QString::number(chip+1)+".fits",
-                                       "", chip+1, mask->globalMask[chip], mask->isChipMasked[chip], verbosity);
+                                       "", chip+1, mask->globalMask[chip], verbosity);
             gw3->filter = "R";
             gw3->dataCurrent = myImageList[chip][0]->dataCurrent;
             connect(gw3, &MyImage::modelUpdateNeeded, this, &Data::modelUpdateReceiver);
@@ -1714,7 +1710,6 @@ float Data::memoryCurrentFootprint(bool globalweights)
                     footprint += it->dataBackupL1.capacity() * sizeof(float);
                     footprint += it->dataBackupL2.capacity() * sizeof(float);
                     footprint += it->dataBackupL3.capacity() * sizeof(float);
-                    footprint += it->dataRaw.capacity() * sizeof(float);
                     footprint += it->dataMeasure.capacity() * sizeof(float);
                     footprint += it->objectMask.capacity() * sizeof(bool);
                     footprint += it->dataWeight.capacity() * sizeof(float);
@@ -1765,7 +1760,6 @@ void Data::memoryFreeDataX(int chip, QString dataX)
             else if (dataX == "dataBackupL1") it->dataBackupL1.swap(empty);
             else if (dataX == "dataBackupL2") it->dataBackupL2.swap(empty);
             else if (dataX == "dataBackupL3") it->dataBackupL3.swap(empty);
-            else if (dataX == "dataRaw") it->dataRaw.swap(empty);
             else if (dataX == "dataWeight") it->dataWeight.swap(empty);
         }
     }
@@ -1811,7 +1805,7 @@ float Data::releaseMemory(float RAMneededThisThread, float RAMneededAllThreads, 
     // Simply loop over data structure and free everything that is set to deletable, irrespective of chip, starting with lowest priority
 
     QStringList datalist;
-    datalist << "dataRaw" << "dataBackground" << "dataBackupL3" << "dataBackupL2" << "dataBackupL1" << "dataWeight" << "dataCurrent";
+    datalist << "dataBackground" << "dataBackupL3" << "dataBackupL2" << "dataBackupL1" << "dataWeight" << "dataCurrent";
     float RAMfreed = 0.;
 
     // We release memory in a different order, depending on the process:
@@ -1906,7 +1900,6 @@ void Data::memorySetDeletable(int chip, QString dataX, bool deletable)
         else if (dataX == "dataBackupL1") it->dataBackupL1_deletable = deletable;
         else if (dataX == "dataBackupL2") it->dataBackupL2_deletable = deletable;
         else if (dataX == "dataBackupL3") it->dataBackupL3_deletable = deletable;
-        else if (dataX == "dataRaw") it->dataRaw_deletable = deletable;
         else if (dataX == "dataWeight") it->dataWeight_deletable = deletable;
     }
 
@@ -2116,8 +2109,7 @@ void Data::populate(QString statusString)
             // skip master calibs and normalized flats
             if (it == subDirName+"_"+QString::number(chip+1)+".fits") skip = true;
             if (skip) continue;
-            MyImage *myImage = new MyImage(dirName, it, statusString, chip+1,
-                                           mask->globalMask[chip], mask->isChipMasked[chip], verbosity);
+            MyImage *myImage = new MyImage(dirName, it, statusString, chip+1, mask->globalMask[chip], verbosity);
             //            myImage->setParent(this);
             connect(myImage, &MyImage::modelUpdateNeeded, this, &Data::modelUpdateReceiver);
             connect(myImage, &MyImage::critical, this, &Data::pushCritical);

@@ -117,7 +117,7 @@ private:
     void replaceCardInFullHeaderString(QString keyname, double value);
 public:
     explicit MyImage(QString pathname, QString filename, QString statusString, int chipnumber,
-                     const QVector<bool> &mask, bool masked, int *verbose, bool makebackup = true,
+                     const QVector<bool> &mask, int *verbose, bool makebackup = true,
                      QObject *parent = nullptr);
     explicit MyImage(QString fullPathName, const QVector<bool> &mask, int *verbose, QObject *parent = nullptr);
     explicit MyImage(QObject *parent = nullptr);
@@ -211,7 +211,6 @@ public:
     bool backupL3OnDrive = false;
     bool imageOnDrive = false;
     bool weightInMemory = false;
-    bool RAWInMemory = false;
     bool weightOnDrive = false;
     bool headerRead = false;
     bool modeDetermined = false;
@@ -240,7 +239,6 @@ public:
     float gainNormalization = 1.0;
     int bitpix = -32;
     // Processing stages
-    QVector<float> dataRaw;
     QVector<float> dataCurrent;    // Contains the current state of processing. Processing is done on it, will then be pushed down into first backup level
     QVector<float> dataBackupL1;   // First backup level
     QVector<float> dataBackupL2;   // Second backup level
@@ -249,12 +247,10 @@ public:
     const QVector<bool> &globalMask;      // Global mask (e.g. vignetting, permanently bad pixels; same for all images)
 //    QVector<bool> globalMask;      // Global mask (e.g. vignetting, permanently bad pixels; same for all images)
     QVector<bool> objectMask;      // Object mask (used for background modeling and sky subtraction)
-    bool isMasked = false;
     bool backgroundPushedDown = false;  // Used to detect whether a backup copy was made already during twopass background correction
     bool globalMaskAvailable = true;    // Unless we load an external image, e.g. for absolute zeropoint
 
     // Memory stages (to decide what can be deleted and what not)
-    bool dataRaw_deletable = false;
     bool dataWeight_deletable = false;
     bool dataCurrent_deletable = false;
     bool dataBackupL1_deletable = false;

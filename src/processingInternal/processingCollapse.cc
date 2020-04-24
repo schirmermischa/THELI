@@ -264,7 +264,7 @@ void Controller::taskInternalBinnedpreview()
         if (!outDir.exists()) outDir.mkdir(outDirName);
         QFile out(outDirName+outName);
         if (out.exists()) out.remove();
-        MyImage *myBinnedImage = new MyImage(outDirName, outName, "", 1, QVector<bool>(), false, &verbosity);
+        MyImage *myBinnedImage = new MyImage(outDirName, outName, "", 1, QVector<bool>(), &verbosity);
         connect(myBinnedImage, &MyImage::critical, this, &Controller::criticalReceived);
         connect(myBinnedImage, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
         connect(myBinnedImage, &MyImage::warning, this, &Controller::warningReceived);

@@ -166,7 +166,7 @@ void Controller::taskInternalGetCatalogFromIMAGE()
     QString imageName = fi.fileName();
     QVector<bool> dummyMask;
     dummyMask.clear();
-    MyImage *detectionImage = new MyImage(imagePath, imageName, "", 1, dummyMask, false, &verbosity, false);
+    MyImage *detectionImage = new MyImage(imagePath, imageName, "", 1, dummyMask, &verbosity, false);
     detectionImage->setupCoaddMode();    // Read image, add a dummy global mask, and add a weight map if any
     detectionImage->backgroundModel(256, "interpolate");
     detectionImage->segmentImage(DT, DMIN, true);

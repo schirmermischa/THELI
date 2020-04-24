@@ -519,7 +519,6 @@ void MyImage::freeData(QVector<float> &data)
     data.squeeze();
     if (&data == &dataCurrent) imageInMemory = false;
     else if (&data == &dataWeight) weightInMemory = false;
-    else if (&data == &dataRaw) RAWInMemory = false;
     else if (&data == &dataBackupL1) backupL1InMemory = false;
     else if (&data == &dataBackupL2) backupL2InMemory = false;
     else if (&data == &dataBackupL3) backupL3InMemory = false;
@@ -544,13 +543,7 @@ float MyImage::freeData(QString type)
     // If the image has never been loaded, this function will crash in several places.
     // Why is not clear to me, perhaps because some strings and e.g. databackground are not initialized;
 
-    if (type == "dataRaw" && dataRaw_deletable && dataRaw.capacity() > 0) {
-        dataRaw.clear();
-        dataRaw.squeeze();
-        RAWInMemory = false;
-        released = true;
-    }
-    else if (type == "dataBackground" && dataBackground_deletable && dataBackground.capacity() > 0) {
+    if (type == "dataBackground" && dataBackground_deletable && dataBackground.capacity() > 0) {
         // TODO / CHECK: comment these if causing problems
         dataBackground.clear();
         dataBackground.squeeze();
@@ -564,10 +557,7 @@ float MyImage::freeData(QString type)
     }
     else if (type == "dataBackupL2" && dataBackupL2_deletable && dataBackupL2.capacity() > 0) {
         dataBackupL2.clear();
-        dataBackupL2.squeeze();    if (type == "dataWeight") {
-            qDebug() << dataWeight_deletable << dataWeight.capacity();
-        }
-
+        dataBackupL2.squeeze();
         backupL2InMemory = false;
         released = true;
     }
@@ -597,10 +587,6 @@ float MyImage::freeData(QString type)
     }
     else if (type == "all") {
         // used if a project is changed; release all memory
-        if (dataRaw.capacity() > 0) {
-            dataRaw.clear();
-            dataRaw.squeeze();
-        }
         if (dataBackground.capacity() > 0) {
             dataBackground.clear();
             dataBackground.squeeze();
@@ -658,7 +644,6 @@ void MyImage::unprotectMemory()
     dataBackupL2_deletable = true;
     dataBackupL3_deletable = true;
     dataWeight_deletable = true;
-    dataRaw_deletable = true;
 }
 
 void MyImage::unprotectMemoryWeight()
@@ -676,7 +661,6 @@ void MyImage::setDeletable(QString dataX, bool deletable)
     else if (dataX == "dataBackupL1") dataBackupL1_deletable = deletable;
     else if (dataX == "dataBackupL2") dataBackupL2_deletable = deletable;
     else if (dataX == "dataBackupL3") dataBackupL3_deletable = deletable;
-    else if (dataX == "dataRaw") dataRaw_deletable = deletable;
     else if (dataX == "dataWeight") dataWeight_deletable = deletable;
     else if (dataX == "dataBackground") dataBackground_deletable = deletable;
 }
@@ -691,7 +675,6 @@ void MyImage::freeAncillaryData(QVector<float> &data)
 void MyImage::freeAll()
 {
     emit setMemoryLock(true);
-    freeData(dataRaw);
     freeData(dataBackupL1);
     freeData(dataBackupL2);
     freeData(dataBackupL3);
