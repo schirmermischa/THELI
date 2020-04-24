@@ -725,8 +725,8 @@ void ConfDockWidget::launchViewer(const QString &dirname, const QString &filter,
 
     // IView *iView = new IView("FITSmonochrome", dirname, filter, this);
     //    IView *iView = new IView(dirname, filter);
-//    iView->show();
-//    iView->setMiddleMouseMode(mode);
+    //    iView->show();
+    //    iView->setMiddleMouseMode(mode);
 
     QString mainDirName = mainGUI->controller->mainDirName;
     QString scienceDirName = mainGUI->controller->DT_SCIENCE[0]->subDirName;
@@ -1161,3 +1161,54 @@ void ConfDockWidget::on_nonlinearityCheckBox_clicked()
     }
 }
 
+
+void ConfDockWidget::on_ASTviewCheckPlotsPushButton_clicked()
+{
+    Data *scienceData = nullptr;
+
+    if (mainGUI->controller->DT_SCIENCE.length() == 1) {
+        scienceData = mainGUI->controller->DT_SCIENCE.at(0);
+    }
+    else if (mainGUI->controller->DT_SCIENCE.length() == 0) {
+        QMessageBox::information(this, tr("Missing data"),
+                                 tr("No SCIENCE data were specified in the data tree.\n"),
+                                 QMessageBox::Ok);
+        return;
+    }
+
+    // See if any checkplots exist
+    bool checkPlotsExist = false;
+    for (auto &data : mainGUI->controller->DT_SCIENCE) {
+        QDir plotsDir = data->dirName+"/plots/";
+        if (plotsDir.exists()) checkPlotsExist = true;
+    }
+
+    if (checkPlotsExist) {
+        QMessageBox msgBox;
+        msgBox.setInformativeText(tr("The current SCIENCE data tree contains several entries for which astrometry check plots exist.\n") +
+                                  tr("Display the plots for:\n\n"));
+        for (auto &data : mainGUI->controller->DT_SCIENCE) {
+            QDir plotsDir = data->dirName+"/plots/";
+            if (plotsDir.exists()) QAbstractButton *button = msgBox.addButton(data->subDirName, QMessageBox::YesRole);
+        }
+        QAbstractButton *pCancel = msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
+        msgBox.exec();
+        QString choice = msgBox.clickedButton()->text();
+        if (msgBox.clickedButton()== pCancel) return;
+
+        for (auto &data : mainGUI->controller->DT_SCIENCE) {
+            if (data->subDirName == choice) scienceData = data;
+            break;
+        }
+
+        IView *checkplotViewer = new IView("SCAMP_VIEWONLY", scienceData->dirName+"/plots/", this);
+        checkplotViewer->show();
+    }
+    else {
+        QMessageBox msgBox;
+        msgBox.setInformativeText(tr("Could not find astrometric check plots in any of the science directories.\n") +
+                                  tr("You must run the astrometry first.\n"));
+        QAbstractButton *OK = msgBox.addButton(tr("OK"), QMessageBox::YesRole);
+        msgBox.exec();
+    }
+}

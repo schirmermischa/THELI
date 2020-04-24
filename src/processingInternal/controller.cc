@@ -41,10 +41,10 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QProgressBar>
 
 Controller::Controller(instrumentDataType *instrumentData, QString statusold, ConfDockWidget *confDockWidget,
-                       Monitor *processMonitor, MainWindow *parent) : QMainWindow(parent)
+                       Monitor *processMonitor, MainWindow *parent) : QMainWindow(parent), cdw(confDockWidget)
 {
     mainGUI = parent;
-    cdw = confDockWidget;
+//    cdw = confDockWidget;
     instData = instrumentData;
     statusOld = statusold;
     monitor = processMonitor;

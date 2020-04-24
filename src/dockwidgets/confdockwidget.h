@@ -106,6 +106,8 @@ private slots:
 
     void on_nonlinearityCheckBox_clicked();
 
+    void on_ASTviewCheckPlotsPushButton_clicked();
+
 public slots:
     void loadDefaults();
     void updateGaiaBulkMotion(const QString &pmRA, const QString &pmDE);

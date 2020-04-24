@@ -45,7 +45,7 @@ using namespace std;
 
 void IView::initSeparationVector(QPointF pointStart)
 {
-    if (displayMode == "SCAMP" || displayMode == "CLEAR") return;
+    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
 
     startLeftClickInsideItem = false;
     QList<QGraphicsItem*> listStart = scene->items(pointStart, Qt::IntersectsItemShape);
@@ -56,7 +56,7 @@ void IView::initSeparationVector(QPointF pointStart)
 
 void IView::initDynrangeDrag()
 {
-    if (displayMode == "SCAMP" || displayMode == "CLEAR") return;
+    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
 
     dynRangeMinDragStart = dynRangeMin;
     dynRangeMaxDragStart = dynRangeMax;
@@ -81,27 +81,18 @@ void IView::showCurrentMousePos(QPointF point)
     // Still have to mirror in y, and add a half pixel correction
     // to be conform with the FITS standard
 
-    if (displayMode == "CLEAR" || displayMode == "SCAMP") return;
+    if (displayMode == "CLEAR" || displayMode.contains("SCAMP")) return;
 
     float x_cursor;
     float y_cursor;
-    if (displayMode != "SCAMP") {
-        x_cursor = point.x()+0.5;
-        y_cursor = naxis2 - point.y()+0.5;
-    }
-    else {
-        x_cursor = point.x();
-        y_cursor = point.y();
-    }
+    x_cursor = point.x()+0.5;
+    y_cursor = naxis2 - point.y()+0.5;
 
     // Display the information
     QString xpos = QString::number(x_cursor);
     QString ypos = QString::number(y_cursor);
     icdw->ui->xposLabel->setText("x = "+xpos);
     icdw->ui->yposLabel->setText("y = "+ypos);
-
-    // Leave here if not looking at FITS files
-    if (displayMode == "SCAMP") return;
 
     // Pixel index in the 2D image
     long i = x_cursor - 0.5;
@@ -137,7 +128,7 @@ void IView::showCurrentMousePos(QPointF point)
 
 void IView::adjustBrightnessContrast(QPointF point)
 {
-    if (displayMode == "SCAMP" || displayMode == "CLEAR") return;
+    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
     // Also leave if actively cycling through images
     // (will crash because the scene items become unavailable while dragging)
     // Or (NOT IMPLEMENTED): stop cycling through images
@@ -232,7 +223,7 @@ void IView::measureAngularSeparations(QPointF pointStart, QPointF pointEnd, doub
 
 void IView::drawSeparationVector(QPointF pointStart, QPointF pointEnd)
 {
-    if (displayMode == "SCAMP" || displayMode == "CLEAR") return;
+    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
     // (will crash because the scene items become unavailable while dragging)
     if (ui->actionForward->isChecked()) return;
     if (ui->actionBack->isChecked()) return;
@@ -366,7 +357,7 @@ void IView::clearSkyCircleItems()
 // currently unused
 void IView::drawSkyRectangle(QPointF pointStart, QPointF pointEnd)
 {
-    if (displayMode == "SCAMP" || displayMode == "CLEAR") return;
+    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
     if (displayMode == "FITScolor") return;
     // (will crash because the scene items become unavailable while dragging)
     if (ui->actionForward->isChecked()) return;
@@ -527,7 +518,7 @@ void IView::updateCDmatrixFITS()
 
 void IView::drawSkyCircle(QPointF pointStart, QPointF pointEnd)
 {
-    if (displayMode == "SCAMP" || displayMode == "CLEAR") return;
+    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
     if (displayMode == "FITScolor") return;
 
     QPen pen(QColor("#00ff00"));
@@ -559,7 +550,7 @@ void IView::drawSkyCircle(QPointF pointStart, QPointF pointEnd)
 
 void IView::appendSkyCircle()
 {
-    if (displayMode == "SCAMP" || displayMode == "CLEAR") return;
+    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
     if (displayMode == "FITScolor") return;
 
     // Fetch the last item drawn and add it to the permanent list
@@ -583,7 +574,7 @@ void IView::appendSkyCircle()
 
 void IView::updateSkyCircles()
 {
-    if (displayMode == "SCAMP" || displayMode == "CLEAR") return;
+    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
     if (displayMode == "FITScolor") return;
 
     // A selected sky circle has been removed by a key press event, or moved by mouse drag
@@ -601,7 +592,7 @@ void IView::updateSkyCircles()
 
 void IView::redrawSkyCirclesAndCats()
 {
-    if (displayMode == "SCAMP" || displayMode == "CLEAR") return;
+    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
     if (displayMode == "FITScolor") return;
 
     if (!acceptedSkyCircleItems.isEmpty()) {
@@ -642,7 +633,7 @@ void IView::dumpSkyCircleCoordinates()
 
 void IView::clearSeparationVector()
 {
-    if (displayMode == "SCAMP" || displayMode == "CLEAR") return;
+    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
 
     clearVectorItems();
     myGraphicsView->setScene(scene);

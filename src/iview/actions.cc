@@ -29,7 +29,7 @@ void IView::previousAction_triggered()
         currentId --;
         if (displayMode == "FITSmonochrome") loadFITS("", currentId);
         else if (displayMode == "CLEAR") loadFITS("", currentId);
-        else if (displayMode == "SCAMP") loadPNG("", currentId);
+        else if (displayMode.contains("SCAMP")) loadPNG("", currentId);
         else if (displayMode == "MEMview") loadFromRAM(myImageList[currentId], 0);
         ui->actionNext->setEnabled(true);
         ui->actionEnd->setEnabled(true);
@@ -60,7 +60,7 @@ void IView::nextAction_triggered()
         currentId ++;
         if (displayMode == "FITSmonochrome") loadFITS("", currentId);
         else if (displayMode == "CLEAR") loadFITS("", currentId);
-        else if (displayMode == "SCAMP") loadPNG("", currentId);
+        else if (displayMode.contains("SCAMP")) loadPNG("", currentId);
         else if (displayMode == "MEMview") loadFromRAM(myImageList[currentId], 0);
         ui->actionPrevious->setEnabled(true);
         ui->actionStart->setEnabled(true);
@@ -95,7 +95,7 @@ void IView::forwardAction_triggered()
         currentId ++;
         if (displayMode == "FITSmonochrome") loadFITS("", currentId);
         else if (displayMode == "CLEAR") loadFITS("", currentId);
-        else if (displayMode == "SCAMP") loadPNG("", currentId);
+        else if (displayMode.contains("SCAMP")) loadPNG("", currentId);
         else if (displayMode == "MEMview") loadFromRAM(myImageList[currentId], 0);
         ui->actionPrevious->setEnabled(true);
         ui->actionStart->setEnabled(true);
@@ -128,7 +128,7 @@ void IView::backAction_triggered()
         currentId --;
         if (displayMode == "FITSmonochrome") loadFITS("", currentId);
         else if (displayMode == "CLEAR") loadFITS("", currentId);
-        else if (displayMode == "SCAMP") loadPNG("", currentId);
+        else if (displayMode.contains("SCAMP")) loadPNG("", currentId);
         else if (displayMode == "MEMview") loadFromRAM(myImageList[currentId], 0);
         ui->actionNext->setEnabled(true);
         ui->actionEnd->setEnabled(true);
@@ -156,7 +156,7 @@ void IView::startAction_triggered()
     currentId = 0;
     if (displayMode == "FITSmonochrome") loadFITS("", currentId);
     else if (displayMode == "CLEAR") loadFITS("", currentId);
-    else if (displayMode == "SCAMP") loadPNG("", currentId);
+    else if (displayMode.contains("SCAMP")) loadPNG("", currentId);
     else if (displayMode == "MEMview") loadFromRAM(myImageList[currentId], 0);
     ui->actionNext->setEnabled(true);
     ui->actionForward->setEnabled(true);
@@ -183,7 +183,7 @@ void IView::endAction_triggered()
     currentId = numImages - 1;
     if (displayMode == "FITSmonochrome") loadFITS("", currentId);
     else if (displayMode == "CLEAR") loadFITS("", currentId);
-    else if (displayMode == "SCAMP") loadPNG("", currentId);
+    else if (displayMode.contains("SCAMP")) loadPNG("", currentId);
     else if (displayMode == "MEMview") loadFromRAM(myImageList[currentId], 0);
     ui->actionNext->setDisabled(true);
     ui->actionForward->setDisabled(true);

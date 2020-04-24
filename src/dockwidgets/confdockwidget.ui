@@ -472,7 +472,7 @@
        <number>1</number>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>6</number>
       </property>
       <widget class="QWidget" name="HDUpage">
        <layout class="QGridLayout" name="gridLayout_31">
@@ -26979,6 +26979,16 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <enum>QFrame::Plain</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_64">
+             <item row="0" column="0">
+              <widget class="QLabel" name="ASTLabel_5">
+               <property name="text">
+                <string>Resolution</string>
+               </property>
+               <property name="buddy">
+                <cstring>ASTdistortLineEdit</cstring>
+               </property>
+              </widget>
+             </item>
              <item row="0" column="1">
               <widget class="QLineEdit" name="ASTresolutionLineEdit">
                <property name="minimumSize">
@@ -27001,13 +27011,13 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                </property>
               </widget>
              </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="ASTLabel_5">
-               <property name="text">
-                <string>Resolution</string>
+             <item row="0" column="2">
+              <widget class="QPushButton" name="ASTviewCheckPlotsPushButton">
+               <property name="statusTip">
+                <string>Displays the astrometry check plots (if existing)</string>
                </property>
-               <property name="buddy">
-                <cstring>ASTdistortLineEdit</cstring>
+               <property name="text">
+                <string>View</string>
                </property>
               </widget>
              </item>

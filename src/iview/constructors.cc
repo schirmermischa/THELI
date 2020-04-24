@@ -188,6 +188,18 @@ IView::IView(QString mode, QString name, QWidget *parent) :
         currentId = 0;
         loadPNG("", currentId);
     }
+    else if (displayMode == "SCAMP_VIEWONLY") {          // just to display the plots, whenever
+        dirName = name;
+        scampInteractiveMode = false;
+
+        filterName = "*.png";
+        setImageList(filterName);
+        makeConnections();
+        switchMode();
+
+        currentId = 0;
+        loadPNG("", currentId);
+    }
 
     // TODO: if no refcat subdir found then hide the sourcecat / refcat buttons
 
@@ -480,7 +492,7 @@ void IView::switchMode(QString mode)
     if (!mode.isEmpty()) displayMode = mode;
 
     ui->actionClose->setVisible(true);
-    if (displayMode == "SCAMP") {
+    if (displayMode.contains("SCAMP")) {
         this->setWindowTitle("iView --- Scamp check plots");
         // Disable file menu. Must stay within interactive mode. Also, 'close' will cause segfault.
         ui->menuFile->setVisible(false);
@@ -561,7 +573,7 @@ void IView::switchMode(QString mode)
 
     // Also adjust the dockwidgets
     // NOT in SCAMP mode, because there it is not initialized!
-    if (displayMode != "SCAMP") icdw->switchMode(displayMode);
+    if (!displayMode.contains("SCAMP")) icdw->switchMode(displayMode);
 }
 
 void IView::initGUI()
@@ -579,7 +591,7 @@ void IView::initGUI()
     ui->actionDragMode->setChecked(true);
     wcsdw->hide();
 
-    if (displayMode == "SCAMP") {
+    if (displayMode.contains("SCAMP")) {
         middleMouseActionGroup->setVisible(false);     // NOTE: must add actions above before we can "hide" them simply by hiding the group
     }
     else {
@@ -605,7 +617,7 @@ void IView::initGUIstep2()
         startDirNameSet = true;
     }
 
-    if (displayMode != "SCAMP") {
+    if (!displayMode.contains("SCAMP")) {
         ui->toolBar->addWidget(speedLabel);
         speedLabel->setText(" Frame rate");
         ui->toolBar->addWidget(speedSpinBox);
@@ -656,11 +668,18 @@ void IView::addDockWidgets()
         icdw->hide();
         scampdw->raise();
     }
+    else if (displayMode == "SCAMP_VIEWONLY") {
+        icdw = new IvConfDockWidget(this);
+        icdw->hide();
+    }
 
     // Connections
     if (displayMode == "SCAMP") {
         scampdwDefined = true;
         connect(scampdw, &IvScampDockWidget::solutionAcceptanceState, this, &IView::solutionAcceptanceStateReceived);
+    }
+    else if (displayMode == "SCAMP_VIEWONLY") {
+        scampdwDefined = false;
     }
     else {
         icdwDefined = true;

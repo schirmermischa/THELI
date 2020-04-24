@@ -120,7 +120,7 @@ void IView::resizeEvent(QResizeEvent * event)
 
 void IView::sendStatisticsCenter(QPointF point)
 {
-    if (displayMode == "SCAMP" || displayMode == "CLEAR") return;
+    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
     long x = point.x();
     long y = naxis2 - point.y();
     emit statisticsRequested(x, y);
@@ -217,7 +217,7 @@ void IView::setCurrentId(QString filename)
 {
     // The number of the file in the list of all images (PNG or FITS) in this directory
     if (filterName.isEmpty() || icdw->ui->filterLineEdit->text().isEmpty()) {
-        if (displayMode != "SCAMP") filterName = "*.fits";
+        if (!displayMode.contains("SCAMP")) filterName = "*.fits";
         else filterName = "*.png";
         icdw->ui->filterLineEdit->setText(filterName);
     }
@@ -239,7 +239,7 @@ void IView::loadImage()
     }
 
     if (!QDir(dirName).exists()) dirName = QDir::homePath();
-    if (displayMode == "SCAMP") {
+    if (displayMode.contains("SCAMP")) {
         currentFileName =
                 QFileDialog::getOpenFileName(this, tr("Select image"), dirName,
                                              tr("Images and Scamp checkplots (")+filter+" *.png)");
@@ -269,7 +269,7 @@ void IView::loadImage()
         // Delete catalog displays, if any
         clearItems();
         // reset the startDirname if in PNG or CLEAR mode previously
-        if (displayMode == "SCAMP" || displayMode == "CLEAR") startDirNameSet = false;
+        if (displayMode.contains("SCAMP") || displayMode == "CLEAR") startDirNameSet = false;
         loadFITS(currentFileName);
     }
     else if (suffix == "png") {
@@ -567,7 +567,7 @@ void IView::loadColorFITS(qreal scaleFactor)
 
 bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMode)
 {
-    if (displayMode == "SCAMP" || displayMode == "CLEAR") {
+    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") {
         qDebug() << "IView::loadFitsData(): Invalid mode";
         return false;
     }
@@ -1052,7 +1052,7 @@ void IView::writePreferenceSettings()
 void IView::readPreferenceSettings()
 {
     QSettings settings("IVIEW", "PREFERENCES");
-    if (displayMode != "SCAMP") {
+    if (!displayMode.contains("SCAMP")) {
         icdw->ui->zoomFitPushButton->setChecked(settings.value("zoomFitPushButton").toBool());
         icdw->ui->autocontrastPushButton->setChecked(settings.value("autocontrastPushButton").toBool());
     }
