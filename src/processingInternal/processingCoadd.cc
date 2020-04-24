@@ -962,6 +962,8 @@ void Controller::coaddUpdate()
     if (gaiaQuery->numSources != 0) {
 
         // Measure the seeing
+
+        // Cannot create dummy mask diretcly in the constructor with Qvector<bool>(), somehow the mask is not empty!
         QVector<bool> dummyMask;
         dummyMask.clear();
         MyImage *coadd = new MyImage(coaddDirName, "coadd.fits", "", 1, dummyMask, &verbosity, false);

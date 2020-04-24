@@ -55,7 +55,7 @@ void SwarpWorker::abort()
     long pid = extProcess->processId();
     killProcessChildren(pid);
 
-    // The kill the process that invokes the commandline task
+    // Then kill the process that invokes the commandline task
     extProcess->kill();
     emit finished();
 }

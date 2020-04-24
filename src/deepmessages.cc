@@ -54,7 +54,7 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
         QMessageBox::warning(this, tr("File not found / no sky positions selected"),
                              tr("The file with blank sky positions could not be found or is empty:")+"\n"+
                              part1+"/skysamples.dat\n"+
-                             tr("Click on \"Select sky area(s)\" top open iView and select at least one empty sky area with the middle mouse button."),
+                             tr("Click on \"Select sky area(s)\" to open iView and select at least one empty sky area with the middle mouse button."),
                              QMessageBox::Ok);
     }
     else if (trigger == "Controller::NO_OVERLAP_WITH_SKYAREA" && !NO_OVERLAP_WITH_SKYAREA_shown) {

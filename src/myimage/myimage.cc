@@ -35,8 +35,7 @@ If not, see https://www.gnu.org/licenses/ .
 
 // C'tor
 MyImage::MyImage(QString pathname, QString filename, QString statusString, int chipnumber,
-                 const QVector<bool> &mask, int *verbose, bool makebackup,
-                 QObject *parent) : QObject(parent), globalMask(mask)
+                 const QVector<bool> &mask, int *verbose, bool makebackup, QObject *parent) : QObject(parent), globalMask(mask)
 {
     path = pathname;
     name = filename;
@@ -900,9 +899,7 @@ void MyImage::illuminationCorrection(int chip, QString thelidir, QString instNam
     QString illumcorrFileName = "illumcorr_"+filter+"_"+QString::number(chip)+".fits";
     if (QFile(illumcorrPath+illumcorrFileName).exists()) {
         if (*verbosity > 1) emit messageAvailable(chipName + " : External illumination correction : <br>" + illumcorrPath+illumcorrFileName, "image");
-        QVector<bool> dummyMask;
-        dummyMask.clear();
-        MyImage *illumCorrFlat = new MyImage(illumcorrPath, illumcorrFileName, "", chip+1, dummyMask, verbosity);
+        MyImage *illumCorrFlat = new MyImage(illumcorrPath, illumcorrFileName, "", chip+1, QVector<bool>(), verbosity);
         illumCorrFlat->readImage();
         if (naxis1 != illumCorrFlat->naxis1 || naxis2 != illumCorrFlat->naxis2 ) {
             emit messageAvailable("MyImage::illuminationCorrection(): " + baseName + " : illumination correction image does not have the same size as the master flat!", "error");

@@ -226,14 +226,13 @@ private:
     void printCfitsioError(QString funcName, int status);
     void updateImageAndData(MyImage *image, Data *data);
     Data *setupDataDir();
-    void maskObjectsInSkyImagesPass1(Data *skyData, Data *scienceData, const QList<MyImage *> &backgroundList,
-                                     const bool twoPass, const QString dt, const QString dmin, const bool convolution,
-                                     const QString expFactor);
-    void maskObjectsInSkyImagesPass2(Data *skyData, Data *scienceData, const QList<MyImage*> &backgroundList,
-                                     const bool twoPass, const QString dt, const QString dmin, const bool convolution,
-                                     const QString expFactor, const int chip, const bool rescaleModel);
-    bool filterBackgroundList(const int chip, const Data *skyData, MyImage *it, QString &backExpList, QList<MyImage*> &backgroundList,
-                              const int nGroups, const int nLength, const int currentExposure, const QString mode);
+    void maskObjectsInSkyImagesPass1(const int chip, Data *skyData, Data *scienceData, const bool twoPass, const QString dt,
+                                     const QString dmin, const bool convolution, const QString expFactor);
+    void maskObjectsInSkyImagesPass2(const int chip, Data *skyData, Data *scienceData, const bool twoPass, const QString dt,
+                                     const QString dmin, const bool convolution, const QString expFactor,
+                                     const bool rescaleModel);
+    bool filterBackgroundList(const int chip, Data *skyData, MyImage *it,  QString &backExpList, const int nGroups, const int nLength,
+                              const int currentExposure, const QString mode);
     void maskObjectsInSkyImagesPass1_newParallel(Data *skyData, Data *scienceData, const QList<MyImage *> &backgroundList,
                                                  const bool twoPass, const QString dt, const QString dmin, const bool convolution,
                                                  const QString expFactor, const int threadID);
@@ -289,7 +288,7 @@ private:
     long prepareAnetCats(Data *scienceData);
     long getNumAnetChips(QString ahead);
     long makeAnetHeaderList(Data *scienceData);
-    bool setupBackgroundList(int chip, const Data *skyData, QList<MyImage *> &backgroundList, MyImage *it);
+    bool setupBackgroundList(int chip, Data *skyData, const QString &chipName);
     void combineAllBackgroundUsabilityFlags(const QList<MyImage *> &backgroundList);
 private slots:
     // The following can also be under 'private', but then the declaration must be preceeded like this:

@@ -889,14 +889,11 @@ void Data::resetStaticModel()
 }
 
 // Used for creating a background model
-void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const QString nlowString,
-                         const QString nhighString, const QString currentImage, const QString mode,
-                         const QString dirName, const QString subDirName, QVector<bool> &dataStaticModelDone)
+void Data::combineImages(const int chip, const QString nlowString, const QString nhighString, const QString currentImage,
+                         const QString mode, const QString dirName, const QString subDirName, QVector<bool> &dataStaticModelDone)
 {
     if (!successProcessing) return;
-
     if (userStop || userKill) return;
-
     if (mode == "static" && dataStaticModelDone[chip]) return;
 
     QString rescaled = "";
@@ -906,7 +903,7 @@ void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const 
     // Get image geometry from first image in list that has its size measured
     long n = 0;
     long m = 0;
-    for (auto &back : backgroundList) {
+    for (auto &back : myImageList[chip]) {
         if (back->useForBackground) {
             n = back->naxis1;
             m = back->naxis2;
@@ -921,12 +918,11 @@ void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const 
     }
     long dim = n*m;
 
-    // Container for the temporary pixel stack
-    int numImages = backgroundList.length();
+    int numImages = myImageList[chip].length();
+
     // Instantiate a MyImage object for the combined set of images. It does not create a FITS object yet.
-    // Delete the instance if it exists already from a previous run of this task to not (re)create it
     // if (combinedImage[chip] != nullptr) delete combinedImage[chip];
-    if (combinedImage[chip] == nullptr) {
+    if (combinedImage[chip] == nullptr) {       // re-using previously created object
         MyImage *masterCombined = new MyImage(dirName, currentImage, "", chip+1, mask->globalMask[chip], verbosity);
         connect(masterCombined, &MyImage::modelUpdateNeeded, this, &Data::modelUpdateReceiver);
         connect(masterCombined, &MyImage::critical, this, &Data::pushCritical);
@@ -943,7 +939,6 @@ void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const 
     // loop over all pixels, and images; rescaling is optional
     QVector<long> goodIndex;
     goodIndex.reserve(numImages);
-    // Also checks whether the mode is within valid range (for calibrators):
     QVector<float> rescaleFactors = getNormalizedRescaleFactors(chip, goodIndex, "forBackground");
     if (rescaleFactors.isEmpty()) {
         // we should never enter here. Error handling in getNormalizedRescaleFactors()
@@ -956,7 +951,7 @@ void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const 
     {
         int k = 0;
         for (auto &gi : goodIndex) {
-            MyImage *it = backgroundList[gi];
+            MyImage *it = myImageList[chip][gi];
             goodImages.append(it->chipName + ": " + QString::number(it->skyValue,'f',3) + " e-, rescaled with "
                               + QString::number(rescaleFactors[k],'f',3));
             if (k<goodIndex.length()-1) goodImages.append("<br>");
@@ -969,30 +964,31 @@ void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const 
 
     // works on dataBackupLx (?)
 
-    int nlow = nlowString.toInt();    // returns 0 for empty string (desired)
-    int nhigh = nhighString.toInt();  // returns 0 for empty string (desired)
-    dim = combinedImage[chip]->dataCurrent.length();       // CHECK: already computed further above!
+    int nlow = nlowString.toInt();    // returns 0 for empty string
+    int nhigh = nhighString.toInt();  // returns 0 for empty string
+
     //    int localMaxThreads = maxCPU/instData->numChips;
     //    if (instData->numChips > maxCPU) localMaxThreads = 1;
 
     if (instData->numChips > 1) {
-        // parallelization not yet thread safe (Qt5 classes not threadsafe)
         QList<float> stack;
+        // Not thread safe
         //    long ngood = goodIndex.length();
         //    stack.reserve(ngood);
         // #pragma omp parallel for num_threads(localMaxThreads)
         for (long i=0; i<dim; ++i) {
+            // not thread safe
             //        QVector<float> stack;
             //        stack.reserve(ngood);
             long k = 0;
             for (auto &gi : goodIndex) {
-                if (backgroundList[gi]->objectMaskDone) {         // needed because objectmask can be empty and the lookup will segfault
-                    if (!backgroundList[gi]->objectMask[i]) {
-                        stack.append(backgroundList[gi]->dataBackupL1[i] * rescaleFactors[k]);
+                if (myImageList[chip][gi]->objectMaskDone) {         // needed because objectmask can be empty and the lookup will segfault
+                    if (!myImageList[chip][gi]->objectMask[i]) {
+                        stack.append(myImageList[chip][gi]->dataBackupL1[i] * rescaleFactors[k]);
                     }
                 }
                 else {
-                    stack.append(backgroundList[gi]->dataBackupL1[i] * rescaleFactors[k]);
+                    stack.append(myImageList[chip][gi]->dataBackupL1[i] * rescaleFactors[k]);
                 }
                 ++k;
             }
@@ -1002,26 +998,24 @@ void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const 
     }
 
     // Single chip: we can use inner parallelization!
+    // UPDATE: identical to the section above, just 'stack' is declared inside the for loop and not outside
     else {
         // NOPE! we cannot, still crashing sometimes
         // #pragma omp parallel for num_threads(localMaxThreads) firstprivate(rescaleFactors)
         for (long i=0; i<dim; ++i) {
             QList<float> stack;
             long k = 0;
-            QString tmp;
             for (auto &gi : goodIndex) {
-                tmp.append(backgroundList[gi]->chipName + " ");
-                if (backgroundList[gi]->objectMaskDone) {         // needed because objectmask can be empty and the lookup will segfault
-                    if (!backgroundList[gi]->objectMask[i]) {
-                        stack.append(backgroundList[gi]->dataBackupL1[i] * rescaleFactors[k]);
+                if (myImageList[chip][gi]->objectMaskDone) {         // needed because objectmask can be empty and the lookup will segfault
+                    if (!myImageList[chip][gi]->objectMask[i]) {
+                        stack.append(myImageList[chip][gi]->dataBackupL1[i] * rescaleFactors[k]);
                     }
                 }
                 else {
-                    stack.append(backgroundList[gi]->dataBackupL1[i] * rescaleFactors[k]);
+                    stack.append(myImageList[chip][gi]->dataBackupL1[i] * rescaleFactors[k]);
                 }
                 ++k;
             }
-//            if (i==645045) qDebug() << tmp << stack;  // pixel 734 / 649
             combinedImage[chip]->dataCurrent[i] = straightMedian_MinMax(stack, nlow, nhigh);
         }
     }
@@ -1303,9 +1297,8 @@ QVector<float> Data::getNormalizedRescaleFactors(int chip, QVector<long> &goodIn
     }
 
     else {
-        emit messageAvailable("Data::getNormalizedRescaleFactors(): Code should not enter here. This is a bug", "error");
+        emit messageAvailable("Data::getNormalizedRescaleFactors(): Invalid operating mode: " + mode, "error");
         emit critical();
-        // Nothing to be done here
     }
 
     // Rescale modes relative to mean mode

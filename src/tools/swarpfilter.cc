@@ -553,6 +553,7 @@ void SwarpFilter::stackfilter_rejectminmax(const QVector<float> &gooddata, float
 //**************************************************************
 void SwarpFilter::writeWeight()
 {
+
     // cout << "This is thread " << args->th << endl;
     emit messageAvailable("Writing updated weight maps ...", "output");
 
@@ -649,10 +650,15 @@ void SwarpFilter::writeWeight()
             pixel *= weight_out[k];
             ++k;
         }
-        weight_out.clear();
+
         QString outName = weights[i]->path + "/" + weights[i]->name;
-        weights[i]->writeImage(outName);
-        weights[i]->freeData();
+        // Suspect random crash here; quite a bottleneck, though. I don't understand why these crashes have never happened before.
+        // Could also be related to readimage() above. In any case, I just simply cannot reproduce it while running it in a debugger
+#pragma omp critical
+        {
+            weights[i]->writeImage(outName);
+            weights[i]->freeData();
+        }
 
 #pragma omp atomic
         *progress += progressStepSize;

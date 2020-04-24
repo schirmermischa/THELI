@@ -251,9 +251,7 @@ void AbsZeroPoint::updateSaturationValue(float value)
 // Here is where the actual work happens
 void AbsZeroPoint::taskInternalAbszeropoint()
 {
-    QVector<bool> dummyMask;
-    dummyMask.clear();
-    myImage = new MyImage(ui->zpImageLineEdit->text(), dummyMask, &verbosity);
+    myImage = new MyImage(ui->zpImageLineEdit->text(), QVector<bool>(), &verbosity);
 
     connect(myImage, &MyImage::messageAvailable, this, &AbsZeroPoint::displayMessage);
     connect(myImage, &MyImage::critical, this, &AbsZeroPoint::criticalReceived);

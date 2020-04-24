@@ -191,26 +191,25 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
 
             // The list of background images.
             // Each image has a flag whether it contributes to the model. Initially, all are set to 'false'
-            QList<MyImage*> backgroundList;
-            if (!setupBackgroundList(chip, skyData, backgroundList, it)) continue;          // cannot use break in OMP loop
+            if (!setupBackgroundList(chip, skyData, it->chipName)) continue;          // cannot use break in OMP loop
 
-            if (!filterBackgroundList(chip, skyData, it, backExpList, backgroundList, nGroups, nLength, currentExposure, mode)) {
+            if (!filterBackgroundList(chip, skyData, it, backExpList, nGroups, nLength, currentExposure, mode)) {
                 continue;   // cannot use break in OMP loop
             }
 
             // PASS 1:
             sendBackgroundMessage(chip, mode, dataStaticModelDone[chip], it->chipName, 1);
-            maskObjectsInSkyImagesPass1(skyData, scienceData, backgroundList, twoPass, dt, dmin, convolution, expFactor);
-            skyData->combineImages(chip, backgroundList, nlow1, nhigh1, it->chipName, mode, dataDirName, dataSubDirName, dataStaticModelDone);
+            maskObjectsInSkyImagesPass1(chip, skyData, scienceData, twoPass, dt, dmin, convolution, expFactor);
+            skyData->combineImages(chip, nlow1, nhigh1, it->chipName, mode, dataDirName, dataSubDirName, dataStaticModelDone);
             skyData->combinedImage[chip]->modeDetermined = false;   // must redetermine!
             skyData->getModeCombineImages(chip);
 
             // PASS 2:
             if (twoPass) {
                 sendBackgroundMessage(chip, mode, dataStaticModelDone[chip], it->chipName, 2);
-                maskObjectsInSkyImagesPass2(skyData, scienceData, backgroundList, twoPass, dt, dmin, convolution, expFactor, chip, rescaleModel);
+                maskObjectsInSkyImagesPass2(chip, skyData, scienceData, twoPass, dt, dmin, convolution, expFactor, rescaleModel);
                 if (mode == "static" && !pass2staticDone) dataStaticModelDone[chip] = false;    // must recalculate static model (dynamic model will always be recalculated)
-                skyData->combineImages(chip, backgroundList, nlow2, nhigh2, it->chipName, mode, dataDirName, dataSubDirName, dataStaticModelDone);
+                skyData->combineImages(chip, nlow2, nhigh2, it->chipName, mode, dataDirName, dataSubDirName, dataStaticModelDone);
                 pass2staticDone = true;
                 skyData->combinedImage[chip]->modeDetermined = false;   // must redetermine!
                 skyData->getModeCombineImages(chip);
@@ -463,7 +462,7 @@ void Controller::processBackgroundDynamic(Data *scienceData, Data *skyData, cons
 }
 */
 
-void Controller::maskObjectsInSkyImagesPass1(Data *skyData, Data *scienceData, const QList<MyImage*> &backgroundList, const bool twoPass,
+void Controller::maskObjectsInSkyImagesPass1(const int chip, Data *skyData, Data *scienceData, const bool twoPass,
                                              const QString dt, const QString dmin, const bool convolution, const QString expFactor)
 {
     // Loop over the list of valid background images and mask the objects
@@ -471,7 +470,7 @@ void Controller::maskObjectsInSkyImagesPass1(Data *skyData, Data *scienceData, c
     QVector<QString> thresholds = getBackgroundThresholds(0, twoPass, dt, dmin, doSourceDetection);
     QString DT = thresholds[0];
     QString DMIN = thresholds[1];
-    for (auto &back : backgroundList) {
+    for (auto &back : skyData->myImageList[chip]) {
         if (!back->successProcessing) break;
         if (!back->useForBackground) continue;        // that should never be the case because the backgroundlist contains 'valid' images, only, at this point
         //        if (!back->useForBackground) {
@@ -495,15 +494,14 @@ void Controller::maskObjectsInSkyImagesPass1(Data *skyData, Data *scienceData, c
     }
 }
 
-void Controller::maskObjectsInSkyImagesPass2(Data *skyData, Data *scienceData, const QList<MyImage*> &backgroundList,
-                                             const bool twoPass, const QString dt, const QString dmin, const bool convolution, const QString expFactor,
-                                             const int chip, const bool rescaleModel)
+void Controller::maskObjectsInSkyImagesPass2(const int chip, Data *skyData, Data *scienceData, const bool twoPass, const QString dt, const QString dmin,
+                                             const bool convolution, const QString expFactor, const bool rescaleModel)
 {
     bool doSourceDetection = false;
     QVector<QString> thresholds = getBackgroundThresholds(1, twoPass, dt, dmin, doSourceDetection);
     QString DT = thresholds[0];
     QString DMIN = thresholds[1];
-    for (auto &back : backgroundList) {
+    for (auto &back : skyData->myImageList[chip]) {
         if (!back->successProcessing) break;
         if (!back->useForBackground) continue;
         if (doSourceDetection && !back->objectMaskDonePass2) {
@@ -526,21 +524,20 @@ void Controller::maskObjectsInSkyImagesPass2(Data *skyData, Data *scienceData, c
     }
 }
 
-bool Controller::setupBackgroundList(int chip, const Data *skyData, QList<MyImage*> &backgroundList, MyImage *it)
+bool Controller::setupBackgroundList(int chip, Data *skyData, const QString &chipName)
 {
     if (!successProcessing) return false;
 
     // First, collect all images of this chip, and reset their usability for background modeling to 'false' (or 'true' depending which ones is easier to code)
-    backgroundList = skyData->myImageList[chip];
-    for (auto &it : backgroundList) {
+    for (auto &it : skyData->myImageList[chip]) {
         it->useForBackground = false;
         it->useForBackgroundSequence = true;
         it->useForBackgroundWindowed = false;
         it->useForBackgroundStars = true;
     }
 
-    if (backgroundList.length() < 2) {
-        emit messageAvailable(it->chipName + " : At least two images are required for background modeling.", "error");
+    if (skyData->myImageList[chip].length() < 2) {
+        emit messageAvailable(chipName + " : At least two images are required for background modeling.", "error");
         emit criticalReceived();
         successProcessing = false;
         return false;
@@ -549,32 +546,32 @@ bool Controller::setupBackgroundList(int chip, const Data *skyData, QList<MyImag
     return true;
 }
 
-bool Controller::filterBackgroundList(const int chip, const Data *skyData, MyImage *it, QString &backExpList, QList<MyImage*> &backgroundList,
-                                      const int nGroups, const int nLength, const int currentExposure, const QString mode)
+bool Controller::filterBackgroundList(const int chip, Data *skyData, MyImage *it,  QString &backExpList, const int nGroups, const int nLength,
+                                      const int currentExposure, const QString mode)
 {
     if (!successProcessing) return false;
     if (!it->successProcessing) return false;
 
-    selectImagesFromSequence(backgroundList, nGroups, nLength, currentExposure);                 // Update flag: Select every n-th image, only, if requested
-//    for (auto &back : backgroundList) qDebug() << back->baseName << back->useForBackgroundSequence;
+    selectImagesFromSequence(skyData->myImageList[chip], nGroups, nLength, currentExposure);                 // Update flag: Select every n-th image, only, if requested
+//    for (auto &back : skyData->myImageList[chip]) qDebug() << back->baseName << back->useForBackgroundSequence;
 //    qDebug() << "";
 
-    if (mode == "dynamic") selectImagesDynamically(backgroundList, it->mjdobs);    // Update flag: dynamic or static mode
-    else selectImagesStatically(backgroundList, it);                 // Already sets BADBACK flag if necessary
+    if (mode == "dynamic") selectImagesDynamically(skyData->myImageList[chip], it->mjdobs);    // Update flag: dynamic or static mode
+    else selectImagesStatically(skyData->myImageList[chip], it);                 // Already sets BADBACK flag if necessary
 
-//    for (auto &back : backgroundList) qDebug() << back->baseName << back->useForBackgroundSequence << back->useForBackgroundWindowed;
+//    for (auto &back : skyData->myImageList[chip]) qDebug() << back->baseName << back->useForBackgroundSequence << back->useForBackgroundWindowed;
 //    qDebug() << "";
 
-    flagImagesWithBrightStars(backgroundList);                       // Update flag: Exclude images affected by bright stars
+    flagImagesWithBrightStars(skyData->myImageList[chip]);                       // Update flag: Exclude images affected by bright stars
     if (!it->successProcessing) return false;                        // Leave if not sufficiently many images found for background modeling
 
     // Combine the flags from all three tests
-    combineAllBackgroundUsabilityFlags(backgroundList);
+    combineAllBackgroundUsabilityFlags(skyData->myImageList[chip]);
 
-//    for (auto &back : backgroundList) qDebug() << back->baseName << back->useForBackground;
+//    for (auto &back : skyData->myImageList[chip]) qDebug() << back->baseName << back->useForBackground;
 //    qDebug() << "";
 
-    int nback = countBackgroundImages(backgroundList, it->chipName);
+    int nback = countBackgroundImages(skyData->myImageList[chip], it->chipName);
     QString outstring = it->chipName + " : " + QString::number(nback) + "<br>";
     if (nback < 4) backExpList.append("<font color=#ee5500>" + outstring + "</font>");   // color coding to highlight potentially poor images
     else backExpList.append(outstring);
