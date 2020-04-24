@@ -58,7 +58,7 @@ void MyImage::readWeight()
     }
 }
 
-void MyImage::initWeightfromGlobalWeight(QList<MyImage*> gwList)
+void MyImage::initWeightfromGlobalWeight(const QList<MyImage*> &gwList)
 {
     if (!successProcessing) return;
 

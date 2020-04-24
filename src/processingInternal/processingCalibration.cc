@@ -370,12 +370,14 @@ void Controller::taskInternalProcessflat()
             if (!it->successProcessing) continue;
             if (verbosity >= 0 && !message.isEmpty()) emit messageAvailable(it->chipName + " : Correcting with "+message+"_"+QString::number(chip+1)+".fits", "image");
             // careful with the booleans, they make sure the data is correctly reread from disk or memory if task is repeated
-            it->setupCalibDataInMemory(true, false, true);    // read from backupL1, if not then from disk. Makes backup copy if not yet done
+            it->setupCalibDataInMemory(true, true, true);    // read from backupL1, if not then from disk. Makes backup copy if not yet done
+            it->setModeFlag(min, max);                       // Must set mode flags before subtracting dark component (flatoffs can have really high levels in NIR data)
             if (biasData != nullptr && biasData->successProcessing) { // cannot pass nullptr to subtractBias()
                 it->subtractBias(biasData->combinedImage[chip], biasDataType);
+                it->skyValue -= biasData->combinedImage[chip]->skyValue;
             }
-            it->getMode(true);
-            it->setModeFlag(min, max);
+//            it->getMode(true);
+//            it->setModeFlag(min, max);
             if (!it->successProcessing) flatData->successProcessing = false;  // does not need to be threadsafe
 # pragma omp atomic
             progress += progressHalfStepSize;

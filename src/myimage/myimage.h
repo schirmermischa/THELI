@@ -270,7 +270,10 @@ public:
     float meanExposureBackground = 0.;
 
     // Flags to decide whether the image is used in a current background calculation or not
-    bool useForBackground = false;
+    bool useForBackground = false;              // Overall flag
+    bool useForBackgroundSequence = false;      // Whether the image can be used from a 'LIRIS-style' sequence splitting
+    bool useForBackgroundWindowed = false;      // Whether the image can be used because it falls within the current group, statically or dynamically
+    bool useForBackgroundStars = false;         // Whether the image can be used because it does not contain bright sources
     bool hasBrightStars = false;
 
     int *verbosity;
@@ -359,7 +362,7 @@ public:
     QString getKeyword(QString key);
     void getMode(bool determineMode = true);
     void illuminationCorrection(int chip, QString thelidir, QString instName, QString filter);
-    void initWeightfromGlobalWeight(QList<MyImage*> gwList);
+    void initWeightfromGlobalWeight(const QList<MyImage *> &gwList);
     void laplaceFilter(QVector<float> &dataFiltered);
     void makeCutout(long xmin, long xmax, long ymin, long ymax);
     void makeDriveBackup(QString backupDirName, QString statusOld);

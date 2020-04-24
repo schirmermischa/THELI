@@ -227,6 +227,13 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
                              tr("The following ")+part1+tr(" images do not have matching scamp catalogs (cat/*.scamp):\n")+part2,
                              QMessageBox::Ok);
     }
+    else if (trigger == "Controller::BACKGROUND_PARALLELIZATION") {
+        QMessageBox::warning(this, tr("Parallelization unstable"),
+                             tr("You are running the background modelling with more than 1 CPU. ") +
+                             tr("Currently, this is the only task that is still unstable when run in parallel, and random crashes may occur. ") +
+                             tr("Use a single CPU if you have problems. Once background modeling is done, you can revert to full parallelization."),
+                             QMessageBox::Ok);
+    }
     else if (trigger == "Data::BACKUP_DATA_NOT_FOUND") {
         QString warningText = "";
         warningText = tr("You were about to repeat a processing task.") + " "

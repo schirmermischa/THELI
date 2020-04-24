@@ -393,7 +393,6 @@ void MyImage::setupBackgroundData(const bool &isTaskRepeated, const QString &bac
     if (backgroundPushedDown) return;
     if (activeState != ACTIVE) return;    // Don't change location of deactivated images
 
-
     dataCurrent_deletable = false;
     dataBackupL1_deletable = false;
 
@@ -408,7 +407,7 @@ void MyImage::setupBackgroundData(const bool &isTaskRepeated, const QString &bac
             }
             readImage(true);                  // if not yet in memory
             pushDownToL1(backupDir);          // Create a safe copy of the non-subtracted data
-            dataBackupL1_deletable = false;   // set to 'true' in pushDownToL1()
+            dataBackupL1_deletable = false;   // set to 'true' in pushDownToL1(), but we must protect it
             backgroundPushedDown = true;
         }
     }

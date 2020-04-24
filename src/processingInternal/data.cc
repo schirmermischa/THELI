@@ -974,7 +974,7 @@ void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const 
 
     int nlow = nlowString.toInt();    // returns 0 for empty string (desired)
     int nhigh = nhighString.toInt();  // returns 0 for empty string (desired)
-    dim = combinedImage[chip]->dataCurrent.length();
+    dim = combinedImage[chip]->dataCurrent.length();       // CHECK: already computed further above!
     //    int localMaxThreads = maxCPU/instData->numChips;
     //    if (instData->numChips > maxCPU) localMaxThreads = 1;
 
@@ -1011,7 +1011,9 @@ void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const 
         for (long i=0; i<dim; ++i) {
             QList<float> stack;
             long k = 0;
+            QString tmp;
             for (auto &gi : goodIndex) {
+                tmp.append(backgroundList[gi]->chipName + " ");
                 if (backgroundList[gi]->objectMaskDone) {         // needed because objectmask can be empty and the lookup will segfault
                     if (!backgroundList[gi]->objectMask[i]) {
                         stack.append(backgroundList[gi]->dataBackupL1[i] * rescaleFactors[k]);
@@ -1022,10 +1024,10 @@ void Data::combineImages(const int chip, QList<MyImage*> &backgroundList, const 
                 }
                 ++k;
             }
+//            if (i==645045) qDebug() << tmp << stack;  // pixel 734 / 649
             combinedImage[chip]->dataCurrent[i] = straightMedian_MinMax(stack, nlow, nhigh);
         }
     }
-
     if (mode == "static") dataStaticModelDone[chip] = true;
 
     combinedImage[chip]->imageInMemory = true;
@@ -1074,7 +1076,7 @@ void Data::combineImages_newParallel(int chip, MyImage *masterCombined, QList<My
     // Instantiate a MyImage object for the combined set of images.
     // It does not create a FITS object yet.
     // Delete the instance if it exists already from a previous run of this task to not (re)create it
-    //    if (combinedImage[chip] != nullptr) delete combinedImage[chip];
+    // if (combinedImage[chip] != nullptr) delete combinedImage[chip];
 
     connect(masterCombined, &MyImage::modelUpdateNeeded, this, &Data::modelUpdateReceiver);
     connect(masterCombined, &MyImage::critical, this, &Data::pushCritical);
@@ -1369,7 +1371,7 @@ void Data::initGlobalWeight(int chip, Data *flatData, QString filter, bool sameW
             if (flatData->successProcessing) {
                 if (*verbosity > 0) emit messageAvailable("Initializing globalweight for chip " + QString::number(chip+1) + " from master flat"+thresholds, "data");
                 // done before calling this function
- //               if (!flatData->combinedImage[chip]->imageInMemory) flatData->combinedImage[chip]->setupDataInMemorySimple(true);
+                //               if (!flatData->combinedImage[chip]->imageInMemory) flatData->combinedImage[chip]->setupDataInMemorySimple(true);
                 myImage->dataCurrent = flatData->combinedImage[chip]->dataCurrent;
             }
         }
@@ -2532,7 +2534,7 @@ void Data::restoreBackupLevel(QString backupDirName)
     if (!backupDir.exists() || backupDir.count() == 0) {
         emit messageAvailable(dirName+"/"+backupDirName+": No backup FITS files found, restoring memory only.", "data");
     }
-/*
+    /*
  * QT5.9
     if (!backupDir.exists() || backupDir.isEmpty()) {
         emit messageAvailable(dirName+"/"+backupDirName+": No backup FITS files found, restoring memory only.", "data");
@@ -2649,7 +2651,7 @@ void Data::restoreFromDirectory(QString backupDirName)
         return;
     }
     backupDir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);  // Qt 5.7 compatibility
-//    if (backupDir.isEmpty()) {             Qt 5.9
+    //    if (backupDir.isEmpty()) {             Qt 5.9
     if (backupDir.count() == 0) {
         emit messageAvailable(subDirName+"/"+backupDirName+" is empty, no data were restored or deleted.", "error");
         emit critical();
@@ -2729,7 +2731,7 @@ void Data::restoreRAWDATA()
         return;
     }
     rawdataDir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);  // Qt 5.7 compatibility
-//    if (rawdataDir.isEmpty()) {             Qt 5.9
+    //    if (rawdataDir.isEmpty()) {             Qt 5.9
     if (rawdataDir.count() == 0) {
         emit messageAvailable(subDirName+"/RAWDATA is empty, "+subDirName+" remains unmodified.", "note");
         emit warning();

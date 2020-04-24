@@ -844,7 +844,7 @@ void MyImage::applyBackgroundModel(MyImage *backgroundImage, QString mode, bool 
         float rescale = 1.0;
         if (rescaleFlag) rescale = skyValue / backgroundImage->skyValue;
         for (auto &pixel : dataCurrent) {
-            if (backgroundImage->dataCurrent[i] != 0) {
+            if (backgroundImage->dataCurrent[i] != 0.) {
                 pixel = dataBackupL1[i] - backgroundImage->dataCurrent[i] * rescale;
             }
             else {

@@ -189,8 +189,10 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
             it->processingStatus->Background = false;
             it->setupBackgroundData(scienceData->isTaskRepeated, backupDirName);     // Put original flat-fielded data in dataBackupL1;
 
-            // The list of background images. Each image has a flag whether it contributes to the model
+            // The list of background images.
+            // Each image has a flag whether it contributes to the model. Initially, all are set to 'false'
             QList<MyImage*> backgroundList;
+            if (!setupBackgroundList(chip, skyData, backgroundList, it)) continue;          // cannot use break in OMP loop
 
             if (!filterBackgroundList(chip, skyData, it, backExpList, backgroundList, nGroups, nLength, currentExposure, mode)) {
                 continue;   // cannot use break in OMP loop
@@ -200,6 +202,7 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
             sendBackgroundMessage(chip, mode, dataStaticModelDone[chip], it->chipName, 1);
             maskObjectsInSkyImagesPass1(skyData, scienceData, backgroundList, twoPass, dt, dmin, convolution, expFactor);
             skyData->combineImages(chip, backgroundList, nlow1, nhigh1, it->chipName, mode, dataDirName, dataSubDirName, dataStaticModelDone);
+            skyData->combinedImage[chip]->modeDetermined = false;   // must redetermine!
             skyData->getModeCombineImages(chip);
 
             // PASS 2:
@@ -209,6 +212,7 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
                 if (mode == "static" && !pass2staticDone) dataStaticModelDone[chip] = false;    // must recalculate static model (dynamic model will always be recalculated)
                 skyData->combineImages(chip, backgroundList, nlow2, nhigh2, it->chipName, mode, dataDirName, dataSubDirName, dataStaticModelDone);
                 pass2staticDone = true;
+                skyData->combinedImage[chip]->modeDetermined = false;   // must redetermine!
                 skyData->getModeCombineImages(chip);
             }
 
@@ -244,6 +248,7 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
     }
 }
 
+/*
 //void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const float &nimg, QVector<QString> &numBackExpList,
 //                                         const QString &dt, const QString &dmin, const QString &expFactor, const QString &nlow1,
 //                                         const QString &nhigh1, const QString &nlow2, const QString &nhigh2,
@@ -261,6 +266,7 @@ void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const
     QVector<bool> staticImagesCombined(instData->numChips);
     QVector<MyImage*> combinedBackgroundImages(maxCPU);
     for (auto &it : backExpList) it = "";
+    for (auto &it : backExpListRescaleFactors) it = "";
     for (auto &it : currentExposure) it = 0;
     for (auto &it : staticImagesCombined) it = false;
     for (auto &it : combinedBackgroundImages) it = nullptr;
@@ -326,7 +332,7 @@ void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const
         }
         skyData->writeBackgroundModel_newParallel(chip, skyData->combinedImage[chip], "static", it->baseName, threadID, backgroundLock, staticImagesWritten[chip]);
         skyData->staticModelDone[chip] = true;
-        it->applyBackgroundModel(skyData->combinedImage[chip], cdw->ui->BACapplyComboBox->currentText(), rescaleModel);
+        it->applyBackgroundModel(skyData->combinedImage[chip], cdw->ui->BACapplyComboBox->currentText(), rescaleModel, backExpListRescaleFactors);
 
         updateImageAndData(it, scienceData);
 
@@ -342,6 +348,9 @@ void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const
         // In critical section because length of QString backexpList is variable, and Qvector<QString> is probably not thread safe because of this
 #pragma omp critical
         {
+            // Join the number of exposures with the rescale factors
+            QVector<QString> joinedList(maxCPU);
+
             numBackExpList[chip] = backExpList[chip];
         }
         // L1 always contains the data before any modification, hence we do not need to create a backup copy.
@@ -381,7 +390,8 @@ void Controller::processBackgroundDynamic(Data *scienceData, Data *skyData, cons
 
     QString dataSubDirName = scienceData->subDirName;
 
-#pragma omp parallel for num_threads(maxCPU) firstprivate(dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2, backExpList, allMyImages, dataSubDirName)
+#pragma omp parallel for num_threads(maxCPU
+        backExpRescaleFactors.append("1.000; no rescaling when dividing model");) firstprivate(dt, dmin, expFactor, nlow1, nhigh1, nlow2, nhigh2, backExpList, allMyImages, dataSubDirName)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
         int threadID = omp_get_thread_num();
@@ -443,13 +453,15 @@ void Controller::processBackgroundDynamic(Data *scienceData, Data *skyData, cons
         // L1 always contains the data before any modification, hence we do not need to create a backup copy.
         if (scienceData->successProcessing) {
             for (auto &it : scienceData->myImageList[chip]) {
-                it->makeBackgroundBackup();      // just a FITS file operation if necessary
+                it->makeBackgroundBackup();
+        backExpRescaleFactors.append("1.000; no rescaling when dividing model");      // just a FITS file operation if necessary
             }
             scienceData->unprotectMemory(chip);
             skyData->unprotectMemory(chip);
         }
     }
 }
+*/
 
 void Controller::maskObjectsInSkyImagesPass1(Data *skyData, Data *scienceData, const QList<MyImage*> &backgroundList, const bool twoPass,
                                              const QString dt, const QString dmin, const bool convolution, const QString expFactor)
@@ -461,7 +473,7 @@ void Controller::maskObjectsInSkyImagesPass1(Data *skyData, Data *scienceData, c
     QString DMIN = thresholds[1];
     for (auto &back : backgroundList) {
         if (!back->successProcessing) break;
-        if (!back->useForBackground) continue;
+        if (!back->useForBackground) continue;        // that should never be the case because the backgroundlist contains 'valid' images, only, at this point
         //        if (!back->useForBackground) {
         //            back->unprotectMemory();  // TODO: check if possibly dangerous. Can we do this here? Or elsewhere?
         //            continue;
@@ -514,25 +526,53 @@ void Controller::maskObjectsInSkyImagesPass2(Data *skyData, Data *scienceData, c
     }
 }
 
-bool Controller::filterBackgroundList(const int chip, const Data *skyData, MyImage *it, QString &backExpList, QList<MyImage*> &backgroundList,
-                                      const int nGroups, const int nLength, const int currentExposure, const QString mode)
+bool Controller::setupBackgroundList(int chip, const Data *skyData, QList<MyImage*> &backgroundList, MyImage *it)
 {
     if (!successProcessing) return false;
-    if (!it->successProcessing) return false;
 
-    // The initial list of background images. Each image has a flag whether it should contribute to the model or not.
+    // First, collect all images of this chip, and reset their usability for background modeling to 'false' (or 'true' depending which ones is easier to code)
     backgroundList = skyData->myImageList[chip];
+    for (auto &it : backgroundList) {
+        it->useForBackground = false;
+        it->useForBackgroundSequence = true;
+        it->useForBackgroundWindowed = false;
+        it->useForBackgroundStars = true;
+    }
+
     if (backgroundList.length() < 2) {
         emit messageAvailable(it->chipName + " : At least two images are required for background modeling.", "error");
         emit criticalReceived();
         successProcessing = false;
         return false;
     }
-    selectImagesFromSequence(backgroundList, nGroups, nLength, currentExposure);   // Update flag: Select every n-th image if required
-    if (mode == "dynamic") selectImagesDynamically(backgroundList, it->mjdobs, it->chipName);    // Update flag: dynamic or static mode
+
+    return true;
+}
+
+bool Controller::filterBackgroundList(const int chip, const Data *skyData, MyImage *it, QString &backExpList, QList<MyImage*> &backgroundList,
+                                      const int nGroups, const int nLength, const int currentExposure, const QString mode)
+{
+    if (!successProcessing) return false;
+    if (!it->successProcessing) return false;
+
+    selectImagesFromSequence(backgroundList, nGroups, nLength, currentExposure);                 // Update flag: Select every n-th image, only, if requested
+//    for (auto &back : backgroundList) qDebug() << back->baseName << back->useForBackgroundSequence;
+//    qDebug() << "";
+
+    if (mode == "dynamic") selectImagesDynamically(backgroundList, it->mjdobs);    // Update flag: dynamic or static mode
     else selectImagesStatically(backgroundList, it);                 // Already sets BADBACK flag if necessary
+
+//    for (auto &back : backgroundList) qDebug() << back->baseName << back->useForBackgroundSequence << back->useForBackgroundWindowed;
+//    qDebug() << "";
+
     flagImagesWithBrightStars(backgroundList);                       // Update flag: Exclude images affected by bright stars
     if (!it->successProcessing) return false;                        // Leave if not sufficiently many images found for background modeling
+
+    // Combine the flags from all three tests
+    combineAllBackgroundUsabilityFlags(backgroundList);
+
+//    for (auto &back : backgroundList) qDebug() << back->baseName << back->useForBackground;
+//    qDebug() << "";
 
     int nback = countBackgroundImages(backgroundList, it->chipName);
     QString outstring = it->chipName + " : " + QString::number(nback) + "<br>";
@@ -545,8 +585,6 @@ bool Controller::filterBackgroundList(const int chip, const Data *skyData, MyIma
         it->successProcessing = false;
         return false;
     }
-
-    // for (auto &back : backgroundList) qDebug() << back->baseName << back->useForBackground; continue;
 
     return true;
 }
@@ -598,6 +636,7 @@ void Controller::maskObjectsInSkyImagesPass2_newParallel(Data *skyData, Data *sc
         if (!back->useForBackground) continue;
         if (doSourceDetection) {
             back->setObjectLock(true);
+
             // Mask objects if not yet done for this sky (science) image
             // No masking has taken place in PASS 1 if we are in twopass mode!
             // Subtract 1st pass model: dataCurrent = dataBackupL1 - 1stPassModel
@@ -631,7 +670,7 @@ void Controller::sendBackgroundMessage(const int chip, const QString mode, const
 }
 
 // Select the 'windowSize' images that are closest in time to the targetMJD
-void Controller::selectImagesDynamically(QList<MyImage*> backgroundList, const double &mjd_ref, const QString chipName)
+void Controller::selectImagesDynamically(const QList<MyImage*> &backgroundList, const double &mjd_ref)
 {
     if (!successProcessing) return;
 
@@ -642,7 +681,6 @@ void Controller::selectImagesDynamically(QList<MyImage*> backgroundList, const d
     // Reset, and map data onto a list
     for (auto &it : backgroundList) {
         //        qDebug() << qSetRealNumberPrecision(12) << it->baseName << it->mjdobs;
-        it->useForBackground = false;
         imageListAbs.append(qMakePair(it,fabs(it->mjdobs-mjd_ref)));
         imageListDiff.append(qMakePair(it,it->mjdobs-mjd_ref));
     }
@@ -651,8 +689,7 @@ void Controller::selectImagesDynamically(QList<MyImage*> backgroundList, const d
     std::sort(imageListAbs.begin(), imageListAbs.end(), QPairSecondComparer());
     std::sort(imageListDiff.begin(), imageListDiff.end(), QPairSecondComparer());
 
-    // Mark the first 'windowSize' images, using fabs(mjd_diff)
-    int count = 0;
+    // Mark the first 'windowSize' images, using fabs(mjd_diff), provided they passed the 'spread sequence' test
     int selected = 0;
     int windowSize = cdw->ui->BACwindowLineEdit->text().toInt();
 
@@ -664,16 +701,17 @@ void Controller::selectImagesDynamically(QList<MyImage*> backgroundList, const d
         return;
     }
 
+    // Here's the selection function
     for (auto &it : imageListAbs) {
-        // Do not use the current image to contribute to its own background model
+        // Do not use the current image to contribute to its own background model (it->useForBackgroundWindowed remains 'false')
         if (it.second > 0.) {
-            if (count < windowSize && it.first->activeState == MyImage::ACTIVE) {
-                it.first->useForBackground = true;
+            if (selected < windowSize && it.first->activeState == MyImage::ACTIVE && it.first->useForBackgroundSequence) {
+                it.first->useForBackgroundWindowed = true;
                 it.first->enteredBackgroundWindow = true;
                 ++selected;
             }
             else {
-                it.first->useForBackground = false;
+                it.first->useForBackgroundWindowed = false;       // redundant. Set to false by default when entering this function
                 // free RAM
                 if (it.first->enteredBackgroundWindow && !it.first->leftBackgroundWindow) {
                     it.first->leftBackgroundWindow = true;
@@ -684,20 +722,19 @@ void Controller::selectImagesDynamically(QList<MyImage*> backgroundList, const d
                     //                    }
                 }
             }
-            ++count;
         }
     }
 
     // Check if there is a gap larger than the max gap size in the window
     QString maxGapString = cdw->ui->BACgapsizeLineEdit->text();
     if (!maxGapString.isEmpty()) {
-        count = 0;
+        int count = 0;
         double mjd_previous = 0.;
         bool gapViolated = false;
         double currentGap = 0.;
         double maxGap = maxGapString.toDouble() / 24.;  // convert from hours to days (MJD)
         for (auto &it : imageListDiff) {
-            if (it.first->useForBackground) {
+            if (it.first->useForBackgroundWindowed) {
                 if (count == 0) {
                     mjd_previous = it.first->mjdobs;
                     ++count;
@@ -733,7 +770,7 @@ void Controller::selectImagesDynamically(QList<MyImage*> backgroundList, const d
 }
 
 // Select the images that are closest in time to the targetMJD and within a valid block defined by gap sizes
-void Controller::selectImagesStatically(QList<MyImage*> backgroundList, MyImage *scienceImage)
+void Controller::selectImagesStatically(const QList<MyImage*> &backgroundList, MyImage *scienceImage)
 {
     if (!successProcessing) return;
     if (!scienceImage->successProcessing) return;
@@ -745,7 +782,7 @@ void Controller::selectImagesStatically(QList<MyImage*> backgroundList, MyImage 
     QList<QPair<MyImage*, double>> imageListDiff;  // sorted with respect to mjd_diff
     // Reset, and map data onto a list
     for (auto &it : backgroundList) {
-        it->useForBackground = false;
+        //        it->useForBackground = false;
         imageListDiff.append(qMakePair(it, it->mjdobs - mjd_ref));
     }
 
@@ -817,23 +854,23 @@ void Controller::selectImagesStatically(QList<MyImage*> backgroundList, MyImage 
         if (scienceBlockId != -1) break;
     }
 
-    // Set the flag for all sky exposures that have the same block ID as the science exposure
+    // Set the flag for all sky exposures that have the same block ID as the science exposure, and passed the 'spread sequence' test
     // Remember, imageListDiff just contains pointers into backgroundList, so we
     // are indeed updating the flags in the backgroundList
     int countSky = 0;  // the number of sky images used for correction
     for (auto &it : imageListDiff) {
-        if (it.first->backgroundBlock == scienceBlockId && it.first->activeState == MyImage::ACTIVE) {
-            it.first->useForBackground = true;
+        if (it.first->backgroundBlock == scienceBlockId && it.first->activeState == MyImage::ACTIVE && it.first->useForBackgroundSequence) {
+            it.first->useForBackgroundWindowed = true;
             ++countSky;
         }
     }
 
-    // Always use all images for the static model, hence commenting out the following
+    // Always use all images for the static model: comment out the following
     /*
     // Do not use the current image to contribute to its own background model
     for (auto &it : imageListDiff) {
         if (it.second == 0.) {
-            it.first->useForBackground = false;
+            it.first->useForBackgroundWindowed = false;
             --countSky;
         }
     }
@@ -871,29 +908,31 @@ void Controller::selectImagesStatically(QList<MyImage*> backgroundList, MyImage 
 // If several exposures were taken at the same dither position before an offset,
 // then sometimes the first and perhaps 2nd image must be corrected separately
 // from all other first or second exposures.
-void Controller::selectImagesFromSequence(QList<MyImage*> backgroundList, const int &nGroups, const int &nLength, const int &currentExp)
+void Controller::selectImagesFromSequence(QList<MyImage*> &backgroundList, const int &nGroups, const int &nLength, const int &currentExp)
 {
     if (!successProcessing) return;
 
     // Nothing to be done
-    if (nGroups == 0 || nLength == 0) return;
+    if (nGroups == 0 || nLength == 0) return;        // returning with all flags set to 'true', i.e. no contraints
 
-    // Reset, and map data onto a list
+    // set all flags to false for a start
     for (auto &it : backgroundList) {
-        it->useForBackground = false;
+        it->useForBackgroundSequence = false;
     }
 
     // To which group does the current image belong
     int groupReference = currentExp % nLength;
-    if (groupReference > nGroups) groupReference = nGroups;
+    if (groupReference >= nGroups) groupReference = nGroups - 1;
 
     // Assign group numbers to background images
     int group = 0;
     int count = 0;
     for (auto &it : backgroundList) {
         if (group == groupReference) {
-            it->useForBackground = true;
+            it->useForBackgroundSequence = true;       // image usable for background modeling
         }
+        //        qDebug() << it->chipName << group << count << groupReference << it->useForBackground;
+//        qDebug() << "AAA" << it->chipName << group << count << groupReference << it->useForBackgroundSequence << currentExp;
         if (group < nGroups-1) ++group;
         ++count;
         if (count == nLength) {
@@ -903,6 +942,7 @@ void Controller::selectImagesFromSequence(QList<MyImage*> backgroundList, const 
     }
 
     // Keep only background images that belong to the same group as the science exposure
+    /*
     QList<MyImage*>::iterator it = backgroundList.begin();
     while (it != backgroundList.end()) {
         if (! (*it)->useForBackground)
@@ -910,6 +950,14 @@ void Controller::selectImagesFromSequence(QList<MyImage*> backgroundList, const 
         else
             ++it;
     }
+    */
+
+    /*
+    for (auto &it : backgroundList) {
+        qDebug() << it->chipName;
+    }
+    qDebug() << " " ;
+    */
 }
 
 // Obtain a list of bright stars from the UCAC catalog.
@@ -936,15 +984,15 @@ void Controller::retrieveBrightStars(Data *skyData, QList<QVector<double>> &brig
     skyData->getPointingCharacteristics();
 
     Query *query = new Query(&verbosity);
-    connect(query, &Query::bulkMotionObtained, cdw, &ConfDockWidget::updateGaiaBulkMotion);
+//    connect(query, &Query::bulkMotionObtained, cdw, &ConfDockWidget::updateGaiaBulkMotion);
     connect(query, &Query::messageAvailable, mainGUI, &MainWindow::processMessage);
     connect(query, &Query::messageAvailable, monitor, &Monitor::displayMessage);
     query->scienceData = skyData;
     query->mainDirName = mainDirName;
     query->refcatName = refcat;
-    query->alpha_manual = QString::number(skyData->RAcenter,'f',4);   // the query uses QStrings because we execute vizquery.py
-    query->delta_manual = QString::number(skyData->DECcenter,'f',4);
-    query->radius_manual = QString::number(skyData->searchRadius,'f',2);
+    query->alpha_manual = QString::number(skyData->RAcenter, 'f', 4);   // the query uses QStrings because we execute vizquery.py
+    query->delta_manual = QString::number(skyData->DECcenter, 'f', 4);
+    query->radius_manual = QString::number(skyData->searchRadius, 'f', 2);
     query->magLimit_string = cdw->ui->BACmagLineEdit->text();
     query->maxProperMotion_string = cdw->ui->ARCmaxpmLineEdit->text();
     query->doBrightStarQueryFromWeb();
@@ -1049,10 +1097,22 @@ bool Controller::idChipsWithBrightStars(Data *skyData, QList<QVector<double>> &b
     else return true;
 }
 
-void Controller::flagImagesWithBrightStars(QList<MyImage*> &backgroundList)
+void Controller::flagImagesWithBrightStars(const QList<MyImage*> &backgroundList)
 {
     for (auto &it : backgroundList) {
-        if (it->hasBrightStars) it->useForBackground = false;
+        if (it->hasBrightStars) it->useForBackgroundStars = false;
+    }
+}
+
+// Set an image as usable for background correction only if everything holds
+void Controller::combineAllBackgroundUsabilityFlags(const QList<MyImage*> &backgroundList)
+{
+    for (auto &it : backgroundList) {
+        if (it->useForBackgroundSequence
+                && it->useForBackgroundWindowed
+                && it->useForBackgroundStars) {
+            it->useForBackground = true;
+        }
     }
 }
 

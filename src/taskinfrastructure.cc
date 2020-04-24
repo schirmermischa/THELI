@@ -233,6 +233,16 @@ QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList
             updateProcessList(commandList, taskBasename, it);
         }
 
+        if (taskBasename == "background" && mode == "simulate") {
+            if (controller->maxCPU > 1) {
+                QMessageBox::warning(this, tr("Parallelization unstable"),
+                                     tr("You are running the background modelling with more than 1 CPU. ") +
+                                     tr("Currently, this is the only task that is still unstable when run in parallel, and random crashes may occur. ") +
+                                     tr("Use a single CPU if you have problems. Once background modeling is done, you can revert to full parallelization."),
+                                     QMessageBox::Ok);
+            }
+        }
+
         if (taskBasename == "Processscience") {
             updateProcessList(commandList, taskBasename, it, scienceMode);
         }

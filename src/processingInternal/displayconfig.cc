@@ -103,11 +103,15 @@ void Controller::pushConfigProcessdark()
 void Controller::pushConfigProcessflat()
 {
     QString config;
+    QString note1 = "";
+    QString note2 = "";
+    if (!cdw->ui->flatMinLineEdit->text().isEmpty()) note1 = " (NOTE: before DARK / FLATOFF subtraction!)";
+    if (!cdw->ui->flatMaxLineEdit->text().isEmpty()) note2 = " (NOTE: before DARK / FLATOFF subtraction!)";
     config = "<tt>";
     config += "Number of low rejected pixels / stack = " + cdw->ui->flatNlowLineEdit->text() + "<br>";
     config += "Number of high rejected pixels / stack = " + cdw->ui->flatNhighLineEdit->text() + "<br>";
-    config += "Min mode allowed [e-] = " + cdw->ui->flatMinLineEdit->text() + "<br>";
-    config += "Max mode allowed [e-] = " + cdw->ui->flatMaxLineEdit->text() + "<br>";
+    config += "Min mode allowed [e-] = " + cdw->ui->flatMinLineEdit->text() + note1 + "<br>";
+    config += "Max mode allowed [e-] = " + cdw->ui->flatMaxLineEdit->text() + note2 + "<br>";
     emit messageAvailable(config, "config");
 }
 

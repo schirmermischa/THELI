@@ -138,9 +138,9 @@ private:
     int reserveAvailableThreads(omp_lock_t &lock);
     void retrieveBrightStars(Data *data, QList<QVector<double>> &brightStarList);
     void makeThreadsAvailable(omp_lock_t &lock, int numberThreadsBlocked);
-    void selectImagesDynamically(QList<MyImage *> backgroundList, const double &mjd_ref, const QString chipName);
-    void selectImagesStatically(QList<MyImage *> backgroundList, MyImage *scienceImage);
-    void selectImagesFromSequence(QList<MyImage *> backgroundList, const int &nGroups, const int &nLength, const int &currentExp);
+    void selectImagesDynamically(const QList<MyImage *> &backgroundList, const double &mjd_ref);
+    void selectImagesStatically(const QList<MyImage *> &backgroundList, MyImage *scienceImage);
+    void selectImagesFromSequence(QList<MyImage *> &backgroundList, const int &nGroups, const int &nLength, const int &currentExp);
 
     // Data handling
     void restoreData(MyImage *myImage, QString backupDir);
@@ -194,7 +194,7 @@ private:
     void pushConfigCreatesourcecat();
     void pushEndMessage(QString idstring, QString targetdir);
     bool idChipsWithBrightStars(Data *skyData, QList<QVector<double> > &brightStarList);
-    void flagImagesWithBrightStars(QList<MyImage *> &backgroundList);
+    void flagImagesWithBrightStars(const QList<MyImage *> &backgroundList);
     void getNumberOfActiveImages(Data *&data);
     void incrementProgress();
     void incrementProgressHalfStep();
@@ -242,6 +242,7 @@ private:
                                                  const QString expFactor, const int chip, const bool rescaleModel,
                                                  const int threadID, const QString mode);
     void sendBackgroundMessage(const int chip, const QString mode, const bool staticmodeldone, const QString basename, const int pass);
+    /*
     void processBackgroundStatic(Data *scienceData, Data *skyData, const float nimg, QVector<QString> &numBackExpList,
                                  QString dt, QString dmin, QString expFactor, QString nlow1,
                                  QString nhigh1, QString nlow2, QString nhigh2,
@@ -252,6 +253,7 @@ private:
                                   QString nhigh1, QString nlow2, QString nhigh2,
                                   const bool twoPass, const bool convolution, const bool rescaleModel,
                                   const int nGroups, const int nLength, QVector<bool> &staticImagesWritten);
+    */
     void processBackground(Data *scienceData, Data *skyData, const float nimg, QVector<QString> &numBackExpList,
                            const QString dt, const QString dmin, const QString expFactor, const QString nlow1,
                            const QString nhigh1, const QString nlow2, const QString nhigh2,
@@ -287,6 +289,8 @@ private:
     long prepareAnetCats(Data *scienceData);
     long getNumAnetChips(QString ahead);
     long makeAnetHeaderList(Data *scienceData);
+    bool setupBackgroundList(int chip, const Data *skyData, QList<MyImage *> &backgroundList, MyImage *it);
+    void combineAllBackgroundUsabilityFlags(const QList<MyImage *> &backgroundList);
 private slots:
     // The following can also be under 'private', but then the declaration must be preceeded like this:
     // Q_INVOKABLE QString taskHDUreformat();
