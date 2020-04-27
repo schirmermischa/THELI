@@ -1197,8 +1197,10 @@ void ConfDockWidget::on_ASTviewCheckPlotsPushButton_clicked()
         if (msgBox.clickedButton()== pCancel) return;
 
         for (auto &data : mainGUI->controller->DT_SCIENCE) {
-            if (data->subDirName == choice) scienceData = data;
-            break;
+            if (data->subDirName == choice) {
+                scienceData = data;
+                break;
+            }
         }
 
         IView *checkplotViewer = new IView("SCAMP_VIEWONLY", scienceData->dirName+"/plots/", this);

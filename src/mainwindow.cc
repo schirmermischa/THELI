@@ -1360,8 +1360,10 @@ void MainWindow::load_dialog_imageStatistics()
         if (msgBox.clickedButton()== pCancel) return;
 
         for (auto &data : controller->DT_SCIENCE) {
-            if (data->subDirName == choice) scienceData = data;
-            break;
+            if (data->subDirName == choice) {
+                scienceData = data;
+                break;
+            }
         }
     }
 
@@ -1382,6 +1384,7 @@ void MainWindow::load_dialog_newinst()
     instrument->show();
 }
 
+/*
 void MainWindow::loadIView()
 {
     QString main = ui->setupMainLineEdit->text();
@@ -1390,6 +1393,40 @@ void MainWindow::loadIView()
     if (!QDir(dirname).exists()) dirname = QDir::homePath();
 
     IView *iView = new IView("FITSmonochrome", dirname, "*.fits *.fit *.FITS *.FIT", this);
+    iView->show();
+}
+*/
+
+void MainWindow::loadIView()
+{
+    QString main = ui->setupMainLineEdit->text();
+    QStringList scienceList = ui->setupScienceLineEdit->text().split(" ");
+    QString dirName = "";
+
+    if (scienceList.length() == 1) dirName = main+"/"+scienceList.at(0);
+    else {
+        QMessageBox msgBox;
+        msgBox.setInformativeText(tr("The current SCIENCE data tree contains several entries. ") +
+                                  tr("Select one for which to display images:\n\n"));
+        for (auto &name : scienceList) {
+            QAbstractButton *button = msgBox.addButton(name, QMessageBox::YesRole);
+        }
+        QAbstractButton *pCancel = msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
+        msgBox.exec();
+        QString choice = msgBox.clickedButton()->text();
+        if (msgBox.clickedButton()== pCancel) return;
+
+        for (auto &name : scienceList) {
+            if (name == choice) {
+                dirName = main + "/" + name;
+                break;
+            }
+        }
+    }
+
+    if (!QDir(dirName).exists()) dirName = QDir::homePath();
+
+    IView *iView = new IView("FITSmonochrome", dirName, "*.fits *.fit *.FITS *.FIT", this);
     iView->show();
 }
 
@@ -1724,4 +1761,9 @@ void MainWindow::updateMemoryProgressBarReceived(long memoryUsed)
     QString memoryString = QString::number(long(memoryUsed)) + " MB";
     memoryProgressBar->setFormat("RAM: %p% ("+memoryString+")");
     memoryProgressBar->setValue(memoryUsed);
+}
+
+void MainWindow::on_setupProjectLineEdit_textChanged(const QString &arg1)
+{
+    this->setWindowTitle("THELI "+GUIVERSION+"      Project: "+arg1);
 }

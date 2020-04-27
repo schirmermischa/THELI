@@ -239,6 +239,8 @@ private slots:
     void loadCoaddAbsZP(QString coaddImage, instrumentDataType *instData, float maxVal);
     void updateMemoryProgressBarReceived(long memoryUsed);
 
+    void on_setupProjectLineEdit_textChanged(const QString &arg1);
+
 private:
     // Variables we need to access frequently
     bool preventLoop_WriteSettings = false;
