@@ -59,6 +59,7 @@ void Splitter::importRAW()
     long dim = naxis1Raw*naxis2Raw;
     dataRaw.clear();
     dataRaw.resize(dim);
+    dataRaw.squeeze();
     for (int i=0; i<dim; ++i) {
         dataRaw[i] = rawProcessor.imgdata.rawdata.raw_image[i];
     }

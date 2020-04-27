@@ -112,6 +112,7 @@ void MyImage::subtractSkyFit(int order, gsl_vector *c, bool saveSkyModel)
 {
     QVector<float> skymodel;
     if (saveSkyModel) skymodel.resize(naxis1*naxis2);
+    skymodel.squeeze();
 
     float skysum = 0.;
 

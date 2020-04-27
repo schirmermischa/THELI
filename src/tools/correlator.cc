@@ -59,6 +59,10 @@ void Correlator::padImages(const QVector<float> &dataref, const QVector<float> &
     dataCom.resize(n_pad*m_pad);
     dataCorrelated.resize(n_pad*m_pad);
 
+    dataRef.squeeze();
+    dataCom.squeeze();
+    dataCorrelated.squeeze();
+
     int left = naxis1/2;
     int right = naxis1/2;
     int bottom = naxis2/2;

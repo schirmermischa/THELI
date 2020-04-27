@@ -310,6 +310,7 @@ void Splitter::cropDataSection(QVector<long> dataSect)
     if (*verbosity > 1) emit messageAvailable(baseName + " : Cropping to data section, size = "
                                               + QString::number(naxis1)+"x"+QString::number(naxis2)+" pixel", "image");
     dataCurrent.resize(naxis1*naxis2);
+    dataCurrent.squeeze();
     long k = 0;
     for (long j=dataSect[2]; j<=dataSect[3]; ++j) {
         for (long i=dataSect[0]; i<=dataSect[1]; ++i) {

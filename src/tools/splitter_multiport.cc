@@ -352,6 +352,7 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
             dataCurrent.swap(dataPasted);
             dataPasted.clear();
             dataPasted.squeeze();
+            dataCurrent.squeeze();
         }
     }
 }

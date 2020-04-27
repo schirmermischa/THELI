@@ -784,6 +784,7 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
     combinedImage[chip]->naxis1 = n;
     combinedImage[chip]->naxis2 = m;
     combinedImage[chip]->dataCurrent.resize(dim);
+    combinedImage[chip]->dataCurrent.squeeze();    // shed excess memory
 
     // loop over all pixels, and images; rescaling is optional
     QVector<long> goodIndex;
@@ -935,6 +936,7 @@ void Data::combineImages(const int chip, const QString nlowString, const QString
     combinedImage[chip]->naxis1 = n;
     combinedImage[chip]->naxis2 = m;
     combinedImage[chip]->dataCurrent.resize(dim);
+    combinedImage[chip]->dataCurrent.squeeze();
 
     // loop over all pixels, and images; rescaling is optional
     QVector<long> goodIndex;
@@ -1078,6 +1080,7 @@ void Data::combineImages_newParallel(int chip, MyImage *masterCombined, QList<My
     masterCombined->naxis1 = n;
     masterCombined->naxis2 = m;
     masterCombined->dataCurrent.resize(dim);
+    masterCombined->dataCurrent.squeeze();
 
     // loop over all pixels, and images; rescaling is optional
     QVector<long> goodIndex;
@@ -1369,7 +1372,8 @@ void Data::initGlobalWeight(int chip, Data *flatData, QString filter, bool sameW
         if (*verbosity > 0) emit messageAvailable("Initializing globalweight for chip " + QString::number(chip+1) + " with constant value 1.0", "data");
         long dim = instData->sizex[chip] * instData->sizey[chip];
         myImage->dataCurrent.fill(1.0, dim);
-        myImage->dataCurrent.resize(dim);
+        myImage->dataCurrent.resize(dim);      // CHECK: do we still need that given the previous line?
+        myImage->dataCurrent.squeeze();        // shed excess memory
     }
 
     for (auto &it: myImage->dataCurrent) {

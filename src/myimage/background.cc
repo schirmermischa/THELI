@@ -202,9 +202,11 @@ void MyImage::fitBackgroundGSL()
     // interpolate; remove padding at the same time
     dataBackground.clear();
     dataBackground.resize(naxis1*naxis2);
+//    dataBackground.squeeze();             //deactivated; causes random crash I don't understand
     for (long j=pad_b; j<m_pad-pad_t; ++j) {
         double y = double(j);
         for (long i=pad_l; i<n_pad-pad_r; ++i) {
+            if (i-pad_l < 0 || i-pad_l >= naxis1 || j-pad_b < 0 || j-pad_b >= naxis2) qDebug() << "error";
             double x = double(i);
             dataBackground[i-pad_l+naxis1*(j-pad_b)] = gsl_spline2d_eval(spline, x, y, xacc, yacc);
         }

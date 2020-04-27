@@ -527,6 +527,7 @@ void Splitter::getCurrentExtensionData()
         }
         */
         dataRaw.resize(nelements);
+        dataRaw.squeeze();
         for (long i=0; i<nelements; ++i) {
             float val = buffer[i];
             if (isinf(val) || isnan(val)) val = 0.;      // set peculiar values to zero
@@ -573,6 +574,7 @@ void Splitter::getDataInFirstCubeSlice()
             if (isinf(val) || isnan(val)) val = 0.;
             dataRaw.append(val);
         }
+        dataRaw.squeeze();
     }
 
     delete [] buffer;
@@ -623,6 +625,7 @@ void Splitter::sliceCube(long slice)
 
     dataRaw.clear();
     dataRaw.resize(naxis1Raw*naxis2Raw);
+    dataRaw.squeeze();
 
     long k = 0;
     long step = naxis1Raw*naxis2Raw;
@@ -638,6 +641,7 @@ void Splitter::stackCube()
 
     dataRaw.clear();
     dataRaw.resize(naxis1Raw*naxis2Raw);
+    dataRaw.squeeze();
 
     long k = 0;
     long step = naxis1Raw * naxis2Raw;

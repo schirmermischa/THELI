@@ -84,6 +84,10 @@ void MyImage::segmentImage(QString DTstring, QString DMINstring, bool convolutio
     dataMeasure.resize(naxis1*naxis2);
     emit setMemoryLock(false);
 
+    //  //deactivated; causes random crashes I don't understand
+//    dataSegmentation.squeeze();  // shed excess memory
+//    dataMeasure.squeeze();       // shed excess memory
+
     QList<long> allObjectPixelIndices;
     allObjectPixelIndices.reserve(naxis1*naxis2/2); // Avoid initial memory reallocations; assume half the pixels belong to objects
 

@@ -76,6 +76,7 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
         it->naxis1 = n;
         it->naxis2 = m;
         it->dataCurrent.resize(n*m);
+        it->dataCurrent.squeeze();
         it->path = image->path;
         it->weightPath = image->weightPath;
         it->baseName = image->rootName;

@@ -339,6 +339,8 @@ void MyImage::readImageBackupL1()
         delete [] buffer;
         backupL1InMemory = true;
         dataCurrent = dataBackupL1;     // probably unnecessary, as we operate on databackupL1, updating dataCurrent
+        dataBackupL1.squeeze();  // shed excess memory
+        dataCurrent.squeeze();  // shed excess memory
         imageInMemory = true;
     }
 }

@@ -588,11 +588,12 @@ void Controller::skysubModel(Data *scienceData, QString DT, QString DMIN, QStrin
         if (instData->badChips.contains(chip)) continue;
         //        emit messageAvailable(it->baseName + " : Modeling the sky ...", "controller");
         it->processingStatus->Skysub = false;
-        it->setupData(scienceData->isTaskRepeated, true, true, backupDirName);
+        it->setupData(scienceData->isTaskRepeated, false, true, backupDirName);
         if (!it->successProcessing) {
             abortProcess = true;
             continue;
         }
+
         it->readWeight();
         // Model background so we can detect objects
         it->resetObjectMasking();

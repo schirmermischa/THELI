@@ -42,6 +42,7 @@ MyFITS::MyFITS(long n, long m, QObject *parent) : QObject(parent)
     naxis1 = n ;
     naxis2 = m;
     data.resize(n*m);
+    data.squeeze();
 }
 
 MyFITS::~MyFITS()
@@ -99,6 +100,7 @@ MyFITS::MyFITS(const MyFITS &myfits, QObject *parent) : QObject(parent)
     naxis2 = myfits.naxis2;
     data.resize(naxis1*naxis2);
     data = myfits.data;
+    data.squeeze();
 }
 
 // Extract the FILTER keyword from a yet unopened FITS file
@@ -211,13 +213,15 @@ void MyFITS::readData(fitsfile **fptr, int *status)
     fits_read_img(*fptr, TFLOAT, fpixel, nelements, &nullval, buffer, &anynull, status);
 
     if (! *status) {
-        data.resize(nelements);
+        data.reserve(nelements);
         for (long i=0; i<nelements; ++i) {
             // if (isinf(buffer[i])) data[i] = 0.;
             // else data[i] = buffer[i];
-            data[i] = buffer[i];
+            data << buffer[i];
         }
     }
+    data.squeeze(); // shed excess memory
+
     delete [] buffer;
 }
 

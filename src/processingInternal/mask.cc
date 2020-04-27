@@ -50,6 +50,7 @@ void Mask::initMasks()
         long m = instData->sizey[chip];      // naxis2 after overscan trimming
         globalMask[chip].fill(false, n*m);   // Initiate all pixels to be unmasked ("masked = false")
         isChipMasked[chip] = false;
+        globalMask[chip].squeeze();          // shed excess memory
     }
 
     // The basename of the region mask.
