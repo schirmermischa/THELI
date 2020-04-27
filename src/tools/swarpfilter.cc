@@ -643,19 +643,19 @@ void SwarpFilter::writeWeight()
             }
         }
 
-        // Modify the resampled weight and write it
-        weights[i]->readImage();
-        long k=0;
-        for (auto &pixel : weights[i]->dataCurrent) {
-            pixel *= weight_out[k];
-            ++k;
-        }
-
-        QString outName = weights[i]->path + "/" + weights[i]->name;
-        // Suspect random crash here; quite a bottleneck, though. I don't understand why these crashes have never happened before.
-        // Could also be related to readimage() above. In any case, I just simply cannot reproduce it while running it in a debugger
 #pragma omp critical
         {
+            // Modify the resampled weight and write it
+            weights[i]->readImage();
+            long k=0;
+            for (auto &pixel : weights[i]->dataCurrent) {
+                pixel *= weight_out[k];
+                ++k;
+            }
+
+            QString outName = weights[i]->path + "/" + weights[i]->name;
+            // Suspect random crash here; quite a bottleneck, though. I don't understand why these crashes have never happened before.
+            // Could also be related to readimage() above. In any case, I just simply cannot reproduce it while running it in a debugger
             weights[i]->writeImage(outName);
             weights[i]->freeData();
         }
