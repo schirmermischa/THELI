@@ -404,10 +404,17 @@ void MainWindow::on_stopToolButton_clicked()
         if (controller->taskBasename == "Coaddition") {
             controller->successProcessing = false;   // Must set to false first, to make sure that any subsequent coadd commands exit immediately
             emit messageAvailable("Sending Swarp a kill signal ...", "stop");
-            if (controller->currentSwarpProcess != "swarpResampling") {
+            if (controller->currentSwarpProcess != "swarpPreparation") {
                 if (controller->swarpWorker) controller->swarpWorker->abort();
-                if (controller->workerThread) controller->workerThread->quit();
-                if (controller->workerThread) controller->workerThread->wait();
+                if (controller->workerThreadPrepare) controller->workerThreadPrepare->quit();
+                if (controller->workerThreadPrepare) controller->workerThreadPrepare->wait();
+                controller->successProcessing = false;
+                emit messageAvailable("Successfully detached from Swarp", "stop");
+            }
+            else if (controller->currentSwarpProcess != "swarpCoaddition") {
+                if (controller->swarpWorker) controller->swarpWorker->abort();
+                if (controller->workerThreadCoadd) controller->workerThreadCoadd->quit();
+                if (controller->workerThreadCoadd) controller->workerThreadCoadd->wait();
                 controller->successProcessing = false;
                 emit messageAvailable("Successfully detached from Swarp", "stop");
             }
