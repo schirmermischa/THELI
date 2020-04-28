@@ -298,8 +298,9 @@ void Controller::coaddPrepare(QString filterArg)
     coaddPrepareBuildSwarpCommand(refRA, refDE);
 
     // Run the Swarp command
+    currentSwarpProcess = "swarpPreparation";
     workerThreadPrepare = new QThread();
-    swarpWorker = new SwarpWorker(swarpCommand, coaddDirName, "swarpPreparation");
+    swarpWorker = new SwarpWorker(swarpCommand, coaddDirName, currentSwarpProcess);
     workerInit = true;
     workerThreadInit = true;
     swarpWorker->moveToThread(workerThreadPrepare);
@@ -634,7 +635,10 @@ void Controller::coaddCoadditionBuildSwarpCommand(QString imageList)
 
 void Controller::coaddResample()
 {
-    if (!successProcessing) return;
+    if (!successProcessing) {
+        coaddUpdate();
+        return;
+    }
 
     progress = 0.;
     emit resetProgressBar();
@@ -708,6 +712,8 @@ void Controller::coaddResample()
     // We can use at most as many threads as we have files in listname:
     localMaxCPU = maxCPU > listNames.length() ? listNames.length() : maxCPU;
 
+    currentSwarpProcess = "swarpResampling";
+
 #pragma omp parallel for num_threads(localMaxCPU) firstprivate(coaddDirName)
     for (int i=0; i<localMaxCPU; ++i) {
         coaddResampleBuildSwarpCommand(listNames[i], i);
@@ -716,7 +722,7 @@ void Controller::coaddResample()
 #pragma omp critical
         {
             workerThreads[i] = new QThread();
-            swarpWorkers[i] = new SwarpWorker(swarpCommands[i], coaddDirName, "swarpResampling");
+            swarpWorkers[i] = new SwarpWorker(swarpCommands[i], coaddDirName, currentSwarpProcess);
             workersInit = true;
             workerThreadsInit = true;
             swarpWorkers[i]->threadID = i;
@@ -742,7 +748,6 @@ void Controller::coaddResample()
 void Controller::waitForResamplingThreads(int threadID)
 {
     omp_set_lock(&genericLock);
-
     threadsFinished[threadID] = true;
     // Trigger Swarpfilter if all resampling threads have finished
     bool allTrue = true;
@@ -765,7 +770,10 @@ void Controller::waitForResamplingThreads(int threadID)
 
 void Controller::coaddSwarpfilter()
 {
-    if (!successProcessing) return;
+    if (!successProcessing) {
+        emit swarpStartCoaddition();   // Must continue through the chain 'naturally' until its end
+        return;
+    }
 
     QString kappa = cdw->ui->COAoutthreshLineEdit->text();
     QString clustersize = cdw->ui->COAoutsizeLineEdit->text();
@@ -801,6 +809,11 @@ void Controller::coaddSwarpfilter()
 
 void Controller::coaddCoaddition()
 {
+    if (!successProcessing) {
+        coaddUpdate();
+        return;
+    }
+
     if (!successProcessing) return;
 
     emit resetProgressBar();
@@ -843,8 +856,9 @@ void Controller::coaddCoaddition()
     //    delete workerThreadPrepare;
 
     // Run the Swarp command
+    currentSwarpProcess = "swarpCoaddition";
     workerThreadCoadd = new QThread();
-    swarpWorker = new SwarpWorker(swarpCommand, coaddDirName, "swarpCoaddition");
+    swarpWorker = new SwarpWorker(swarpCommand, coaddDirName, currentSwarpProcess);
     workerInit = true;
     workerThreadInit = true;
     swarpWorker->moveToThread(workerThreadCoadd);
@@ -861,7 +875,6 @@ void Controller::coaddCoaddition()
     //    workerThreadCoadd->wait();
 
     // TODO: does not continue with next filter if scheduled as "separately"! QTconnection issue?
-
 }
 
 long Controller::coaddCoadditionGetSize()
@@ -888,7 +901,11 @@ long Controller::coaddCoadditionGetSize()
 
 void Controller::coaddUpdate()
 {
-    if (!successProcessing) return;
+    if (!successProcessing) {
+//        emit forceFinish();
+        if (workerThreadPrepare) workerThreadPrepare->quit();         // crashing sometimes, not sure why
+        return;
+    }
 
     // Stop "measuring" the file size of coadd.fits
     emit stopFileProgressTimer();

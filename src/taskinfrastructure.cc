@@ -402,11 +402,24 @@ void MainWindow::on_stopToolButton_clicked()
             emit messageAvailable("Successfully detached from Scamp", "stop");
         }
         if (controller->taskBasename == "Coaddition") {
+            controller->successProcessing = false;   // Must set to false first, to make sure that any subsequent coadd commands exit immediately
             emit messageAvailable("Sending Swarp a kill signal ...", "stop");
-            controller->swarpWorker->abort();
-            controller->workerThread->quit();
-            controller->workerThread->wait();
-            emit messageAvailable("Successfully detached from Swarp", "stop");
+            if (controller->currentSwarpProcess != "swarpResampling") {
+                if (controller->swarpWorker) controller->swarpWorker->abort();
+                if (controller->workerThread) controller->workerThread->quit();
+                if (controller->workerThread) controller->workerThread->wait();
+                controller->successProcessing = false;
+                emit messageAvailable("Successfully detached from Swarp", "stop");
+            }
+            else {
+                for (int i=0; i<controller->swarpWorkers.length(); ++i) {
+                    emit controller->swarpWorkers[i]->finishedResampling(controller->swarpWorkers[i]->threadID);
+                    if (controller->swarpWorkers[i]) controller->swarpWorkers[i]->abort();
+                    if (controller->workerThreads[i]) controller->workerThreads[i]->quit();
+                    if (controller->workerThreads[i]) controller->workerThreads[i]->wait();
+                    emit messageAvailable("Successfully detached from Swarp", "stop");
+                }
+            }
         }
         workerThread->quit();
         workerThread->wait();

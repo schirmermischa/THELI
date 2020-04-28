@@ -35,7 +35,7 @@ public:
     QString coaddDirName;
     QString swarpType;
     int threadID;
-    QProcess *extProcess;
+    QProcess *extProcess = nullptr;
 
     void abort();
 

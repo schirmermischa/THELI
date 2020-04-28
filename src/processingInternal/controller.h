@@ -375,6 +375,8 @@ public:
     bool swapWarningShown = false;
     bool dataTreeUpdateOngoing = false;
 
+    QString currentSwarpProcess = "";
+
     QString mainDirName;
 
     QString instrument_dir;
@@ -438,11 +440,11 @@ public:
     bool workersInit = false;
     bool workerThreadsInit = false;
 
-    QThread *workerThreadPrepare;
-    QThread *workerThreadCoadd;
-    QThread *workerThread;
-    SwarpWorker *swarpWorker;
-    ScampWorker *scampWorker;
+    QThread *workerThreadPrepare = nullptr;
+    QThread *workerThreadCoadd = nullptr;
+    QThread *workerThread = nullptr;
+    SwarpWorker *swarpWorker = nullptr;
+    ScampWorker *scampWorker = nullptr;
 
     bool workerInit = false;
     bool workerThreadInit = false;
@@ -502,6 +504,7 @@ signals:
     void addBackupDirToMemoryviewer(QString scienceDir, QString backupDirName);
     void loadAbsZP(QString coaddImagePath, instrumentDataType *instData, float maxVal);
     void updateMemoryProgressBar(long splitterMemory);
+    void forceFinish();
 
 public slots:
     void updateAll();

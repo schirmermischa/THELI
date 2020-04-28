@@ -176,6 +176,7 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     connect(controller, &Controller::targetResolved, cdw, &ConfDockWidget::targetResolvedReceived);
     connect(controller, &Controller::scienceDataDirUpdated, this, &MainWindow::scienceDataDirUpdatedReceived);
     connect(controller, &Controller::updateMemoryProgressBar, this, &MainWindow::updateMemoryProgressBarReceived);
+    connect(controller, &Controller::forceFinish, this, &MainWindow::taskFinished);
     connect(this, &MainWindow::resetErrorStatus, controller, &Controller::resetErrorStatusReceived);
     connect(this, &MainWindow::rereadScienceDataDir, controller, &Controller::rereadScienceDataDirReceived);
     connect(this, &MainWindow::newProjectLoaded, controller, &Controller::newProjectLoadedReceived);

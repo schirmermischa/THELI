@@ -28,7 +28,6 @@ SwarpWorker::SwarpWorker(QString command, QString dir, QString type, QObject *pa
     swarpCommand = command;
     coaddDirName = dir;
     swarpType = type;
-//    qDebug() << "SW1" << coaddDirName;
 }
 
 void SwarpWorker::runSwarp()
@@ -51,6 +50,11 @@ void SwarpWorker::runSwarp()
 
 void SwarpWorker::abort()
 {
+    if (extProcess == nullptr) {
+        emit finished();
+        return;
+    }
+
     // First, kill the children
     long pid = extProcess->processId();
     killProcessChildren(pid);
