@@ -125,7 +125,9 @@ void ColorPicture::taskInternalCropCoadds()
     QStringList imageList = colorTheli.entryList(filter);
     coaddList.clear();
     for (auto &it : imageList) {
-        MyImage *myImage = new MyImage(dirName+it, QVector<bool>(), &verbosity);
+        QVector<bool> dummyMask;
+        dummyMask.clear();
+        MyImage *myImage = new MyImage(dirName+it, dummyMask, &verbosity);
         connect(myImage, &MyImage::messageAvailable, this, &ColorPicture::displayMessage);
         connect(myImage, &MyImage::critical, this, &ColorPicture::criticalReceived);
         myImage->globalMaskAvailable = false;

@@ -659,7 +659,7 @@ void SwarpFilter::writeWeight()
         // Could also be related to readimage() above. In any case, I just simply cannot reproduce it while running it in a debugger
         weights[i]->writeImage(outName);
         weights[i]->freeData();
-        //      }
+        //      }       // omp critical close
 
 #pragma omp atomic
         *progress += progressStepSize;
