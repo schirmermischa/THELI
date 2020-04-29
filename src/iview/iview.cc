@@ -870,7 +870,7 @@ void IView::showG2References(bool checked)
     if (checked) {
         QString path = dirName+"/PHOTCAT_calibration/";
         QDir calibDir(path);
-        QStringList calibSourcesList = calibDir.entryList(QStringList("PHOTCAT_sources*.iview"));
+        QStringList calibSourcesList = calibDir.entryList(QStringList("PHOTCAT_sources_matched*.iview"));
 
         // Clear the item list
         G2refCatItems.clear();

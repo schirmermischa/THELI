@@ -270,9 +270,10 @@ void MyImage::floodFill(const QPoint startPoint, QList<long> &allObjectPixelIndi
     }
 
     // Initialize the object and add it to the list of detected sources for this image
+    float effectiveGain = 1.0;   // ADUs converted during HDU reformatting
     DetectedObject *newObject = new DetectedObject(currentObjectPixels, dataMeasure, dataBackground, dataWeight,
                                                    globalMask, weightInMemory, naxis1, naxis2, ++objID,
-                                                   saturationValue, gain, *wcs);
+                                                   saturationValue, effectiveGain, *wcs);
     newObject->globalMaskAvailable = globalMaskAvailable;
     objectList.append(newObject);
 

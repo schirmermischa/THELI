@@ -38,7 +38,7 @@ DetectedObject::DetectedObject(const QList<long> &objectIndices, const QVector<f
     weightInMemory(weightinmemory),
     wcs(wcsImage),
     saturationValue(satVal),
-    gain(gainval)
+    gain(gainval)                    // GAIN is 1.0 always as we convert ADU to electrons during HDU reformatting, already!
 {
     area = objectIndices.length();
     objID = objid;
@@ -797,7 +797,11 @@ void DetectedObject::filterSpuriousDetections()
             || XWIN > naxis1-1
             || YWIN > naxis2-1
             || (AWIN==0 && BWIN==0)
-            || badDetection) FLAGS = 1000;
+            || badDetection)
+        FLAGS = 1000;
+
+//        qDebug() << XWIN << YWIN << AWIN << BWIN << ERRAWIN << ERRBWIN << ERRTHETAWIN << FLUX_RADIUS << ERRX2WIN << ERRY2WIN << ERRXYWIN << badDetection;
+
 }
 
 // In C++, arrays start counting a 0.

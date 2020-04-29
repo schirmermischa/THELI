@@ -177,7 +177,7 @@ void ColorPicture::taskInternalCropCoadds()
         else {
             name = it->baseName + "_cropped.fits";
         }
-        it->readImage();
+        it->readImage(false);
         it->makeCutout(xlowNew, xhighNew, ylowNew, yhighNew);
         it->writeImage(dirName + name);
         it->name = name;

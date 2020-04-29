@@ -79,26 +79,37 @@ void ColorPicture::on_calibratePushButton_clicked()
 
 void ColorPicture::taskInternalColorCalib()
 {
-    QList<Query*> queryList = {PANSTARRSquery, SDSSquery, APASSquery};
+    QList<Query*> queryList;
+    if (instData->pixscale > 3. || instData->radius > 1.5) {
+        queryList = {APASSquery};
+        ui->resultPANSTARRSPushButton->setDisabled(true);
+        ui->resultSDSSPushButton->setDisabled(true);
+        ui->numPANSTARRSLabel->setText("0 stars");
+        ui->numSDSSLabel->setText("0 stars");
+        emit messageAvailable("PANSTARRS and SDSS queries deactivated, field of view is too large.", "warning");
+    }
+    else {
+        queryList = {PANSTARRSquery, SDSSquery, APASSquery};
+    }
 
     // Retrieve the photometric reference catalogs and identify solar type analogs
 
     // nexted paralellism within colorCalibSegmentImages();
     //#pragma omp parallel sections
-//    {
-//#pragma omp section
-//        {
-            colorCalibRetrieveCatalogs(queryList);
+    //    {
+    //#pragma omp section
+    //        {
+    colorCalibRetrieveCatalogs(queryList);
 
-            // Extract solar analogs
-            filterSolarTypeStars(queryList);
-//        }
-//#pragma omp section
-//        {
-            // Detect sources in all images
-            colorCalibSegmentImages();
-//        }
-//    }
+    // Extract solar analogs
+    filterSolarTypeStars(queryList);
+    //        }
+    //#pragma omp section
+    //        {
+    // Detect sources in all images
+    colorCalibSegmentImages();
+    //        }
+    //    }
 
     // Match the object catalogs with the reference catalogs, and calculate the various correction factors
     colorCalibMatchCatalogs();
@@ -190,11 +201,20 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
         refdata << REFCAT->de[i] << REFCAT->ra[i] << 0.0;
         refDat.append(refdata);
     }
+
     match2D(matchedRGB, refDat, matchedREFCAT, tolerance, dummy1, dummy2, maxCPU);
 
     if (matchedREFCAT.isEmpty()) {
         emit messageAvailable("None of the G2-like sources in " + REFCAT->name + " were detected in your image.", "warning");
-
+        photcatresult[index].rfac    = "1.000";
+        photcatresult[index].rfacerr = "0.000";
+        photcatresult[index].gfac    = "1.000";
+        photcatresult[index].gfacerr = "0.000";
+        photcatresult[index].bfac    = "1.000";
+        photcatresult[index].bfacerr = "0.000";
+        photcatresult[index].nstars = "0";
+        writeG2refcat(REFCAT->name, matchedREFCAT);
+        return;
     }
     // Calculate the color correction factors
     QVector<float> rCorr;   // red correction factors wrt. green channel
@@ -213,6 +233,30 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
     photcatresult[index].bfac    = QString::number(meanMask_T(bCorr),'f',3);
     photcatresult[index].bfacerr = QString::number(rmsMask_T(bCorr),'f',3);
     photcatresult[index].nstars = QString::number(rCorr.length());
+
+    writeG2refcat(REFCAT->name, matchedREFCAT);
+}
+
+void ColorPicture::writeG2refcat(const QString refcatName, const QVector<QVector<double>> matchedREFCAT)
+{
+    // The iView catalog (ASCII)
+    QString outpath = mainDir+"/color_theli/";
+    QDir outdir(outpath);
+    if (!outdir.exists()) outdir.mkpath(outpath);
+    QFile outcat_iview(outpath+"/PHOTCAT_calibration/PHOTCAT_sources_matched_"+refcatName+".iview");
+    QTextStream stream_iview(&outcat_iview);
+    if( !outcat_iview.open(QIODevice::WriteOnly)) {
+        emit messageAvailable("Query::processPhotomCatalog(): ERROR writing "+outpath+outcat_iview.fileName()+" : "+outcat_iview.errorString(), "error");
+        emit criticalReceived();
+        return;
+    }
+
+    // Write iView catalog
+    for (auto &source : matchedREFCAT) {
+         stream_iview << QString::number(source[0], 'f', 9) << QString::number(source[1], 'f', 9);
+    }
+    outcat_iview.close();
+    outcat_iview.setPermissions(QFile::ReadUser | QFile::WriteUser);
 }
 
 void ColorPicture::colorCalibRetrieveCatalogs(QList<Query*> queryList)
@@ -256,7 +300,6 @@ void ColorPicture::filterSolarTypeStars(QList<Query*> queryList)
                 APASS->ra.append(query->ra_out[k]);
                 APASS->de.append(query->de_out[k]);
             }
-            //            qDebug() << PANSTARRS->ra << PANSTARRS->de << APASS->ra << APASS->de;
         }
     }
 }

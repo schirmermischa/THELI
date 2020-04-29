@@ -167,6 +167,7 @@ private:
     MyImage *identifyCroppedMyImage(QString name);
     QVector<QVector<double> > getObjectData(MyImage *myImage);
     void updateBBNBcombine();
+    void writeG2refcat(const QString refcatName, const QVector<QVector<double> > matchedREFCAT);
 };
 
 

@@ -607,7 +607,7 @@ void Query::processGaiaCatalog()
     outcat_iview.close();
     outcat_iview.setPermissions(QFile::ReadUser | QFile::WriteUser);
 
-//    pushNumberOfSources();     // display number of refcat sources
+    //    pushNumberOfSources();     // display number of refcat sources
 
     dumpRefcatID();            // writes refcat/.refcatID, used to check whether the catalog needs to be recreated
 }
@@ -802,12 +802,22 @@ void Query::identifySolarTypeStars()
         float c3max0 = c3max + tol*c3tol;
 
         for (long k=0; k<mag1_out.length(); ++k) {
-            float col1 = mag1_out[k] - mag2_out[k];
-            float col2 = mag2_out[k] - mag3_out[k];
-            float col3 = mag3_out[k] - mag4_out[k];
+            float col1 = 0.;
+            float col2 = 0.;
+            float col3 = 0.;
+            if (refcatName == "PANSTARRS" || refcatName == "SDSS") {
+                col1 = mag1_out[k] - mag2_out[k];
+                col2 = mag2_out[k] - mag3_out[k];
+                col3 = mag3_out[k] - mag4_out[k];
+            }
+            else if (refcatName == "APASS") {
+                col1 = mag1_out[k] - mag2_out[k];    // "B-V"
+                col2 = mag3_out[k] - mag4_out[k];    // "g-r"
+                col3 = mag4_out[k] - mag5_out[k];    // "r-i"
+            }
             if (col1 >= c1min0 && col1 <= c1max0
                     && col2 >= c2min0 && col2 <= c2max0
-                    && col3 >= c3min0 && col2 <= c3max0) {
+                    && col3 >= c3min0 && col3 <= c3max0) {
                 G2type[k] = true;
                 ++nmatch;
             }
