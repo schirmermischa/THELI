@@ -61,6 +61,11 @@ void Controller::taskInternalCoaddition()
 
     if (!coaddScienceData->hasMatchingPartnerFiles(headerDirName, ".head")) return;
 
+    if (!coaddScienceData->doesCoaddContainRaDec(cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text())) {
+        emit showMessageBox("Controller::POOR_COORD", cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text());
+        return;
+    }
+
     //    qDebug() << "taskInternalCoaddition() : " << filterArg;
 
     // TODO

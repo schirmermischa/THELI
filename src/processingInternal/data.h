@@ -232,6 +232,7 @@ public:
     void resetBackupInfo();
     void removeCatalogs();
     float releaseMemoryStringent(float RAMneededThisThread, float RAMneededAllThreads, float currentTotalMemoryUsed, QString mode);
+    bool doesCoaddContainRaDec(const QString &refRA, const QString &refDEC);
 public slots:
     void setMemoryLockReceived(bool locked);
     void setWCSLockReceived(bool locked);

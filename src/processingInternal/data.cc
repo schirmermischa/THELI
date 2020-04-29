@@ -2853,3 +2853,20 @@ void Data::criticalFromQueryReceived()
 {
     successProcessing = false;
 }
+
+
+bool Data::doesCoaddContainRaDec(const QString &refRA, const QString &refDEC)
+{
+    if (refRA.isEmpty() && refDEC.isEmpty()) return true;
+
+    bool containsRADEC = false;
+    for (int chip=0; chip<instData->numChips; ++chip) {
+        for (auto &it : myImageList[chip]) {
+            if (it->containsRaDec(refRA, refDEC)) {
+                containsRADEC = true;
+                break;
+            }
+        }
+    }
+    return containsRADEC;
+}

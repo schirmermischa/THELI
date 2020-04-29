@@ -64,6 +64,13 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
                              part1+"\nAborting.",
                              QMessageBox::Ok);
     }
+    else if (trigger == "Controller::POOR_COORD") {
+        QMessageBox::warning(this, tr("Inconsistent coaddition coordinates"),
+                             tr("The manually provided coordinates for the sky projection do not fall within any of the exposures:")+"\n"+
+                             "R.A. = "+part1+"\n"+
+                             "DEC = "+part2+"\nEither provide correct coordinates, or leave the fields empty. Aborting.",
+                             QMessageBox::Ok);
+    }
     else if (trigger == "Controller::MASTER_BIAS_NOT_FOUND" && !MASTER_BIAS_NOT_FOUND_shown) {
         MASTER_BIAS_NOT_FOUND_shown = true;
         QMessageBox::warning(this, tr("Master BIAS not found"),
