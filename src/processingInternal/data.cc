@@ -739,7 +739,7 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
 
     if (userStop || userKill) return;
 
-    if (*verbosity > 0) emit messageAvailable(subDirName + " : Combining images for chip "+QString::number(chip)+" ...", "data");
+    if (*verbosity > 0) emit messageAvailable(subDirName + " : Combining images for chip "+QString::number(chip+1)+" ...", "data");
 
     int nlow = nlowString.toInt();    // returns 0 for empty string (desired)
     int nhigh = nhighString.toInt();  // returns 0 for empty string (desired)
@@ -1826,10 +1826,10 @@ void Data::releaseAllMemory()
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : myImageList[chip]) {
             if (it == nullptr) continue;
-            it->freeData("all");
+            else it->freeData("all");
         }
         if (combinedImage[chip] == nullptr) continue;
-        combinedImage[chip]->freeData("all");
+        else combinedImage[chip]->freeData("all");
     }
     emit globalModelUpdateNeeded();
 }

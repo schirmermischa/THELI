@@ -102,8 +102,7 @@ void Controller::taskInternalProcessbias()
 #pragma omp atomic
         progress += progressCombinedStepSize;
     }
-
-//    biasData->reportModeCombineImages();
+    biasData->reportModeCombineImages();
 
     checkSuccessProcessing(biasData);
     satisfyMaxMemorySetting();
@@ -572,10 +571,12 @@ void Controller::taskInternalProcessscience()
         it->processingStatus->Processscience = false;
 
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
+
         if (!it->successProcessing) {
             abortProcess = true;
             continue;
         }
+
         // TODO: check if we can just pass the data structure and chip number,
         // and test internally for nullptr and 'successProcessing'.
         // Then the "if" could go away
@@ -586,6 +587,7 @@ void Controller::taskInternalProcessscience()
             it->divideFlat(flatData->combinedImage[chip]);
         }
         it->bitpix = -32;  // so that mode calculations later on use the right algorithm
+
         // Without Bayer pattern
         if (instData->bayer.isEmpty()) {
             it->getMode(true);

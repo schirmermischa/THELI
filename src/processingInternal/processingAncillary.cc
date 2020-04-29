@@ -271,3 +271,24 @@ void Controller::taskInternalRestoreHeader()
     successProcessing = true;
     //    pushEndMessage(taskBasename, scienceDir);
 }
+
+// Cloned from Query::getCatalogSearchLocationAstrom()
+void Controller::getFieldCenter(Data *data, QString &alphaCenter, QString &deltaCenter)
+{
+    if (!successProcessing) return;
+
+    QVector<double> crval1 = data->getKeyFromAllImages("CRVAL1");
+    QVector<double> crval2 = data->getKeyFromAllImages("CRVAL2");
+
+    if (crval1.isEmpty() || crval2.isEmpty()) {
+        emit messageAvailable("Query::getCatalogSearchLocationAstrom(): CRVAL vectors are empty", "error");
+        emit criticalReceived();
+        successProcessing = false;
+        return;
+    }
+
+    // Use median to calculate field center (avoiding issues with RA=0|360 deg boundary)
+    // Do not average central two elements if number of data points is even
+    alphaCenter = QString::number(straightMedian_T(crval1, 0, false), 'f', 3);
+    deltaCenter = QString::number(straightMedian_T(crval2, 0, false), 'f', 3);
+}

@@ -1063,6 +1063,9 @@ void MainWindow::on_setupInstrumentComboBox_clicked()
     if (!readingSettings) {
         // TODO: rather, look into the image headers and calculate the most likely pixel scale (dropping into 1x1 or 2x2 binning mode)
         cdw->ui->COApixscaleLineEdit->setText(get_fileparameter(&instrument_file, "PIXSCALE"));
+        if (instData.pixscale < 0.1) cdw->ui->ASTcrossidLineEdit->setText(QString::number(10.*instData.pixscale, 'f', 2));
+        else if (instData.pixscale < 0.5) cdw->ui->ASTcrossidLineEdit->setText(QString::number(5.*instData.pixscale, 'f', 1));
+        else cdw->ui->ASTcrossidLineEdit->setText(QString::number(int(5.*instData.pixscale)));
     }
 
     if (instrument_type == "MIR") {

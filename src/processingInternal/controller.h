@@ -481,6 +481,7 @@ public:
     void updateMasterList();
     void connectDataWithMemoryViewer();
     QLineEdit *getDataTreeLineEdit(Data *data);
+    void getFieldCenter(Data *data, QString &alphaCenter, QString &deltaCenter);
 
 signals:
     void loadViewer(QString dirname, QString filter, QString mode);

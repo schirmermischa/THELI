@@ -1446,7 +1446,7 @@ void Controller::restoreAllRawData()
         }
     }
 
-    if (GLOBALWEIGHTS!= nullptr) GLOBALWEIGHTS->releaseAllMemory();
+    if (GLOBALWEIGHTS != nullptr) GLOBALWEIGHTS->releaseAllMemory();
     QDir globalweightsDir(mainDirName+"/GLOBALWEIGHTS/");
     if (globalweightsDir.exists()) {
         emit messageAvailable("Deleting " + mainDirName+"/GLOBALWEIGHTS/" + "...", "controller");

@@ -958,9 +958,24 @@ QString MainWindow::sameRefCoords(QString coordsMode) {
                                   "It is highly recommended that you use identical RA/DEC reference coordinates for the "
                                   "projection of each coaddition. Images can then be automatically cropped such that "
                                   "the same object appears on the same pixel in all coadded images.\n\n");
+        QAbstractButton* pButtonAuto = msgBox.addButton(tr("Use field centroid"), QMessageBox::YesRole);
         QAbstractButton* pButtonContinue = msgBox.addButton(tr("Continue as is"), QMessageBox::YesRole);
         QAbstractButton* pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
         msgBox.exec();
+        if (msgBox.clickedButton()==pButtonAuto) {
+            QString alphaCenter = "";
+            QString deltaCenter = "";
+            if (controller->DT_SCIENCE.length() == 1) {
+                controller->getFieldCenter(controller->DT_SCIENCE[0], alphaCenter, deltaCenter);
+                cdw->ui->COAraLineEdit->setText(alphaCenter);
+                cdw->ui->COAdecLineEdit->setText(deltaCenter);
+                return "Continue";
+            }
+            else {
+                QMessageBox::warning(this, "THELI", "Multiple science directories. You must specifyy the field centers manually.", QMessageBox::Ok);
+                return "Cancel";
+            }
+        }
         if (msgBox.clickedButton()==pButtonContinue) return "Continue";
         else return "Cancel";
     }
