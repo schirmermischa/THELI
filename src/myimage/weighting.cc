@@ -34,26 +34,22 @@ void MyImage::readWeight()
     // Leave if image is already loaded
     if (weightInMemory) return;
     else {
-        // Attempt to read image
-        weightFITS->name = weightPath+"/"+weightName+".fits";
-        if (weightFITS->loadData()) {
-            int n = weightFITS->naxis1;
-            int m = weightFITS->naxis2;
-            if (n!= naxis1 || m != naxis2) {
-                naxis1 = n;
-                naxis2 = m;
-            }
-            // Make the FITS data memory that of dataWeight
-            dataWeight.swap(weightFITS->data);
-            weightFITS->data.clear();
-            weightFITS->data.squeeze();
+        int status = 0;
+        fitsfile *fptr = nullptr;
+        QString fileName = weightPath+"/"+weightName+".fits";
+        initFITS(&fptr, fileName, &status);
+        readDataWeight(&fptr, &status);
+        fits_close_file(fptr, &status);
+
+        if (status) {
+            printCfitsioError("MyImage::readWeight()", status);
+            successProcessing = false;
+            weightInMemory = false;
+        }
+        else {
             weightInMemory = true;
             weightOnDrive = true;
             successProcessing = true;
-        }
-        else {
-            successProcessing = false;
-            weightInMemory = false;
         }
     }
 }
@@ -68,19 +64,11 @@ void MyImage::initWeightfromGlobalWeight(const QList<MyImage*> &gwList)
     bool loadSuccess = false;
     for (auto &gw: gwList) {
         if (gw->filter == filter) {
-            // The name of the globalweight image is not known to MyFITS->loadData() (called by readImage());
-            // must set it first
-            if (!gw->imageInMemory) {
-                MyFITS *globweightFITS = new MyFITS(gw->path+"/"+gw->name);
-                //                globweightFITS->setParent(this);
-                gw->imageFITS = globweightFITS;
-                gw->readImage();
-            }
-            //            gw->imageFITS->name = gw->path+"/"+gw->name; // not enough if run right after globalweights. I think myimage or myfits is not initialised.
-            //            gw->readImage();
+            if (!gw->imageInMemory) gw->readImage();
             dataWeight = gw->dataCurrent;
             loadSuccess = true;
             weightInMemory = true;
+            break;
         }
     }
     if (!loadSuccess) {
@@ -101,7 +89,7 @@ void MyImage::thresholdWeight(QString imageMin, QString imageMax)
     if (imageMin.isEmpty()) minVal = -1.e9;
     if (imageMax.isEmpty()) maxVal = 1.e9;
 
-    if (minVal > maxVal) swap(minVal, maxVal);
+    if (minVal > maxVal) std::swap(minVal, maxVal);
 
     long i=0;
     for (auto &pixel : dataWeight) {
@@ -146,46 +134,6 @@ void MyImage::applyPolygons(int chip)
 
     if (*verbosity > 1) emit messageAvailable(chipName + " : Mask found, applying mask to weight ...", "image");
     addRegionFilesToWeight(naxis1, naxis2, regionFileName, dataWeight);
-}
-
-void MyImage::writeWeight(QString fileName)
-{
-    if (!successProcessing) return;
-    //    weightName = fileName;
-    //    MyFITS out(weightName, naxis1, naxis2, dataWeight);
-    MyFITS out(fileName, naxis1, naxis2, dataWeight);
-    QString history = "";
-    bool success = out.write(history, exptime, filter, header);
-    if (success) {
-        weightOnDrive = true;
-        successProcessing = true;
-    }
-    else {
-        weightOnDrive = false;
-        successProcessing = false;
-    }
-}
-
-void MyImage::writeWeightSmoothed(QString fileName)
-{
-    if (!successProcessing) return;
-    //    weightName = fileName;
-    //    MyFITS out(weightName, naxis1, naxis2, dataWeightSmooth);
-    MyFITS out(fileName, naxis1, naxis2, dataWeightSmooth);
-    QString history = "";
-    bool success = out.write(history, exptime, filter, header);
-    if (success) {
-        weightOnDrive = true;
-        successProcessing = true;
-    }
-    else {
-        weightOnDrive = false;
-        successProcessing = false;
-    }
-
-    dataWeightSmooth.clear();
-    dataWeightSmooth.squeeze();
-
 }
 
 void MyImage::freeWeight()

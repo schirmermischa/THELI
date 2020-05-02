@@ -23,7 +23,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../functions.h"
 #include "../qcustomplot.h"
 #include "../iview/iview.h"
-#include "../myfits/myfits.h"
 #include "../myimage/myimage.h"
 
 #include <QSettings>

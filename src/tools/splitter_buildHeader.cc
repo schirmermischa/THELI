@@ -20,7 +20,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include "splitter.h"
 #include "../instrumentdata.h"
 #include "../myimage/myimage.h"
-#include "../myfits/myfits.h"
 #include "../functions.h"
 #include "cfitsioerrorcodes.h"
 
@@ -29,7 +28,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QVector>
 #include <QFile>
 #include <QDir>
-
 
 /*
 // TODO
@@ -1022,7 +1020,7 @@ double Splitter::calcAirmass(double ahourangle)
     double zn = sqrt(x*x+y*y);
     double zf = zn/z;
     double zd = atan(zf);
-    double seczm = 1.0 /(cos(min(1.52, zd))) - 1.0;
+    double seczm = 1.0 / (cos(std::min(1.52, zd))) - 1.0;
 
     // Convert zenith distance to airmass following
     // "R.H. Hardie in _Astronomical Techniques_ (W.A. Hiltner, ed.) (Chicago: U. Chicago Press), p. 180 (1962)."

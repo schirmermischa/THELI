@@ -84,7 +84,8 @@ void Controller::taskInternalGlobalweight()
             break;
         }
         else {
-            filter = it->imageFITS->readFILTER();
+            it->readFILTER();
+            filter = it->filter;
             if (!filter.isEmpty()) break;
         }
     }

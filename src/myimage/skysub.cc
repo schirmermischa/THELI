@@ -152,7 +152,9 @@ void MyImage::subtractSkyFit(int order, gsl_vector *c, bool saveSkyModel)
 
     if (saveSkyModel) {
         mkAbsDir(path + "/SKY_IMAGES");
-        MyFITS out(path+"/SKY_IMAGES/"+baseName+".sky.fits", naxis1, naxis2, skymodel);
-        out.write("");
+
+        QString fileName = path+"/SKY_IMAGES/"+baseName+".sky.fits";
+
+        write(fileName, skymodel, exptime, filter, header);
     }
 }

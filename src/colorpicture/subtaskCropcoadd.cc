@@ -22,7 +22,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../functions.h"
 #include "../tools/tools.h"
 #include "../query/query.h"
-#include "../myfits/myfits.h"
 #include "../tools/cfitsioerrorcodes.h"
 
 #include <omp.h>
@@ -133,6 +132,7 @@ void ColorPicture::taskInternalCropCoadds()
         myImage->globalMaskAvailable = false;
         myImage->maxCPU = maxCPU / imageList.length();
         myImage->provideHeaderInfo();
+        myImage->initWCS();
         coaddList.append(myImage);
     }
 

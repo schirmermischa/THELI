@@ -37,7 +37,6 @@ If not, see https://www.gnu.org/licenses/ .
 // #include <SPLINTER/bspline_builders.h>
 // #include <SPLINTER/bspline.h>
 
-#include "../myfits/myfits.h"
 #include "fitsio2.h"
 
 #include <QDir>
@@ -55,7 +54,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QScrollBar>
 #include <QTimer>
 
-using namespace std;
 // using namespace SPLINTER;
 // Various constructors
 

@@ -154,11 +154,6 @@ void MyImage::segmentImage(QString DTstring, QString DMINstring, bool convolutio
         return;
     }
 
-    // write the image in which we detect sources
-    //    MyFITS out1(path + "/" + baseName+".detect.fits", naxis1, naxis2, dataMeasure);
-    //    out1.write("");
-    //    writeSegmentation(path + "/" + baseName+".seg1.fits");
-
     // Create segmentation map
     objectList.clear();
     bool scanning = true;
@@ -576,71 +571,6 @@ void MyImage::maskExpand(QString expFactor, bool writeObjectmaskImage)
     if (writeObjectmaskImage) writeObjectMask(path + "/" + baseName+".mask.fits");
 }
 
-void MyImage::writeSegmentation(QString fileName)
-{
-    if (!successProcessing) return;
-
-    if (*verbosity > 1) emit messageAvailable(chipName + " : Writing segmentation map to drive ("+fileName+") ...", "image");
-
-    name = fileName;
-    // The new output file
-    fitsfile *fptr;
-    int status = 0;
-    long fpixel = 1;
-    long nelements = naxis1*naxis2;
-    long *array = new long[nelements];
-    for (long i=0; i<nelements; ++i) {
-        array[i] = dataSegmentation[i];
-    }
-
-    int bitpix = LONG_IMG;
-    long naxis = 2;
-    long naxes[2] = { naxis1, naxis2 };
-
-    // Overwrite file if it exists
-    name = "!"+name;
-    fits_create_file(&fptr, name.toUtf8().data(), &status);
-    fits_create_img(fptr, bitpix, naxis, naxes, &status);
-    fits_write_img(fptr, TLONG, fpixel, nelements, array, &status);
-    fits_close_file(fptr, &status);
-
-    delete [] array;
-
-    printCfitsioError("MyImage::writeSegmentation()", status);
-}
-
-void MyImage::writeObjectMask(QString fileName)
-{
-    if (!successProcessing) return;
-
-    if (*verbosity > 1) emit messageAvailable(chipName + " : Writing object mask to drive ("+fileName+") ...", "image");
-
-    name = fileName;
-    // The new output file
-    fitsfile *fptr;
-    int status = 0;
-    long fpixel = 1;
-    long nelements = naxis1*naxis2;
-    long *array = new long[nelements];
-    for (long i=0; i<nelements; ++i) {
-        if (objectMask[i]) array[i] = 0;
-        else array[i] = 1;
-    }
-
-    int bitpix = LONG_IMG;
-    long naxis = 2;
-    long naxes[2] = { naxis1, naxis2 };
-
-    // Overwrite file if it exists
-    name = "!"+name;
-    fits_create_file(&fptr, name.toUtf8().data(), &status);
-    fits_create_img(fptr, bitpix, naxis, naxes, &status);
-    fits_write_img(fptr, TLONG, fpixel, nelements, array, &status);
-    fits_close_file(fptr, &status);
-    delete [] array;
-
-    printCfitsioError("MyImage::writeObjectMask()", status);
-}
 
 void MyImage::releaseAllDetectionMemory()
 {

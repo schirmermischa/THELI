@@ -20,12 +20,12 @@ If not, see https://www.gnu.org/licenses/ .
 #ifndef MYIMAGE_H
 #define MYIMAGE_H
 
-#include "../myfits/myfits.h"
 #include "../tools/detectedobject.h"
 #include "../threading/sexworker.h"
 #include "../threading/anetworker.h"
 #include "../processingStatus/processingStatus.h"
 
+#include "fitsio2.h"
 #include <gsl/gsl_vector.h>
 
 #include <omp.h>
@@ -43,9 +43,8 @@ class MyImage : public QObject
 
 private:
 
-    void transferDataToMyImage();
-    void transferMetadataToMyImage();
     void stayWithinBounds(QVector<long> &vertices);
+    void stayWithinBounds(long &coord, QString axis);
     float polynomialSum(float x, QVector<float> coefficients);
 
     // ================= BACKGROUND MODELING ===========================
@@ -66,10 +65,10 @@ private:
     QString padMode = "normal";     // Whether the image is padded "normal" or "dyadic"
     QVector<float> backStatsGrid;   // the statistics for the grid (background value for each grid point)
     QVector<float> rmsStatsGrid;    // the statistics for the grid (rms value for each grid point)
-    //    QVector<float> data_padded;     // padded image data
-    //    QVector<bool> mask_padded;      // padded mask data
     QVector<QVector<long>> grid;    // the grid on which we calculate statistics
     QVector<long> padDims;          // contains left, bottom, right, top pad dimensions, and then overall n_pad and m_pad
+
+    int numExt = 1;                 // Number of etensions in a FITS file
 
     void planGrid();
     void getGridStatistics();
@@ -93,12 +92,10 @@ private:
     void floodFill(const QPoint startPoint, QList<long> &objectPixelIndices, long &objID,
                    QVector<long> &dataSegmentation, const long DMIN);
     QVector<float> directConvolve(QVector<float> &data);
-    void writeSegmentation(QString fileName);
     void writeObjectMask(QString fileName);
 
     // =================================================================
 
-    void transferWCS();
     QVector<long> locateSkyNode(const double alpha, const double delta, const double radius);
 
     void printCfitsioError(QString funcName, int status);
@@ -115,6 +112,23 @@ private:
     void wipeL3();
     void readImageBackupL1();
     void replaceCardInFullHeaderString(QString keyname, double value);
+    void readHeader(fitsfile **fptr, int *status);
+    void extractKeywordDouble(QString card, QString key,  double &value);
+    void extractKeywordFloat(QString card, QString key, float &value);
+    void extractKeywordLong(QString card, QString key, long &value);
+    void extractKeywordInt(QString card, QString key, int &value);
+    void extractKeywordString(QString card, QString key,  QString &value);
+    void initTHELIheader(int *status);
+    void checkTHELIheader(int *status);
+    void propagateHeader(fitsfile *fptr, QVector<QString> header);
+    bool write(QString fileName, const QVector<float> &data,
+               const float exptime, const QString filter, const QVector<QString> header);
+    void writeConstImage(QString fileName, const float constValue, const float exptime,
+                         const QString filter, const QVector<QString> header);
+    bool writeDebayer(QString fileName, const float exptime, const QString filter,
+                      const QVector<QString> header);
+    void writeSegmentation(QString fileName);
+    void readDataWeight(fitsfile **fptr, int *status);
 public:
     explicit MyImage(QString pathname, QString filename, QString statusString, int chipnumber,
                      const QVector<bool> &mask, int *verbose, bool makebackup = true,
@@ -165,15 +179,12 @@ public:
     QString rootName = "";   // "image" in case of image_1AB.fits
     QString chipName = "";   // "image_1" in case of image_1AB.fits
     QString filter = "";
-//    QString statusCurrent = "";
     QString statusBackupL1 = "";
     QString statusBackupL2 = "";
     QString statusBackupL3 = "";
     QString baseNameBackupL1 = "";
     QString baseNameBackupL2 = "";
     QString baseNameBackupL3 = "";
-    MyFITS *imageFITS = nullptr;
-    MyFITS *weightFITS = nullptr;
     bool makeBackup = true;  // used when reading an image for the first time in the pipeline context
     bool metadataTransferred = false;
     int groupNumber = -1; // The association of images this image belongs to (an overlapping group on sky)
@@ -183,6 +194,11 @@ public:
     bool processingFinished = false;          // Reset to false every time a process starts; If finised, external jobs use this flag to force a
                                               // dump to drive to be able to release memory
     bool isTaskRepeated = false;
+    bool fullheaderAllocated = false;
+    int numHeaderKeys = 0;
+    QString fullHeaderString = "";
+    bool hasTHELIheader = false;
+    bool addGainNormalization = false;
 
     QList<DetectedObject*> objectList;
 
@@ -195,8 +211,8 @@ public:
     // Once running, the chipNumber always starts with 1,
     // contrary to the 'chip' variable which starts at 0
     int chipNumber = 0;
-    int naxis1 = 0;
-    int naxis2 = 0;
+    long naxis1 = 0;
+    long naxis2 = 0;
 
     float matchingTolerance = 2./3600.;   // default matching tolerance = 2 arcsec;
 
@@ -245,7 +261,6 @@ public:
     QVector<float> dataBackupL3;   // Third backup level
     QVector<float> dataMeasure;    // temporary (for object detection)
     const QVector<bool> &globalMask;      // Global mask (e.g. vignetting, permanently bad pixels; same for all images)
-//    QVector<bool> globalMask;      // Global mask (e.g. vignetting, permanently bad pixels; same for all images)
     QVector<bool> objectMask;      // Object mask (used for background modeling and sky subtraction)
     bool backgroundPushedDown = false;  // Used to detect whether a backup copy was made already during twopass background correction
     bool globalMaskAvailable = true;    // Unless we load an external image, e.g. for absolute zeropoint
@@ -353,13 +368,16 @@ public:
     void freeAncillaryData(QVector<float> &data);
     void freeData();
     float freeData(QString type);
+    void getMJD();
     void protectMemory();
     void freeWeight();
     QString getKeyword(QString key);
     void getMode(bool determineMode = true);
     void illuminationCorrection(int chip, QString thelidir, QString instName, QString filter);
+    void initWCS();
     void initWeightfromGlobalWeight(const QList<MyImage *> &gwList);
     void laplaceFilter(QVector<float> &dataFiltered);
+    void loadDataSection(long xmin, long xmax, long ymin, long ymax, float *dataSect);
     void makeCutout(long xmin, long xmax, long ymin, long ymax);
     void makeDriveBackup(QString backupDirName, QString statusOld);
     void makeMemoryBackup();
@@ -392,7 +410,6 @@ public:
     void subtractSkyFit(int order, gsl_vector *c, bool saveSkyModel);
     void subtractPolynomialSkyFit(gsl_vector *c, int order);
     void subtractBackgroundModel();
-    void transferDataToMyWeight();
     void toTIFF(int bit, float minthresh, float maxthresh, bool zscaleing = false, float grey = 0., float gamma = 1.0);
     void thresholdWeight(QString imageMin, QString imageMax);
     void unprotectMemory();
@@ -404,7 +421,6 @@ public:
     void updateProcInfo(QString text);
     void updateSaturation(QString saturation);
     void updateZeroOrderOnDrive(QString updateMode);
-//    void updateZeroOrderInMemory();
     // Not sure I need the optional argument feature for the following two
     void writeImage(QString fileName = "", QString filter = "", float exptime = -1.0, bool addGain = false);
     void writeConstSkyImage(float constValue, QString filter = "", float exptime = -1.0, bool addGain = false);
@@ -421,9 +437,6 @@ public:
     QVector<double> collectObjectParameter(QString paramName);
     void collectSeeingParameters(QVector<QVector<double> > &outputParams, QVector<double> &outputMag, int goodChip);
     void setDeletable();
-//    void setDeletable(QString dataX, bool deletable);
-    void createMyFITSinstance();
-    void pushNameToFITS();
     void writeBackgroundModel();
     void getMeanBackground();
     void pushDown(QString backupDir);
@@ -437,7 +450,6 @@ public:
     void readImageBackupL1Launch();
     void setObjectLock(bool locked);
     void setBackgroundLock(bool locked);
-//    void updateCRPIXOnDrive();
     void removeSourceCatalogs();
     void dumpToDriveIfPossible();
     bool containsRaDec(QString alphaStr, QString deltaStr);
@@ -454,6 +466,11 @@ public:
     void writeImageBackupL1();
     void writeImageBackupL2();
     void writeImageBackupL3();
+    void readFILTER(QString loadFileName = "");
+    void initFITS(fitsfile **fptr, QString loadFileName, int *status);
+    bool loadData(QString loadFileName = "");
+    void readData(fitsfile **fptr, int *status);
+    bool informSwarpfilter(long &naxis1, long &naxis2, double &crpix1, double &crpix2, double &sky, double &fluxscale);
 signals:
     void modelUpdateNeeded(QString baseName, QString chipName);
     void messageAvailable(QString message, QString type);

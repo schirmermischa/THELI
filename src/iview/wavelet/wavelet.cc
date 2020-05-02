@@ -18,7 +18,7 @@
 #include "fftw3.h"
 #include <omp.h>
 
-using namespace std;
+// using namespace std;
 fftw_plan plan_forward_inp, plan_forward_filt, plan_backward;
 static unsigned int transient_size_of_fft = 0;
 

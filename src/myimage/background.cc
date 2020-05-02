@@ -77,15 +77,6 @@ void MyImage::backgroundModel(int filtersize, QString splinemode)
     backgroundModelDone = true;
 }
 
-void MyImage::writeBackgroundModel()
-{
-    if (!successProcessing) return;
-
-    mkAbsDir(path + "/SKY_IMAGES");
-    MyFITS out(path + "/SKY_IMAGES/" + baseName+".sky.fits", naxis1, naxis2, dataBackground);
-    out.write("");
-}
-
 void MyImage::getMeanBackground()
 {
     if (!successProcessing) return;
@@ -96,7 +87,6 @@ void MyImage::getMeanBackground()
     }
     meanExposureBackground = skysum / (naxis1*naxis2);
 }
-
 
 /*
 void MyImage::fitBackgroundSPLINTER()

@@ -20,7 +20,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include "splitter.h"
 #include "../instrumentdata.h"
 #include "../myimage/myimage.h"
-#include "../myfits/myfits.h"
 #include "../functions.h"
 #include "../processingInternal/mask.h"
 #include "../processingInternal/data.h"
@@ -530,7 +529,7 @@ void Splitter::getCurrentExtensionData()
         dataRaw.squeeze();
         for (long i=0; i<nelements; ++i) {
             float val = buffer[i];
-            if (isinf(val) || isnan(val)) val = 0.;      // set peculiar values to zero
+            if (std::isinf(val) || std::isnan(val)) val = 0.;      // set peculiar values to zero
             dataRaw[i] = val;
         }
     }
@@ -571,7 +570,7 @@ void Splitter::getDataInFirstCubeSlice()
         dataRaw.reserve(nelements);
         for (long i=0; i<nelements; ++i) {
             float val = buffer[i];
-            if (isinf(val) || isnan(val)) val = 0.;
+            if (std::isinf(val) || std::isnan(val)) val = 0.;
             dataRaw.append(val);
         }
         dataRaw.squeeze();
@@ -606,7 +605,7 @@ void Splitter::getDataInCube()
         dataCubeRaw.reserve(nelementsAll);
         for (long i=0; i<nelementsAll; ++i) {
             float val = bufferAll[i];
-            if (isinf(val) || isnan(val)) val = 0.;
+            if (std::isinf(val) || std::isnan(val)) val = 0.;
             dataCubeRaw.append(val);
         }
     }
@@ -730,7 +729,6 @@ void Splitter::getNumberOfAmplifiers()
 }
 
 // Write the pixel-corrected extension as a separate FITS file to disk
-// Condensed version of the same function as in MyFITS
 void Splitter::writeImage(int chipMapped)
 {
     if (!successProcessing) return;
@@ -1118,7 +1116,6 @@ void Splitter::testGROND()
     }
 }
 
-// Condensed from MyFITS
 void Splitter::readExtHeader()
 {
     if (rawStatus) return;

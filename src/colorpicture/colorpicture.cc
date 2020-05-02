@@ -25,7 +25,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../iview/iview.h"
 #include "../tools/tools.h"
 #include "../query/query.h"
-#include "../myfits/myfits.h"
 #include "../tools/cfitsioerrorcodes.h"
 
 #include <omp.h>
@@ -571,9 +570,6 @@ void ColorPicture::measureStatistics(long x, long y)
                 long ymin = y - 1 - 4;
                 long ymax = y - 1 + 4;
                 QVector<float> data = myImage->extractPixelValues(xmin, xmax, ymin, ymax);
-                //  To load from drive instead of memory
-                //  MyFITS image(dirName + name);
-                //  image.loadDataSection(xmin, xmax, ymin, ymax, data);
                 float medVal = medianMask_T(data);
                 float rmsVal = madMask_T(data)*1.486;
                 float minVal = medVal - 6.*rmsVal;      // an estimate for the black point

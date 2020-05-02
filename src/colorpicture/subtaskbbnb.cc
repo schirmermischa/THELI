@@ -23,7 +23,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../instrumentdata.h"
 #include "../preferences.h"
 #include "../tools/tools.h"
-#include "../myfits/myfits.h"
 #include "../tools/cfitsioerrorcodes.h"
 
 #include <omp.h>

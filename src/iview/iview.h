@@ -106,6 +106,8 @@ public:
 
     int currentId = 0;
 
+    int verbosity = 0;
+
     QList<MyImage*> myImageList;
 
     MyImage *currentMyImage = nullptr;

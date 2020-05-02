@@ -60,7 +60,6 @@ SOURCES += \
     iview/wavelet/filtercoeffs.cc \
     iview/wavelet/wavelet.cc \
     mainwindow.cc \
-    myfits/myfits.cc \
     myimage/background.cc \
     myimage/myimage.cc \
     myimage/segmentation.cc \
@@ -131,7 +130,9 @@ SOURCES += \
     iview/dockwidgets/ivwcsdockwidget.cc \
     myimage/astrometrynet.cc \
     threading/anetworker.cc \
-    processingInternal/processingCreateSourceCat.cc
+    processingInternal/processingCreateSourceCat.cc \
+    myimage/fitsinterface.cc \
+    myimage/writefits.cc
 
 HEADERS += \
         mainwindow.h \
@@ -157,7 +158,6 @@ HEADERS += \
     iview/mygraphicsscene.h \
     iview/mygraphicsview.h \
     iview/wavelet/wavelet.h \
-    myfits/myfits.h \
     myimage/myimage.h \
     preferences.h \
     processingExternal/errordialog.h \

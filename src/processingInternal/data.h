@@ -31,7 +31,6 @@ If not, see https://www.gnu.org/licenses/ .
 
 #include "mask.h"
 #include "../myimage/myimage.h"
-#include "../myfits/myfits.h"
 #include "../instrumentdata.h"
 #include "../processingStatus/processingStatus.h"
 

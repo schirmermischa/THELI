@@ -96,11 +96,11 @@ private:
     void getBlocksize();
     bool get_coaddblock(const int index, const long block, QVector<float> &resampledData, QVector<long> &resampledCoaddIndex);
     void identify_bad_pixels(const QVector<float> &gooddata, const QVector<long> &gooddataind, const long &currentpixel,
-                             const long &ngoodweight, QVector<pair<long,long>> &bpp);
+                             const long &ngoodweight, QVector<std::pair<long,long>> &bpp);
     void initStorage();
     void stackfilter_rejectmax(const QVector<float> &gooddata, float &meanval, float &rmsval);
     void stackfilter_rejectminmax(const QVector<float> &gooddata, float &meanval, float &rmsval);
-    void updateBadPixelIndex(const QVector<pair<long, long> > bpp);
+    void updateBadPixelIndex(const QVector<std::pair<long, long> > bpp);
     void writeWeight();
 };
 

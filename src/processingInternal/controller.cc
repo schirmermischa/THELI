@@ -1214,7 +1214,6 @@ void Controller::updateImageAndData(MyImage *image, Data *data)
         // Update members in MyImage class
         image->processingStatus->statusString = statusNew;
         image->baseName = image->chipName + statusNew;
-        image->pushNameToFITS();
         // New pixel data are not yet on drive
         image->imageOnDrive = false;
     }

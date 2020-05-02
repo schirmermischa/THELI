@@ -39,7 +39,6 @@ If not, see https://www.gnu.org/licenses/ .
 // #include <SPLINTER/bspline_builders.h>
 // #include <SPLINTER/bspline.h>
 
-#include "../myfits/myfits.h"
 #include "../myimage/myimage.h"
 
 #include "fitsio2.h"
@@ -573,7 +572,12 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
     if (weightMode) {
         filename.replace(".fits", ".weight.fits");
     }
-    MyFITS image(filename, "Read");
+
+    QVector<bool> dummyMask;
+    dummyMask.clear();
+
+    MyImage image(filename, dummyMask, &verbosity);
+    image.readImage();
     plateScale = image.plateScale;
     naxis1 = image.naxis1;
     naxis2 = image.naxis2;
@@ -586,8 +590,8 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
     (void) wcsset(wcs);
     wcsInit = true;
 
-    // Move the data from the transient MyFITS image over to the class member.
-    data.swap(image.data);
+    // Move the data from the transient MyImage over to the class member.
+    data.swap(image.dataCurrent);
 
     // Get the dynamic range
     // Normal viewer mode

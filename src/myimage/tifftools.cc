@@ -75,7 +75,7 @@ void MyImage::toTIFF(int bit, float minthresh, float maxthresh, bool zscaleing, 
         blowup = (65000. - grey) / (maxthresh - minthresh);
     }
 
-    vector< vector<long> > imtiff(n);
+    std::vector< std::vector<long> > imtiff(n);
     for (long i=0; i<n; ++i) {
         imtiff[i].resize(m,0);
     }

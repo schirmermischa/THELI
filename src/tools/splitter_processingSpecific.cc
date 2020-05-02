@@ -21,7 +21,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include "tools.h"
 #include "../instrumentdata.h"
 #include "../myimage/myimage.h"
-#include "../myfits/myfits.h"
 #include "../functions.h"
 
 #include "fitsio.h"

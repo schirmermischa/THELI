@@ -21,7 +21,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include <omp.h>
 
 #include "swarpfilter.h"
-#include "../myfits/myfits.h"
 #include "../myimage/myimage.h"
 #include "../functions.h"
 
@@ -178,7 +177,7 @@ void SwarpFilter::getGeometries()
     sky.reserve(num_images);
     fluxscale.reserve(num_images);
     for (auto &it : images) {
-        if (!it->imageFITS->informSwarpfilter(naxis1tmp, naxis2tmp, crpix1tmp, crpix2tmp, skytmp, fluxscaletmp)) {
+        if (!it->informSwarpfilter(naxis1tmp, naxis2tmp, crpix1tmp, crpix2tmp, skytmp, fluxscaletmp)) {
             emit messageAvailable("ERROR: SwarpFilter::loadGeometries(): Could not read the geometries of the resampled images", "error");
             return;
         }
@@ -276,7 +275,7 @@ void SwarpFilter::runCosmicFilter()
 #pragma omp parallel num_threads(nthreads)
         {
             // bad pixel pair (index in the coadded image and index in the individual frame)
-            QVector<pair<long,long>> bpp;
+            QVector<std::pair<long,long>> bpp;
             bpp.reserve(100000);
             QVector<float> gooddata;           // The pixel values of the images contributing to a coadded pixel
             QVector<long> gooddataind;         // The index of an image contributing to a coadded pixel
@@ -330,7 +329,7 @@ void SwarpFilter::runCosmicFilter()
     freeMemoryVectors();
 }
 
-void SwarpFilter::updateBadPixelIndex(const QVector<pair<long,long>> bpp)
+void SwarpFilter::updateBadPixelIndex(const QVector<std::pair<long,long>> bpp)
 {
     for (auto &pair : bpp) {
         badpixindex[pair.first].append(pair.second);
@@ -388,7 +387,7 @@ bool SwarpFilter::get_coaddblock(const int index, const long block, QVector<floa
     // One could load the weights too, but that would double the memory load for very little return
     // We later on reject image pixels with zero value; likely they have zero weight; what would be missed is manually masked areas, such as satellites.
     // But the algorithm is supposed to detect them anyway, so no harm done by skipping the weights.
-    images[index]->imageFITS->loadDataSection(0, naxis1[index]-1, firstline2read, lastline2read, data_in);
+    images[index]->loadDataSection(0, naxis1[index]-1, firstline2read, lastline2read, data_in);
     long l = 0;  // the running index of the image
     long k = 0;  // the running index of the coadd [0,chunksize)
 
@@ -433,7 +432,7 @@ bool SwarpFilter::get_coaddblock(const int index, const long block, QVector<floa
 // Identify the bad pixels in a stack
 //***************************************************************************************
 void SwarpFilter::identify_bad_pixels(const QVector<float> &gooddata, const QVector<long> &gooddataind,
-                                      const long &currentpixel, const long &ngoodweight, QVector<pair<long,long>> &bpp)
+                                      const long &currentpixel, const long &ngoodweight, QVector<std::pair<long,long>> &bpp)
 {
     // no rejection if less than 2 pixels contributing to a coadded pixel
     if (ngoodweight < 2 ) return;
@@ -490,7 +489,7 @@ void SwarpFilter::identify_bad_pixels(const QVector<float> &gooddata, const QVec
         long i=0;
         for (auto &it : gooddata) {
             if (fabs(it - mean) > thresh) {
-                bpp.append(make_pair(gooddataind[i], currentpixel));
+                bpp.append(std::make_pair(gooddataind[i], currentpixel));
             }
             ++i;
         }
@@ -502,7 +501,7 @@ void SwarpFilter::identify_bad_pixels(const QVector<float> &gooddata, const QVec
                 // reject pixel only if it is the brighter one
                 if ((i == 0 && gooddata[0] > gooddata[1]) ||
                         (i == 1 && gooddata[1] > gooddata[0])) {
-                    bpp.append(make_pair(gooddataind[i], currentpixel));
+                    bpp.append(std::make_pair(gooddataind[i], currentpixel));
                 }
             }
             ++i;

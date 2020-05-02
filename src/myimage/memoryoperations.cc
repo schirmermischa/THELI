@@ -183,7 +183,6 @@ bool MyImage::makeL1Current()
     baseName = baseNameBackupL1;
     imageInMemory = backupL1InMemory;
     imageOnDrive = backupL1OnDrive;
-    imageFITS->name = path + "/" + baseName + ".fits";
 
     // MEMORY
     pullUpFromL2();
@@ -214,7 +213,6 @@ bool MyImage::makeL2Current()
     baseName = baseNameBackupL2;
     imageInMemory = backupL2InMemory;
     imageOnDrive = backupL2OnDrive;
-    imageFITS->name = path + "/" + baseName + ".fits";
 
     // L3 to L2
     pullUpFromL3();
@@ -246,7 +244,6 @@ bool MyImage::makeL3Current()
     baseName = baseNameBackupL3;
     imageInMemory = backupL3InMemory;
     imageOnDrive = backupL3OnDrive;
-    imageFITS->name = path + "/" + baseName + ".fits";
 
     // wipe L1 and L2
     wipeL1();
@@ -293,7 +290,6 @@ void MyImage::pullUpFromL1()
     dataCurrent_deletable = false;
     baseName = baseNameBackupL1;
     imageInMemory = backupL1InMemory;
-    imageFITS->name = path + "/" + baseName + ".fits";
 }
 
 void MyImage::wipeL1()

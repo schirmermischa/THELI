@@ -476,7 +476,7 @@ QVector<float> collapse_quad(QVector<float> &data, const QVector<bool> &globalMa
 // Sort a 2D QVector by its first element
 void sort2DVector(QVector<QVector<double>> data)
 {
-    sort(data.begin(), data.end(), [](const QVector<double>& left, const QVector<double>& right)->bool {
+    std::sort(data.begin(), data.end(), [](const QVector<double>& left, const QVector<double>& right)->bool {
         if (left.empty() && right.empty()) return false;
         if (left.empty()) return true;
         if (right.empty()) return false;

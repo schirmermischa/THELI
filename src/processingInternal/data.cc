@@ -23,7 +23,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../functions.h"
 #include "../tools/tools.h"
 #include "../tools/cfitsioerrorcodes.h"
-#include "../myfits/myfits.h"
 #include "../preferences.h"
 #include "../instrumentdata.h"
 #include "../threading/memoryworker.h"
@@ -109,7 +108,7 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
             for (auto &it : fitsFiles) {
                 MyImage *myImage = new MyImage(dirName, it, "", chip+1, mask->globalMask[chip], verbosity);
                 myImage->setParent(this);
-                myImage->filter = myImage->imageFITS->readFILTER();
+                myImage->readFILTER(dirName+"/"+it);
                 myImage->imageOnDrive = true;
                 myImageList[chip].append(myImage);
                 ++numImages;
@@ -2214,11 +2213,12 @@ bool Data::collectMJD()
         mjdData.reserve(myImageList[chip].length());
         if (duplicateFound) continue;
         for (auto &it : myImageList[chip]) {
-            if (!it->hasMJDread) {
-                it->imageFITS->getMJD();
-                it->mjdobs = it->imageFITS->mjdobs;
-                it->hasMJDread = true;
-            }
+//            if (!it->hasMJDread) {
+//                it->imageFITS->getMJD();
+                it->getMJD();
+//                it->mjdobs = it->imageFITS->mjdobs;
+//                it->hasMJDread = true;
+//            }
             if (*verbosity == 3) emit messageAvailable(it->chipName + " : MJD-OBS = " +QString::number(it->mjdobs, 'f', 12), "image");
             mjdData.append(it->mjdobs);
         }

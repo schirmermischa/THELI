@@ -20,9 +20,10 @@ If not, see https://www.gnu.org/licenses/ .
 #include "query.h"
 #include "../functions.h"
 #include "../tools/tools.h"
-#include "../myfits/myfits.h"
 #include "../myimage/myimage.h"
 #include "../processingInternal/data.h"
+#include "../tools/cfitsioerrorcodes.h"
+
 #include "wcs.h"
 #include "wcshdr.h"
 
@@ -162,7 +163,7 @@ void Query::getCatalogSearchRadiusAstrom()
         // safeguarding against a potential threading issue with wcslib:
         if (radius > 5.*scienceData->instData->radius*60) {
             radius = 2.*scienceData->instData->radius*60;
-            // TODO: this is probably not necessary anymore because of the wcslock in MyImage::transferWCS()
+            // TODO: this is probably not necessary anymore because of the wcslock in MyImage::initWCS()
             emit messageAvailable("Truncating the search radius to "+QString::number(radius, 'f', 1) + " arcmin", "warning");
             emit messageAvailable("Do you have different targets collected in the same directory?", "warning");
             qDebug() << "RA corner vertices" << corners_crval1;
@@ -179,6 +180,7 @@ void Query::getCatalogSearchLocationPhotom()
     // Calculate RA/DEC of image center
     photomImage = new MyImage(photomDir, photomImageName, "", 1, QVector<bool>(), verbosity);
     photomImage->provideHeaderInfo();
+    photomImage->initWCS();
     naxis1 = photomImage->naxis1;
     naxis2 = photomImage->naxis2;
     radius = 1.1 * sqrt(naxis1*naxis1+naxis2*naxis2) / 2. * photomImage->plateScale / 60.;
@@ -195,6 +197,7 @@ void Query::getCatalogSearchLocationColorCalib()
 
     // Calculate RA/DEC of image center
     photomImage->provideHeaderInfo();
+    photomImage->initWCS();
     naxis1 = photomImage->naxis1;
     naxis2 = photomImage->naxis2;
     radius = 1.1 * sqrt(naxis1*naxis1+naxis2*naxis2) / 2. * photomImage->plateScale / 60.;
@@ -1169,8 +1172,7 @@ void Query::writeAstromScamp()
     //    fits_write_col(fptr, TSHORT, 8, firstrow, firstelem, nrows, fieldpos, &status);
     fits_close_file(fptr, &status);
 
-    MyFITS dummy;
-    dummy.printerror(status);
+    printCfitsioError("writeAstromScamp()", status);
 
     QFile file(filename);
     file.setPermissions(QFile::ReadUser | QFile::WriteUser);
@@ -1231,8 +1233,7 @@ void Query::writeAstromANET()
     fits_write_col(fptr, TFLOAT, 3, firstrow, firstelem, nrows, mag_arr, &status);
     fits_close_file(fptr, &status);
 
-    MyFITS dummy;
-    dummy.printerror(status);
+    printCfitsioError("writeAstromANET()", status);
 
     // STEP 2: build the anet index
 
@@ -1315,4 +1316,14 @@ void Query::dumpRefcatID()
         stream << refcatName+"_"+alpha_manual+"_"+delta_manual+"_"+magLimit_string+"_"+radius_manual+"_"+maxProperMotion_string << "\n";
     }
     file.close();
+}
+
+void Query::printCfitsioError(QString funcName, int status)
+{
+    if (status) {
+        CfitsioErrorCodes *errorCodes = new CfitsioErrorCodes(this);
+        emit messageAvailable("Query::"+funcName+":<br>" + errorCodes->errorKeyMap.value(status), "error");
+        emit critical();
+        successProcessing = false;
+    }
 }

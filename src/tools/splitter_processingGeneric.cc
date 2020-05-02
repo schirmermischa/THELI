@@ -23,7 +23,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../myimage/myimage.h"
 #include "../dockwidgets/confdockwidget.h"
 #include "ui_confdockwidget.h"
-#include "../myfits/myfits.h"
 #include "../functions.h"
 #include "fitsio.h"
 #include <QString>

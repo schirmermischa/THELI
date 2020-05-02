@@ -41,8 +41,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QScrollBar>
 #include <QTimer>
 
-using namespace std;
-
 void IView::initSeparationVector(QPointF pointStart)
 {
     if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;

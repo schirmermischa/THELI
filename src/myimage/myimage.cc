@@ -67,29 +67,10 @@ MyImage::MyImage(QString pathname, QString filename, QString statusString, int c
         validMode = true;
         validBackground = true;
         validDetector = true;
-        // Create the FITS instance, but do not open and read it yet.
         weightPath = path+"/../WEIGHTS/";
-        imageFITS = new MyFITS(path+"/"+name);
-        weightFITS = new MyFITS(weightPath+"/"+weightName+".fits");
-        // setParent() didn't work elsewhere (?)
-        imageFITS->setParent(this);
-        weightFITS->setParent(this);
-        allocatedImageFITS = true;
-        connect(imageFITS, &MyFITS::messageAvailable, this, &MyImage::messageAvailableReceived);
-        connect(weightFITS, &MyFITS::messageAvailable, this, &MyImage::messageAvailableReceived);
     }
 
     verbosity = verbose;
-
-    // When creating a master calibrator, we must also instantiate the MyFITS member.
-    // On systems with little RAM, MyFITS must exist so that the data can be read from the FITS file on the drive that was created wehn computing the master calibrator.
-    // Otherwise, MyFITS is a nullpointer for MyImage::readImage().
-    if (!allocatedImageFITS) {
-        imageFITS = new MyFITS(path+"/"+name);
-        imageFITS->setParent(this);
-        allocatedImageFITS = true;
-        connect(imageFITS, &MyFITS::messageAvailable, this, &MyImage::messageAvailableReceived);
-    }
 
     wcs = new wcsprm();
     wcsInit = true;
@@ -143,26 +124,9 @@ MyImage::MyImage(QString fullPathName, const QVector<bool> &mask, int *verbose, 
         validDetector = true;
         // Create the FITS instance, but do not open and read it yet.
         weightPath = path;
-        imageFITS = new MyFITS(path+"/"+name);
-        weightFITS = new MyFITS(weightPath+"/"+weightName+".fits");
-        //        imageFITS->setParent(this);
-        //        weightFITS->setParent(this);
-        allocatedImageFITS = true;
-        connect(imageFITS, &MyFITS::messageAvailable, this, &MyImage::messageAvailableReceived);
-        connect(weightFITS, &MyFITS::messageAvailable, this, &MyImage::messageAvailableReceived);
     }
 
     verbosity = verbose;
-
-    // When creating a master calibrator, we must also instantiate the MyFITS member.
-    // On systems with little RAM, MyFITS must exist so that the data can be read from the FITS file on the drive that was created wehn computing the master calibrator.
-    // Otherwise, MyFITS is a nullpointer for MyImage::readImage().
-    if (!allocatedImageFITS) {
-        imageFITS = new MyFITS(path+"/"+name);
-        imageFITS->setParent(this);
-        allocatedImageFITS = true;
-        connect(imageFITS, &MyFITS::messageAvailable, this, &MyImage::messageAvailableReceived);
-    }
 
     wcs = new wcsprm();
     wcsInit = true;
@@ -177,9 +141,11 @@ MyImage::~MyImage()
         delete object;
     }
 
-    if (allocatedImageFITS) delete imageFITS;
     if (wcsInit) wcsfree(wcs);
     if (wcsInit) delete wcs;  // valgrind does not like that
+
+    int status = 0;
+    if (fullheaderAllocated) fits_free_memory(fullheader, &status);
 
     omp_destroy_lock(&backgroundLock);
     omp_destroy_lock(&objectLock);
@@ -195,20 +161,6 @@ void MyImage::setBackgroundLock(bool locked)
 {
     if (locked) omp_set_lock(&backgroundLock);
     else omp_unset_lock(&backgroundLock);
-}
-
-// UNUSED
-// When creating a master calibrator, we must also instantiate the MyFITS member.
-// On systems with little RAM, MyFITS must exist so that the data can be read from the FITS file on the drive that was created wehn computing the master calibrator.
-// Otherwise, MyFITS is a nullpointer for MyImage::readImage().
-void MyImage::createMyFITSinstance()
-{
-    if (allocatedImageFITS) return;
-
-    imageFITS = new MyFITS(path+"/"+name);
-    imageFITS->setParent(this);
-    allocatedImageFITS = true;
-    connect(imageFITS, &MyFITS::messageAvailable, this, &MyImage::messageAvailableReceived);
 }
 
 void MyImage::updateProcInfo(QString text)
@@ -234,18 +186,8 @@ void MyImage::readImage(bool determineMode)
         return;
     }
     else {
-        // TODO: delete the following. This should never happen
-        if (imageFITS == nullptr) {
-            emit messageAvailable("MyImage::readImage(): " + baseName + " : imageFITS member is nullptr", "error");
-            emit critical();
-            successProcessing = false;
-            return;
-        }
-        // Attempt to read image. Order of calls is important!
-        if (imageFITS->loadData()) {
-            transferWCS();        // must be done first to instantiate wcs
-            transferDataToMyImage();
-            transferMetadataToMyImage();
+        if (loadData()) {
+            initWCS();        // must be done first to instantiate wcs
             cornersToRaDec();
             getMode(determineMode);
             imageInMemory = true;
@@ -274,11 +216,9 @@ void MyImage::readImageBackupL1Launch()
     bool determineMode = true;
 
     // Attempt to read image. Order of calls is important!
-    imageFITS->name = pathBackupL1 + "/" + baseNameBackupL1 + ".fits";
-    if (imageFITS->loadData()) {
-        transferWCS();   // must be done first to instantiate wcs
-        transferDataToMyImage();
-        transferMetadataToMyImage();
+    QString loadFileName = pathBackupL1 + "/" + baseNameBackupL1 + ".fits";
+    if (loadData(loadFileName)) {
+        initWCS();   // must be done first to instantiate wcs
         cornersToRaDec();
         getMode(determineMode);
         dataBackupL1 = dataCurrent;
@@ -343,73 +283,6 @@ void MyImage::readImageBackupL1()
         dataCurrent.squeeze();  // shed excess memory
         imageInMemory = true;
     }
-}
-
-void MyImage::pushNameToFITS()
-{
-    imageFITS->name = path+"/"+baseName+".fits";
-}
-
-// needed if we need access to header information, but not (yet) the data block,
-// e.g. if the GUI is started, and the first task is to download the reference catalog,
-// or if we update the zero-th order solution
-void MyImage::provideHeaderInfo()
-{
-    /*
-    QFile file(name);
-    if (!file.exists()) {
-        qDebug() << "ERROR: MyImage::provideHeaderInfo(): " + name + " does not exist!";
-        successProcessing = false;
-        return;
-    }
-    */
-    if (!headerInfoProvided) {
-        if (!imageFITS->provideHeaderInfo()) {
-            emit messageAvailable(baseName + " : provideHeaderInfo(): ERROR getting FITS header data", "error");
-            emit critical();
-            return;
-        }
-        transferWCS();  // must be done first to instantiate wcs
-        transferMetadataToMyImage();
-        cornersToRaDec();
-        if (*verbosity > 2) emit messageAvailable(chipName + " : Image header loaded", "image");
-    }
-    else {
-        if (*verbosity > 2) emit messageAvailable(chipName + " : Header already in memory", "image");
-    }
-    headerInfoProvided = true;
-}
-
-void MyImage::transferMetadataToMyImage()
-{
-    // IF THERE ARE PROBLEMS WITH CORRUPTED HEADERS, REMOVE THE IF CONDITION HERE TO TEST
-    if (!headerInfoProvided) header = imageFITS->header;
-    //    header = imageFITS->header;
-    filter = imageFITS->filter.simplified();
-    mjdobs = imageFITS->mjdobs;
-    naxis1 = imageFITS->naxis1;
-    naxis2 = imageFITS->naxis2;
-    bitpix = imageFITS->bitpix;
-    exptime = imageFITS->exptime;
-    airmass = imageFITS->airmass;
-    fwhm = imageFITS->fwhm;
-    fwhm_est = imageFITS->fwhm_est;
-    gain = imageFITS->gain;
-    ellipticity = imageFITS->ellipticity;
-    ellipticity_est = imageFITS->ellipticity_est;
-    RZP = imageFITS->RZP;
-    dateobs = imageFITS->dateobs;
-    gainNormalization = imageFITS->gainNormalization;
-    hasMJDread = imageFITS->hasMJDread;
-
-    getPlateScale();
-
-    dim = naxis1*naxis2;
-    skyValue = imageFITS->skyValue;
-    if (skyValue != -1e9) modeDetermined = true;
-    else modeDetermined = false;
-
-    metadataTransferred = true;
 }
 
 // Retrieve the zero order solution from the currently created header file, or restore it from the original backup copy;
@@ -534,55 +407,6 @@ void MyImage::backupOrigHeader(int chip)
     file.setPermissions(QFile::ReadUser | QFile::WriteUser);
 }
 
-// Setup the WCS
-void MyImage::transferWCS()
-{
-    if (!successProcessing) return;
-
-    emit setWCSLock(true);          // It appears that not everything in the wcslib is threadsafe
-    fullheader = imageFITS->fullheader;
-    int nreject;
-    int nwcs;
-    //    struct wcsprm *wcstmp = nullptr;
-    int check = wcspih(fullheader, imageFITS->numHeaderKeys, 0, 0, &nreject, &nwcs, &wcs);
-    if (check > 1) {
-        emit messageAvailable("MyImage::transferWCS(): " + baseName + ": wcspih() returned" + QString::number(check), "error" );
-        emit critical();
-        emit setWCSLock(false);
-        successProcessing = false;
-        wcsInit = false;
-        return;
-    }
-    if (nwcs == 0 || check == 1) {
-        // OK state, e.g. for master calibrators which don't have a valid WCS
-        if (*verbosity > 2) emit messageAvailable(chipName + " : No WCS representation found", "image");
-        emit setWCSLock(false);
-        wcsInit = false;
-        return;
-    }
-    int wcsCheck = wcsset(wcs);
-    if (wcsCheck > 0) {
-        QString wcsError = "";
-        if (wcsCheck == 1) wcsError = "Null wcsprm pointer passed";                   // Should be caught by 'if' conditions above
-        if (wcsCheck == 2) wcsError = "Memory allocation failed";
-        if (wcsCheck == 3) wcsError = "Linear transformation matrix is singular";
-        if (wcsCheck == 4) wcsError = "Inconsistent or unrecognized coordinate axis types";
-        if (wcsCheck == 5) wcsError = "Invalid parameter value";
-        if (wcsCheck == 6) wcsError = "Invalid coordinate transformation parameters";
-        if (wcsCheck == 7) wcsError = "Ill-conditioned coordinate transformation parameters";
-        emit messageAvailable("MyImage::transferWCS(): wcsset() error : " + wcsError, "error");
-        emit critical();
-        successProcessing = false;
-        wcsInit = false;
-    }
-    wcsInit = true;
-    if (*verbosity > 2) {
-        emit messageAvailable(chipName + " : RA / DEC = "
-                              + QString::number(wcs->crval[0], 'f', 6) + " "
-                + QString::number(wcs->crval[1], 'f', 6), "image");
-    }
-    emit setWCSLock(false);
-}
 
 void MyImage::replaceCardInFullHeaderString(QString keyname, double value)
 {
@@ -725,29 +549,6 @@ void MyImage::getMode(bool determineMode)
     }
 }
 
-// Potentially not safe with Controller::displayTotalMemoryUsed(); might require lock (or deactivate memory progress bar)
-// Take the data array in MyFITS->data and move it over to MyImage
-void MyImage::transferDataToMyImage()
-{
-    if (!successProcessing) return;
-
-    // Transfer MyFITS->data to MyImage->data
-    dataCurrent.swap(imageFITS->data);
-    imageFITS->data.clear();
-    imageFITS->data.squeeze();
-}
-
-// Take the data array in MyFITS->data and move it over to MyImage
-void MyImage::transferDataToMyWeight()
-{
-    if (!successProcessing) return;
-
-    // Transfer MyFITS->data to MyImage->data
-    dataWeight.swap(weightFITS->data);
-    weightFITS->data.clear();
-    weightFITS->data.squeeze();
-}
-
 // Flag the image if its mode is outside the acceptable range
 void MyImage::setModeFlag(QString min, QString max)
 {
@@ -826,7 +627,7 @@ void MyImage::divideFlat(MyImage *flatImage)
         pixel /= (flatImage->dataCurrent[i] * flatImage->gainNormalization);
         // NaN pixels slow down sextractor enourmously (and make it fail).
         // we can probably get rid of this once we have completely thrown out sextractor
-        if (isnan(pixel) || isinf(pixel)) pixel = 0.;
+        if (std::isnan(pixel) || std::isinf(pixel)) pixel = 0.;
         ++i;
     }
 
@@ -947,6 +748,8 @@ void MyImage::collapseCorrection(QString threshold, QString direction)
 
 QVector<float> MyImage::extractPixelValues(long xmin, long xmax, long ymin, long ymax)
 {
+    // CHECK: if not in memory then load from drive
+
     long nsub = xmax - xmin + 1;
     long msub = ymax - ymin + 1;
 
@@ -962,8 +765,7 @@ QVector<float> MyImage::extractPixelValues(long xmin, long xmax, long ymin, long
     */
 
     section.resize(nsub*msub);
-
-    long k=0;
+    long k = 0;
     for (long j=ymin; j<=ymax; ++j) {
         for (long i=xmin; i<=xmax; ++i) {
             section[k] = dataCurrent[i+naxis1*j];
@@ -1002,7 +804,7 @@ void MyImage::makeCutout(long xmin, long xmax, long ymin, long ymax)
     naxis1 = nsub;
     naxis2 = msub;
     if (wcsInit) {
-        wcs->crpix[0] = wcs->crpix[0]- xmin + 1;
+        wcs->crpix[0] = wcs->crpix[0] - xmin + 1;
         wcs->crpix[1] = wcs->crpix[1] - ymin + 1;
         wcs->flag = 0;
     }
@@ -1024,137 +826,6 @@ float MyImage::polynomialSum(float x, QVector<float> coefficients)
     return sum;
 }
 
-void MyImage::writeImage(QString fileName, QString filter, float exptime, bool addGain)
-{
-    if (!successProcessing) return;
-
-    if (fileName.isEmpty()) {
-        // Dump dataCurrent to a FITS file at the default location with the latest status string;
-        fileName = path+"/"+chipName+processingStatus->statusString+".fits";
-    }
-    MyFITS out(fileName, naxis1, naxis2, dataCurrent);
-    if (addGain) {
-        out.addGainNormalization = true;
-        out.gainNormalization = gainNormalization;
-    }
-
-    QString history = "";
-    bool success = out.write(history, exptime, filter, header);
-    if (success) {
-        imageOnDrive = true;
-        successProcessing = true;
-        if (*verbosity > 1) emit messageAvailable(baseName + " : Written to drive.", "image");
-    }
-    else {
-        imageOnDrive = false;
-        successProcessing = false;
-        emit messageAvailable(baseName + " : Could not write file to drive!", "error");
-        emit critical();
-        return;
-    }
-    emit modelUpdateNeeded(baseName, chipName);
-}
-
-void MyImage::writeImageBackupL1()
-{
-    if (!successProcessing) return;
-
-    QString fileName = pathBackupL1+"/"+chipName+statusBackupL1+".fits";
-
-    MyFITS out(fileName, naxis1, naxis2, dataBackupL1);
-    out.addGainNormalization = true;
-    out.gainNormalization = gainNormalization;
-
-    QString history = "";
-    bool success = out.write(history, exptime, filter, header);
-    if (success) {
-        backupL1OnDrive = true;
-        if (*verbosity > 1) emit messageAvailable(chipName+statusBackupL1 + " : Written to drive.", "image");
-    }
-    else {
-        backupL1OnDrive = false;
-        emit messageAvailable(chipName+statusBackupL1 + " : Could not write file to drive!", "error");
-        emit critical();
-        return;
-    }
-    // For future reference, if memoryViewer gets more functionality
-    //    emit modelUpdateNeeded(baseName, chipName);
-}
-void MyImage::writeImageBackupL2()
-{
-    if (!successProcessing) return;
-
-    QString fileName = pathBackupL2+"/"+chipName+statusBackupL2+".fits";
-
-    MyFITS out(fileName, naxis1, naxis2, dataBackupL2);
-    out.addGainNormalization = true;
-    out.gainNormalization = gainNormalization;
-
-    QString history = "";
-    bool success = out.write(history, exptime, filter, header);
-    if (success) {
-        backupL2OnDrive = true;
-        if (*verbosity > 1) emit messageAvailable(chipName+statusBackupL2 + " : Written to drive.", "image");
-    }
-    else {
-        backupL2OnDrive = false;
-        emit messageAvailable(chipName+statusBackupL2 + " : Could not write file to drive!", "error");
-        emit critical();
-        return;
-    }
-    // For future reference, if memoryViewer gets more functionality
-    //    emit modelUpdateNeeded(baseName, chipName);
-}
-
-void MyImage::writeImageBackupL3()
-{
-    if (!successProcessing) return;
-
-    QString fileName = pathBackupL3+"/"+chipName+statusBackupL3+".fits";
-
-    MyFITS out(fileName, naxis1, naxis2, dataBackupL3);
-    out.addGainNormalization = true;
-    out.gainNormalization = gainNormalization;
-
-    QString history = "";
-    bool success = out.write(history, exptime, filter, header);
-    if (success) {
-        backupL3OnDrive = true;
-        if (*verbosity > 1) emit messageAvailable(chipName+statusBackupL3 + " : Written to drive.", "image");
-    }
-    else {
-        backupL3OnDrive = false;
-        emit messageAvailable(chipName+statusBackupL3 + " : Could not write file to drive!", "error");
-        emit critical();
-        return;
-    }
-    // For future reference, if memoryViewer gets more functionality
-    //    emit modelUpdateNeeded(baseName, chipName);
-}
-
-void MyImage::writeConstSkyImage(float constValue, QString filter, float exptime, bool addGain)
-{
-    if (!successProcessing) return;
-
-    mkAbsDir(path+"/SKY_IMAGES");
-    QString fileName = path+"/SKY_IMAGES/"+baseName+".sky.fits";
-    MyFITS out(fileName, naxis1, naxis2, constValue);
-    if (addGain) {
-        out.addGainNormalization = true;
-        out.gainNormalization = gainNormalization;
-    }
-
-    QString history = "";
-    bool success = out.writeConstImage(history, exptime, filter, header);
-    if (success) {
-        if (*verbosity > 1) emit messageAvailable(baseName + " : Sky image written to drive.", "image");
-    }
-    else {
-        emit messageAvailable("MyImage::writeConstImage(): " + baseName + " : Could not write sky image to drive!", "error");
-        emit critical();
-        return;
-    }
-}
 
 void MyImage::removeSourceCatalogs()
 {
@@ -1165,35 +836,6 @@ void MyImage::removeSourceCatalogs()
     catName = path+"/cat/"+chipName+".anet";
     QFile catFile2(catName);
     if (catFile2.exists()) catFile2.remove();
-}
-
-void MyImage::writeImageDebayer(bool addGain)
-{
-    if (!successProcessing) return;
-
-    QString fileName = path+"/"+chipName+processingStatus->statusString+".fits";
-
-    MyFITS out(fileName, naxis1, naxis2, dataCurrent);
-    if (addGain) {
-        out.addGainNormalization = true;
-        out.gainNormalization = gainNormalization;
-    }
-
-    QString history = "";
-    bool success = out.writeDebayer(history, exptime, filter, mjdobs, header);
-    if (success) {
-        imageOnDrive = true;
-        successProcessing = true;
-        if (*verbosity > 1) emit messageAvailable(baseName + " : Written to drive.", "image");
-    }
-    else {
-        imageOnDrive = false;
-        successProcessing = false;
-        emit messageAvailable("MyImage::writeImageDebayer(): " + baseName + " : Could not write file to drive!", "error");
-        emit critical();
-        return;
-    }
-    emit modelUpdateNeeded(baseName, chipName);
 }
 
 // This routine is used when reading an external image
@@ -1251,7 +893,7 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
     fits_update_key_dbl(fptr, "CD1_2", wcs->cd[1], 9, nullptr, &status);
     fits_update_key_dbl(fptr, "CD2_1", wcs->cd[2], 9, nullptr, &status);
     fits_update_key_dbl(fptr, "CD2_2", wcs->cd[3], 9, nullptr, &status);
-    if (isnan(RZP)) {
+    if (std::isnan(RZP)) {
         RZP = 0.;
         FLXSCALE = 0.;
         emit messageAvailable(chipName + " : Scamp could not determine the relative zeropoint. Set to 0!", "warning");
@@ -1276,7 +918,7 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
             if (!successProcessing) return;
 
             // Update the data in memory
-            // WCSLIB threading issue (probably solved by wcsLock in transferWCS()
+            // WCSLIB threading issue (probably solved by wcsLock in initWCS()
             // Can be removed if we don't see this again
             if (wcs->naxis != 2) {
                 emit messageAvailable(chipName + " : MyImage::updateZeroOrder(): Incompatible NAXIS WCS dimension: "
