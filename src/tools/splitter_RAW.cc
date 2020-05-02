@@ -20,7 +20,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include "splitter.h"
 #include "../instrumentdata.h"
 #include "../myimage/myimage.h"
-#include "../myfits/myfits.h"
 #include "../functions.h"
 
 #include "libraw/libraw.h"
@@ -35,6 +34,7 @@ If not, see https://www.gnu.org/licenses/ .
 
 void Splitter::importRAW()
 {
+
     if (!successProcessing) return;
 
     // The file has been opened successfully already by Splitter::determineFileType()
@@ -54,7 +54,7 @@ void Splitter::importRAW()
     naxis1 = S.iwidth;
     naxis2 = S.iheight;
 
-    if (!checkChipGeometry()) return;
+//    if (!checkChipGeometry()) return;
 
     long dim = naxis1Raw*naxis2Raw;
     dataRaw.clear();
@@ -98,6 +98,7 @@ void Splitter::importRAW()
         dateObsValue = yy+"-"+mm+"-"+dd+"T"+hours;
         if (!checkFormatDATEOBS()) dateObsValue = "2020-01-01T00:00:00.0";
     }
+
     mjdobsValue = dateobsToMJD();
     exptimeValue = P2.shutter;
     sensorTemp = P2.SensorTemperature;
@@ -113,6 +114,7 @@ void Splitter::importRAW()
     }
 }
 
+// UNUSED
 // For RAW files we force the SIZE settings in the camera.ini
 bool Splitter::checkChipGeometry()
 {
@@ -226,6 +228,14 @@ void Splitter::overwriteCameraIniRAW()
         instData.cuty[chip] = S.top_margin;
         instData.sizex[chip] = S.iwidth;
         instData.sizey[chip] = S.iheight;
+        if (S.iwidth % 2 != 0) {
+            instData.cutx[chip] += 1;
+            instData.sizex[chip] -= 1;
+        }
+        if (S.iheight % 2 != 0) {
+            instData.cuty[chip] += 1;
+            instData.sizey[chip] -= 1;
+        }
     }
 
     // Don't need RAW data and metadata anymore

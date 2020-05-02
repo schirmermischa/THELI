@@ -118,8 +118,8 @@ void Instrument::applyStyleSheets()
     for (auto &it : subtitleList) {
         it->setStyleSheet("color: rgb(150, 240, 240); background-color: rgb(58, 78, 98);");
         it->setMargin(8);
-//        it->setStyleSheet("background-color: rgb(190,190,210);");
-//        it->setMargin(4);
+        //        it->setStyleSheet("background-color: rgb(190,190,210);");
+        //        it->setMargin(4);
     }
 
     QList<QFrame*> frameList;
@@ -235,7 +235,7 @@ void Instrument::validate(QString arg1)
     QValidator* validator_intblank = new QRegExpValidator(ri4, this );
     ui->latitudeLineEdit->setValidator( validator_float );
     ui->longitudeLineEdit->setValidator( validator_float );
-//    ui->gainLineEdit->setValidator( validator_floatpos );
+    //    ui->gainLineEdit->setValidator( validator_floatpos );
     ui->plateScaleLineEdit->setValidator( validator_floatpos );
     ui->overscanxMinLineEdit->setValidator( validator_intposblank );
     ui->overscanxMaxLineEdit->setValidator( validator_intposblank);
@@ -326,16 +326,38 @@ void Instrument::on_saveConfigPushButton_clicked()
         outputStream << "# Plate scale\n";
         outputStream << "PIXSCALE=" << ui->plateScaleLineEdit->text().toFloat() << "\n\n";
         outputStream << "# Detector gain (lowest gain for a multi-detector instrument, i.e. brightest image)\n";
-//        outputStream << "GAIN=" << ui->gainLineEdit->text() << "\n\n";
+        //        outputStream << "GAIN=" << ui->gainLineEdit->text() << "\n\n";
         outputStream << "# Detector geometries\n";
         outputStream << "OVSCANX1=" << geometryToConfig(ui->overscanxMinLineEdit->text()) << "\n";
         outputStream << "OVSCANX2=" << geometryToConfig(ui->overscanxMaxLineEdit->text()) << "\n";
         outputStream << "OVSCANY1=" << geometryToConfig(ui->overscanyMinLineEdit->text()) << "\n";
         outputStream << "OVSCANY2=" << geometryToConfig(ui->overscanyMaxLineEdit->text()) << "\n";
-        outputStream << "CUTX=" << geometryToConfig(ui->startxLineEdit->text()) << "\n";
-        outputStream << "CUTY=" << geometryToConfig(ui->startyLineEdit->text()) << "\n";
-        outputStream << "SIZEX=" << geometryToConfig(ui->sizexLineEdit->text()) << "\n";
-        outputStream << "SIZEY=" << geometryToConfig(ui->sizeyLineEdit->text()) << "\n";
+        if (!ui->bayerCheckBox->isChecked()) {
+            outputStream << "CUTX=" << geometryToConfig(ui->startxLineEdit->text()) << "\n";
+            outputStream << "CUTY=" << geometryToConfig(ui->startyLineEdit->text()) << "\n";
+            outputStream << "SIZEX=" << geometryToConfig(ui->sizexLineEdit->text()) << "\n";
+            outputStream << "SIZEY=" << geometryToConfig(ui->sizeyLineEdit->text()) << "\n";
+        }
+        else {
+            // WARNING: foregoing multi-chip support, assuming single chip
+            long cutx = ui->startxLineEdit->text().simplified().toLong();
+            long cuty = ui->startyLineEdit->text().simplified().toLong();
+            long sizex = ui->sizexLineEdit->text().simplified().toLong();
+            long sizey = ui->sizeyLineEdit->text().simplified().toLong();
+            // enforcing even-numbered geometry
+            if (sizex % 2 != 0) {
+                ui->startxLineEdit->setText(QString::number(cutx+1));
+                ui->sizexLineEdit->setText(QString::number(sizex-1));
+            }
+            if (sizey % 2 != 0) {
+                ui->startyLineEdit->setText(QString::number(cuty+1));
+                ui->sizeyLineEdit->setText(QString::number(sizey-1));
+            }
+            outputStream << "CUTX=" << geometryToConfig(ui->startxLineEdit->text()) << "\n";
+            outputStream << "CUTY=" << geometryToConfig(ui->startyLineEdit->text()) << "\n";
+            outputStream << "SIZEX=" << geometryToConfig(ui->sizexLineEdit->text()) << "\n";
+            outputStream << "SIZEY=" << geometryToConfig(ui->sizeyLineEdit->text()) << "\n";
+        }
         outputStream << "REFPIXX=" << geometryToConfig(ui->crpix1LineEdit->text()) << "\n";
         outputStream << "REFPIXY=" << geometryToConfig(ui->crpix2LineEdit->text()) << "\n\n";
         outputStream << "# Camera type\n";
@@ -386,6 +408,7 @@ void Instrument::on_instrumentTypeComboBox_currentIndexChanged(int index)
         ui->overscanyMaxNumLineEdit->setEnabled(true);
     }
     else {
+        // Turn off ovserscan for NIR data
         ui->bayerCheckBox->setDisabled(true);
         ui->bayerCheckBox->setChecked(false);
         ui->buttonFrame->hide();
@@ -429,7 +452,7 @@ void Instrument::on_loadConfigPushButton_clicked()
         QTextStream stream( &instrumentFile );
         // For backwards compatibility (not all config files contain these keywords):
         ui->bayerCheckBox->setChecked(false);
-//        ui->gainLineEdit->setText("1.0");
+        //        ui->gainLineEdit->setText("1.0");
         ui->longitudeLineEdit->setText("0");
         while ( !stream.atEnd() ) {
             line = stream.readLine().simplified();
@@ -455,7 +478,7 @@ void Instrument::on_loadConfigPushButton_clicked()
             if (keyword == "OBSLAT") ui->latitudeLineEdit->setText(keyvalue);
             if (keyword == "OBSLONG") ui->longitudeLineEdit->setText(keyvalue);
             if (keyword == "PIXSCALE") ui->plateScaleLineEdit->setText(keyvalue);
-//            if (keyword == "GAIN") ui->gainLineEdit->setText(keyvalue);
+            //            if (keyword == "GAIN") ui->gainLineEdit->setText(keyvalue);
             if (keyword == "OVSCANX1") ui->overscanxMinLineEdit->setText(keyvalue);
             if (keyword == "OVSCANX2") ui->overscanxMaxLineEdit->setText(keyvalue);
             if (keyword == "OVSCANY1") ui->overscanyMinLineEdit->setText(keyvalue);
@@ -552,7 +575,7 @@ void Instrument::on_clearPushButton_clicked()
     lineeditList.append(ui->crpix1NumLineEdit);
     lineeditList.append(ui->crpix2LineEdit);
     lineeditList.append(ui->crpix2NumLineEdit);
-//    lineeditList.append(ui->gainLineEdit);
+    //    lineeditList.append(ui->gainLineEdit);
     lineeditList.append(ui->instrumentNameLineEdit);
     lineeditList.append(ui->latitudeLineEdit);
     lineeditList.append(ui->longitudeLineEdit);
@@ -629,6 +652,17 @@ void Instrument::on_readRAWgeometryPushButton_clicked()
     ui->overscanxMaxLineEdit->setText(QString::number(S.left_margin));
     ui->overscanyMinLineEdit->setText("1");
     ui->overscanyMaxLineEdit->setText(QString::number(S.top_margin));
+
+    // enforce even geometry
+    if (S.iwidth % 2 != 0) {
+        S.iwidth -= 1;
+        S.left_margin += 1;
+    }
+    if (S.iheight % 2 != 0) {
+        S.iheight -= 1;
+        S.top_margin += 1;
+    }
+
     ui->startxLineEdit->setText(QString::number(S.left_margin+1));
     ui->startyLineEdit->setText(QString::number(S.top_margin+1));
     ui->sizexLineEdit->setText(QString::number(S.iwidth));
