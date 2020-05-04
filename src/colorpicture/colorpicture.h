@@ -152,7 +152,6 @@ private:
     void addDirectories();
     void checkCalibrationFactor(QLineEdit *le);
     void findRecursion(const QString &path, QStringList *result);
-    void readCalibResults(QString filename, int index);
     void readFilterRatioResults(QString filename);
     void resetResultButtonGroup(QString resetLabels = "");
     void refreshComboBoxes();

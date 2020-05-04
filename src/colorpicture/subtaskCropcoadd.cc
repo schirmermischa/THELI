@@ -217,6 +217,6 @@ void ColorPicture::taskInternalCropCoadds()
             }
         }
     }
-    emit messageAvailable("Done.", "ignore");
+    emit messageAvailable("Done.", "info");
 }
 

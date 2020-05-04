@@ -141,6 +141,9 @@ void ColorPicture::displayMessage(QString message, QString type)
     else if (type == "info") {
         ui->processingTextEdit->appendHtml("<font color=\"#0000dd\">" + message + "</font>");
     }
+    else if (type == "note") {
+        ui->processingTextEdit->appendHtml("<font color=\"#009955\">" + message + "</font>");
+    }
     else if (type == "append") {
         ui->processingTextEdit->moveCursor(QTextCursor::End);
         ui->processingTextEdit->appendHtml(" "+message);
@@ -251,7 +254,7 @@ void ColorPicture::updateTiff()
 {
     ui->createTiffPushButton->setEnabled(true);
     showDone(ui->createTiffPushButton, "(4) Create TIFFs");
-    emit messageAvailable("Done.", "ignore");
+    emit messageAvailable("Done.", "info");
 }
 
 void ColorPicture::updateImageListView()
@@ -294,7 +297,7 @@ void ColorPicture::updateCalibFactors()
     // Select the best result (the ones with the most matches, other than AVGWHITE
     int maxStars = 0;
     int maxIndex = -1;
-    for (int i=0; i<4; ++i) {
+    for (int i=0; i<3; ++i) {
         if (photcatresult[i].nstars.toInt() > maxStars) {
             maxStars = photcatresult[i].nstars.toInt();
             maxIndex = i;
@@ -315,7 +318,7 @@ void ColorPicture::updateCalibFactors()
     ui->calibratePushButton->setPalette(buttonPalette);
     ui->calibratePushButton->setEnabled(true);
     showDone(ui->calibratePushButton, "(1) Calibrate");
-    emit messageAvailable("Done.", "ignore");
+    emit messageAvailable("Done.", "info");
 
     ui->redComboBox->setEnabled(true);
     ui->greenComboBox->setEnabled(true);
@@ -418,45 +421,6 @@ void ColorPicture::toggleCalibResult()
     }
 }
 
-void ColorPicture::readCalibResults(QString filename, int index)
-{
-    QString path = mainDir+"/color_theli/PHOTCAT_calibration/";
-    QFile file(path+"/"+filename);
-    QStringList list;
-    QString line;
-    int i=0;
-
-    if ( file.open(QIODevice::ReadOnly)) {
-        QTextStream stream( &file );
-        while ( !stream.atEnd() ) {
-            line = stream.readLine().simplified();
-            list = line.split(" ");
-            if (!line.isEmpty()) {
-                if (i==0) photcatresult[index].nstars = line;
-                if (i==1) {
-                    photcatresult[index].bfac    = list.at(0);
-                    photcatresult[index].bfacerr = list.at(1);
-                }
-                if (i==2) {
-                    photcatresult[index].gfac    = list.at(0);
-                    photcatresult[index].gfacerr = list.at(1);
-                }
-                if (i==3) {
-                    photcatresult[index].rfac    = list.at(0);
-                    photcatresult[index].rfacerr = list.at(1);
-                }
-                ++i;
-            }
-        }
-        file.close();
-    }
-    else {
-        QMessageBox::warning(this, tr("Could not read color calibration result."),
-                             tr("The file ")+path+"/"+filename+tr(" could not be opened."),
-                             QMessageBox::Ok);
-    }
-}
-
 void ColorPicture::readFilterRatioResults(QString filename)
 {
     QString path = mainDir+"/color_theli/PHOTCAT_calibration/";
@@ -524,6 +488,7 @@ void ColorPicture::on_previewCalibPushButton_clicked()
     connect(iView, &IView::statisticsRequested, this, &ColorPicture::measureStatistics);
 
     iViewOpen = true;
+    iView->G2referencePathName = mainDir+"/color_theli/PHOTCAT_calibration/";
     iView->show();
 
     if (sender() == ui->getStatisticsPushButton) {

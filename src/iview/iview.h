@@ -87,6 +87,8 @@ public:
     bool refcatSourcesShown = false;
     bool sourcecatSourcesShown = false;
 
+    QString G2referencePathName = "";
+
     IvConfDockWidget *icdw;
     IvScampDockWidget *scampdw;
     IvColorDockWidget *colordw;

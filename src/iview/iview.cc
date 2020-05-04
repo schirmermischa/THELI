@@ -870,10 +870,10 @@ void IView::showG2References(bool checked)
 {
     // Leave if no image is displayed
     if (scene->items().isEmpty()) return;
+    if (G2referencePathName.isEmpty()) return;
 
     if (checked) {
-        QString path = dirName+"/PHOTCAT_calibration/";
-        QDir calibDir(path);
+        QDir calibDir(G2referencePathName);
         QStringList calibSourcesList = calibDir.entryList(QStringList("PHOTCAT_sources_matched*.iview"));
 
         // Clear the item list
@@ -881,9 +881,9 @@ void IView::showG2References(bool checked)
         // Read the catalogs, append to the item list with different symbols
         int width = 2;
         for (auto &it : calibSourcesList) {
-            if (it.contains("SDSS")) readRaDecCatalog(path+it, G2refCatItems, 29, width, QColor("#ee0000"));
-            if (it.contains("PANSTARRS")) readRaDecCatalog(path+it, G2refCatItems, 24, width, QColor("#00eeee"));
-            if (it.contains("APASS")) readRaDecCatalog(path+it, G2refCatItems, 19, width, QColor("#00ee00"));
+            if (it.contains("SDSS")) readRaDecCatalog(G2referencePathName+it, G2refCatItems, 29, width, QColor("#ee0000"));
+            if (it.contains("PANSTARRS")) readRaDecCatalog(G2referencePathName+it, G2refCatItems, 24, width, QColor("#00eeee"));
+            if (it.contains("APASS")) readRaDecCatalog(G2referencePathName+it, G2refCatItems, 19, width, QColor("#00ee00"));
         }
     }
     else {

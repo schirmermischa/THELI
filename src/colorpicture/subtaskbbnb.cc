@@ -132,7 +132,7 @@ void ColorPicture::taskInternalBBNBratio()
     }
     bbnbFluxRatio = straightMedian_T(fluxRatios);
     bbnbFluxRatioError = rmsMask_T(fluxRatios) / sqrt(fluxRatios.length());
-    emit messageAvailable("Done.", "ignore");
+    emit messageAvailable("Done.", "info");
 }
 
 void ColorPicture::on_BBNBcombinePushButton_clicked()

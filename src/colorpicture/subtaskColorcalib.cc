@@ -116,7 +116,7 @@ void ColorPicture::taskInternalColorCalib()
 
 void ColorPicture::colorCalibMatchCatalogs()
 {
-    emit messageAvailable("Matching object catalogs ...", "ignore");
+    emit messageAvailable("Matching object and reference catalogs ...", "ignore");
 
     MyImage *imageR = identifyCroppedMyImage(ui->redComboBox->currentText());
     MyImage *imageG = identifyCroppedMyImage(ui->greenComboBox->currentText());
@@ -196,7 +196,7 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
     int dummy2;
     for (int i=0; i<REFCAT->ra.length(); ++i) {
         QVector<double> refdata;
-        // Add the two coords, and a dummy magnitude of 0.0
+        // Add the two coords, and a dummy magnitude of 0.0 (required by match2D algorithm)
         refdata << REFCAT->de[i] << REFCAT->ra[i] << 0.0;
         refDat.append(refdata);
     }
@@ -221,9 +221,9 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
     rCorr.reserve(matchedREFCAT.length());
     bCorr.reserve(matchedREFCAT.length());
     for (auto &obj : matchedREFCAT) {
-        // 'obj' contains RA, DEC, flux_r, flux_g, flux_b
-        rCorr.append(obj[3] / obj[2]);
-        bCorr.append(obj[3] / obj[4]);
+        // 'obj' contains RA, DEC, 0.0, flux_r, flux_g, flux_b          // 0.0 is the dummy magnitude
+        rCorr.append(obj[4] / obj[3]);
+        bCorr.append(obj[4] / obj[5]);
     }
     photcatresult[index].rfac    = QString::number(meanMask_T(rCorr),'f',3);
     photcatresult[index].rfacerr = QString::number(rmsMask_T(rCorr),'f',3);
@@ -234,6 +234,17 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
     photcatresult[index].nstars = QString::number(rCorr.length());
 
     writeG2refcat(REFCAT->name, matchedREFCAT);
+
+    QString nstars = QString::number(matchedREFCAT.length()) + " stars";
+    if (REFCAT->name == "SDSS") ui->numSDSSLabel->setText(nstars);
+    else if (REFCAT->name == "APASS") ui->numAPASSLabel->setText(nstars);
+    else if (REFCAT->name == "PANSTARRS") ui->numPANSTARRSLabel->setText(nstars);
+    else if (REFCAT->name == "AVGWHITE") ui->numAVGWHITELabel->setText(nstars);
+
+    QString type = "note";
+    if (matchedREFCAT.length() == 0) type = "warning";
+    emit messageAvailable(REFCAT->name + " : "+QString::number(matchedREFCAT.length()) + " of the "
+                          + QString::number(refDat.length()) + " G2 references were found in the image.", type);
 }
 
 void ColorPicture::writeG2refcat(const QString refcatName, const QVector<QVector<double>> matchedREFCAT)
@@ -252,7 +263,8 @@ void ColorPicture::writeG2refcat(const QString refcatName, const QVector<QVector
 
     // Write iView catalog
     for (auto &source : matchedREFCAT) {
-         stream_iview << QString::number(source[0], 'f', 9) << QString::number(source[1], 'f', 9);
+        // RA first, then DEC!  (matching is done with DEC in first column)
+         stream_iview << QString::number(source[1], 'f', 9) << " " << QString::number(source[0], 'f', 9) << "\n";
     }
     outcat_iview.close();
     outcat_iview.setPermissions(QFile::ReadUser | QFile::WriteUser);
@@ -273,7 +285,7 @@ void ColorPicture::colorCalibRetrieveCatalogs(QList<Query*> queryList)
         QString info = QString::number(query->numSources) + " sources found, "
                 + QString::number(query->numG2sources) + " of which have G2-like colors";
         emit messageAvailable(info, "append");
-        emit updateNrefStars(query->refcatName, query->numG2sources);
+//        emit updateNrefStars(query->refcatName, query->numG2sources);
     }
 }
 
