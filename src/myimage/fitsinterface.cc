@@ -218,7 +218,6 @@ void MyImage::initWCS()
         return;
     }
     int wcsCheck = wcsset(wcs);
-//    qDebug() << wcs->cd[0] << wcs->cd[1] << wcs->cd[2] << wcs->cd[3];
     if (wcsCheck > 0) {
         QString wcsError = "";
         if (wcsCheck == 1) wcsError = "Null wcsprm pointer passed";                   // Should be caught by 'if' conditions above

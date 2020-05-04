@@ -517,14 +517,6 @@ void Splitter::getCurrentExtensionData()
 
     if (!rawStatus) {
         dataRaw.clear();
-        /*
-        dataRaw.reserve(nelements);
-        for (long i=0; i<nelements; ++i) {
-            float val = buffer[i];
-            if (isinf(val) || isnan(val)) val = 0.;      // set peculiar values to zero
-            dataRaw.append(val);
-        }
-        */
         dataRaw.resize(nelements);
         dataRaw.squeeze();
         for (long i=0; i<nelements; ++i) {

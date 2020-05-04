@@ -78,7 +78,7 @@ void Controller::taskInternalCreatesourcecat()
         return;
     }
 
-    emit messageAvailable("Ruunning source extraction ...", "data");
+    emit messageAvailable("Running source extraction ...", "data");
 
     // INTERNAL
     if (cdw->ui->CSCMethodComboBox->currentText() == "THELI") {
