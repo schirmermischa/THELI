@@ -179,7 +179,7 @@ private:
     void processColorCalibCatalog();
     void processBrightStarCatalog();
     void getMedianEpoch();
-    void provideheaderInfo();
+    void provideHeaderInfo();
     void measureBulkMotion();
     void clearAstrom();
     void clearPhotom();

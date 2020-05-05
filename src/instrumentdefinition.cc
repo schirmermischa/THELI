@@ -339,7 +339,6 @@ void Instrument::on_saveConfigPushButton_clicked()
         outputStream << "# Plate scale\n";
         outputStream << "PIXSCALE=" << ui->plateScaleLineEdit->text().toFloat() << "\n\n";
         outputStream << "# Detector gain (lowest gain for a multi-detector instrument, i.e. brightest image)\n";
-        //        outputStream << "GAIN=" << ui->gainLineEdit->text() << "\n\n";
         outputStream << "# Detector geometries\n";
         outputStream << "OVSCANX1=" << geometryToConfig(ui->overscanxMinLineEdit->text()) << "\n";
         outputStream << "OVSCANX2=" << geometryToConfig(ui->overscanxMaxLineEdit->text()) << "\n";

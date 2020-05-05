@@ -179,8 +179,7 @@ void Query::getCatalogSearchLocationPhotom()
 
     // Calculate RA/DEC of image center
     photomImage = new MyImage(photomDir, photomImageName, "", 1, QVector<bool>(), verbosity);
-    photomImage->provideHeaderInfo();
-    photomImage->initWCS();
+    photomImage->loadHeader();
     naxis1 = photomImage->naxis1;
     naxis2 = photomImage->naxis2;
     radius = 1.1 * sqrt(naxis1*naxis1+naxis2*naxis2) / 2. * photomImage->plateScale / 60.;
@@ -196,8 +195,7 @@ void Query::getCatalogSearchLocationColorCalib()
     if (!successProcessing) return;
 
     // Calculate RA/DEC of image center
-    photomImage->provideHeaderInfo();
-    photomImage->initWCS();
+    photomImage->loadHeader();
     naxis1 = photomImage->naxis1;
     naxis2 = photomImage->naxis2;
     radius = 1.1 * sqrt(naxis1*naxis1+naxis2*naxis2) / 2. * photomImage->plateScale / 60.;
@@ -1076,11 +1074,11 @@ void Query::runCommand(QString command)
 }
 
 // needed if the data isn't in memory yet (e.g. immediately after starting the main GUI)
-void Query::provideheaderInfo()
+void Query::provideHeaderInfo()
 {
     for (int chip=0; chip<scienceData->instData->numChips; ++chip) {
         for (auto &it : scienceData->myImageList[chip]) {
-            it->provideHeaderInfo();
+            it->loadHeader();
         }
     }
 }

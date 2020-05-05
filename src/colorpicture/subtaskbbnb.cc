@@ -186,8 +186,8 @@ void ColorPicture::taskInternalBBNBcombine()
     dummyMask.clear();
     MyImage *combinedImage = new MyImage(path, bbImage->name, "", 1, dummyMask, &verbosity, false);
     MyImage *combinedWeight = new MyImage(path, bbImage->name, "", 1, dummyMask, &verbosity, false);
-    combinedImage->provideHeaderInfo();
-    combinedWeight->provideHeaderInfo();
+    combinedImage->loadHeader();
+    combinedWeight->loadHeader();
 
     // Compute and write the combined image as follows:
     // newImage = (1 - weight * width(NB) / width(BB)) * BB + weight * NB;

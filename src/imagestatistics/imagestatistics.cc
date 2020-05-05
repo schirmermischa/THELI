@@ -52,7 +52,7 @@ ImageStatistics::ImageStatistics(QVector<QList<MyImage*>> &imlist, QString main,
         for (int chip=0; chip<instData->numChips; ++chip) {
             if (instData->badChips.contains(chip)) continue;
             auto &it = myImageList[k][chip];
-            it->provideHeaderInfo();       // if not yet in memory
+            it->loadHeader();       // if not yet in memory
             allMyImages.append(it);
         }
     }

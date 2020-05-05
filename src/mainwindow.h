@@ -39,6 +39,8 @@ If not, see https://www.gnu.org/licenses/ .
 #include "dockwidgets/confdockwidget.h"
 #include "dockwidgets/monitor.h"
 #include "dockwidgets/memoryviewer.h"
+#include "tools/cpu.h"
+#include "tools/ram.h"
 
 #include <QMainWindow>
 #include <QLineEdit>
@@ -84,6 +86,13 @@ public:
     MemoryViewer *memoryViewer = nullptr;
 
     Ui::MainWindow *ui;
+
+    CPU *myCPU;
+    RAM *myRAM;
+
+    QTimer *ramTimer;
+    QTimer *cpuTimer;
+    QTimer *driveTimer;
 
     Status status;
     QMap<QString,QString> taskCommentMap;
@@ -238,8 +247,10 @@ private slots:
     void on_actionAcknowledging_triggered();
     void loadCoaddAbsZP(QString coaddImage, instrumentDataType *instData, float maxVal);
     void updateMemoryProgressBarReceived(long memoryUsed);
-
     void on_setupProjectLineEdit_textChanged(const QString &arg1);
+    void displayCPUload();
+    void displayRAMload();
+    void displayDriveSpace();
 
 private:
     // Variables we need to access frequently
@@ -338,6 +349,7 @@ private:
     int estimateBinningFactor();
     void printCfitsioError(QString funcName, int status);
     bool checkCatalogUsability(QString mode);
+    void startProgressBars();
 };
 
 // Subclassing QStringListModel to allow certain entries being shown with different colors

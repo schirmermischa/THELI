@@ -505,7 +505,7 @@ bool Controller::manualCoordsUpdate(Data *scienceData, QString mode)
             continue;
         }
         // TODO: should be sufficient, but crashes when executed right after launch
-        // it->provideHeaderInfo();
+        // it->loadHeader();
         if (mode == "crval") {
             it->wcs->crval[0] = targetAlpha.toDouble();
             it->wcs->crval[1] = targetDelta.toDouble();

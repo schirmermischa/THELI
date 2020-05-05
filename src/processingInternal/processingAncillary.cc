@@ -66,6 +66,8 @@ void Controller::taskInternalGetCatalogFromWEB()
     //    pushEndMessage(taskBasename, scienceDir);
 }
 
+// UNUSED
+/*
 void Controller::provideHeaderInfo(Data *scienceData)
 {
     if (verbosity>1) emit messageAvailable("Collecting metadata from FITS files ...", "controller");
@@ -73,10 +75,11 @@ void Controller::provideHeaderInfo(Data *scienceData)
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (instData->badChips.contains(chip)) continue;
         for (auto &it : scienceData->myImageList[chip]) {
-            it->provideHeaderInfo();
+            it->loadHeader();
         }
     }
 }
+*/
 
 void Controller::downloadGaiaCatalog(Data *scienceData)
 {
@@ -260,7 +263,7 @@ void Controller::taskInternalRestoreHeader()
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (instData->badChips.contains(chip)) continue;
         for (auto &it : scienceData->myImageList[chip]) {
-            it->provideHeaderInfo();
+            it->loadHeader();
             // Restore the header if a backup exists
             if (it->scanAstromHeader(chip, "inBackupDir")) {
                 it->updateZeroOrderOnDrive("restore");

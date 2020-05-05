@@ -1028,7 +1028,7 @@ bool Controller::idChipsWithBrightStars(Data *skyData, QList<QVector<double>> &b
 #pragma omp parallel for num_threads(maxExternalThreads)
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : skyData->myImageList[chip]) {
-            it->provideHeaderInfo();
+            it->loadHeader();
             it->checkBrightStars(brightStarList, safetyDistance, instData->pixscale);
             if (it->hasBrightStars) {
                 ++numImagesAffected;
@@ -1047,7 +1047,7 @@ bool Controller::idChipsWithBrightStars(Data *skyData, QList<QVector<double>> &b
         auto &it = allMyImages[k];
         int chip = it->chipNumber - 1;
         if (instData->badChips.contains(chip)) continue;
-        it->provideHeaderInfo();
+        it->loadHeader();
         it->checkBrightStars(brightStarList, safetyDistance, instData->pixscale);
         if (it->hasBrightStars) {
 #pragma omp critical

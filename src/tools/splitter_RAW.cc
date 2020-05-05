@@ -140,7 +140,7 @@ void Splitter::buildHeaderRAW()
     cards.append("OBJECT  = 'Unknown'");
     cards.append("CTYPE1  = 'RA---TAN'");
     cards.append("CTYPE2  = 'DEC--TAN'");
-    cards.append("CRVAL1  = 0.00001");
+    cards.append("CRVAL1  = 0.0");
     cards.append("CRVAL2  = 0.0");
     cards.append("CRPIX1  = "+QString::number(naxis1/2));
     cards.append("CRPIX2  = "+QString::number(naxis2/2));

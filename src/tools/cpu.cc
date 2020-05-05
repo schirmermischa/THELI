@@ -109,7 +109,7 @@ void CPU::readStatsCPU_MAC(double &totval, double &idleval)
     unsigned long ulUser;
     unsigned long ulNice;
     unsigned long ulIdle;
-    getCpuInfo_MAC(&ulSystem, &ulUser, &ulNice, &ulIdle);
+    getCPUInfo_MAC(&ulSystem, &ulUser, &ulNice, &ulIdle);
 
     totval = (double)(ulSystem + ulUser + ulNice + ulIdle);
     idleval = (double) ulIdle;
@@ -170,7 +170,7 @@ float CPU::getCurrentValue()
     return CPUload;
 }
 
-void CPU::getCpuInfo_MAC(unsigned long *pulSystem, unsigned long *pulUser, unsigned long *pulNice, unsigned long *pulIdle)
+void CPU::getCPUInfo_MAC(unsigned long *pulSystem, unsigned long *pulUser, unsigned long *pulNice, unsigned long *pulIdle)
 {
 #ifdef __MACH__
     mach_msg_type_number_t unCpuMsgCount = 0;

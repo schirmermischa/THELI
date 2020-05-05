@@ -132,7 +132,8 @@ SOURCES += \
     threading/anetworker.cc \
     processingInternal/processingCreateSourceCat.cc \
     myimage/fitsinterface.cc \
-    myimage/writefits.cc
+    myimage/writefits.cc \
+    tools/ram.cc
 
 HEADERS += \
         mainwindow.h \
@@ -195,7 +196,8 @@ HEADERS += \
     tools/tools.h \
     readmes/license.h \
     readmes/acknowledging.h \
-    threading/anetworker.h
+    threading/anetworker.h \
+    tools/ram.h
 
 FORMS += \
         mainwindow.ui \

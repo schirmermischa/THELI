@@ -549,7 +549,7 @@ long get_memory()
 
     if (kernelType == "darwin") {
         QProcess p;
-        p.start("sysctl", QStringList() << "hw.memsize");
+        p.start("sysctl", QStringList() << "hw.memsize");     // alternative: read output from /usr/bin/vm_stat
         // or 'hostinfo | grep memory | awk '{print $4}'    // returns RAM in GB
         p.waitForFinished(-1);
         QString system_info = p.readAllStandardOutput();
@@ -557,7 +557,7 @@ long get_memory()
         QString memory = list[1];
         p.close();
         delete sysInfo;
-        return memory.toFloat()/1024;
+        return memory.toFloat()/1024;  // CHECK normalization!
     }
 
     delete sysInfo;

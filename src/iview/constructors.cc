@@ -271,7 +271,6 @@ IView::IView(QString mode, QString dirname, QString filter, QWidget *parent) :
     displayMode(mode)
 {
     ui->setupUi(this);
-    // qDebug() << "mode imstatistics 1:" << mode << dirname << filter;
 
     initGUI();
     icdw->ui->filterLineEdit->setText(filterName);
@@ -285,7 +284,7 @@ IView::IView(QString mode, QString dirname, QString filter, QWidget *parent) :
     makeConnections();
     switchMode();
 
-    if (numImages>0) {
+    if (numImages > 0) {
         currentFileName = imageList[0];
         loadFITS(dirName+'/'+imageList[0]);
     }

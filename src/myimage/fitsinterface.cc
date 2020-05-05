@@ -175,20 +175,25 @@ void MyImage::readDataWeight(fitsfile **fptr, int *status)
 
 bool MyImage::loadData(QString loadFileName)
 {
-    if (loadFileName.isEmpty()) loadFileName = path + "/" + name;
+    if (loadFileName.isEmpty()) loadFileName = path + "/" + chipName+processingStatus->statusString+".fits";
+
     int status = 0;
+
     fitsfile *fptr = nullptr;
     initFITS(&fptr, loadFileName, &status);
     readHeader(&fptr, &status);
     readData(&fptr, &status);
-    //    initWCS(&status);
+    initWCS();
     initTHELIheader(&status);
     checkTHELIheader(&status);
+    cornersToRaDec();
     fits_close_file(fptr, &status);
 
-    headerInfoProvided = true;
-
     printCfitsioError("MyImage::loadData()", status);
+
+    if (!status) headerInfoProvided = true;
+    else headerInfoProvided = false;
+
     if (status) return false;
     else return true;
 }
@@ -246,28 +251,27 @@ void MyImage::initWCS()
     emit setWCSLock(false);
 }
 
-// needed if we need access to header information, but not (yet) the data block,
-// e.g. if the GUI is started, and the first task is to download the reference catalog,
-// or if we update the zero-th order solution
-void MyImage::provideHeaderInfo()
+// If header data are needed, but not (yet) the data block.
+// E.g. if the GUI is started, and the first task is to download the reference catalog or to update the zero-th order solution
+void MyImage::loadHeader(QString loadFileName)
 {
-    if (!headerInfoProvided) {
-        int status = 0;
-        fitsfile *fptr = nullptr;
-        initFITS(&fptr, path+"/"+baseName+".fits", &status);
-        readHeader(&fptr, &status);
-        initTHELIheader(&status);
-        checkTHELIheader(&status);
-        fits_close_file(fptr, &status);
-        printCfitsioError("MyImage::provideHeaderInfo()", status);
-        if (!status) headerInfoProvided = true;
-        else headerInfoProvided = false;
-        cornersToRaDec();
-        if (*verbosity > 2) emit messageAvailable(chipName + " : Image header loaded", "image");
-    }
-    else {
-        if (*verbosity > 2) emit messageAvailable(chipName + " : Header already in memory", "image");
-    }
+    if (headerInfoProvided) return;
+
+    if (loadFileName.isEmpty()) loadFileName = path+"/"+baseName+".fits";
+    int status = 0;
+    fitsfile *fptr = nullptr;
+    initFITS(&fptr, loadFileName, &status);
+    readHeader(&fptr, &status);
+    initWCS();
+    initTHELIheader(&status);
+    checkTHELIheader(&status);
+    cornersToRaDec();
+    fits_close_file(fptr, &status);
+
+    printCfitsioError("MyImage::loadHeader()", status);
+
+    if (!status) headerInfoProvided = true;
+    else headerInfoProvided = false;
 }
 
 void MyImage::getMJD()

@@ -75,7 +75,7 @@ void Controller::taskInternalCoaddition()
     // #pragma omp parallel for num_threads(maxExternalThreads)
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : coaddScienceData->myImageList[chip]) {
-            it->provideHeaderInfo();
+            it->loadHeader();
         }
     }
 
@@ -222,7 +222,7 @@ void Controller::coaddPrepare(QString filterArg)
     QVector<double> mjdobsData;
     for (auto &it : coaddScienceData->myImageList[0]) {
         if (!it->successProcessing) continue;
-        it->provideHeaderInfo();
+        it->loadHeader();
         mjdobsData.append(it->mjdobs);
     }
     double mjdobsZero = minVec_T(mjdobsData);
@@ -244,7 +244,7 @@ void Controller::coaddPrepare(QString filterArg)
         if (!chipList.contains(chip) || instData->badChips.contains(chip)) continue;        // Skip chips that should not be coadded
         for (auto &it : coaddScienceData->myImageList[chip]) {
             if (!it->successProcessing) continue;
-            it->provideHeaderInfo();
+            it->loadHeader();
             QFile image(it->path + "/" + it->baseName + ".fits");
             QFile weight(it->weightPath + "/" + it->weightName + ".fits");
             if (!edgeSmooth.isEmpty()) weight.setFileName(it->weightPath + "/" + it->weightName + "smooth.fits");
@@ -993,7 +993,7 @@ void Controller::coaddUpdate()
         connect(coadd, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
         connect(coadd, &MyImage::warning, this, &Controller::warningReceived);
         connect(coadd, &MyImage::setMemoryLock, this, &Controller::setMemoryLockReceived, Qt::DirectConnection);
-        coadd->chipName = "coadd.fits";
+        coadd->chipName = "coadd";
         emit messageAvailable("coadd.fits : Loading image data ...", "image");
         coadd->setupData(false, false, true);
 //        coadd->globalMask = QVector<bool>();

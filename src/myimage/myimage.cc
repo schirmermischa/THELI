@@ -92,7 +92,8 @@ void MyImage::checkTaskRepeatStatus(QString taskBasename)
     else if (taskBasename == "Skysub" && processingStatus->Skysub) isTaskRepeated = true;
 }
 
-MyImage::MyImage(QString fullPathName, const QVector<bool> &mask, int *verbose, QObject *parent) : QObject(parent), globalMask(mask)
+MyImage::MyImage(QString fullPathName, const QVector<bool> &mask, int *verbose, QObject *parent) :
+    QObject(parent), globalMask(mask)
 {
     QFileInfo fi(fullPathName);
 
@@ -187,9 +188,38 @@ void MyImage::readImage(bool determineMode)
     }
     else {
         if (loadData()) {
-            initWCS();        // must be done first to instantiate wcs
-            cornersToRaDec();
             getMode(determineMode);
+            imageInMemory = true;
+            imageOnDrive = true;
+            successProcessing = true;
+            headerInfoProvided = true;
+            updateProcInfo("Loaded");
+            if (*verbosity > 2) emit messageAvailable(chipName+" : Loaded", "image");
+
+        }
+        else {
+            emit messageAvailable("MyImage::readImage(): Could not load " + baseName + ".fits", "error");
+            emit critical();
+            successProcessing = false;
+        }
+        emit modelUpdateNeeded(baseName, chipName);
+    }
+}
+
+// Used by iview when loading directly from FITS files, and by swarpfilter when reading weights
+void MyImage::readImage(QString loadFileName)
+{
+    dataCurrent_deletable = false;
+    dataWeight_deletable = false;
+
+    // Leave if image is already loaded
+    if (imageInMemory) {
+        updateProcInfo("Already in memory");
+        if (*verbosity > 2) emit messageAvailable(chipName+" : Already in memory", "image");
+        return;
+    }
+    else {
+        if (loadData(loadFileName)) {
             imageInMemory = true;
             imageOnDrive = true;
             successProcessing = true;
@@ -215,11 +245,8 @@ void MyImage::readImageBackupL1Launch()
 
     bool determineMode = true;
 
-    // Attempt to read image. Order of calls is important!
     QString loadFileName = pathBackupL1 + "/" + baseNameBackupL1 + ".fits";
     if (loadData(loadFileName)) {
-        initWCS();   // must be done first to instantiate wcs
-        cornersToRaDec();
         getMode(determineMode);
         dataBackupL1 = dataCurrent;
         imageInMemory = true;
@@ -1140,7 +1167,6 @@ bool MyImage::containsRaDec(QString alphaStr, QString deltaStr)
     return pnpoly_T(raVec, decVec, alphaStr.toDouble(), deltaStr.toDouble());
 }
 
-// TODO: check against wcslib whether valid or not
 void MyImage::cornersToRaDec()
 {
     xy2sky(1, 1, alpha_ll, delta_ll);

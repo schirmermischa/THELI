@@ -131,8 +131,7 @@ void ColorPicture::taskInternalCropCoadds()
         connect(myImage, &MyImage::critical, this, &ColorPicture::criticalReceived);
         myImage->globalMaskAvailable = false;
         myImage->maxCPU = maxCPU / imageList.length();
-        myImage->provideHeaderInfo();
-        myImage->initWCS();
+        myImage->loadHeader();
         coaddList.append(myImage);
     }
 

@@ -17,52 +17,45 @@ along with this program in the LICENSE file.
 If not, see https://www.gnu.org/licenses/ .
 */
 
-#ifndef CPU_H
-#define CPU_H
+#ifndef RAM_H
+#define RAM_H
 
 #include <QObject>
 #include <QFile>
 #include <QVector>
 #include <QTextStream>
 
-class CPU : public QObject
+class RAM : public QObject
 {
     Q_OBJECT
 public:
-    explicit CPU(QObject *parent = nullptr);
-    ~CPU();
+    explicit RAM(QObject *parent = nullptr);
+    ~RAM();
 
-    int getCPUload();
-    void getCPUInfo_MAC(unsigned long *pulSystem, unsigned long *pulUser, unsigned long *pulNice, unsigned long *pulIdle);
+    long getRAMload();
+    void getRAMInfo_MAC(unsigned long *pulSystem, unsigned long *pulUser, unsigned long *pulNice, unsigned long *pulIdle);
     float getCurrentValue();
+    long totalRAM = 0;
 
 signals:
 
 private:
 
-    bool CPUbarDeactivated = false;
-    double tot1 = 0.;
-    double tot2 = 0.;
-    double idle1 = 0.;
-    double idle2 = 0.;
+    bool RAMbarDeactivated = false;
+    long availableRAM = 0;
 
-    void readStatsCPU_Linux(double &totval, double &idleval);
-    void readStatsCPU_MAC(double &totval, double &idleval);
+    void readStatsRAM_Linux();
+    void readStatsRAM_MAC();
 
     QFile file;
     QTextStream instream;
-    int maxCPU = 1;
 
     QString kernelType;
 
-    long long lastTotal = 0;
-    long long lastTotalActive = 0;
-    long long lastTotalIdle = 0;
-
-    void init();
+//    void init();
 
 public slots:
 
 };
 
-#endif // CPU_H
+#endif // RAM_H

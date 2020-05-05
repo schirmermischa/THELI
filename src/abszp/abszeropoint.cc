@@ -257,7 +257,7 @@ void AbsZeroPoint::taskInternalAbszeropoint()
     connect(myImage, &MyImage::critical, this, &AbsZeroPoint::criticalReceived);
     myImage->globalMaskAvailable = false;
     myImage->maxCPU = maxCPU;
-    myImage->provideHeaderInfo();
+    myImage->loadHeader();
 
     bool successQuery = true;
     bool successDetection = true;

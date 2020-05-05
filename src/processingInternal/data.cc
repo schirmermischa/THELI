@@ -471,7 +471,7 @@ void Data::populateExposureList()
         for (auto &it : myImageList[chip]) {
             // TODO: this is only necessary if the GUI is launched and files have not been read yet!
             // There should be a member boolean that keeps track of this
-            if (!it->headerInfoProvided) it->provideHeaderInfo();
+            if (!it->headerInfoProvided) it->loadHeader();
             if (!mjdList.contains(it->mjdobs)) mjdList.append(it->mjdobs);
         }
     }
@@ -1726,7 +1726,6 @@ float Data::memoryCurrentFootprint(bool globalweights)
         }
     }
 
-
     if (!combinedImage.isEmpty()) {
         for (int chip=0; chip<instData->numChips; ++chip) {
             if (instData->badChips.contains(chip)) continue;
@@ -2249,7 +2248,7 @@ bool Data::getPointingCharacteristics()
     // we include unused chips here because otherwise any centroids our boundaries might be biased
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : myImageList[chip]) {
-            it->provideHeaderInfo();
+            it->loadHeader();
             crval1Exposure << it->wcs->crval[0];
             crval2Exposure << it->wcs->crval[1];
             crval1Vertex << it->alpha_ll;
@@ -2338,7 +2337,7 @@ QVector<double> Data::getKeyFromAllImages(QString key)
     QVector<double> data;
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : myImageList[chip]) {
-            if (!it->metadataTransferred) it->provideHeaderInfo();  // needed if data requested immediately after launch
+            if (!it->metadataTransferred) it->loadHeader();  // needed if data requested immediately after launch
             if (key == "CRVAL1") data << it->wcs->crval[0];
             else if (key == "CRVAL2") data << it->wcs->crval[1];
             else if (key == "CRPIX1") data << it->wcs->crpix[0];
@@ -2418,7 +2417,7 @@ int Data::identifyClusters(QString toleranceString)
 
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : myImageList[chip]) {
-            it->provideHeaderInfo();
+            it->loadHeader();
         }
     }
 

@@ -386,7 +386,7 @@ public:
     void mergeObjectWithGlobalMask();
     void multiply(float value);
     void normalizeFlat();
-    void provideHeaderInfo();
+    void loadHeader(QString loadFileName = "");
     void readImage(bool determineMode = true);
     void readWeight();
     void resetObjectMasking();
@@ -471,6 +471,7 @@ public:
     bool loadData(QString loadFileName = "");
     void readData(fitsfile **fptr, int *status);
     bool informSwarpfilter(long &naxis1, long &naxis2, double &crpix1, double &crpix2, double &sky, double &fluxscale);
+    void readImage(QString loadFileName);
 signals:
     void modelUpdateNeeded(QString baseName, QString chipName);
     void messageAvailable(QString message, QString type);

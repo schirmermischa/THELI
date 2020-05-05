@@ -635,8 +635,10 @@ void MainWindow::on_startPushButton_clicked()
             if (switchProcessMonitorPreference) monitor->raise();
             ui->processProgressBar->setValue(0);
         }
-        // Speed up the CPU timer
-        controller->cpuTimer->setInterval(500);
+        // Speed up the CPU and RAM timers
+        cpuTimer->setInterval(500);
+        ramTimer->setInterval(500);
+        driveTimer->setInterval(500);
     }
     else {
         bool anythingChecked = false;
@@ -828,8 +830,10 @@ void MainWindow::taskFinished()
         controller->currentData->resetSuccessProcessing();
     }
 
-    // slow down CPU timer
-    controller->cpuTimer->setInterval(2000);
+    // slow down CPU and RAM timers
+    cpuTimer->setInterval(2000);
+    ramTimer->setInterval(2000);
+    driveTimer->setInterval(2000);
 }
 
 bool MainWindow::isRefcatRecent(QString dirname)

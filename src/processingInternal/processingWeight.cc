@@ -330,7 +330,7 @@ void Controller::taskInternalSeparate()
             QDir groupDir(pathNew);
             groupDir.mkpath(pathNew);
             it->path = pathNew;
-            it->provideHeaderInfo();
+            it->loadHeader();
             // Always write the new image, even if until now it was kept in memory.
             if (it->imageOnDrive) {
                 moveFile(it->chipName+statusString+".fits", pathOld, it->path);

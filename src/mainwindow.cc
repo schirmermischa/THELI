@@ -32,6 +32,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "dockwidgets/monitor.h"
 #include "dockwidgets/memoryviewer.h"
 #include "tools/cpu.h"
+#include "tools/ram.h"
 #include "ui_confdockwidget.h"
 #include "ui_memoryviewer.h"
 
@@ -201,6 +202,8 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
 
     // repaint; doesn't seem to help in painting the checkboxes correctly
     //    update();
+
+    startProgressBars(); // must (or should) be done after settings are read and controller is live
 
     estimateBinningFactor();
 }
@@ -374,6 +377,113 @@ void MainWindow::addProgressBars()
         ui->statusBar->addWidget(memoryProgressBar);
     }
     delete sysInfo;
+}
+
+// should be done after controller has been established and settings have been read
+void MainWindow::startProgressBars()
+{
+    // Start the progress bars
+    myCPU = new CPU(this);
+    myRAM = new RAM(this);
+    // Memory and CPU bars get updated every 2 seconds
+    // Must be declared / launched after data tree has been mapped.
+    ramTimer = new QTimer(this);
+    cpuTimer = new QTimer(this);
+    driveTimer = new QTimer(this);
+    connect(ramTimer, SIGNAL(timeout()), SLOT(displayRAMload()));
+    connect(cpuTimer, SIGNAL(timeout()), SLOT(displayCPUload()));
+    connect(driveTimer, SIGNAL(timeout()), SLOT(displayDriveSpace()));
+    ramTimer->start(2000);
+    cpuTimer->start(2000);
+    driveTimer->start(2000);
+    cpuProgressBar->setRange(0, 100*QThread::idealThreadCount());
+    long totalMemory = get_memory();
+    myRAM->totalRAM = totalMemory;
+    memoryProgressBar->setRange(0, totalMemory / 1024);     // [MB]
+    memoryProgressBar->setValue(0);
+}
+
+void MainWindow::displayCPUload()
+{
+    //    int CPUload = myCPU->getCPUload();
+    float CPUload = myCPU->getCurrentValue();
+
+    QString CPUstring = QString::number(int(CPUload)) + " %";
+    cpuProgressBar->setFormat("CPU: "+CPUstring);
+    cpuProgressBar->setValue(int(CPUload));
+}
+
+void MainWindow::displayRAMload()
+{
+    float RAMload = myRAM->getCurrentValue();
+
+    QString RAMstring = QString::number(long(RAMload)) + " MB";
+    memoryProgressBar->setFormat("RAM: %p% ("+RAMstring+")");
+    memoryProgressBar->setValue(int(RAMload));
+}
+
+void MainWindow::displayDriveSpace()
+{
+    // Storage space in the main/home directory
+    QString maindir = ui->setupMainLineEdit->text();
+
+    double GBtotal_data, GBfree_data, GBused_data;
+    double GBtotal_home, GBfree_home, GBused_home;
+
+    QStorageInfo storage_home(QDir::homePath());
+    if (storage_home.isValid() && storage_home.isReady()) {
+        GBtotal_home = storage_home.bytesTotal()/1024./1024./1024.;
+        GBfree_home = storage_home.bytesAvailable()/1024./1024./1024.;
+        GBused_home = GBtotal_home - GBfree_home;
+    }
+    else {
+        emit messageAvailable("Controller::displayDriveSpace(): Cannot determine home directory!", "error");
+        return;
+    }
+
+    QStorageInfo storage_data(maindir);
+    if (storage_data.isValid() && storage_data.isReady()) {
+        GBtotal_data = storage_data.bytesTotal()/1024./1024./1024.;
+        GBfree_data = storage_data.bytesAvailable()/1024./1024./1024.;
+        GBused_data = GBtotal_data - GBfree_data;
+    }
+    else {
+        GBtotal_data = GBtotal_home;
+        GBfree_data = GBfree_home;
+        GBused_data = GBused_home;
+    }
+
+    driveProgressBar->setRange(0, GBtotal_data);
+
+    QString datadiskstring = QString::number(GBfree_data,'f',2) + " GB left";
+
+    // check if the data disk warning should be activated
+    if (GBfree_data <= diskwarnPreference/1024.) {           // preference is given in MB
+        if (!datadiskspace_warned) {
+            datadiskspace_warned = true;
+            if (maindir.isEmpty()) maindir = QDir::homePath();
+            QMessageBox::warning( this, "THELI: DATA DISK SPACE LOW",
+                                  "The remaining disk space on\n\n"
+                                  + maindir+"\n\nis less than your warning threshold of "
+                                  + QString::number(diskwarnPreference)+" MB.\n"
+                                                                        "The threshold can be set under Edit->Preferences in the main menu. "
+                                                                        "This warning will not be shown anymore in this session, "
+                                                                        "unless you update the threshold to a new value.");
+        }
+    }
+    else datadiskspace_warned = false;
+
+    if (GBfree_home <= 0.1) {
+        if (!homediskspace_warned) {
+            homediskspace_warned = true;
+            QMessageBox::warning( this, "THELI: HOME DISK SPACE LOW",
+                                  "THELI: You are running low (<100 MB) on disk space in your home directory!\n");
+        }
+    }
+    else homediskspace_warned = false;
+
+    driveProgressBar->setFormat("Drive: "+datadiskstring);
+    driveProgressBar->setValue(GBused_data);
 }
 
 void MainWindow::addDockWidgets()
@@ -779,7 +889,7 @@ void MainWindow::resetInstrumentData()
     instData.bayer = "";
     instData.type = "OPT";
     instData.pixscale = 1.0; // in arcsec
-//    instData.gain = 1.0;
+    //    instData.gain = 1.0;
     instData.radius = 0.1;   // exposure coverage radius in degrees
     instData.storage = 0;    // MB used for a single image
     instData.storageExposure = 0.; // MB used for the entire (multi-chip) exposure
@@ -830,7 +940,7 @@ void MainWindow::initInstrumentData(QString instrumentNameFullPath)
         if (line.contains("OBSLAT=")) instData.obslat = line.split("=")[1].toFloat();
         if (line.contains("OBSLONG=")) instData.obslong = line.split("=")[1].toFloat();
         if (line.contains("PIXSCALE=")) instData.pixscale = line.split("=")[1].toFloat();
-//        if (line.contains("GAIN=")) instData.gain = line.split("=")[1].toFloat();
+        //        if (line.contains("GAIN=")) instData.gain = line.split("=")[1].toFloat();
 
         // vectors
         if (line.contains("OVSCANX1=")

@@ -38,6 +38,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../iview/iview.h"
 #include "../query/query.h"
 #include "../tools/cpu.h"
+#include "../tools/ram.h"
 
 #include <QObject>
 #include <QList>
@@ -85,8 +86,6 @@ private:
 
     FileProgressCounter *numberFileCounter;
     FileProgressCounter *sizeFileCounter;
-
-    CPU *myCPU;
 
     QString swarpCommand;
     QString coaddDirName;
@@ -205,7 +204,7 @@ private:
     void splitScampHeaders();
     void scampCalcFluxscale();
     int getMaxPhotInst();
-    void provideHeaderInfo(Data *scienceData);
+//    void provideHeaderInfo(Data *scienceData);
     void buildSexCommandOptions();
     void detectionInternal(Data *scienceData, QString minFWHM, QString maxFlag);
     void detectionSExtractor(Data *scienceData, QString minFWHM, QString maxFlag);
@@ -291,15 +290,15 @@ private:
     bool setupBackgroundList(int chip, Data *skyData, const QString &chipName);
     void combineAllBackgroundUsabilityFlags(const QList<MyImage *> &backgroundList);
 private slots:
-    // The following can also be under 'private', but then the declaration must be preceeded like this:
-    // Q_INVOKABLE QString taskHDUreformat();
-
-    void displayMemoryTotalUsed();
-    void displayCPUload();
+//    void displayRAMload();
+//    void displayMemoryTotalUsed();
+//    void displayCPUload();
     void displayProgress();
-    void displayDriveSpace();
+//    void displayDriveSpace();
     float getMemoryTotalUsed();
 
+    // The following can also be under 'private', but then the declaration must be preceeded like this:
+    // Q_INVOKABLE QString taskHDUreformat();
     void taskInternalProcessbias();
     void taskInternalProcessdark();
     void taskInternalProcessflatoff();
@@ -349,10 +348,10 @@ public:
     omp_lock_t progressLock;
     omp_lock_t backgroundLock;
 
-    QTimer *memTimer;
-    QTimer *cpuTimer;
+    // QTimer *ramTimer;
+    // QTimer *cpuTimer;
     QTimer *progressTimer;
-    QTimer *driveTimer;
+    // QTimer *driveTimer;
 
     int maxCPU = 1;                    // Overall, maximum number of CPUs to be used
     int localMaxCPU = 1;               // depending on how the parallelization is made, and how many images we have, we may run with fewer threads

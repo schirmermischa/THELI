@@ -103,27 +103,30 @@ Controller::Controller(instrumentDataType *instrumentData, QString statusold, Co
     connect(this, &Controller::swarpStartCoaddition, this, &Controller::coaddCoaddition);
     connect(this, &Controller::swarpStartUpdate, this, &Controller::coaddUpdate);
 
-    myCPU = new CPU(this);
+//    myCPU = new CPU(this);
+//    myRAM = new RAM(this);
     // Memory and CPU bars get updated every 2 seconds
     // Must be declared / launched after data tree has been mapped.
-    memTimer = new QTimer(this);
-    cpuTimer = new QTimer(this);
+//    ramTimer = new QTimer(this);
+//    cpuTimer = new QTimer(this);
     progressTimer = new QTimer(this);
-    driveTimer = new QTimer(this);
-    connect(memTimer, SIGNAL(timeout()), SLOT(displayMemoryTotalUsed()));
-    connect(cpuTimer, SIGNAL(timeout()), SLOT(displayCPUload()));
+//    driveTimer = new QTimer(this);
+//    connect(memTimer, SIGNAL(timeout()), SLOT(displayMemoryTotalUsed()));
+//    connect(ramTimer, SIGNAL(timeout()), SLOT(displayRAMload()));
+//    connect(cpuTimer, SIGNAL(timeout()), SLOT(displayCPUload()));
     connect(progressTimer, SIGNAL(timeout()), SLOT(displayProgress()));
-    connect(driveTimer, SIGNAL(timeout()), SLOT(displayDriveSpace()));
-    memTimer->start(1000);
-    cpuTimer->start(1000);
+//    connect(driveTimer, SIGNAL(timeout()), SLOT(displayDriveSpace()));
+//    ramTimer->start(1000);
+//    cpuTimer->start(1000);
     progressTimer->start(100);
-    driveTimer->start(1000);
-    mainGUI->cpuProgressBar->setRange(0, 100*QThread::idealThreadCount());
-    long totalMemory = get_memory() / 1024;  // [MB]
-    mainGUI->memoryProgressBar->setRange(0, totalMemory);
-    mainGUI->memoryProgressBar->setValue(0);
+//    driveTimer->start(1000);
+//    mainGUI->cpuProgressBar->setRange(0, 100*QThread::idealThreadCount());
+//    long totalMemory = get_memory() / 1024;  // [MB]
+//    mainGUI->memoryProgressBar->setRange(0, totalMemory);
+//    mainGUI->memoryProgressBar->setValue(0);
 }
 
+/*
 void Controller::displayDriveSpace()
 {
     // Storage space in the main/home directory
@@ -187,6 +190,7 @@ void Controller::displayDriveSpace()
     mainGUI->driveProgressBar->setFormat("Drive: "+datadiskstring);
     mainGUI->driveProgressBar->setValue(GBused_data);
 }
+*/
 
 void Controller::progressUpdateReceived(float progress)
 {
@@ -443,7 +447,7 @@ QStringList Controller::getFilterList(QString scienceDir)
 #pragma omp parallel for num_threads(maxCPU)
     for (int k=0; k<numMyImages; ++k) {
         auto &it = allMyImages[k];
-        it->provideHeaderInfo();
+        it->loadHeader();
 #pragma omp critical
         {
             if (!filterList.contains(it->filter)) filterList << it->filter;
@@ -618,6 +622,7 @@ void Controller::newProjectLoadedReceived()
 
 float Controller::getMemoryTotalUsed()
 {
+    /*
     // memory lock is placed outside
 
     float totalMemory = 0.;  // in MB
@@ -637,8 +642,10 @@ float Controller::getMemoryTotalUsed()
             totalMemory += it.capacity()*sizeof(bool) / 1024 / 1024;
         }
     }
+    */
+    return mainGUI->myRAM->getRAMload();
 
-    return totalMemory;
+//    return totalMemory;
 }
 
 void Controller::splitterMemoryReceived(long memoryUsed)
@@ -649,6 +656,7 @@ void Controller::splitterMemoryReceived(long memoryUsed)
     emit updateMemoryProgressBar(splitterMemoryUsed / 1024 / 1024);
 }
 
+/*
 void Controller::displayCPUload()
 {
     //    int CPUload = myCPU->getCPUload();
@@ -659,6 +667,17 @@ void Controller::displayCPUload()
     mainGUI->cpuProgressBar->setValue(int(CPUload));
 }
 
+void Controller::displayRAMload()
+{
+    float RAMload = myRAM->getCurrentValue();
+
+    QString RAMstring = QString::number(long(RAMload)) + " MB";
+    mainGUI->memoryProgressBar->setFormat("RAM: %p% ("+RAMstring+")");
+    mainGUI->memoryProgressBar->setValue(int(RAMload));
+}
+*/
+
+/*
 void Controller::displayMemoryTotalUsed()
 {
     // CHECK: in principle, the memoryLock should be sufficient to avoid crashes
@@ -675,6 +694,7 @@ void Controller::displayMemoryTotalUsed()
     mainGUI->memoryProgressBar->setFormat("RAM: %p% ("+memoryString+")");
     mainGUI->memoryProgressBar->setValue(long(totalMemory));
 }
+*/
 
 void Controller::displayProgress()
 {

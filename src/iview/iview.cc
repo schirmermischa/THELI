@@ -412,10 +412,6 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
         if (currentId == -1) return;
     }
 
-    // We need a MyImage instance to update the CRPIX1/2 in the corresponding FITS file.
-    int verbose = 0;
-    currentMyImage = new MyImage(dirName, filename, "", 1, QVector<bool>(), &verbose);
-
     QFileInfo fi(filename);
     QString showName = fi.fileName();
 
@@ -573,25 +569,26 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
         filename.replace(".fits", ".weight.fits");
     }
 
+    // Setup the MyImage
+    int verbose = 0;
+    if (currentMyImage != nullptr) {
+        delete currentMyImage;
+        currentMyImage = nullptr;
+    }
     QVector<bool> dummyMask;
     dummyMask.clear();
-
-    MyImage image(filename, dummyMask, &verbosity);
-    image.readImage();
-    plateScale = image.plateScale;
-    naxis1 = image.naxis1;
-    naxis2 = image.naxis2;
-
-    // Setup the WCS
-    fullheader = image.fullheader;
-    int nreject;
-    int nwcs;
-    wcspih(fullheader, image.numHeaderKeys, 0, 0, &nreject, &nwcs, &wcs);
+    currentMyImage = new MyImage(filename, dummyMask, &verbose);
+    currentMyImage->readImage(filename);
+    plateScale = currentMyImage->plateScale;
+    naxis1 = currentMyImage->naxis1;
+    naxis2 = currentMyImage->naxis2;
+    fullheader = currentMyImage->fullheader;
+    wcs = currentMyImage->wcs;
     (void) wcsset(wcs);
     wcsInit = true;
 
     // Move the data from the transient MyImage over to the class member.
-    data.swap(image.dataCurrent);
+    data.swap(currentMyImage->dataCurrent);
 
     // Get the dynamic range
     // Normal viewer mode

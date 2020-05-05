@@ -237,7 +237,7 @@ void Controller::scampCalcFluxscale()
 
         // Find the associated exposure time
         for (auto &it : scampScienceData->myImageList[0]) {
-            it->provideHeaderInfo();
+            it->loadHeader();
             if (it->baseName.contains(MEFbasename)) {
                 exptime = it->exptime;
                 basename = it->baseName;
@@ -533,7 +533,7 @@ void Controller::runAnet(Data *scienceData)
         releaseMemory(nimg*instData->storage, maxCPU);
 
         if (verbosity >= 1) emit messageAvailable(it->chipName + " : Running astrometry.net ...", "data");
-        it->provideHeaderInfo();         // don't need pixels, but metadata
+        it->loadHeader();         // don't need pixels, but metadata
         it->checkWCSsanity();
         it->buildAnetCommand(pixscaleMaxerr);
         it->runAnetCommand();
