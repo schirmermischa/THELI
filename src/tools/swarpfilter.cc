@@ -643,12 +643,8 @@ void SwarpFilter::writeWeight()
         }
 
         QString outName = weights[i]->path + "/" + weights[i]->name;
-
-#pragma omp critical              // suspect random crash here
-        {
-            // Modify the resampled weight and write it
-            weights[i]->readImage(outName);
-        }
+        // Modify the resampled weight and write it
+        weights[i]->readImage(outName);
         long k=0;
         for (auto &pixel : weights[i]->dataCurrent) {
             pixel *= weight_out[k];
@@ -656,7 +652,6 @@ void SwarpFilter::writeWeight()
         }
         weights[i]->writeImage(outName);
         weights[i]->freeData();
-        // }       // omp critical close
 
 #pragma omp atomic
         *progress += progressStepSize;
