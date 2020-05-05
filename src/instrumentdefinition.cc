@@ -316,6 +316,19 @@ void Instrument::on_saveConfigPushButton_clicked()
         else if (msgBox.clickedButton() == cancel) return;
     }
 
+    QString pixscale = ui->plateScaleLineEdit->text();
+    if (pixscale.isEmpty() || pixscale.toFloat() <= 0.) {
+        QMessageBox msgBox;
+        msgBox.setText("Invalid pixel scale provided: "+pixscale+"\nSet to 1.0 arcsec / pixel.");
+        QAbstractButton* ok = msgBox.addButton(tr("OK"), QMessageBox::YesRole);
+        QAbstractButton* cancel = msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
+        msgBox.exec();
+        if (msgBox.clickedButton() == ok) {
+            ui->plateScaleLineEdit->setText("1.0");
+        }
+        else if (msgBox.clickedButton() == cancel) return;
+    }
+
     if (configfile.open(QIODevice::WriteOnly)) {
         QTextStream outputStream(&configfile);
         outputStream << "INSTRUMENT=" << instrumentName << "\n";
