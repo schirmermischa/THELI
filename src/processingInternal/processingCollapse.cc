@@ -108,6 +108,7 @@ void Controller::taskInternalCollapse()
 
         auto &it = allMyImages[k];
         if (!it->successProcessing) continue;
+        if (it->activeState != MyImage::ACTIVE) continue;
         int chip = it->chipNumber - 1;
         if (instData->badChips.contains(chip)) continue;
         releaseMemory(nimg*instData->storage, maxCPU);

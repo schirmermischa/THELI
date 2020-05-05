@@ -545,6 +545,7 @@ void Controller::taskInternalProcessscience()
         int chip = it->chipNumber - 1;
 
         if (!it->successProcessing) continue;
+        if (it->activeState != MyImage::ACTIVE) continue;
         if (instData->badChips.contains(chip)) continue;     // redundant. Image not even in allMyImages[k];
         releaseMemory(nimg*instData->storage, maxCPU);
 

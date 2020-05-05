@@ -251,6 +251,7 @@ void Controller::skysubConstantFromArea(Data *scienceData)
         int chip = it->chipNumber - 1;
         if (instData->badChips.contains(chip)) continue;
         if (!it->successProcessing) continue;
+        if (it->activeState != MyImage::ACTIVE) continue;
 
         releaseMemory(nimg*instData->storage, maxCPU);
 

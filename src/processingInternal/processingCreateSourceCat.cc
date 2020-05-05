@@ -152,6 +152,7 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
 
         if (!it->successProcessing) continue;
         if (instData->badChips.contains(chip)) continue;
+        if (it->activeState != MyImage::ACTIVE) continue;
 
         releaseMemory(nimg*instData->storage, maxCPU);
 
@@ -252,6 +253,7 @@ void Controller::detectionSExtractor(Data *scienceData, QString minFWHM, QString
         auto &it = allMyImages[k];
         int chip = it->chipNumber - 1;
         if (!it->successProcessing) continue;
+        if (it->activeState != MyImage::ACTIVE) continue;
         if (instData->badChips.contains(chip)) continue;
 
         releaseMemory(nimg*instData->storage, maxCPU);
