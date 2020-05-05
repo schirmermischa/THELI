@@ -55,7 +55,6 @@ int main(int argc, char *argv[])
     QString dotTheliName = QDir::homePath()+"/.theli/";
     QDir dotTheli(dotTheliName);
     dotTheli.mkdir(dotTheliName);
-    dotTheli.mkdir(dotTheliName+"/scripts");
     dotTheli.mkdir(dotTheliName+"/instruments_user");
 
     // Fetch the process ID of the main program

@@ -212,7 +212,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     bool accept = true;
 
-    QString filepath = QDir::homePath()+"/.config/THELI/"+ui->setupProjectLineEdit->text()+".conf";
+    QString filepath;
+    if (kernelType == "linux") filepath = QDir::homePath()+"/.config/THELI/";
+    else if (kernelType == "darwin") filepath = QDir::homePath()+"/Library/Preferences/THELI/";
 
     if (writePreferenceSettings() != QSettings::NoError) {
         qDebug() << "closeEvent: Could not save preference settings.";

@@ -177,7 +177,7 @@ void IView::setImageList(QString filter)
     QDir dir(dirName);
     QStringList filterList = filter.split(" ");
     if (dir.exists()) {
-//        filterList << filter;
+        //        filterList << filter;
         dir.setNameFilters(filterList);
         imageList = dir.entryList();
     }
@@ -246,8 +246,8 @@ void IView::loadImage()
     else {
         filter = "*.fits *.fit";
         currentFileName =
-        QFileDialog::getOpenFileName(this, tr("Select image"), dirName,
-                                     tr("Images ")+filter);
+                QFileDialog::getOpenFileName(this, tr("Select image"), dirName,
+                                             tr("Images ")+filter);
     }
 
     if (currentFileName.isEmpty()) return;
@@ -836,15 +836,12 @@ void IView::showReferenceCat()
         if (!readRaDecCatalog(dirName+"/cat/refcat/theli_mystd.iview", refCatItems, symbolSize, width, color)) {
             // Perhaps we are looking at a coadded image. Then go one directory up first
             if (!readRaDecCatalog(dirName+"/../cat/refcat/theli_mystd.iview", refCatItems, symbolSize, width, color)) {
-                // Still nothing. Try the home dir:
-                if (!readRaDecCatalog(QDir::homePath()+"/.theli/scripts/theli_mystd.iview", refCatItems, symbolSize, width, color)) {
-                    // No overlap with data field? Let the user provide one manually:
-                    QString refcatFileName =
-                            QFileDialog::getOpenFileName(this, tr("Select reference catalog (theli_mystd.iview)"), dirName,
-                                                         "theli_mystd.iview");
-                    if (QFile(refcatFileName).exists()) {
-                        readRaDecCatalog(refcatFileName, refCatItems, symbolSize, width, color);
-                    }
+                // No overlap with data field? Let the user provide one manually:
+                QString refcatFileName =
+                        QFileDialog::getOpenFileName(this, tr("Select reference catalog (theli_mystd.iview)"), dirName,
+                                                     "theli_mystd.iview");
+                if (QFile(refcatFileName).exists()) {
+                    readRaDecCatalog(refcatFileName, refCatItems, symbolSize, width, color);
                 }
             }
         }
@@ -939,7 +936,7 @@ bool IView::readRaDecCatalog(QString fileName, QList<QGraphicsRectItem*> &items,
         }
     }
     else {
-//        qDebug() << "IView::readRaDecCatalog: could not open" << fileName;
+        //        qDebug() << "IView::readRaDecCatalog: could not open" << fileName;
         return false;
     }
 }
