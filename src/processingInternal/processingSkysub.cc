@@ -205,6 +205,7 @@ void Controller::skysubConstantFromArea(Data *scienceData)
         for (auto &it : scienceData->exposureList[i]) {
             int chip = it->chipNumber - 1;
             if (instData->badChips.contains(chip)) continue;
+            if (it->activeState != MyImage::ACTIVE) continue;
             if (!it->successProcessing) continue;
             for (auto &position : it->skyPolyfitNodes) {
                 skyBackground.append(position[2]);
@@ -224,6 +225,7 @@ void Controller::skysubConstantFromArea(Data *scienceData)
         for (auto &it : scienceData->exposureList[i]) {
             int chip = it->chipNumber - 1;
             if (instData->badChips.contains(chip)) continue;
+            if (it->activeState != MyImage::ACTIVE) continue;
             if (!it->successProcessing) continue;
             it->meanExposureBackground = meanExposureBackground;
             emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2) + " e-", "image");
@@ -332,6 +334,7 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
         if (!it->successProcessing) continue;
         int chip = it->chipNumber - 1;
         if (instData->badChips.contains(chip)) continue;
+        if (it->activeState != MyImage::ACTIVE) continue;
 
         // Already done in measureSkyInBlankRegions;
         // Does nothing if image is still in memory.
@@ -376,6 +379,7 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
         if (!it->successProcessing) continue;
         int chip = it->chipNumber - 1;
         if (instData->badChips.contains(chip)) continue;
+        if (it->activeState != MyImage::ACTIVE) continue;
         emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2) + " e-", "image");
         it->processingStatus->Skysub = false;
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
@@ -460,6 +464,7 @@ void Controller::skysubConstantEachChip(Data *scienceData, QString DT, QString D
 
         auto &it = allMyImages[k];
         if (!it->successProcessing) continue;
+        if (it->activeState != MyImage::ACTIVE) continue;
         int chip = it->chipNumber - 1;
         if (instData->badChips.contains(chip)) continue;
         it->processingStatus->Skysub = false;
@@ -587,6 +592,7 @@ void Controller::skysubModel(Data *scienceData, QString DT, QString DMIN, QStrin
         if (!it->successProcessing) continue;
         int chip = it->chipNumber - 1;
         if (instData->badChips.contains(chip)) continue;
+        if (it->activeState != MyImage::ACTIVE) continue;
         //        emit messageAvailable(it->baseName + " : Modeling the sky ...", "controller");
         it->processingStatus->Skysub = false;
         it->setupData(scienceData->isTaskRepeated, false, true, backupDirName);
@@ -674,6 +680,7 @@ QList<MyImage*> Controller::measureSkyInBlankRegions(Data *scienceData, QString 
         if (instData->badChips.contains(chip)) continue;
         for (auto &it : scienceData->myImageList[chip]) {
             if (!it->successProcessing) continue;
+            if (it->activeState != MyImage::ACTIVE) continue;
             listOfAllImages.append(it);
         }
     }

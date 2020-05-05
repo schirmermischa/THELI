@@ -431,6 +431,8 @@ void Controller::copyZeroOrder()
         for (auto &it : scampScienceData->myImageList[chip]) {
             if (abortProcess) break;
             it->setupDataInMemorySimple(false);
+            if (it->activeState != MyImage::ACTIVE) continue;
+
             if (!it->successProcessing) {
                 abortProcess = true;
                 continue;
@@ -610,6 +612,7 @@ void Controller::doImageQualityAnalysis()
         auto &it = allMyImages[k];
         int chip = it->chipNumber - 1;
         if (!it->successProcessing) continue;
+        if (it->activeState != MyImage::ACTIVE) continue;
         if (instData->badChips.contains(chip)) continue;
 
         it->setupDataInMemorySimple(false);
@@ -678,6 +681,7 @@ void Controller::doCrossCorrelation(Data *scienceData)
                 abortProcess = true;
                 continue;
             }
+            if (it->activeState != MyImage::ACTIVE) continue;
             it->readWeight();
             it->resetObjectMasking();
             it->backgroundModel(64, "interpolate");

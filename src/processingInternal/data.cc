@@ -2780,14 +2780,17 @@ bool Data::hasMatchingPartnerFiles(QString testDirName, QString suffix)
     if (suffix == ".scamp") {
         for (int chip=0; chip<instData->numChips; ++chip) {
             for (auto &it : myImageList[chip]) {
-                if (!imageList.contains(it->rootName)) imageList.append(it->rootName);
+                if (!imageList.contains(it->rootName)
+                        && it->activeState == MyImage::ACTIVE) {
+                    imageList.append(it->rootName);
+                }
             }
         }
     }
     else {
         for (int chip=0; chip<instData->numChips; ++chip) {
             for (auto &it : myImageList[chip]) {
-                imageList.append(it->chipName);
+                if (it->activeState == MyImage::ACTIVE) imageList.append(it->chipName);
             }
         }
     }

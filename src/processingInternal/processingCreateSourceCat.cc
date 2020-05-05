@@ -367,23 +367,24 @@ void Controller::mergeInternal(Data *scienceData, QString minFWHM, QString maxFl
     for (long i=0; i<scienceData->exposureList.length(); ++i) {
         // if one detector has been rejected due to low source counts, then skip this exposure
         bool lowCounts = false;
+        int inactiveCounter = 0;
         for (auto &it : scienceData->exposureList[i]) {
             if (it->activeState == MyImage::LOWDETECTION) lowCounts = true;
+            if (it->activeState == MyImage::INACTIVE) ++inactiveCounter;
         }
-        if (lowCounts) continue;
+        if (lowCounts || inactiveCounter > 0) continue;       // WARNING: skipping images where some detectors have no data / deactivated
 
         fitsfile *fptr;
         int status = 0;
         QString filename = scienceData->dirName+"/cat/"+scienceData->exposureList[i][0]->rootName+".scamp";
         filename = "!"+filename;
         fits_create_file(&fptr, filename.toUtf8().data(), &status);
-        int counter=0;
+        int counter = 0;
         for (auto &it : scienceData->exposureList[i]) {
-            // Could exclude catalogs due to any activeState
-            //            if (it->activeState != MyImage::LOWDETECTION) {
+            // Exclude inactive exposures
+//            if (it->activeState == MyImage::INACTIVE) continue;          // could exclude more flags
             it->appendToScampCatalogInternal(fptr, minFWHM, maxFlag);
             ++counter;
-            //            }
         }
         //        if (counter != instData->numChips) {
         if (counter != instData->numUsedChips) {
