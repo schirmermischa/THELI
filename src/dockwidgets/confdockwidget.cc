@@ -1184,25 +1184,26 @@ void ConfDockWidget::on_ASTviewCheckPlotsPushButton_clicked()
     }
 
     if (checkPlotsExist) {
-        QMessageBox msgBox;
-        msgBox.setInformativeText(tr("The current SCIENCE data tree contains several entries for which astrometry check plots exist.\n") +
-                                  tr("Display the plots for:\n\n"));
-        for (auto &data : mainGUI->controller->DT_SCIENCE) {
-            QDir plotsDir = data->dirName+"/plots/";
-            if (plotsDir.exists()) QAbstractButton *button = msgBox.addButton(data->subDirName, QMessageBox::YesRole);
-        }
-        QAbstractButton *pCancel = msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
-        msgBox.exec();
-        QString choice = msgBox.clickedButton()->text();
-        if (msgBox.clickedButton()== pCancel) return;
+        if (mainGUI->controller->DT_SCIENCE.length() > 1) {
+            QMessageBox msgBox;
+            msgBox.setInformativeText(tr("The current SCIENCE data tree contains several entries for which astrometry check plots exist.\n") +
+                                      tr("Display the plots for:\n\n"));
+            for (auto &data : mainGUI->controller->DT_SCIENCE) {
+                QDir plotsDir = data->dirName+"/plots/";
+                if (plotsDir.exists()) QAbstractButton *button = msgBox.addButton(data->subDirName, QMessageBox::YesRole);
+            }
+            QAbstractButton *pCancel = msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
+            msgBox.exec();
+            QString choice = msgBox.clickedButton()->text();
+            if (msgBox.clickedButton()== pCancel) return;
 
-        for (auto &data : mainGUI->controller->DT_SCIENCE) {
-            if (data->subDirName == choice) {
-                scienceData = data;
-                break;
+            for (auto &data : mainGUI->controller->DT_SCIENCE) {
+                if (data->subDirName == choice) {
+                    scienceData = data;
+                    break;
+                }
             }
         }
-
         IView *checkplotViewer = new IView("SCAMP_VIEWONLY", scienceData->dirName+"/plots/", this);
         checkplotViewer->show();
     }
