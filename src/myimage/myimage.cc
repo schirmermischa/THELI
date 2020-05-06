@@ -652,8 +652,8 @@ void MyImage::divideFlat(MyImage *flatImage)
     for (auto &pixel : dataCurrent) {
         // Divide by flat, and correct for gain differences
         pixel /= (flatImage->dataCurrent[i] * flatImage->gainNormalization);
-        // NaN pixels slow down sextractor enourmously (and make it fail).
-        // we can probably get rid of this once we have completely thrown out sextractor
+        // NaN pixels slow down SourceExtractor enourmously (and make it fail).
+        // we can probably get rid of this once we have completely thrown out SourceExtractor
         if (std::isnan(pixel) || std::isinf(pixel)) pixel = 0.;
         ++i;
     }

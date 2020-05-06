@@ -52,6 +52,7 @@ SOURCES += \
     iview/dockwidgets/ivcolordockwidget.cc \
     iview/dockwidgets/ivconfdockwidget.cc \
     iview/dockwidgets/ivscampdockwidget.cc \
+    iview/dockwidgets/ivwcsdockwidget.cc \
     iview/events.cc \
     iview/iview.cc \
     iview/mygraphicsellipseitem.cc \
@@ -60,13 +61,17 @@ SOURCES += \
     iview/wavelet/filtercoeffs.cc \
     iview/wavelet/wavelet.cc \
     mainwindow.cc \
+    myimage/astrometrynet.cc \
     myimage/background.cc \
+    myimage/fitsinterface.cc \
+    myimage/memoryoperations.cc \
     myimage/myimage.cc \
     myimage/segmentation.cc \
-    myimage/sextractor.cc \
     myimage/skysub.cc \
+    myimage/sourceextractor.cc \
     myimage/tifftools.cc \
     myimage/weighting.cc \
+    myimage/writefits.cc \
     preferences.cc \
     processingExternal/errordialog.cc \
     processingInternal/controller.cc \
@@ -84,6 +89,7 @@ SOURCES += \
     processingInternal/processingSkysub.cc \
     processingInternal/processingSplitter.cc \
     processingInternal/processingWeight.cc \
+    processingInternal/processingCreateSourceCat.cc \
     processingStatus/processingStatus.cc \
     qcustomplot.cpp \
     query/query.cc \
@@ -91,6 +97,8 @@ SOURCES += \
     readmes/multidirreadme.cc \
     readmes/scampreadme.cc \
     readmes/swarpreadme.cc \
+    readmes/license.cc \
+    readmes/acknowledging.cc \
     settings.cc \
     status.cc \
     taskinfrastructure.cc \
@@ -100,9 +108,9 @@ SOURCES += \
     threading/mainguiworker.cc \
     threading/memoryworker.cc \
     threading/scampworker.cc \
-    threading/sexworker.cc \
     threading/swarpworker.cc \
     threading/worker.cc \
+    threading/anetworker.cc \
     tools/cfitsioerrorcodes.cc \
     tools/correlator.cc \
     tools/cpu.cc \
@@ -113,27 +121,19 @@ SOURCES += \
     tools/fitting.cc \
     tools/imagequality.cc \
     tools/polygon.cc \
+    tools/ram.cc \
     tools/splitter.cc \
     tools/splitter_RAW.cc \
     tools/splitter_buildHeader.cc \
     tools/splitter_processingGeneric.cc \
     tools/splitter_processingSpecific.cc \
     tools/splitter_queryHeaderLists.cc \
+    tools/splitter_multiport.cc \
     tools/swarpfilter.cc \
     tools/tools.cc \
     tools/xcorr.cc \
     validators.cc \
-    myimage/memoryoperations.cc \
-    tools/splitter_multiport.cc \
-    readmes/license.cc \
-    readmes/acknowledging.cc \
-    iview/dockwidgets/ivwcsdockwidget.cc \
-    myimage/astrometrynet.cc \
-    threading/anetworker.cc \
-    processingInternal/processingCreateSourceCat.cc \
-    myimage/fitsinterface.cc \
-    myimage/writefits.cc \
-    tools/ram.cc
+    threading/sourceextractorworker.cc
 
 HEADERS += \
         mainwindow.h \
@@ -179,7 +179,6 @@ HEADERS += \
     threading/mainguiworker.h \
     threading/memoryworker.h \
     threading/scampworker.h \
-    threading/sexworker.h \
     threading/swarpworker.h \
     threading/worker.h \
     tools/cfitsioerrorcodes.h \
@@ -197,7 +196,8 @@ HEADERS += \
     readmes/license.h \
     readmes/acknowledging.h \
     threading/anetworker.h \
-    tools/ram.h
+    tools/ram.h \
+    threading/sourceextractorworker.h
 
 FORMS += \
         mainwindow.ui \

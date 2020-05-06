@@ -135,18 +135,15 @@ public:
     long numMasterCalibs = 0;
     bool hasAllMasterCalibs = false;
     QVector<int> uniqueChips;  // length: numChips
-    QString checkGeometry();
+//    QString checkGeometry();
     bool hasImages();
-    bool getHeaders();
+//    bool getHeaders();
     void clearImageInfo();
-    QStringList collectNamesForChip(int chip);
-    QStringList collectNamesForFilter(QString filter);
-    void maskInit(Mask &mask, long n, long m);
-    void maskAddRectangle(Mask &mask, QVector<long> rect, bool invert = false);
-    void maskAddImage(Mask &mask, QString sexImage, bool invert = false);
-    void stayWithinImageBounds(long n, long m, QVector<long> &vertices);
-    QVector<long> getOverscanArea(QString axis, int chip);
-    QString getMasterFilename(QString type, int chip);
+//    QStringList collectNamesForChip(int chip);
+//    QStringList collectNamesForFilter(QString filter);
+//    void maskInit(Mask &mask, long n, long m);
+//    QVector<long> getOverscanArea(QString axis, int chip);
+//    QString getMasterFilename(QString type, int chip);
 
     // Processing functions
     void combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVector<float> &, const QVector<bool> &, long), QString nlow, QString nhigh,
@@ -154,15 +151,15 @@ public:
     void combineImages(const int chip, const QString nlowString, const QString nhighString, const QString currentImage, const QString mode,
                        const QString dirName, const QString subDirName, QVector<bool> &dataStaticModelDone);
     void combineImages_newParallel(int chip, MyImage *masterCombined, QList<MyImage *> &backgroundList, QString nlow, QString nhigh, QString currentImage, QString mode, const QString subDirName);
-    void deleteMyImageList();
-    void forceStatus(int chip, QString status);
+//    void deleteMyImageList();
+//    void forceStatus(int chip, QString status);
     void loadCombinedImage(int chip);
     void populate(QString statusString);
     void repopulate(int chip, QList<MyImage *> replacementList);
-    void resetDataCurrentToBackup(int chip);
-    bool setModeFlag(int chip, QString min, QString max);
+//    void resetDataCurrentToBackup(int chip);
+//    bool setModeFlag(int chip, QString min, QString max);
     void writeCombinedImage(int chip);
-    bool writeImages(int chip, QString statusString);
+//    bool writeImages(int chip, QString statusString);
     void resetUserAbort();
 
     // Flags that control whether a task is actually executed (or skipped)
@@ -175,9 +172,9 @@ public:
     bool rescaleFlag = false;    // Whether the images in this group have to be rescaled to the same mode when combining them  (FLAT: yes, BIAS: no)
 
     // Memory functions
-    float memoryCurrentFootprint(bool globalweights = false);
-    float memoryNeeded(int chip);
-    void memoryFreeDataX(int chip, QString dataX);
+//    float memoryCurrentFootprint(bool globalweights = false);
+//    float memoryNeeded(int chip);
+//    void memoryFreeDataX(int chip, QString dataX);
     void memorySetDeletable(int chip, QString dataX, bool deletable);
     void getGainNormalization();
     bool getPointingCharacteristics();
@@ -222,7 +219,7 @@ public:
     bool checkTaskRepeatStatus(QString taskBasename);
     void resetStaticModel();
     void writeBackgroundModel(const int &chip, const QString &mode, const QString &basename, bool &staticImageWritten);
-    void getModeCombineImagesBackground(int chip, MyImage *image);
+//    void getModeCombineImagesBackground(int chip, MyImage *image);
     void writeBackgroundModel_newParallel(int chip, MyImage *combinedBackgroundImage, QString mode, QString basename,
                                           int threadID, omp_lock_t &backLock, bool &staticImageWritten);
     void cleanBackgroundModelStatus();
@@ -230,7 +227,6 @@ public:
     void applyMask(int chip, QString filter);
     void resetBackupInfo();
     void removeCatalogs();
-    float releaseMemoryStringent(float RAMneededThisThread, float RAMneededAllThreads, float currentTotalMemoryUsed, QString mode);
     bool doesCoaddContainRaDec(const QString &refRA, const QString &refDEC);
 public slots:
     void setMemoryLockReceived(bool locked);
@@ -240,7 +236,7 @@ public slots:
     void pushWarning();
     void pushCritical();
     void criticalFromQueryReceived();
-    void pushErrorOccurred();
+//    void pushErrorOccurred();
 
 private:
     QString thelidir;
@@ -250,13 +246,11 @@ private:
     bool workerThreadInit = false;
 
     float maskVal = -1.e9;
-    void incrementCurrentThreads(int &currentThreads, omp_lock_t &lock);
-    void decrementCurrentThreads(int &currentThreads, omp_lock_t &lock);
-    void getFixedHeaderKeys(QString filename, QStringList &badImages);
+//    void incrementCurrentThreads(int &currentThreads, omp_lock_t &lock);
+//    void decrementCurrentThreads(int &currentThreads, omp_lock_t &lock);
+//    void getFixedHeaderKeys(QString filename, QStringList &badImages);
     QVector<float> getNormalizedRescaleFactors(int chip, QVector<long> &goodIndex, QString mode);
-    void maskAddRegionFile(QString regionFile = "");
-    void establish_connections();
-    void printCfitsioError(QString funcName, int status);
+//    void printCfitsioError(QString funcName, int status);
     void doImagesOverlap(MyImage &imgRef, MyImage &imgTest, float tolerance);
     bool checkForUnassignedImages(int &groupNumber);
     void findOverlappingImages(MyImage *img, float tolerance);

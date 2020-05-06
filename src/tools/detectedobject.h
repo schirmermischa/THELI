@@ -65,7 +65,7 @@ public:
     wcsprm &wcs;
 
     // Moments and shapes
-    // Using sextractor naming style for easier recognition
+    // Using Source Extractor naming style for easier recognition
 
     // ISOPHOTAL
     long XMIN = 0;      // min and max positions (used in calculations)

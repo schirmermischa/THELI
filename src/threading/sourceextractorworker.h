@@ -17,29 +17,29 @@ along with this program in the LICENSE file.
 If not, see https://www.gnu.org/licenses/ .
 */
 
-#ifndef SEXWORKER_H
-#define SEXWORKER_H
+#ifndef SOURCEEXTRACTORWORKER_H
+#define SOURCEEXTRACTORWORKER_H
 
 #include "worker.h"
 
 #include <QObject>
 #include <QProcess>
 
-class SexWorker : public Worker
+class SourceExtractorWorker : public Worker
 {
     Q_OBJECT
 
 public:
-    explicit SexWorker(QString command, QString dir, QObject *parent = nullptr);
+    explicit SourceExtractorWorker(QString command, QString dir, QObject *parent = nullptr);
 
-    QString sexCommand;
-    QString sexDirName;
+    QString sourceExtractorCommand;
+    QString sourceExtractorDirName;
     QProcess *extProcess;
 
     void abort();  // Currently not used anywhere
 
 public slots:
-    void runSex();
+    void runSourceExtractor();
 
 private slots:
     void processExternalStdout();
@@ -51,4 +51,4 @@ signals:
 
 };
 
-#endif // SEXWORKER_H
+#endif // SOURCEEXTRACTOR_H

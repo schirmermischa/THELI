@@ -23,13 +23,13 @@ Dependencies for running THELI
 THELI uses a few external packages. The respective binaries and scripts must be present in your $PATH variable.
 THELI will check for their presence upon launch and report any misconfigurations.
 
-swarp v2.38        https://github.com/astromatic/swarp
-scamp v2.7         https://github.com/astromatic/scamp
-sextractor v2.19   https://github.com/astromatic/sextractor
-vizquery.py        http://cds.u-strasbg.fr/resources/doku.php?id=cdsclient
-sesame + wwwget    http://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz
-                   NOTE: You must compile 'wwwget' separately, with 'make wwwget' 
-astrometry.net     https://github.com/dstndstn/astrometry.net/releases   (this is OPTIONAL; all others are mandatory)
+swarp v2.38              https://github.com/astromatic/swarp
+scamp v2.7               https://github.com/astromatic/scamp
+Source Extractor v2.19   https://github.com/astromatic/sextractor
+vizquery.py              http://cds.u-strasbg.fr/resources/doku.php?id=cdsclient
+sesame + wwwget          http://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz
+                         NOTE: You must compile 'wwwget' separately, with 'make wwwget' 
+astrometry.net           https://github.com/dstndstn/astrometry.net/releases   (this is OPTIONAL; all others are mandatory)
 
 Environment variable
 ====================

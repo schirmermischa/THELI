@@ -21,7 +21,7 @@ If not, see https://www.gnu.org/licenses/ .
 #define MYIMAGE_H
 
 #include "../tools/detectedobject.h"
-#include "../threading/sexworker.h"
+#include "../threading/sourceextractorworker.h"
 #include "../threading/anetworker.h"
 #include "../processingStatus/processingStatus.h"
 
@@ -163,7 +163,7 @@ public:
     QVector<float> apertures;
 
     QThread *workerThread;
-    SexWorker *sexWorker;
+    SourceExtractorWorker *sourceExtractorWorker;
     AnetWorker *anetWorker;
 
     // Defining data
@@ -204,7 +204,7 @@ public:
 
     QVector<QString> header;
 
-    QString sexCommand;
+    QString sourceExtractorCommand;
     QString anetCommand;
 
     // Static image characteristics
@@ -343,15 +343,15 @@ public:
 
     void add(float value);
     void appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_string, QString maxFlag_string);
-    void appendToScampCatalogSExtractor(fitsfile *fptr);
+    void appendToScampCatalogSourceExtractor(fitsfile *fptr);
     void applyBackgroundModel(MyImage *backgroundImage, QString mode, bool rescaleFlag);
     void applyMask();
     void applyPolygons(int chip);
     void backupOrigHeader(int chip);
-    void buildSexCommand();
+    void buildSourceExtractorCommand();
     void buildAnetCommand();
     void cornersToRaDec();
-    void createSextractorCatalog();
+    void createSourceExtractorCatalog();
     void collapseCorrection(QString threshold, QString direction);
     void cosmicsFilter(QString aggressiveness);
     void checkBrightStars(QList<QVector<double>> &brightStarList, float safetyDistance, float plateScale);
@@ -362,7 +362,7 @@ public:
     void evaluateSkyNodes(const QVector<double> alpha, const QVector<double> delta, const QVector<double> radius);
     QVector<double> extractCDmatrix();
     QVector<float> extractPixelValues(long xmin, long xmax, long ymin, long ymax);
-    void filterSextractorCatalog(QString minFWHM, QString maxFlag);
+    void filterSourceExtractorCatalog(QString minFWHM, QString maxFlag);
     void freeAll();
     void freeData(QVector<float> &data);
     void freeAncillaryData(QVector<float> &data);
@@ -402,7 +402,7 @@ public:
     void setupCoaddMode();
     void setupCalibDataInMemory(bool createBackup, bool determineMode, bool mustRereadFromDisk);
     void setActiveState(active_type state);
-    void sexcatToIview();
+    void sourceExtractorCatToIview();
     void showProcInfo();
     void sky2xy(const double alpha, const double delta, double &x, double &y);
     void subtract(float value);
@@ -441,7 +441,7 @@ public:
     void getMeanBackground();
     void pushDown(QString backupDir);
     void pullUp();
-    void createSextractorCatalog_old();
+    void createSourceExtractorCatalog_old();
     bool makeL1Current();
     bool makeL2Current();
     bool makeL3Current();
@@ -462,7 +462,7 @@ public:
     void buildAnetCommand(QString pixscale_maxerr);
     void runAnetCommand();
     QString extractAnetOutput();
-    void sexcatToAnet();
+    void sourceExtractorCatToAnet();
     void writeImageBackupL1();
     void writeImageBackupL2();
     void writeImageBackupL3();

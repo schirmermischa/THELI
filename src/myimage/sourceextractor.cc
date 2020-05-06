@@ -18,7 +18,7 @@ If not, see https://www.gnu.org/licenses/ .
 */
 
 
-// This file deals with running sextractor as an external tool
+// This file deals with running Source Extractor as an external tool
 
 #include "myimage.h"
 #include "../functions.h"
@@ -26,7 +26,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../tools/tools.h"
 #include "../tools/cfitsioerrorcodes.h"
 #include "../processingInternal/data.h"
-#include "../threading/sexworker.h"
+#include "../threading/sourceextractorworker.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -35,20 +35,20 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QProcess>
 #include <QTest>
 
-void MyImage::buildSexCommand()
+void MyImage::buildSourceExtractorCommand()
 {
     if (!successProcessing) return;
 
     // Create the 'cat/' sub-directory if it does not exist yet.
     mkAbsDir(path+"/cat/iview/");
 
-    QString sex = findExecutableName("sex");
-    sexCommand = sex + " ";
-    sexCommand += path + "/" + chipName + processingStatus->statusString + ".fits";
-    sexCommand += " -CATALOG_NAME " + path+"/cat/" + chipName + ".cat";
-    sexCommand += " -WEIGHT_IMAGE " + weightPath + "/" + chipName + ".weight.fits";
+    QString sourceExtractor = findExecutableName("source-extractor");
+    sourceExtractorCommand = sourceExtractor + " ";
+    sourceExtractorCommand += path + "/" + chipName + processingStatus->statusString + ".fits";
+    sourceExtractorCommand += " -CATALOG_NAME " + path+"/cat/" + chipName + ".cat";
+    sourceExtractorCommand += " -WEIGHT_IMAGE " + weightPath + "/" + chipName + ".weight.fits";
 
-    // NOTE: further options are appended in controller::detectionSExtractor()
+    // NOTE: further options are appended in controller::detectionSourceExtractor()
 
     // Check if weight exists
     QFile weight(weightPath+"/"+chipName+".weight.fits");
@@ -62,34 +62,34 @@ void MyImage::buildSexCommand()
 }
 
 // start in same thread
-void MyImage::createSextractorCatalog_old()
+void MyImage::createSourceExtractorCatalog_old()
 {
     if (!successProcessing) return;
 
     QProcess process;
-    process.start("/bin/sh -c \""+sexCommand+"\"");
+    process.start("/bin/sh -c \""+sourceExtractorCommand+"\"");
     process.waitForFinished(-1);
 }
 
 // start in new thread
-void MyImage::createSextractorCatalog()
+void MyImage::createSourceExtractorCatalog()
 {
     if (!successProcessing) return;
 
-    if (*verbosity >= 2) emit messageAvailable("Running the following command in " + path + " : <br>"+sexCommand, "image");
+    if (*verbosity >= 2) emit messageAvailable("Running the following command in " + path + " : <br>"+sourceExtractorCommand, "image");
 
-    // Run the SExtractor command
+    // Run the SourceExtractor command
     workerThread = new QThread();
-    sexWorker = new SexWorker(sexCommand, path);
-    sexWorker->moveToThread(workerThread);
-    connect(workerThread, &QThread::started, sexWorker, &SexWorker::runSex);
-    connect(sexWorker, &SexWorker::errorFound, this, &MyImage::errorFoundReceived);
+    sourceExtractorWorker = new SourceExtractorWorker(sourceExtractorCommand, path);
+    sourceExtractorWorker->moveToThread(workerThread);
+    connect(workerThread, &QThread::started, sourceExtractorWorker, &SourceExtractorWorker::runSourceExtractor);
+    connect(sourceExtractorWorker, &SourceExtractorWorker::errorFound, this, &MyImage::errorFoundReceived);
     connect(workerThread, &QThread::finished, workerThread, &QThread::deleteLater);
-    // Direct connection required, otherwise the task hangs after the first sextractor command
+    // Direct connection required, otherwise the task hangs after the first SourceExtractor command
     // (does not proceed to the next step in the controller's for loop)
-    connect(sexWorker, &SexWorker::finished, workerThread, &QThread::quit, Qt::DirectConnection);
-    connect(sexWorker, &SexWorker::finished, sexWorker, &QObject::deleteLater);
-    connect(sexWorker, &SexWorker::messageAvailable, this, &MyImage::messageAvailableReceived);
+    connect(sourceExtractorWorker, &SourceExtractorWorker::finished, workerThread, &QThread::quit, Qt::DirectConnection);
+    connect(sourceExtractorWorker, &SourceExtractorWorker::finished, sourceExtractorWorker, &QObject::deleteLater);
+    connect(sourceExtractorWorker, &SourceExtractorWorker::messageAvailable, this, &MyImage::messageAvailableReceived);
     workerThread->start();
     workerThread->wait();
 }
@@ -99,7 +99,7 @@ void MyImage::errorFoundReceived()
     successProcessing = false;
 }
 
-void MyImage::filterSextractorCatalog(QString minFWHM, QString maxFlag)
+void MyImage::filterSourceExtractorCatalog(QString minFWHM, QString maxFlag)
 {
     if (!successProcessing) return;
 
@@ -116,11 +116,11 @@ void MyImage::filterSextractorCatalog(QString minFWHM, QString maxFlag)
     fits_select_rows(fptr, fptr, filterString.toUtf8().data(), &status);
     fits_close_file(fptr, &status);
 
-    printCfitsioError("MyImage::filterSextractorCatalog()", status);
+    printCfitsioError("MyImage::filterSourceExtractorCatalog()", status);
 
     // Cannot do that, creating a child for a parent in a different thread;
     // should push the message directly to monitor instead;
-    // printCfitsioError("MyImage::filterSextractorCatalog()", status);
+    // printCfitsioError("MyImage::filterSourceExtractorCatalog()", status);
 }
 
 void MyImage::calcMedianSeeingEllipticitySex()
@@ -176,7 +176,7 @@ void MyImage::calcMedianSeeingEllipticitySex()
     delete ell;
 }
 
-void MyImage::sexcatToIview()
+void MyImage::sourceExtractorCatToIview()
 {
     if (!successProcessing) return;
 
@@ -225,7 +225,7 @@ void MyImage::sexcatToIview()
     fits_read_col(fptr, TFLOAT, thetawinColNum, firstrow, firstelem, nrows, NULL, thetawin, &anynul, &status);
     fits_close_file(fptr, &status);
 
-    printCfitsioError("MyImage::sexcatToIview())", status);
+    printCfitsioError("MyImage::sourceExtractorCatToIview())", status);
 
     QString iviewName = path+"/cat/iview/"+chipName+".iview";
     QFile file(iviewName);
@@ -242,7 +242,7 @@ void MyImage::sexcatToIview()
         file.close();
     }
     else {
-        emit messageAvailable("MyImage::sexcatToIview(): Could not write to "+iviewName, "error");
+        emit messageAvailable("MyImage::sourceExtractorCatToIview(): Could not write to "+iviewName, "error");
         emit critical();
         successProcessing = false;
     }
@@ -254,7 +254,7 @@ void MyImage::sexcatToIview()
     delete thetawin;
 }
 
-void MyImage::appendToScampCatalogSExtractor(fitsfile *fptr)
+void MyImage::appendToScampCatalogSourceExtractor(fitsfile *fptr)
 {
     if (!successProcessing) return;
 
@@ -269,10 +269,10 @@ void MyImage::appendToScampCatalogSExtractor(fitsfile *fptr)
     fits_movabs_hdu(fptrSex, 3, &hduType, &status);
     fits_copy_hdu(fptrSex, fptr, 0, &status);
     fits_close_file(fptrSex, &status);
-    printCfitsioError("MyImage::appendToScampCatalogSExtractor()", status);
+    printCfitsioError("MyImage::appendToScampCatalogSourceExtractor()", status);
 }
 
-void MyImage::sexcatToAnet()
+void MyImage::sourceExtractorCatToAnet()
 {
     if (!successProcessing) return;
 
@@ -314,8 +314,8 @@ void MyImage::sexcatToAnet()
     fits_copy_col(fptrSex, fptrAnet, yColNum, 2, FALSE, &statusSex);
     fits_copy_col(fptrSex, fptrAnet, magColNum, 3, FALSE, &statusSex);
     fits_close_file(fptrSex, &statusSex);
-    printCfitsioError("MyImage::sexcatToAnet()", statusSex);
+    printCfitsioError("MyImage::sourceExtractorCatToAnet()", statusSex);
 
     fits_close_file(fptrAnet, &statusAnet);
-    printCfitsioError("MyImage::sexcatToAnet()", statusAnet);
+    printCfitsioError("MyImage::sourceExtractorCatToAnet()", statusAnet);
 }

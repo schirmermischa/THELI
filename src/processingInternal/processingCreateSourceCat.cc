@@ -88,12 +88,12 @@ void Controller::taskInternalCreatesourcecat()
         mergeInternal(scienceData, minFWHM, maxFlag);
     }
 
-    // EXTERNAL (SExtractor)
+    // EXTERNAL (SourceExtractor)
     else {
-        detectionSExtractor(scienceData, minFWHM, maxFlag);
+        detectionSourceExtractor(scienceData, minFWHM, maxFlag);
         emit resetProgressBar();
         progressStepSize = 100. / float(scienceData->exposureList.length());
-        mergeSExtractor(scienceData);
+        mergeSourceExtractor(scienceData);
     }
 
     checkSuccessProcessing(scienceData);
@@ -213,22 +213,22 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
     }
 }
 
-void Controller::detectionSExtractor(Data *scienceData, QString minFWHM, QString maxFlag)
+void Controller::detectionSourceExtractor(Data *scienceData, QString minFWHM, QString maxFlag)
 {
-    buildSexCommandOptions();
+    buildSourceExtractorCommandOptions();
     // Create source catalogs for each exposure
 
     /*
 #pragma omp parallel for num_threads(maxExternalThreads)
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : scienceData->myImageList[chip]) {
-            if (verbosity >=0 ) emit messageAvailable(it->baseName + " : Creating SExtractor source catalog ...", "image");
+            if (verbosity >=0 ) emit messageAvailable(it->baseName + " : Creating SourceExtractor catalog ...", "image");
             it->setupDataInMemory(isTaskRepeated, true, true);
-            it->buildSexCommand();
-            it->sexCommand.append(sexCommandOptions);
-            it->createSextractorCatalog();
-            it->filterSextractorCatalog(minFWHM, maxFlag);
-            it->sexcatToIview();
+            it->buildSourceExtractorCommand();
+            it->sourceExtractorCommand.append(sourceExtractorCommandOptions);
+            it->createSourceExtractorCatalog();
+            it->filterSourceExtractorCatalog(minFWHM, maxFlag);
+            it->sourceExtractorCatToIview();
             incrementProgress();
         }
     }
@@ -242,7 +242,7 @@ void Controller::detectionSExtractor(Data *scienceData, QString minFWHM, QString
     QList<MyImage*> allMyImages;
     long numMyImages = makeListofAllImages(allMyImages, scienceData);
 
-    float nimg = 4;  // some breathing space for SExtractor
+    float nimg = 4;  // some breathing space for SourceExtractor
     releaseMemory(nimg*instData->storage*maxCPU, 1);
     scienceData->protectMemory();
 
@@ -265,20 +265,20 @@ void Controller::detectionSExtractor(Data *scienceData, QString minFWHM, QString
             continue;
         }
         it->checkWCSsanity();
-        it->buildSexCommand();
-        it->sexCommand.append(sexCommandOptions);
-        if (!it->imageOnDrive) it->writeImage();         // Must be on drive for sextractor
-        it->createSextractorCatalog();
-        it->filterSextractorCatalog(minFWHM, maxFlag);
+        it->buildSourceExtractorCommand();
+        it->sourceExtractorCommand.append(sourceExtractorCommandOptions);
+        if (!it->imageOnDrive) it->writeImage();         // Must be on drive for SourceExtractor
+        it->createSourceExtractorCatalog();
+        it->filterSourceExtractorCatalog(minFWHM, maxFlag);
         it->calcMedianSeeingEllipticitySex();
-        it->sexcatToIview();
-        it->sexcatToAnet();
+        it->sourceExtractorCatToIview();
+        it->sourceExtractorCatToAnet();
         it->unprotectMemory();
         if (minimizeMemoryUsage) {
             it->freeAll();
         }
         if (it->successProcessing) {
-            long nobj = getNumObjectsSexCat(it->path+"/cat/"+it->chipName+".cat");
+            long nobj = getNumObjectsSourceExtractorCat(it->path+"/cat/"+it->chipName+".cat");
             emitSourceCountMessage(nobj, it->chipName, warningLevel, stopLevel);
             if (!cdw->ui->CSCrejectExposureLineEdit->text().isEmpty()) {
                 long nReject = cdw->ui->CSCrejectExposureLineEdit->text().toLong();
@@ -402,9 +402,9 @@ void Controller::mergeInternal(Data *scienceData, QString minFWHM, QString maxFl
     }
 }
 
-void Controller::mergeSExtractor(Data *scienceData)
+void Controller::mergeSourceExtractor(Data *scienceData)
 {
-    // Merge Sextractor catalogs to final scamp catalog
+    // Merge SourceExtractor catalogs to final scamp catalog
     // Loop over exposures
     scienceData->populateExposureList();
     emit messageAvailable("Merging source catalogs ...", "controller");
@@ -428,41 +428,41 @@ void Controller::mergeSExtractor(Data *scienceData)
         filename = "!"+filename;
         fits_create_file(&fptr, filename.toUtf8().data(), &status);
         for (auto &it : scienceData->exposureList[i]) {
-            it->appendToScampCatalogSExtractor(fptr);
+            it->appendToScampCatalogSourceExtractor(fptr);
             if (!it->successProcessing) scienceData->successProcessing = false;
         }
         fits_close_file(fptr, &status);
 
-        printCfitsioError("mergeSExtractor()", status);
+        printCfitsioError("mergeSourceExtractor()", status);
 
 #pragma omp atomic
         progress += progressStepSize;
     }
 }
 
-void Controller::buildSexCommandOptions()
+void Controller::buildSourceExtractorCommandOptions()
 {
-    // This builds the major part of the sextractor command based on the chosen GUI settings.
+    // This builds the major part of the SourceExtractor command based on the chosen GUI settings.
     // The MyImage class adds the variable rest (catalog name, weight name, image name)
 
     if (!successProcessing) return;
 
-    sexCommandOptions = " -PARAMETERS_NAME " + thelidir + "/src/config/default.param";
-    sexCommandOptions += " -FILTER_NAME "     + thelidir + "/src/config/default.conv";
-    sexCommandOptions += " -STARNNW_NAME "    + thelidir + "/src/config/default.nnw";
-    sexCommandOptions += " -DETECT_MINAREA "  + getUserParamLineEdit(cdw->ui->CSCDMINLineEdit);
-    sexCommandOptions += " -DETECT_THRESH "   + getUserParamLineEdit(cdw->ui->CSCDTLineEdit);
-    sexCommandOptions += " -ANALYSIS_THRESH " + getUserParamLineEdit(cdw->ui->CSCDTLineEdit);
-    sexCommandOptions += " -FILTER "          + getUserParamCheckBox(cdw->ui->CSCconvolutionCheckBox);
-    sexCommandOptions += " -DEBLEND_MINCONT " + getUserParamLineEdit(cdw->ui->CSCmincontLineEdit);
-    sexCommandOptions += " -SATUR_LEVEL "     + getUserParamLineEdit(cdw->ui->CSCsaturationLineEdit);
-    sexCommandOptions += " -CATALOG_TYPE FITS_LDAC";
-    sexCommandOptions += " -WEIGHT_TYPE MAP_WEIGHT ";
-    sexCommandOptions += " -PIXEL_SCALE 0.0 ";
+    sourceExtractorCommandOptions = " -PARAMETERS_NAME " + thelidir + "/src/config/default.param";
+    sourceExtractorCommandOptions += " -FILTER_NAME "     + thelidir + "/src/config/default.conv";
+    sourceExtractorCommandOptions += " -STARNNW_NAME "    + thelidir + "/src/config/default.nnw";
+    sourceExtractorCommandOptions += " -DETECT_MINAREA "  + getUserParamLineEdit(cdw->ui->CSCDMINLineEdit);
+    sourceExtractorCommandOptions += " -DETECT_THRESH "   + getUserParamLineEdit(cdw->ui->CSCDTLineEdit);
+    sourceExtractorCommandOptions += " -ANALYSIS_THRESH " + getUserParamLineEdit(cdw->ui->CSCDTLineEdit);
+    sourceExtractorCommandOptions += " -FILTER "          + getUserParamCheckBox(cdw->ui->CSCconvolutionCheckBox);
+    sourceExtractorCommandOptions += " -DEBLEND_MINCONT " + getUserParamLineEdit(cdw->ui->CSCmincontLineEdit);
+    sourceExtractorCommandOptions += " -SATUR_LEVEL "     + getUserParamLineEdit(cdw->ui->CSCsaturationLineEdit);
+    sourceExtractorCommandOptions += " -CATALOG_TYPE FITS_LDAC";
+    sourceExtractorCommandOptions += " -WEIGHT_TYPE MAP_WEIGHT ";
+    sourceExtractorCommandOptions += " -PIXEL_SCALE 0.0 ";
 
     QString backString = cdw->ui->CSCbackgroundLineEdit->text();
-    if (backString.isEmpty()) sexCommandOptions += " -BACK_TYPE AUTO " ;
-    else sexCommandOptions += " -BACK_TYPE MANUAL -BACK_VALUE "+backString;
+    if (backString.isEmpty()) sourceExtractorCommandOptions += " -BACK_TYPE AUTO " ;
+    else sourceExtractorCommandOptions += " -BACK_TYPE MANUAL -BACK_VALUE "+backString;
 }
 
 bool Controller::manualCoordsUpdate(Data *scienceData, QString mode)

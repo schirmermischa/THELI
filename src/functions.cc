@@ -474,15 +474,15 @@ void initEnvironment(QString &thelidir, QString &userdir)
 
 QString findExecutableName(QString program)
 {
-    QStringList sexlist = {"sex", "sextractor", "SExtractor", "source-extractor"};
+    QStringList sourceextractorlist = {"source-extractor", "sex", "sextractor", "SExtractor"};
     QStringList scamplist = {"scamp", "Scamp"};
     QStringList swarplist = {"swarp", "Swarp", "SWarp"};
     QStringList anetlist1 = {"solve-field"};
     QStringList anetlist2 = {"build-astrometry-index"};
 
     QString commandname = "";
-    if (program == "sex") {
-        for (auto &it : sexlist) {
+    if (program == "source-extractor") {
+        for (auto &it : sourceextractorlist) {
             commandname = QStandardPaths::findExecutable(it);
             if (!commandname.isEmpty()) break;
         }

@@ -409,7 +409,7 @@ void MyImage::collectSeeingParameters(QVector<QVector<double>> &outputParams, QV
         return;
     }
 
-    // Not present (if GUI launched at this position, or sextractor was used to compute catalogs)
+    // Not present (if GUI launched at this position, or Source Extractor was used to compute catalogs)
     // Try external catalog
 
     else {

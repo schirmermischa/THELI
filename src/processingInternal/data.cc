@@ -439,27 +439,6 @@ void Data::checkPresenceOfMasterCalibs()
     else hasAllMasterCalibs = false;
 }
 
-// Data is listening to all its MyImages
-/*
-void Data::establish_connections()
-{
-    for (int chip=0; chip<instData->numChips; ++chip) {
-        for (auto &image : myImageList[chip]) {
-            connect(image, &MyImage::modelUpdateNeeded, this, &Data::modelUpdateReceiver);
-        }
-    }
-}
-*/
-
-void Data::deleteMyImageList()
-{
-    if (myImageList.isEmpty()) return;
-    for (int chip=0; chip<instData->numChips; ++chip) {
-        for (auto &it: myImageList[chip]) {
-            delete it;
-        }
-    }
-}
 
 void Data::populateExposureList()
 {
@@ -552,14 +531,6 @@ void Data::loadCombinedImage(int chip)
     successProcessing = combinedImage[chip]->successProcessing;
 }
 
-// UNUSED
-void Data::forceStatus(int chip, QString status)
-{
-    for (auto &it : myImageList[chip]) {
-        it->processingStatus->statusString = status;
-    }
-}
-
 void Data::resetSuccessProcessing()
 {
     successProcessing = true;
@@ -573,162 +544,6 @@ void Data::resetSuccessProcessing()
     }
 }
 
-void Data::getFixedHeaderKeys(QString filename, QStringList &badImages)
-{
-    if (userStop || userKill) return;
-
-    long naxis1 = 0;
-    long naxis2;
-    QString filter = "UNKNOWN";
-    double mjdobs = 0.;
-
-    fitsfile *fptr = nullptr;
-    int status = 0;
-
-    fits_open_file(&fptr, filename.toUtf8().data(), READONLY, &status);
-    if (!status) {
-        char *filterName = new char(filename.length()+10);
-        fits_read_key_lng(fptr, "NAXIS1", &naxis1, NULL, &status);
-        fits_read_key_lng(fptr, "NAXIS2", &naxis2, NULL, &status);
-        fits_read_key_dbl(fptr, "MJD-OBS", &mjdobs, NULL, &status);
-        fits_read_key_str(fptr, "FILTER", filterName, NULL, &status);
-        if (status && !badImages.contains(filename)) {
-            badImages.push_back(filename);
-            imageInfo.naxis1.push_back(0);
-            imageInfo.naxis2.push_back(0);
-            imageInfo.mjdobs.push_back(0.);
-            imageInfo.filter.push_back("UNKNOWN");
-        }
-        else {
-            filter = QString(filterName);
-            imageInfo.naxis1.push_back(naxis1);
-            imageInfo.naxis2.push_back(naxis2);
-            imageInfo.mjdobs.push_back(mjdobs);
-            imageInfo.filter.push_back(filter);
-            //          qDebug() << qSetRealNumberPrecision(12) << mjdobs;
-        }
-        delete filterName;
-    }
-
-    fits_close_file(fptr, &status);
-
-    if (status) {
-        emit messageAvailable(subDirName + " : Data::getFixedHeaderKeys(): Could not read NAXIS1/2, MJD-OBS, and/or FILTER in" + filename, "error");
-        printCfitsioError("getFixedHeaderKeys()", status);
-    }
-}
-
-// Reads relevant keywords from the headers
-bool Data::getHeaders()
-{
-    QStringList badImages;
-
-    for (auto &it : imageInfo.fullName) {
-        getFixedHeaderKeys(dirName+"/"+it, badImages);
-    }
-    if (!badImages.isEmpty()) {
-        // Truncate (in case of lots of images)
-        QString summary = truncateImageList(badImages,10);
-        emit messageAvailable(tr("Could not read one or more of the following keywords:<br>NAXIS1, NAXIS2, FILTER, MJD-OBS")+
-                              tr("<br>Add the keywords manually, or the remove the corrupted images.<br>")+summary, "error");
-        emit critical();
-        emit showMessageBox("Data::CANNOT_READ_HEADER_KEYS", summary, "");
-        return false;
-    }
-    else {
-        return true;
-    }
-}
-
-// Calculates the median geometry for the images of a chip.
-// Identifies outliers and moves them to a 'badGeometry/' sub-directory
-QString Data::checkGeometry()
-{
-    if (!successProcessing) return "";
-
-    QStringList badImages;
-
-    for (auto &chip : uniqueChips) {
-        // Find images matching that chip, extract their geometries
-        QStringList imageList = collectNamesForChip(chip);
-        QVector<int> tmp1;
-        QVector<int> tmp2;
-        for (auto &it : imageList) {
-            tmp1.push_back(imageInfo.naxis1[mapName.value(it)]);
-            tmp2.push_back(imageInfo.naxis2[mapName.value(it)]);
-        }
-        // Median image geometry for chip 'chip':
-        int medianNaxis1 = straightMedian_T(tmp1);
-        int medianNaxis2 = straightMedian_T(tmp2);
-        mapNaxis1.insert(chip, medianNaxis1);
-        mapNaxis2.insert(chip, medianNaxis2);
-        // Collect images whose geometry deviates from the median geometry
-        for (auto &it : imageList) {
-            if (imageInfo.naxis1[mapName.value(it)] != medianNaxis1
-                    || imageInfo.naxis2[mapName.value(it)] != medianNaxis2) {
-                badImages << it;
-            }
-        }
-    }
-
-    if (badImages.isEmpty()) return "success";
-
-    // What to do with the bad images
-    QString summary = truncateImageList(badImages, 10);
-
-    emit messageAvailable(subDirName + " : WARNING: The 2D dimensions of the following images deviate from the median dimension:<br>"
-                          +summary+"<br>"+
-                          "This can be a result of inconsistent binning or readout modes.<br> "
-                          "THELI can move these images to a 'badGeometries/' sub-directory "
-                          "and re-attempt the process. Alternatively, you can cancel and inspect the data yourself "
-                          "before trying again.\n", "warning");
-
-    QMessageBox msgBox;
-    msgBox.setText(tr("ERROR: The 2D dimensions of the following images deviate from the median dimension:"));
-    msgBox.setInformativeText(summary+
-                              "This can be a result of inconsistent binning or readout modes. "
-                              "THELI can move these images to a 'badGeometries/' sub-directory "
-                              "and re-attempt the process. Alternatively, you can cancel and inspect the data yourself "
-                              "before trying again.\n");
-    QAbstractButton *pButtonOk = msgBox.addButton(tr("Move images and re-try"), QMessageBox::YesRole);
-    QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
-    msgBox.exec();
-
-    if (msgBox.clickedButton()==pButtonOk) {
-        // make a "badGeometry" sub-directory
-        QString badDirName = dirName+"/badGeometry/";
-        QDir badDir(badDirName);
-        badDir.mkpath(badDirName);
-        // move selected images to badstats
-        for (auto &it : badImages ) {
-            QFile badFile(dirName+"/"+it);
-            if (!badFile.rename(badDirName+"/"+it)) {
-                emit messageAvailable(subDirName + " : Data::checkGeometry(): Could not execute the following operation:<br>"+
-                                      "mv " + dirName+"/"+it + badDirName+"/"+it, "error");
-                emit critical();
-                return "cancel";
-            }
-        }
-        return "recurse";
-    }
-    else {
-        return "cancel";
-    }
-}
-
-void Data::incrementCurrentThreads(int &currentThreads, omp_lock_t &lock)
-{
-    omp_set_lock(&lock);
-    ++currentThreads;
-    omp_unset_lock(&lock);
-}
-
-void Data::decrementCurrentThreads(int &currentThreads, omp_lock_t &lock)
-{
-    omp_set_lock(&lock);
-    --currentThreads;
-    omp_unset_lock(&lock);
-}
 
 // Used for creating master calibrators
 void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVector<float> &, const QVector<bool> &, long),
@@ -1184,27 +999,6 @@ void Data::getModeCombineImages(int chip)
     successProcessing = true;
 }
 
-void Data::getModeCombineImagesBackground(int chip, MyImage *image)
-{
-    if (!successProcessing) return;
-
-    if (userStop || userKill) return;
-
-    if (image->modeDetermined) return;
-
-    // Get the mean / mode of the combined image
-    if (dataType == "BIAS" || dataType == "DARK" || dataType == "FLATOFF") {
-        // mode doesn't work, as all values are very very narrowly distributed around a single value (which might be integer on top of that)
-        image->skyValue = meanMask(image->dataCurrent, mask->globalMask[chip]);
-    }
-    else {
-        image->skyValue = modeMask(image->dataCurrent, "stable", mask->globalMask[chip])[0];
-    }
-    image->modeDetermined = true;
-
-    successProcessing = true;
-}
-
 void Data::reportModeCombineImages()
 {
     // Report the mean / mode of the combined image
@@ -1597,41 +1391,6 @@ void Data::writeGlobalWeights(int chip, QString filter)
     }
 }
 
-/*
-void Data::writeGlobalflags(int chip, QString filter)
-{
-    if (*verbosity > 0) emit messageAvailable("Writing globalflag for chip " + QString::number(chip+1), "data");
-
-    // The new output file
-    fitsfile *fptr;
-    int status = 0;
-    long fpixel = 1;
-    long naxis1 = instData->sizex[chip];
-    long naxis2 = instData->sizey[chip];
-    long nelements = naxis1*naxis2;
-    unsigned int *array = new unsigned int[nelements];
-    for (long i=0; i<nelements; ++i) {
-        array[i] = 0;
-    }
-
-    int bitpix = BYTE_IMG;
-    long naxis = 2;
-    long naxes[2] = { naxis1, naxis2 };
-
-    QString globalFlagName = mainDirName+"/GLOBALWEIGHTS/globalflag_"+instData->name+"_"+filter+"_"+QString::number(chip+1)+".fits";
-    // Overwrite file if it exists
-    globalFlagName = "!"+globalFlagName;
-    fits_create_file(&fptr, globalFlagName.toUtf8().data(), &status);
-    fits_create_img(fptr, bitpix, naxis, naxes, &status);
-    fits_write_img(fptr, TBYTE, fpixel, nelements, array, &status);
-    fits_close_file(fptr, &status);
-
-    delete [] array;
-
-    printCfitsioError("writeGlobalflags()", status);
-}
-*/
-
 void Data::getGainNormalization()
 {
     if (!successProcessing) return;
@@ -1675,97 +1434,6 @@ void Data::getGainNormalization()
     }
 }
 
-float Data::memoryNeeded(int chip)
-{
-    float footprint = 0;
-
-    for (auto &it: myImageList[chip]) {
-        footprint += it->dataCurrent.size() * sizeof(float);
-    }
-    return footprint / 1024. / 1024.;
-}
-
-float Data::memoryCurrentFootprint(bool globalweights)
-{
-    float footprint = 0.;    // Storage (in MB) used for all images currently held in memory
-
-    // CHECK: crashes here when clicking the project reset button right after launching the GUI.
-    // still crashes despite this if-clause. MyImageList[chip] seems undefined (innermost for loop)
-
-    if (processingStatus == nullptr
-            || !processingStatus->HDUreformat
-            || !dataInitialized) return 0.;   // MyImageList undefined, or no data loaded yet
-
-    // For an unknown reason, I cannot access myImageList for GLOBALWEIGHTS when changing a project; memoryprogressbar then crashes the UI
-    if (!globalweights) {
-        if (!myImageList.isEmpty()) {  // e.g. if RAWDATA are restored
-            for (int chip=0; chip<instData->numChips; ++chip) {
-                if (instData->badChips.contains(chip)) continue;
-                for (auto &it: myImageList[chip]) {
-                    footprint += it->dataCurrent.capacity() * sizeof(float);
-                    footprint += it->dataBackupL1.capacity() * sizeof(float);
-                    footprint += it->dataBackupL2.capacity() * sizeof(float);
-                    footprint += it->dataBackupL3.capacity() * sizeof(float);
-                    footprint += it->dataMeasure.capacity() * sizeof(float);
-                    footprint += it->objectMask.capacity() * sizeof(bool);
-                    footprint += it->dataWeight.capacity() * sizeof(float);
-                    footprint += it->dataWeightSmooth.capacity() * sizeof(float);
-                    footprint += it->dataBackground.capacity() * sizeof(float);
-                    footprint += it->dataSegmentation.capacity() * sizeof(long);
-                }
-            }
-        }
-        // Also check for debayered images that are not yet in the nominal myimage list
-        if (!bayerList.isEmpty()) {
-            for (int chip=0; chip<instData->numChips; ++chip) {
-                if (instData->badChips.contains(chip)) continue;
-                for (auto &it: bayerList[chip]) {
-                    footprint += it->dataCurrent.capacity() * sizeof(float);
-                }
-            }
-        }
-    }
-
-    if (!combinedImage.isEmpty()) {
-        for (int chip=0; chip<instData->numChips; ++chip) {
-            if (instData->badChips.contains(chip)) continue;
-            // Crashes if equal to nullptr
-            if (combinedImage[chip] != nullptr) {
-                footprint += combinedImage[chip]->dataCurrent.capacity() * sizeof(float);
-            }
-        }
-    }
-    return footprint /= (1024 * 1024);
-}
-
-// UNUSED
-// Force free
-// should use the controller's 'lock'
-void Data::memoryFreeDataX(int chip, QString dataX)
-{
-    //    if (!successProcessing) return;
-
-    QVector<float> empty {};
-
-    if (dataX != "combined") {
-        long memReleased = myImageList[chip][0]->dataCurrent.length()*4*myImageList[chip].length();
-        if (*verbosity > 1) emit messageAvailable("Freeing "+QString::number(memReleased) + " MB", "data");
-        for (auto &it : myImageList[chip]) {
-            if (dataX == "dataCurrent") it->dataCurrent.swap(empty);
-            else if (dataX == "dataBackupL1") it->dataBackupL1.swap(empty);
-            else if (dataX == "dataBackupL2") it->dataBackupL2.swap(empty);
-            else if (dataX == "dataBackupL3") it->dataBackupL3.swap(empty);
-            else if (dataX == "dataWeight") it->dataWeight.swap(empty);
-        }
-    }
-    else {
-        long memReleased = combinedImage[chip]->dataCurrent.length()*4;
-        if (*verbosity > 1) emit messageAvailable("Freeing "+QString::number(memReleased) + " MB", "data");
-        combinedImage[chip]->dataCurrent.swap(empty);
-    }
-
-    // successProcessing = true;
-}
 
 void Data::protectMemory()
 {
@@ -1901,34 +1569,6 @@ void Data::memorySetDeletable(int chip, QString dataX, bool deletable)
     successProcessing = true;
 }
 
-bool Data::setModeFlag(int chip, QString min, QString max)
-{
-    if (!successProcessing) return false;
-
-    QString thresholds = "[" + min + "," + max + "]";
-    for (auto &it : myImageList[chip] ) {
-        // Try and read image; readImage() returns true immediately if image is already in memory
-        //        if (!(it->readImage())) return false;
-        //        if (!it->modeDetermined) {
-        //            qDebug() << "QDEBUG: Data::setModeFlag(): Error: Mode should have been determined.";
-        //            return false;
-        //        }
-        if (!min.isEmpty()) {
-            if (it->skyValue < min.toFloat()) {
-                it->validMode = false;
-            }
-        }
-        if (!max.isEmpty()) {
-            if (it->skyValue > max.toFloat()) it->validMode = false;
-        }
-        if (!it->validMode) {
-            if (*verbosity > 0) emit messageAvailable(it->baseName + " : Mode "+it->skyValue+" is outside user-defined thresholds "
-                                                      + thresholds + ". Image will be ignored when calculating master calibs.", "data");
-        }
-    }
-    return true;
-}
-
 void Data::writeCombinedImage(int chip)
 {
     if (!successProcessing) return;
@@ -2008,20 +1648,6 @@ void Data::writeBackgroundModel_newParallel(int chip, MyImage *combinedBackgroun
     }
 }
 
-// UNUSED
-bool Data::writeImages(int chip, QString statusString)
-{
-    if (!successProcessing) return false;
-    if (userStop || userKill) return false;
-
-    bool success = true;  // unused
-    for (auto &it : myImageList[chip]) {
-        it->processingStatus->statusString = statusString;
-        it->writeImage();
-    }
-    return success;
-}
-
 void Data::resetUserAbort()
 {
     userYield = false;
@@ -2038,38 +1664,6 @@ void Data::resetObjectMasking()
             it->resetObjectMasking();
         }
     }
-}
-
-QString Data::getMasterFilename(QString type, int chip)
-{
-    return mainDirName+"/"+type+"/"+type+"_"+QString::number(chip+1)+".fits";
-}
-
-QVector<long> Data::getOverscanArea(QString axis, int chip)
-{
-    QVector<long> overscanArea;
-
-    // X-axis
-    if (axis == "x") {
-        QVector<int> min = instData->overscan_xmin;
-        QVector<int> max = instData->overscan_xmax;
-        if (!min.isEmpty() && !max.isEmpty()) {
-            overscanArea << min[chip];
-            overscanArea << max[chip];
-        }
-    }
-
-    // Y-axis
-    if (axis == "y") {
-        QVector<int> min = instData->overscan_ymin;
-        QVector<int> max = instData->overscan_ymax;
-        if (!min.isEmpty() && !max.isEmpty()) {
-            overscanArea << min[chip];
-            overscanArea << max[chip];
-        }
-    }
-
-    return overscanArea;
 }
 
 // only used for debayering
@@ -2128,17 +1722,6 @@ void Data::populate(QString statusString)
     if (*verbosity > 0) emit messageAvailable(subDirName + " : " + QString::number(numImages) + " Images initialized ...", "data");
 }
 
-QStringList Data::collectNamesForChip(int chip)
-{
-    QStringList names;
-    long k = 0;
-    for (auto &it: imageInfo.chip) {
-        if (it == chip) names << imageInfo.fullName[k];
-        ++k;
-    }
-    return names;
-}
-
 void Data::countUnsavedImages(long &numUnsavedLatest, long &numUnsavedBackup)
 {
     for (int chip=0; chip<instData->numChips; ++chip) {
@@ -2150,33 +1733,6 @@ void Data::countUnsavedImages(long &numUnsavedLatest, long &numUnsavedBackup)
             if (it->backupL3InMemory && !it->backupL3OnDrive) ++numUnsavedBackup;
         }
     }
-}
-
-// UNUSED
-/*
-bool Data::containsUnsavedImages()
-{
-    for (int chip=0; chip<instData->numChips; ++chip) {
-        if (instData->badChips.contains(chip)) continue;
-        for (auto &it : myImageList[chip]) {
-            if (!it->imageOnDrive) return false;
-        }
-    }
-
-    return true;
-}
-*/
-
-
-QStringList Data::collectNamesForFilter(QString filter)
-{
-    QStringList names;
-    long k = 0;
-    for (auto &it: imageInfo.filter) {
-        if (it == filter) names << imageInfo.fullName[k];
-        ++k;
-    }
-    return names;
 }
 
 void Data::clearImageInfo()
@@ -2386,20 +1942,6 @@ void Data::pushWarning()
     emit warning();
 }
 
-void Data::pushErrorOccurred()
-{
-    emit errorOccurredInMyImage();
-}
-
-void Data::printCfitsioError(QString funcName, int status)
-{
-    if (status) {
-        CfitsioErrorCodes *errorCodes = new CfitsioErrorCodes(this);
-        emit messageAvailable("Data::"+funcName+":<br>" + subDirName + " : " + errorCodes->errorKeyMap.value(status), "error");
-        emit critical();
-    }
-}
-
 int Data::identifyClusters(QString toleranceString)
 {
     if (!successProcessing) return 0;
@@ -2589,7 +2131,7 @@ void Data::removeCurrentFITSfiles()
 
 void Data::removeCatalogs()
 {
-    // Remove all scamp, sextractor and .anet catalogs. Keep the iview catalogs
+    // Remove all scamp, SourceExtractor and .anet catalogs. Keep the iview catalogs
     // Used when recreating source catalogs
     QDir catalogDir(dirName + "/cat/");
     QStringList catFileNames = catalogDir.entryList(QStringList() << "*.cat" << "*.scamp" << "*.anet" );
@@ -2872,3 +2414,504 @@ bool Data::doesCoaddContainRaDec(const QString &refRA, const QString &refDEC)
     }
     return containsRADEC;
 }
+
+// Data is listening to all its MyImages
+/*
+void Data::establish_connections()
+{
+    for (int chip=0; chip<instData->numChips; ++chip) {
+        for (auto &image : myImageList[chip]) {
+            connect(image, &MyImage::modelUpdateNeeded, this, &Data::modelUpdateReceiver);
+        }
+    }
+}
+*/
+
+/*
+void Data::deleteMyImageList()
+{
+    if (myImageList.isEmpty()) return;
+    for (int chip=0; chip<instData->numChips; ++chip) {
+        for (auto &it: myImageList[chip]) {
+            delete it;
+        }
+    }
+}
+*/
+
+/*
+void Data::forceStatus(int chip, QString status)
+{
+    for (auto &it : myImageList[chip]) {
+        it->processingStatus->statusString = status;
+    }
+}
+*/
+
+/*
+void Data::getFixedHeaderKeys(QString filename, QStringList &badImages)
+{
+    if (userStop || userKill) return;
+
+    long naxis1 = 0;
+    long naxis2;
+    QString filter = "UNKNOWN";
+    double mjdobs = 0.;
+
+    fitsfile *fptr = nullptr;
+    int status = 0;
+
+    fits_open_file(&fptr, filename.toUtf8().data(), READONLY, &status);
+    if (!status) {
+        char *filterName = new char(filename.length()+10);
+        fits_read_key_lng(fptr, "NAXIS1", &naxis1, NULL, &status);
+        fits_read_key_lng(fptr, "NAXIS2", &naxis2, NULL, &status);
+        fits_read_key_dbl(fptr, "MJD-OBS", &mjdobs, NULL, &status);
+        fits_read_key_str(fptr, "FILTER", filterName, NULL, &status);
+        if (status && !badImages.contains(filename)) {
+            badImages.push_back(filename);
+            imageInfo.naxis1.push_back(0);
+            imageInfo.naxis2.push_back(0);
+            imageInfo.mjdobs.push_back(0.);
+            imageInfo.filter.push_back("UNKNOWN");
+        }
+        else {
+            filter = QString(filterName);
+            imageInfo.naxis1.push_back(naxis1);
+            imageInfo.naxis2.push_back(naxis2);
+            imageInfo.mjdobs.push_back(mjdobs);
+            imageInfo.filter.push_back(filter);
+            //          qDebug() << qSetRealNumberPrecision(12) << mjdobs;
+        }
+        delete filterName;
+    }
+
+    fits_close_file(fptr, &status);
+
+    if (status) {
+        emit messageAvailable(subDirName + " : Data::getFixedHeaderKeys(): Could not read NAXIS1/2, MJD-OBS, and/or FILTER in" + filename, "error");
+        printCfitsioError("getFixedHeaderKeys()", status);
+    }
+}
+*/
+
+// Reads relevant keywords from the headers
+/*
+bool Data::getHeaders()
+{
+    QStringList badImages;
+
+    for (auto &it : imageInfo.fullName) {
+        getFixedHeaderKeys(dirName+"/"+it, badImages);
+    }
+    if (!badImages.isEmpty()) {
+        // Truncate (in case of lots of images)
+        QString summary = truncateImageList(badImages,10);
+        emit messageAvailable(tr("Could not read one or more of the following keywords:<br>NAXIS1, NAXIS2, FILTER, MJD-OBS")+
+                              tr("<br>Add the keywords manually, or the remove the corrupted images.<br>")+summary, "error");
+        emit critical();
+        emit showMessageBox("Data::CANNOT_READ_HEADER_KEYS", summary, "");
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+*/
+
+// Calculates the median geometry for the images of a chip.
+// Identifies outliers and moves them to a 'badGeometry/' sub-directory
+// UNUSED
+/*
+QString Data::checkGeometry()
+{
+    if (!successProcessing) return "";
+
+    QStringList badImages;
+
+    for (auto &chip : uniqueChips) {
+        // Find images matching that chip, extract their geometries
+        QStringList imageList = collectNamesForChip(chip);
+        QVector<int> tmp1;
+        QVector<int> tmp2;
+        for (auto &it : imageList) {
+            tmp1.push_back(imageInfo.naxis1[mapName.value(it)]);
+            tmp2.push_back(imageInfo.naxis2[mapName.value(it)]);
+        }
+        // Median image geometry for chip 'chip':
+        int medianNaxis1 = straightMedian_T(tmp1);
+        int medianNaxis2 = straightMedian_T(tmp2);
+        mapNaxis1.insert(chip, medianNaxis1);
+        mapNaxis2.insert(chip, medianNaxis2);
+        // Collect images whose geometry deviates from the median geometry
+        for (auto &it : imageList) {
+            if (imageInfo.naxis1[mapName.value(it)] != medianNaxis1
+                    || imageInfo.naxis2[mapName.value(it)] != medianNaxis2) {
+                badImages << it;
+            }
+        }
+    }
+
+    if (badImages.isEmpty()) return "success";
+
+    // What to do with the bad images
+    QString summary = truncateImageList(badImages, 10);
+
+    emit messageAvailable(subDirName + " : WARNING: The 2D dimensions of the following images deviate from the median dimension:<br>"
+                          +summary+"<br>"+
+                          "This can be a result of inconsistent binning or readout modes.<br> "
+                          "THELI can move these images to a 'badGeometries/' sub-directory "
+                          "and re-attempt the process. Alternatively, you can cancel and inspect the data yourself "
+                          "before trying again.\n", "warning");
+
+    QMessageBox msgBox;
+    msgBox.setText(tr("ERROR: The 2D dimensions of the following images deviate from the median dimension:"));
+    msgBox.setInformativeText(summary+
+                              "This can be a result of inconsistent binning or readout modes. "
+                              "THELI can move these images to a 'badGeometries/' sub-directory "
+                              "and re-attempt the process. Alternatively, you can cancel and inspect the data yourself "
+                              "before trying again.\n");
+    QAbstractButton *pButtonOk = msgBox.addButton(tr("Move images and re-try"), QMessageBox::YesRole);
+    QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
+    msgBox.exec();
+
+    if (msgBox.clickedButton()==pButtonOk) {
+        // make a "badGeometry" sub-directory
+        QString badDirName = dirName+"/badGeometry/";
+        QDir badDir(badDirName);
+        badDir.mkpath(badDirName);
+        // move selected images to badstats
+        for (auto &it : badImages ) {
+            QFile badFile(dirName+"/"+it);
+            if (!badFile.rename(badDirName+"/"+it)) {
+                emit messageAvailable(subDirName + " : Data::checkGeometry(): Could not execute the following operation:<br>"+
+                                      "mv " + dirName+"/"+it + badDirName+"/"+it, "error");
+                emit critical();
+                return "cancel";
+            }
+        }
+        return "recurse";
+    }
+    else {
+        return "cancel";
+    }
+}
+*/
+
+/*
+void Data::incrementCurrentThreads(int &currentThreads, omp_lock_t &lock)
+{
+    omp_set_lock(&lock);
+    ++currentThreads;
+    omp_unset_lock(&lock);
+}
+
+void Data::decrementCurrentThreads(int &currentThreads, omp_lock_t &lock)
+{
+    omp_set_lock(&lock);
+    --currentThreads;
+    omp_unset_lock(&lock);
+}
+*/
+
+/*
+void Data::getModeCombineImagesBackground(int chip, MyImage *image)
+{
+    if (!successProcessing) return;
+
+    if (userStop || userKill) return;
+
+    if (image->modeDetermined) return;
+
+    // Get the mean / mode of the combined image
+    if (dataType == "BIAS" || dataType == "DARK" || dataType == "FLATOFF") {
+        // mode doesn't work, as all values are very very narrowly distributed around a single value (which might be integer on top of that)
+        image->skyValue = meanMask(image->dataCurrent, mask->globalMask[chip]);
+    }
+    else {
+        image->skyValue = modeMask(image->dataCurrent, "stable", mask->globalMask[chip])[0];
+    }
+    image->modeDetermined = true;
+
+    successProcessing = true;
+}
+*/
+
+/*
+void Data::writeGlobalflags(int chip, QString filter)
+{
+    if (*verbosity > 0) emit messageAvailable("Writing globalflag for chip " + QString::number(chip+1), "data");
+
+    // The new output file
+    fitsfile *fptr;
+    int status = 0;
+    long fpixel = 1;
+    long naxis1 = instData->sizex[chip];
+    long naxis2 = instData->sizey[chip];
+    long nelements = naxis1*naxis2;
+    unsigned int *array = new unsigned int[nelements];
+    for (long i=0; i<nelements; ++i) {
+        array[i] = 0;
+    }
+
+    int bitpix = BYTE_IMG;
+    long naxis = 2;
+    long naxes[2] = { naxis1, naxis2 };
+
+    QString globalFlagName = mainDirName+"/GLOBALWEIGHTS/globalflag_"+instData->name+"_"+filter+"_"+QString::number(chip+1)+".fits";
+    // Overwrite file if it exists
+    globalFlagName = "!"+globalFlagName;
+    fits_create_file(&fptr, globalFlagName.toUtf8().data(), &status);
+    fits_create_img(fptr, bitpix, naxis, naxes, &status);
+    fits_write_img(fptr, TBYTE, fpixel, nelements, array, &status);
+    fits_close_file(fptr, &status);
+
+    delete [] array;
+
+    printCfitsioError("writeGlobalflags()", status);
+}
+*/
+
+/*
+float Data::memoryNeeded(int chip)
+{
+    float footprint = 0;
+
+    for (auto &it: myImageList[chip]) {
+        footprint += it->dataCurrent.size() * sizeof(float);
+    }
+    return footprint / 1024. / 1024.;
+}
+*/
+
+/*
+float Data::memoryCurrentFootprint(bool globalweights)
+{
+    float footprint = 0.;    // Storage (in MB) used for all images currently held in memory
+
+    // CHECK: crashes here when clicking the project reset button right after launching the GUI.
+    // still crashes despite this if-clause. MyImageList[chip] seems undefined (innermost for loop)
+
+    if (processingStatus == nullptr
+            || !processingStatus->HDUreformat
+            || !dataInitialized) return 0.;   // MyImageList undefined, or no data loaded yet
+
+    // For an unknown reason, I cannot access myImageList for GLOBALWEIGHTS when changing a project; memoryprogressbar then crashes the UI
+    if (!globalweights) {
+        if (!myImageList.isEmpty()) {  // e.g. if RAWDATA are restored
+            for (int chip=0; chip<instData->numChips; ++chip) {
+                if (instData->badChips.contains(chip)) continue;
+                for (auto &it: myImageList[chip]) {
+                    footprint += it->dataCurrent.capacity() * sizeof(float);
+                    footprint += it->dataBackupL1.capacity() * sizeof(float);
+                    footprint += it->dataBackupL2.capacity() * sizeof(float);
+                    footprint += it->dataBackupL3.capacity() * sizeof(float);
+                    footprint += it->dataMeasure.capacity() * sizeof(float);
+                    footprint += it->objectMask.capacity() * sizeof(bool);
+                    footprint += it->dataWeight.capacity() * sizeof(float);
+                    footprint += it->dataWeightSmooth.capacity() * sizeof(float);
+                    footprint += it->dataBackground.capacity() * sizeof(float);
+                    footprint += it->dataSegmentation.capacity() * sizeof(long);
+                }
+            }
+        }
+        // Also check for debayered images that are not yet in the nominal myimage list
+        if (!bayerList.isEmpty()) {
+            for (int chip=0; chip<instData->numChips; ++chip) {
+                if (instData->badChips.contains(chip)) continue;
+                for (auto &it: bayerList[chip]) {
+                    footprint += it->dataCurrent.capacity() * sizeof(float);
+                }
+            }
+        }
+    }
+
+    if (!combinedImage.isEmpty()) {
+        for (int chip=0; chip<instData->numChips; ++chip) {
+            if (instData->badChips.contains(chip)) continue;
+            // Crashes if equal to nullptr
+            if (combinedImage[chip] != nullptr) {
+                footprint += combinedImage[chip]->dataCurrent.capacity() * sizeof(float);
+            }
+        }
+    }
+    return footprint /= (1024 * 1024);
+}
+*/
+
+// UNUSED
+// Force free
+// should use the controller's 'lock'
+/*
+void Data::memoryFreeDataX(int chip, QString dataX)
+{
+    //    if (!successProcessing) return;
+
+    QVector<float> empty {};
+
+    if (dataX != "combined") {
+        long memReleased = myImageList[chip][0]->dataCurrent.length()*4*myImageList[chip].length();
+        if (*verbosity > 1) emit messageAvailable("Freeing "+QString::number(memReleased) + " MB", "data");
+        for (auto &it : myImageList[chip]) {
+            if (dataX == "dataCurrent") it->dataCurrent.swap(empty);
+            else if (dataX == "dataBackupL1") it->dataBackupL1.swap(empty);
+            else if (dataX == "dataBackupL2") it->dataBackupL2.swap(empty);
+            else if (dataX == "dataBackupL3") it->dataBackupL3.swap(empty);
+            else if (dataX == "dataWeight") it->dataWeight.swap(empty);
+        }
+    }
+    else {
+        long memReleased = combinedImage[chip]->dataCurrent.length()*4;
+        if (*verbosity > 1) emit messageAvailable("Freeing "+QString::number(memReleased) + " MB", "data");
+        combinedImage[chip]->dataCurrent.swap(empty);
+    }
+
+    // successProcessing = true;
+}
+*/
+
+
+/*
+bool Data::setModeFlag(int chip, QString min, QString max)
+{
+    if (!successProcessing) return false;
+
+    QString thresholds = "[" + min + "," + max + "]";
+    for (auto &it : myImageList[chip] ) {
+        // Try and read image; readImage() returns true immediately if image is already in memory
+        //        if (!(it->readImage())) return false;
+        //        if (!it->modeDetermined) {
+        //            qDebug() << "QDEBUG: Data::setModeFlag(): Error: Mode should have been determined.";
+        //            return false;
+        //        }
+        if (!min.isEmpty()) {
+            if (it->skyValue < min.toFloat()) {
+                it->validMode = false;
+            }
+        }
+        if (!max.isEmpty()) {
+            if (it->skyValue > max.toFloat()) it->validMode = false;
+        }
+        if (!it->validMode) {
+            if (*verbosity > 0) emit messageAvailable(it->baseName + " : Mode "+it->skyValue+" is outside user-defined thresholds "
+                                                      + thresholds + ". Image will be ignored when calculating master calibs.", "data");
+        }
+    }
+    return true;
+}
+*/
+
+
+// UNUSED
+/*
+bool Data::writeImages(int chip, QString statusString)
+{
+    if (!successProcessing) return false;
+    if (userStop || userKill) return false;
+
+    bool success = true;  // unused
+    for (auto &it : myImageList[chip]) {
+        it->processingStatus->statusString = statusString;
+        it->writeImage();
+    }
+    return success;
+}
+*/
+
+
+/*
+QString Data::getMasterFilename(QString type, int chip)
+{
+    return mainDirName+"/"+type+"/"+type+"_"+QString::number(chip+1)+".fits";
+}
+*/
+
+/*
+QVector<long> Data::getOverscanArea(QString axis, int chip)
+{
+    QVector<long> overscanArea;
+
+    // X-axis
+    if (axis == "x") {
+        QVector<int> min = instData->overscan_xmin;
+        QVector<int> max = instData->overscan_xmax;
+        if (!min.isEmpty() && !max.isEmpty()) {
+            overscanArea << min[chip];
+            overscanArea << max[chip];
+        }
+    }
+
+    // Y-axis
+    if (axis == "y") {
+        QVector<int> min = instData->overscan_ymin;
+        QVector<int> max = instData->overscan_ymax;
+        if (!min.isEmpty() && !max.isEmpty()) {
+            overscanArea << min[chip];
+            overscanArea << max[chip];
+        }
+    }
+
+    return overscanArea;
+}
+*/
+
+
+/*
+QStringList Data::collectNamesForChip(int chip)
+{
+    QStringList names;
+    long k = 0;
+    for (auto &it: imageInfo.chip) {
+        if (it == chip) names << imageInfo.fullName[k];
+        ++k;
+    }
+    return names;
+}
+*/
+
+// UNUSED
+/*
+bool Data::containsUnsavedImages()
+{
+    for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
+        for (auto &it : myImageList[chip]) {
+            if (!it->imageOnDrive) return false;
+        }
+    }
+
+    return true;
+}
+*/
+
+/*
+QStringList Data::collectNamesForFilter(QString filter)
+{
+    QStringList names;
+    long k = 0;
+    for (auto &it: imageInfo.filter) {
+        if (it == filter) names << imageInfo.fullName[k];
+        ++k;
+    }
+    return names;
+}
+*/
+
+
+/*
+void Data::pushErrorOccurred()
+{
+    emit errorOccurredInMyImage();
+}
+*/
+
+/*
+void Data::printCfitsioError(QString funcName, int status)
+{
+    if (status) {
+        CfitsioErrorCodes *errorCodes = new CfitsioErrorCodes(this);
+        emit messageAvailable("Data::"+funcName+":<br>" + subDirName + " : " + errorCodes->errorKeyMap.value(status), "error");
+        emit critical();
+    }
+}
+*/

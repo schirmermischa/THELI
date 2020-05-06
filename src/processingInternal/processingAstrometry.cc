@@ -909,7 +909,7 @@ long Controller::getNumAnetChips(QString ahead)
     }
 }
 
-long Controller::getNumObjectsSexCat(QString cat)
+long Controller::getNumObjectsSourceExtractorCat(QString cat)
 {
     int status = 0;
     fitsfile *fptr;
@@ -921,7 +921,7 @@ long Controller::getNumObjectsSexCat(QString cat)
     fits_get_num_rows(fptr, &nrows, &status);
     fits_close_file(fptr, &status);
 
-    printCfitsioError("getNumObjectsSexCat():", status);
+    printCfitsioError("getNumObjectsSourceExtractorCat():", status);
 
     return nrows;
 }

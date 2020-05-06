@@ -17,7 +17,7 @@ along with this program in the LICENSE file.
 If not, see https://www.gnu.org/licenses/ .
 */
 
-// This program mimics some sextractor measurements
+// This program mimics Source Extractor measurements
 
 #include "detectedobject.h"
 
@@ -806,7 +806,7 @@ void DetectedObject::filterSpuriousDetections()
 
 // In C++, arrays start counting a 0.
 // However, for object detection in FITS images, we start counting at 1.
-// Verified by comparing with Sextractor positions
+// Verified by comparing with Source Extractor positions
 
 // UNUSED. Offset applied when writing source catalogs to disk for scamp
 void DetectedObject::correctOriginOffset()

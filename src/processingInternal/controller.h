@@ -96,7 +96,7 @@ private:
     QString scampPlotsDir;
     QString coaddUniqueID;
     QString scampCommand;
-    QString sexCommandOptions;
+    QString sourceExtractorCommandOptions;
     QString scampDir;
     int processID;
     bool scampSolutionAcceptanceState = false; 
@@ -205,11 +205,11 @@ private:
     void scampCalcFluxscale();
     int getMaxPhotInst();
 //    void provideHeaderInfo(Data *scienceData);
-    void buildSexCommandOptions();
+    void buildSourceExtractorCommandOptions();
     void detectionInternal(Data *scienceData, QString minFWHM, QString maxFlag);
-    void detectionSExtractor(Data *scienceData, QString minFWHM, QString maxFlag);
+    void detectionSourceExtractor(Data *scienceData, QString minFWHM, QString maxFlag);
     void mergeInternal(Data *scienceData, QString minFWHM, QString maxFlag);
-    void mergeSExtractor(Data *scienceData);
+    void mergeSourceExtractor(Data *scienceData);
     void populateHeaderDictionary();
     void populateFilterDictionary();
     long makeListofAllImages(QList<MyImage *> &allMyImages, Data *data);
@@ -220,7 +220,7 @@ private:
     void releaseMemory(float RAMneeded, int numThreads, QString mode = "");
     long getNumObjectsScampCat(QString cat);
     void satisfyMaxMemorySetting();
-    long getNumObjectsSexCat(QString cat);
+    long getNumObjectsSourceExtractorCat(QString cat);
     void emitSourceCountMessage(long &nobj, QString baseName, QString &warningLevel, QString &stopLevel);
     void printCfitsioError(QString funcName, int status);
     void updateImageAndData(MyImage *image, Data *data);

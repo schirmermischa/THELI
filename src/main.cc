@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 
     // Read the THELIDIR environment variable
     if (!QProcessEnvironment::systemEnvironment().contains("THELIDIR")) {
-        QMessageBox::critical(0,"THELI","The THELIDIR environment variable was not set!\n\n"
+         QMessageBox::critical(0,"THELI","The THELIDIR environment variable was not set!\n\n"
                                         "For example, if THELI was installed under \n"
                                         ""+QDir::homePath()+"/THELI/ and you are using the 'bash' shell, "
                                                             "then you would include the following line in your .bashrc file:\n\n"
@@ -75,7 +75,7 @@ void dependencyCheck()
     QString wwwget = QStandardPaths::findExecutable("wwwget");  // needed by sesame
     QString scamp = findExecutableName("scamp");    // testing different executable names
     QString swarp = findExecutableName("swarp");
-    QString sex = findExecutableName("sex");
+    QString sourceExtractor = findExecutableName("source-extractor");
     QString solve_field = findExecutableName("solve-field");
     QString build_astrometry_index = findExecutableName("build-astrometry-index");
 
@@ -84,7 +84,7 @@ void dependencyCheck()
     QString wwwgetDep = "";
     QString scampDep = "";
     QString swarpDep = "";
-    QString sexDep = "";
+    QString sourceExtractorDep = "";
     QString anetDep = "";
 
     int missingDep = 0;
@@ -117,14 +117,13 @@ void dependencyCheck()
         qDebug() << "Astrometry.net is available at https://github.com/dstndstn/astrometry.net/releases\n";
     }
 
-
     if (wwwget.isEmpty()) {
         wwwgetDep = "'wwwget' required, compile with 'make wwwget' after unpacking cdsclient \nhttp://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz\n\n";
         ++missingDep;
     }
 
     if (scamp.isEmpty()) {
-        scampDep = "'Scamp' v2.7.7 or later required (working binary name: 'scamp').\nhttps://github.com/astromatic/scamp\n";
+        scampDep = "'Scamp' v2.7.7 or later required (working binary names: 'scamp or Scamp').\nhttps://github.com/astromatic/scamp\n";
         ++missingDep;
     }
     else {
@@ -147,7 +146,7 @@ void dependencyCheck()
     }
 
     if (swarp.isEmpty()) {
-        swarpDep = "'Swarp' v2.38.0 or later required (working binary name: 'swarp').\nhttps://github.com/astromatic/swarp\n";
+        swarpDep = "'Swarp' v2.38.0 or later required (working binary names: 'swarp, Swarp or SWarp').\nhttps://github.com/astromatic/swarp\n";
     }
     else {
         // Check if swarp has the right version
@@ -168,16 +167,16 @@ void dependencyCheck()
         }
     }
 
-    if (sex.isEmpty()) {
-        sexDep = "'SExtractor' v2.19.5 or later required (working binary name: 'sex').\nhttps://github.com/astromatic/sextractor\n";
+    if (sourceExtractor.isEmpty()) {
+        sourceExtractorDep = "'Source Extractor' v2.19.5 or later required (working binary names: 'source-extractor, sextractor, SExtractor, or sex').\nhttps://github.com/astromatic/sextractor\n";
     }
     else {
-        // Check if sextractor has the right version
+        // Check if Source Extractor has the right version
         // expected formats are:
-        // SExtractor version 2.25.0 (2020-03-19)
+        // Source Extractor version 2.25.0 (2020-03-19)
         // Source Extractor version 2.25.0 (2018-02-08)
-        QString sexCommand = sex + " -v";
-        QString result = read_system_command(sexCommand);
+        QString sourceExtractorCommand = sourceExtractor + " -v";
+        QString result = read_system_command(sourceExtractorCommand);
         QString resultOrig = result;
         result.remove("SExtractor", Qt::CaseInsensitive);
         result.remove("Source", Qt::CaseInsensitive);
@@ -187,14 +186,14 @@ void dependencyCheck()
 
         QStringList list = result.split(" ");
         if (list.length() != 2) {
-            qDebug() << "WARNING: Unexpected output format when checking SExtractor version:" << resultOrig;
+            qDebug() << "WARNING: Unexpected output format when checking Source Extractor version:" << resultOrig;
             qDebug() << "WARNING: Required version: 2.19.5 or later";
         }
         else {
-            // Minimum sex version required: 2.19.5
+            // Minimum Source Extractor version required: 2.19.5
             int version = list[0].remove('.').toInt();
             if (version < 2195) {
-                sexDep = "'SExtractor' v2.19.5 or later required.\nhttps://github.com/astromatic/sextractor\nInstalled:  " + result + "\n";
+                sourceExtractorDep = "'Source Extractor' v2.19.5 or later required.\nhttps://github.com/astromatic/sextractor\nInstalled:  " + result + "\n";
                 ++missingDep;
             }
         }
@@ -211,7 +210,7 @@ void dependencyCheck()
                           +wwwgetDep
                           +scampDep
                           +swarpDep
-                          +sexDep,
+                          +sourceExtractorDep,
                           QMessageBox::Ok);
     exit (1);
 }
