@@ -103,98 +103,9 @@ Controller::Controller(instrumentDataType *instrumentData, QString statusold, Co
     connect(this, &Controller::swarpStartCoaddition, this, &Controller::coaddCoaddition);
     connect(this, &Controller::swarpStartUpdate, this, &Controller::coaddUpdate);
 
-//    myCPU = new CPU(this);
-//    myRAM = new RAM(this);
-    // Memory and CPU bars get updated every 2 seconds
-    // Must be declared / launched after data tree has been mapped.
-//    ramTimer = new QTimer(this);
-//    cpuTimer = new QTimer(this);
     progressTimer = new QTimer(this);
-//    driveTimer = new QTimer(this);
-//    connect(memTimer, SIGNAL(timeout()), SLOT(displayMemoryTotalUsed()));
-//    connect(ramTimer, SIGNAL(timeout()), SLOT(displayRAMload()));
-//    connect(cpuTimer, SIGNAL(timeout()), SLOT(displayCPUload()));
     connect(progressTimer, SIGNAL(timeout()), SLOT(displayProgress()));
-//    connect(driveTimer, SIGNAL(timeout()), SLOT(displayDriveSpace()));
-//    ramTimer->start(1000);
-//    cpuTimer->start(1000);
     progressTimer->start(100);
-//    driveTimer->start(1000);
-//    mainGUI->cpuProgressBar->setRange(0, 100*QThread::idealThreadCount());
-//    long totalMemory = get_memory() / 1024;  // [MB]
-//    mainGUI->memoryProgressBar->setRange(0, totalMemory);
-//    mainGUI->memoryProgressBar->setValue(0);
-}
-
-/*
-void Controller::displayDriveSpace()
-{
-    // Storage space in the main/home directory
-    QString maindir = mainGUI->ui->setupMainLineEdit->text();
-
-    double GBtotal_data, GBfree_data, GBused_data;
-    double GBtotal_home, GBfree_home, GBused_home;
-
-    QStorageInfo storage_home(QDir::homePath());
-    if (storage_home.isValid() && storage_home.isReady()) {
-        GBtotal_home = storage_home.bytesTotal()/1024./1024./1024.;
-        GBfree_home = storage_home.bytesAvailable()/1024./1024./1024.;
-        GBused_home = GBtotal_home - GBfree_home;
-    }
-    else {
-        emit messageAvailable("Controller::displayDriveSpace(): Cannot determine home directory!", "error");
-        return;
-    }
-
-    QStorageInfo storage_data(maindir);
-    if (storage_data.isValid() && storage_data.isReady()) {
-        GBtotal_data = storage_data.bytesTotal()/1024./1024./1024.;
-        GBfree_data = storage_data.bytesAvailable()/1024./1024./1024.;
-        GBused_data = GBtotal_data - GBfree_data;
-    }
-    else {
-        GBtotal_data = GBtotal_home;
-        GBfree_data = GBfree_home;
-        GBused_data = GBused_home;
-    }
-
-    mainGUI->driveProgressBar->setRange(0, GBtotal_data);
-
-    QString datadiskstring = QString::number(GBfree_data,'f',2) + " GB left";
-
-    // check if the data disk warning should be activated
-    if (GBfree_data <= mainGUI->diskwarnPreference/1024.) {           // preference is given in MB
-        if (!mainGUI->datadiskspace_warned) {
-            mainGUI->datadiskspace_warned = true;
-            if (maindir.isEmpty()) maindir = QDir::homePath();
-            QMessageBox::warning( this, "THELI: DATA DISK SPACE LOW",
-                                  "The remaining disk space on\n\n"
-                                  + maindir+"\n\nis less than your warning threshold of "
-                                  + QString::number(mainGUI->diskwarnPreference)+" MB.\n"
-                                                                                 "The threshold can be set under Edit->Preferences in the main menu. "
-                                                                                 "This warning will not be shown anymore in this session, "
-                                                                                 "unless you update the threshold to a new value.");
-        }
-    }
-    else mainGUI->datadiskspace_warned = false;
-
-    if (GBfree_home <= 0.1) {
-        if (!mainGUI->homediskspace_warned) {
-            mainGUI->homediskspace_warned = true;
-            QMessageBox::warning( this, "THELI: HOME DISK SPACE LOW",
-                                  "THELI: You are running low (<100 MB) on disk space in your home directory!\n");
-        }
-    }
-    else mainGUI->homediskspace_warned = false;
-
-    mainGUI->driveProgressBar->setFormat("Drive: "+datadiskstring);
-    mainGUI->driveProgressBar->setValue(GBused_data);
-}
-*/
-
-void Controller::progressUpdateReceived(float progress)
-{
-    emit progressUpdate(progress);
 }
 
 void Controller::getNumberOfActiveImages(Data *&data)
@@ -433,30 +344,6 @@ void Controller::setWCSLockReceived(bool locked)
     else omp_unset_lock(&wcsLock);
 }
 
-// crashes when used right at startup
-// CHECK: still crashes?
-QStringList Controller::getFilterList(QString scienceDir)
-{
-    Data *scienceData = getData(DT_SCIENCE, scienceDir);
-
-    QStringList filterList;
-
-    QList<MyImage*> allMyImages;
-    long numMyImages = makeListofAllImages(allMyImages, scienceData);
-
-#pragma omp parallel for num_threads(maxCPU)
-    for (int k=0; k<numMyImages; ++k) {
-        auto &it = allMyImages[k];
-        it->loadHeader();
-#pragma omp critical
-        {
-            if (!filterList.contains(it->filter)) filterList << it->filter;
-        }
-    }
-
-    return filterList;
-}
-
 long Controller::makeListofAllImages(QList<MyImage*> &allMyImages, Data *data)
 {
     allMyImages.clear();
@@ -468,26 +355,6 @@ long Controller::makeListofAllImages(QList<MyImage*> &allMyImages, Data *data)
         }
     }
     return allMyImages.length();
-}
-
-void Controller::rereadDataDir(QLineEdit *le, QList<Data *> &DT_x)
-{
-    dataTreeUpdateOngoing = true;
-    omp_set_lock(&memoryLock);
-    emit clearMemoryView();
-
-    for (auto &data: DT_x) {
-        delete data;
-    }
-    DT_x.clear();
-
-    parseDataDir(le, DT_x);
-
-    updateMasterList();
-
-    emit populateMemoryView();
-    omp_unset_lock(&memoryLock);
-    dataTreeUpdateOngoing = false;
 }
 
 // Rescan the data tree if a LineEdit was successfully edited
@@ -620,82 +487,6 @@ void Controller::newProjectLoadedReceived()
     mapDataTree();
 }
 
-float Controller::getMemoryTotalUsed()
-{
-    /*
-    // memory lock is placed outside
-
-    float totalMemory = 0.;  // in MB
-
-    for (auto &DT_x : masterListDT) {
-        if (DT_x.isEmpty()) continue;
-        for (auto &data : DT_x) {
-            if (data != nullptr) {
-                totalMemory += data->memoryCurrentFootprint();
-            }
-        }
-    }
-
-    if (GLOBALWEIGHTS != nullptr) totalMemory += GLOBALWEIGHTS->memoryCurrentFootprint(true);
-    if (mask != nullptr) {
-        for (auto &it : mask->globalMask) {
-            totalMemory += it.capacity()*sizeof(bool) / 1024 / 1024;
-        }
-    }
-    */
-    return mainGUI->myRAM->getRAMload();
-
-//    return totalMemory;
-}
-
-void Controller::splitterMemoryReceived(long memoryUsed)
-{
-#pragma omp atomic
-    splitterMemoryUsed += memoryUsed;
-
-    emit updateMemoryProgressBar(splitterMemoryUsed / 1024 / 1024);
-}
-
-/*
-void Controller::displayCPUload()
-{
-    //    int CPUload = myCPU->getCPUload();
-    float CPUload = myCPU->getCurrentValue();
-
-    QString CPUstring = QString::number(int(CPUload)) + " %";
-    mainGUI->cpuProgressBar->setFormat("CPU: "+CPUstring);
-    mainGUI->cpuProgressBar->setValue(int(CPUload));
-}
-
-void Controller::displayRAMload()
-{
-    float RAMload = myRAM->getCurrentValue();
-
-    QString RAMstring = QString::number(long(RAMload)) + " MB";
-    mainGUI->memoryProgressBar->setFormat("RAM: %p% ("+RAMstring+")");
-    mainGUI->memoryProgressBar->setValue(int(RAMload));
-}
-*/
-
-/*
-void Controller::displayMemoryTotalUsed()
-{
-    // CHECK: in principle, the memoryLock should be sufficient to avoid crashes
-    if (dataTreeUpdateOngoing) return;
-
-    // Interferes with releaseMemory(), e.g. when memoryCurrentFootprint() evaluates the
-    // capacity of a vector while it is being squeezed at the same time.
-    // Cannot do this inside getMemoryTotalUsed() itself, because that is called by releasememory(), which in turn sets the lock
-    omp_set_lock(&memoryLock);
-    float totalMemory = getMemoryTotalUsed();
-    omp_unset_lock(&memoryLock);
-
-    QString memoryString = QString::number(long(totalMemory)) + " MB";
-    mainGUI->memoryProgressBar->setFormat("RAM: %p% ("+memoryString+")");
-    mainGUI->memoryProgressBar->setValue(long(totalMemory));
-}
-*/
-
 void Controller::displayProgress()
 {
     emit progressUpdate(progress);
@@ -714,32 +505,6 @@ void Controller::updateAll()
     // instData member is a pointer and does not need updating when a new instrument is selected (true? must check!)
     mapDataTree();   // updates the memory view
 }
-
-// UNUSED
-/*
-void Controller::updateSingle()
-{
-    dataTreeUpdateOngoing = true;
-    omp_set_lock(&memoryLock);
-    emit clearMemoryView();
-
-    QLineEdit *le = qobject_cast<QLineEdit*>(sender());
-    if (le == mainGUI->ui->setupMainLineEdit) mainDirName = le->text();
-    else if (le == mainGUI->ui->setupBiasLineEdit) parseDataDir(le, DT_BIAS);
-    else if (le == mainGUI->ui->setupDarkLineEdit) parseDataDir(le, DT_DARK);
-    else if (le == mainGUI->ui->setupFlatLineEdit) parseDataDir(le, DT_FLATOFF);
-    else if (le == mainGUI->ui->setupFlatoffLineEdit) parseDataDir(le, DT_FLAT);
-    else if (le == mainGUI->ui->setupScienceLineEdit) parseDataDir(le, DT_SCIENCE);
-    else if (le == mainGUI->ui->setupSkyLineEdit) parseDataDir(le, DT_SKY);
-    else if (le == mainGUI->ui->setupStandardLineEdit) parseDataDir(le, DT_STANDARD);
-
-    updateMasterList();
-
-    emit populateMemoryView();
-    omp_unset_lock(&memoryLock);
-    dataTreeUpdateOngoing = false;
-}
-*/
 
 // so far called in MainGUIWorker::runTask(); should be done better by signal emission
 void Controller::loadPreferences()
@@ -831,89 +596,12 @@ void Controller::pushParallelizationToData(Data *data)
     data->maxRAM = maxRAM;
 }
 
-/*
-int Controller::getInternalThreads(int chip)
-{
-    QVector<QString> PARA(instData->numChips);
-    maxExternalThreads;
-    int i=1;
-    while (i<=instData->numChips) {
-        PARA[i] = "";
-        ++i;
-    }
-
-    // Assign chips to CPUs
-    int k = 1;
-    while (k <= maxExternalThreads) {
-        int ACTUPROC = 1;
-        while (ACTUPROC <= instData->numChips && k <= maxExternalThreads) {
-            PARA[ACTUPROC].append(QString::number(k));
-            ++k;
-            ++ACTUPROC;
-        }
-    }
-
-    k = 1;
-    QString nthread = "";
-    while (k <= instData->numChips) {
-       int numthread = PARA[k].split(" ").length();
-       if (numthread == 0) numthread = 1;
-       nthread.append(numthread);
-        ++k;
-    }
-
-    return nthread.split(" ").at(chip);
-}
-*/
-
-void Controller::incrementProgress()
-{
-    omp_set_lock(&progressLock);
-    progress += progressStepSize;
-    emit progressUpdate(progress);
-    omp_unset_lock(&progressLock);
-}
-
-void Controller::incrementProgressHalfStep()
-{
-    //    omp_set_lock(&progressLock);
-    progress += progressStepSize/2.;
-    emit progressUpdate(progress);
-    //    omp_unset_lock(&progressLock);
-}
-
-void Controller::incrementProgressCombinedStep()
-{
-    //    omp_set_lock(&progressLock);
-    progress += progressCombinedStepSize;
-    emit progressUpdate(progress);
-    //    omp_unset_lock(&progressLock);
-}
-
-void Controller::incrementCurrentThreads(omp_lock_t &lock)
-{
-    omp_set_lock(&lock);
-    //    ++currentExternalThreads;
-    ++currentThreadsRunning;
-    if (availableThreads > 0) --availableThreads;
-    omp_unset_lock(&lock);
-}
-
 void Controller::addToProgressBarReceived(float differential)
 {
     omp_set_lock(&progressLock);
     progress += differential;
     emit progressUpdate(progress);
     omp_unset_lock(&progressLock);
-}
-
-void Controller::decrementCurrentThreads(omp_lock_t &lock)
-{
-    omp_set_lock(&lock);
-    //    --currentExternalThreads;
-    --currentThreadsRunning;
-    if (availableThreads < maxCPU) ++availableThreads;
-    omp_unset_lock(&lock);
 }
 
 void Controller::releaseAllMemory()
@@ -959,7 +647,7 @@ void Controller::releaseMemory(float RAMneededThisThread, int numThreads, QStrin
     float RAMfreed = 0.;
 
     bool RAMwasReallyReleased = false;
-    float currentTotalMemoryUsed = getMemoryTotalUsed();
+    float currentTotalMemoryUsed = mainGUI->myRAM->getRAMload();
     // Globalweights
     if (GLOBALWEIGHTS != nullptr && globalweights_created) {
         GLOBALWEIGHTS->releaseMemory(RAMneededThisThread, RAMneededThisThread*numThreads, currentTotalMemoryUsed, mode);
@@ -1008,7 +696,7 @@ void Controller::satisfyMaxMemorySetting()
     float RAMfreed = 0.;
 
     bool RAMwasReallyReleased = false;
-    float currentTotalMemoryUsed = getMemoryTotalUsed();
+    float currentTotalMemoryUsed = mainGUI->myRAM->getRAMload();
     float mustReleaseRAM = currentTotalMemoryUsed - maxRAM;
     // Globalweights
     if (GLOBALWEIGHTS!= nullptr) {
@@ -1038,30 +726,6 @@ void Controller::satisfyMaxMemorySetting()
     }
 
     omp_unset_lock(&memoryLock);
-}
-
-// UNUSED
-int Controller::reserveAvailableThreads(omp_lock_t &lock)
-{
-    int numInternalThreads = 1;
-    // Consume remaining available threads.
-    while (availableThreads > 0) {
-        omp_set_lock(&lock);
-        ++numInternalThreads;
-        --availableThreads;
-        omp_unset_lock(&lock);
-        // Give the other threads a chance
-        QTest::qWait(100);
-    }
-    return numInternalThreads;
-}
-
-// UNUSED
-void Controller::makeThreadsAvailable(omp_lock_t &lock, int numberThreadsBlocked)
-{
-    omp_set_lock(&lock);
-    availableThreads += numberThreadsBlocked;
-    omp_unset_lock(&lock);
 }
 
 void Controller::checkSuccessProcessing(Data *data)
@@ -1243,20 +907,6 @@ void Controller::updateImageAndData(MyImage *image, Data *data)
     }
 }
 
-void Controller::restoreData(MyImage *myImage, QString backupDirName)
-{
-    // Moves an image from the backupDir to the current Dir
-    QString currentPath = myImage->path;
-    QString backupPath = myImage->path + "/" + backupDirName + "/";    // DO NOT use append() because it will also change the variable one appends to.
-    QFile image(backupPath+"/"+myImage->name);
-    if (!image.exists()) return;
-    if (!image.rename(currentPath+"/"+myImage->name)) {
-        QString command = "mv " + backupPath+"/"+myImage->name + currentPath+"/"+myImage->name;
-        emit messageAvailable("CTRL: restoreData(): Could not execute the following operation: <br> " + command, "error");
-        criticalReceived();
-    }
-}
-
 // The top level entry function for MainWindow to initiate a task
 void Controller::runTask()
 {
@@ -1361,21 +1011,6 @@ void Controller::pushEndMessage(QString idstring, QString targetdir)
     emit messageAvailable("<br>##############################################", "output");
     emit messageAvailable(message+" "+targetdir+"... DONE.", "controller");
     emit messageAvailable("##############################################<br>\n", "output");
-}
-
-void Controller::processExternalStdout()
-{
-    QProcess *process = qobject_cast<QProcess*>(sender());
-    QString stdout(process->readAllStandardOutput());
-    //    QString stdout(externalProcess->readLine());
-    //    emit messageAvailable(stdout, "normal");
-}
-
-void Controller::processExternalStderr()
-{
-    QProcess *process = qobject_cast<QProcess*>(sender());
-    QString stderr(process->readAllStandardError());
-    emit messageAvailable(stderr, "normal");
 }
 
 void Controller::updateMemoryPreference(bool isRAMminimized)
@@ -1511,3 +1146,349 @@ void Controller::connectDataWithMemoryViewer()
         connect(GLOBALWEIGHTS, &Data::statusChanged, memoryViewer, &MemoryViewer::updateStatusCheckBoxesReceived);
     }
 }
+
+/*
+void Controller::decrementCurrentThreads(omp_lock_t &lock)
+{
+    omp_set_lock(&lock);
+    //    --currentExternalThreads;
+    --currentThreadsRunning;
+    if (availableThreads < maxCPU) ++availableThreads;
+    omp_unset_lock(&lock);
+}
+*/
+
+/*
+void Controller::incrementCurrentThreads(omp_lock_t &lock)
+{
+    omp_set_lock(&lock);
+    //    ++currentExternalThreads;
+    ++currentThreadsRunning;
+    if (availableThreads > 0) --availableThreads;
+    omp_unset_lock(&lock);
+}
+*/
+
+/*
+int Controller::reserveAvailableThreads(omp_lock_t &lock)
+{
+    int numInternalThreads = 1;
+    // Consume remaining available threads.
+    while (availableThreads > 0) {
+        omp_set_lock(&lock);
+        ++numInternalThreads;
+        --availableThreads;
+        omp_unset_lock(&lock);
+        // Give the other threads a chance
+        QTest::qWait(100);
+    }
+    return numInternalThreads;
+}
+*/
+
+/*
+void Controller::makeThreadsAvailable(omp_lock_t &lock, int numberThreadsBlocked)
+{
+    omp_set_lock(&lock);
+    availableThreads += numberThreadsBlocked;
+    omp_unset_lock(&lock);
+}
+*/
+
+/*
+void Controller::restoreData(MyImage *myImage, QString backupDirName)
+{
+    // Moves an image from the backupDir to the current Dir
+    QString currentPath = myImage->path;
+    QString backupPath = myImage->path + "/" + backupDirName + "/";    // DO NOT use append() because it will also change the variable one appends to.
+    QFile image(backupPath+"/"+myImage->name);
+    if (!image.exists()) return;
+    if (!image.rename(currentPath+"/"+myImage->name)) {
+        QString command = "mv " + backupPath+"/"+myImage->name + currentPath+"/"+myImage->name;
+        emit messageAvailable("CTRL: restoreData(): Could not execute the following operation: <br> " + command, "error");
+        criticalReceived();
+    }
+}
+*/
+
+/*
+int Controller::getInternalThreads(int chip)
+{
+    QVector<QString> PARA(instData->numChips);
+    maxExternalThreads;
+    int i=1;
+    while (i<=instData->numChips) {
+        PARA[i] = "";
+        ++i;
+    }
+
+    // Assign chips to CPUs
+    int k = 1;
+    while (k <= maxExternalThreads) {
+        int ACTUPROC = 1;
+        while (ACTUPROC <= instData->numChips && k <= maxExternalThreads) {
+            PARA[ACTUPROC].append(QString::number(k));
+            ++k;
+            ++ACTUPROC;
+        }
+    }
+
+    k = 1;
+    QString nthread = "";
+    while (k <= instData->numChips) {
+       int numthread = PARA[k].split(" ").length();
+       if (numthread == 0) numthread = 1;
+       nthread.append(numthread);
+        ++k;
+    }
+
+    return nthread.split(" ").at(chip);
+}
+*/
+
+/*
+void Controller::incrementProgress()
+{
+    omp_set_lock(&progressLock);
+    progress += progressStepSize;
+    emit progressUpdate(progress);
+    omp_unset_lock(&progressLock);
+}
+*/
+
+/*
+void Controller::incrementProgressHalfStep()
+{
+    //    omp_set_lock(&progressLock);
+    progress += progressStepSize/2.;
+    emit progressUpdate(progress);
+    //    omp_unset_lock(&progressLock);
+}
+*/
+
+/*
+void Controller::incrementProgressCombinedStep()
+{
+    //    omp_set_lock(&progressLock);
+    progress += progressCombinedStepSize;
+    emit progressUpdate(progress);
+    //    omp_unset_lock(&progressLock);
+}
+*/
+
+/*
+void Controller::rereadDataDir(QLineEdit *le, QList<Data *> &DT_x)
+{
+    dataTreeUpdateOngoing = true;
+    omp_set_lock(&memoryLock);
+    emit clearMemoryView();
+
+    for (auto &data: DT_x) {
+        delete data;
+    }
+    DT_x.clear();
+
+    parseDataDir(le, DT_x);
+
+    updateMasterList();
+
+    emit populateMemoryView();
+    omp_unset_lock(&memoryLock);
+    dataTreeUpdateOngoing = false;
+}
+*/
+
+/*
+void Controller::displayDriveSpace()
+{
+    // Storage space in the main/home directory
+    QString maindir = mainGUI->ui->setupMainLineEdit->text();
+
+    double GBtotal_data, GBfree_data, GBused_data;
+    double GBtotal_home, GBfree_home, GBused_home;
+
+    QStorageInfo storage_home(QDir::homePath());
+    if (storage_home.isValid() && storage_home.isReady()) {
+        GBtotal_home = storage_home.bytesTotal()/1024./1024./1024.;
+        GBfree_home = storage_home.bytesAvailable()/1024./1024./1024.;
+        GBused_home = GBtotal_home - GBfree_home;
+    }
+    else {
+        emit messageAvailable("Controller::displayDriveSpace(): Cannot determine home directory!", "error");
+        return;
+    }
+
+    QStorageInfo storage_data(maindir);
+    if (storage_data.isValid() && storage_data.isReady()) {
+        GBtotal_data = storage_data.bytesTotal()/1024./1024./1024.;
+        GBfree_data = storage_data.bytesAvailable()/1024./1024./1024.;
+        GBused_data = GBtotal_data - GBfree_data;
+    }
+    else {
+        GBtotal_data = GBtotal_home;
+        GBfree_data = GBfree_home;
+        GBused_data = GBused_home;
+    }
+
+    mainGUI->driveProgressBar->setRange(0, GBtotal_data);
+
+    QString datadiskstring = QString::number(GBfree_data,'f',2) + " GB left";
+
+    // check if the data disk warning should be activated
+    if (GBfree_data <= mainGUI->diskwarnPreference/1024.) {           // preference is given in MB
+        if (!mainGUI->datadiskspace_warned) {
+            mainGUI->datadiskspace_warned = true;
+            if (maindir.isEmpty()) maindir = QDir::homePath();
+            QMessageBox::warning( this, "THELI: DATA DISK SPACE LOW",
+                                  "The remaining disk space on\n\n"
+                                  + maindir+"\n\nis less than your warning threshold of "
+                                  + QString::number(mainGUI->diskwarnPreference)+" MB.\n"
+                                                                                 "The threshold can be set under Edit->Preferences in the main menu. "
+                                                                                 "This warning will not be shown anymore in this session, "
+                                                                                 "unless you update the threshold to a new value.");
+        }
+    }
+    else mainGUI->datadiskspace_warned = false;
+
+    if (GBfree_home <= 0.1) {
+        if (!mainGUI->homediskspace_warned) {
+            mainGUI->homediskspace_warned = true;
+            QMessageBox::warning( this, "THELI: HOME DISK SPACE LOW",
+                                  "THELI: You are running low (<100 MB) on disk space in your home directory!\n");
+        }
+    }
+    else mainGUI->homediskspace_warned = false;
+
+    mainGUI->driveProgressBar->setFormat("Drive: "+datadiskstring);
+    mainGUI->driveProgressBar->setValue(GBused_data);
+}
+*/
+
+
+/*
+void Controller::processExternalStdout()
+{
+    QProcess *process = qobject_cast<QProcess*>(sender());
+    QString stdout(process->readAllStandardOutput());
+    //    QString stdout(externalProcess->readLine());
+    //    emit messageAvailable(stdout, "normal");
+}
+
+void Controller::processExternalStderr()
+{
+    QProcess *process = qobject_cast<QProcess*>(sender());
+    QString stderr(process->readAllStandardError());
+    emit messageAvailable(stderr, "normal");
+}
+*/
+
+
+/*
+void Controller::splitterMemoryReceived(long memoryUsed)
+{
+#pragma omp atomic
+    splitterMemoryUsed += memoryUsed;
+
+    emit updateMemoryProgressBar(splitterMemoryUsed / 1024 / 1024);
+}
+*/
+
+/*
+void Controller::displayCPUload()
+{
+    //    int CPUload = myCPU->getCPUload();
+    float CPUload = myCPU->getCurrentValue();
+
+    QString CPUstring = QString::number(int(CPUload)) + " %";
+    mainGUI->cpuProgressBar->setFormat("CPU: "+CPUstring);
+    mainGUI->cpuProgressBar->setValue(int(CPUload));
+}
+
+void Controller::displayRAMload()
+{
+    float RAMload = myRAM->getCurrentValue();
+
+    QString RAMstring = QString::number(long(RAMload)) + " MB";
+    mainGUI->memoryProgressBar->setFormat("RAM: %p% ("+RAMstring+")");
+    mainGUI->memoryProgressBar->setValue(int(RAMload));
+}
+*/
+
+/*
+void Controller::displayMemoryTotalUsed()
+{
+    // CHECK: in principle, the memoryLock should be sufficient to avoid crashes
+    if (dataTreeUpdateOngoing) return;
+
+    // Interferes with releaseMemory(), e.g. when memoryCurrentFootprint() evaluates the
+    // capacity of a vector while it is being squeezed at the same time.
+    // Cannot do this inside getMemoryTotalUsed() itself, because that is called by releasememory(), which in turn sets the lock
+    omp_set_lock(&memoryLock);
+    float totalMemory = getMemoryTotalUsed();
+    omp_unset_lock(&memoryLock);
+
+    QString memoryString = QString::number(long(totalMemory)) + " MB";
+    mainGUI->memoryProgressBar->setFormat("RAM: %p% ("+memoryString+")");
+    mainGUI->memoryProgressBar->setValue(long(totalMemory));
+}
+*/
+
+/*
+// crashes when used right at startup
+// CHECK: still crashes?
+QStringList Controller::getFilterList(QString scienceDir)
+{
+    Data *scienceData = getData(DT_SCIENCE, scienceDir);
+
+    QStringList filterList;
+
+    QList<MyImage*> allMyImages;
+    long numMyImages = makeListofAllImages(allMyImages, scienceData);
+
+#pragma omp parallel for num_threads(maxCPU)
+    for (int k=0; k<numMyImages; ++k) {
+        auto &it = allMyImages[k];
+        it->loadHeader();
+#pragma omp critical
+        {
+            if (!filterList.contains(it->filter)) filterList << it->filter;
+        }
+    }
+
+    return filterList;
+}
+*/
+
+/*
+void Controller::progressUpdateReceived(float progress)
+{
+    emit progressUpdate(progress);
+}
+*/
+
+
+// UNUSED
+/*
+void Controller::updateSingle()
+{
+    dataTreeUpdateOngoing = true;
+    omp_set_lock(&memoryLock);
+    emit clearMemoryView();
+
+    QLineEdit *le = qobject_cast<QLineEdit*>(sender());
+    if (le == mainGUI->ui->setupMainLineEdit) mainDirName = le->text();
+    else if (le == mainGUI->ui->setupBiasLineEdit) parseDataDir(le, DT_BIAS);
+    else if (le == mainGUI->ui->setupDarkLineEdit) parseDataDir(le, DT_DARK);
+    else if (le == mainGUI->ui->setupFlatLineEdit) parseDataDir(le, DT_FLATOFF);
+    else if (le == mainGUI->ui->setupFlatoffLineEdit) parseDataDir(le, DT_FLAT);
+    else if (le == mainGUI->ui->setupScienceLineEdit) parseDataDir(le, DT_SCIENCE);
+    else if (le == mainGUI->ui->setupSkyLineEdit) parseDataDir(le, DT_SKY);
+    else if (le == mainGUI->ui->setupStandardLineEdit) parseDataDir(le, DT_STANDARD);
+
+    updateMasterList();
+
+    emit populateMemoryView();
+    omp_unset_lock(&memoryLock);
+    dataTreeUpdateOngoing = false;
+}
+*/

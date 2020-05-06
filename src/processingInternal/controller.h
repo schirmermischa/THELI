@@ -122,33 +122,30 @@ private:
 
     // Processing functions
     void checkSuccessProcessing(Data *data);
-    void decrementCurrentThreads(omp_lock_t &lock);
+//    void decrementCurrentThreads(omp_lock_t &lock);
     QVector<QString> getBackgroundThresholds(const int loop, const bool twoPass, const QString DT, const QString DMIN, bool &doSourceDetection);
     void getDetectorSections();
     QList<QVector<float> > getNonlinearityCoefficients();
-    void stayWithinBounds();
-    void incrementCurrentThreads(omp_lock_t &lock);
+//    void incrementCurrentThreads(omp_lock_t &lock);
     void memoryDecideDeletableStatus(Data *data, bool deletable);
     void parseDataDir(QLineEdit *le, QList<Data *> &DT_x);
     void pushParallelizationToData(QList<Data *> DT_x);
     void pushParallelizationToData(Data *data);
 
     //    void rejectChipsWithBrightStars(QList<MyImage *> backgroundList, QList<QVector<double> > &brightStarList);
-    int reserveAvailableThreads(omp_lock_t &lock);
+//    int reserveAvailableThreads(omp_lock_t &lock);
     void retrieveBrightStars(Data *data, QList<QVector<double>> &brightStarList);
-    void makeThreadsAvailable(omp_lock_t &lock, int numberThreadsBlocked);
+//    void makeThreadsAvailable(omp_lock_t &lock, int numberThreadsBlocked);
     void selectImagesDynamically(const QList<MyImage *> &backgroundList, const double &mjd_ref);
     void selectImagesStatically(const QList<MyImage *> &backgroundList, MyImage *scienceImage);
     void selectImagesFromSequence(QList<MyImage *> &backgroundList, const int &nGroups, const int &nLength, const int &currentExp);
 
     // Data handling
-    void restoreData(MyImage *myImage, QString backupDir);
+//    void restoreData(MyImage *myImage, QString backupDir);
 
     // Sky subtraction
     void skysubModel(Data *scienceData, QString DT, QString DMIN, QString expFactor, QString kernelWidth);
-    void skysubPolynomial();
     void skysubPolynomialFit(Data *scienceData);
-    QList<QVector<double> > getBlankSkyPositions(QString path);
     QList<MyImage*> measureSkyInBlankRegions(Data *scienceData, QString method = "");
     void skysubConstantFromArea(Data *scienceData);
     void skysubConstantReferenceChip(Data *scienceData, QString DT, QString DMIN, QString expFactor, QString kernelWidth);
@@ -173,7 +170,6 @@ private:
 
     // Astrometry
     bool manualCoordsUpdate(Data *scienceData, QString mode);
-    QString checkManualCoordsUpdate(QString scienceDir);
     void prepareScampRun(Data *scienceData);
     long prepareScampCats(Data *scienceData, long &totNumObjects);
     QString getUserParamLineEdit(QLineEdit *le);
@@ -195,10 +191,10 @@ private:
     bool idChipsWithBrightStars(Data *skyData, QList<QVector<double> > &brightStarList);
     void flagImagesWithBrightStars(const QList<MyImage *> &backgroundList);
     void getNumberOfActiveImages(Data *&data);
-    void incrementProgress();
-    void incrementProgressHalfStep();
-    void incrementProgressCombinedStep();
-    void rereadDataDir(QLineEdit *le, QList<Data *> &DT_x);
+//    void incrementProgress();
+//    void incrementProgressHalfStep();
+//    void incrementProgressCombinedStep();
+//    void rereadDataDir(QLineEdit *le, QList<Data *> &DT_x);
     void doCrossCorrelation(Data *scienceData);
     long coaddCoadditionGetSize();
     void splitScampHeaders();
@@ -224,7 +220,6 @@ private:
     void emitSourceCountMessage(long &nobj, QString baseName, QString &warningLevel, QString &stopLevel);
     void printCfitsioError(QString funcName, int status);
     void updateImageAndData(MyImage *image, Data *data);
-    Data *setupDataDir();
     void maskObjectsInSkyImagesPass1(const int chip, Data *skyData, Data *scienceData, const bool twoPass, const QString dt,
                                      const QString dmin, const bool convolution, const QString expFactor);
     void maskObjectsInSkyImagesPass2(const int chip, Data *skyData, Data *scienceData, const bool twoPass, const QString dt,
@@ -284,7 +279,6 @@ private:
     bool testResetDesire(Data *data);
     void runAnet(Data *scienceData);
     void prepareAnetRun(Data *scienceData);
-    long prepareAnetCats(Data *scienceData);
     long getNumAnetChips(QString ahead);
     long makeAnetHeaderList(Data *scienceData);
     bool setupBackgroundList(int chip, Data *skyData, const QString &chipName);
@@ -295,7 +289,6 @@ private slots:
 //    void displayCPUload();
     void displayProgress();
 //    void displayDriveSpace();
-    float getMemoryTotalUsed();
 
     // The following can also be under 'private', but then the declaration must be preceeded like this:
     // Q_INVOKABLE QString taskHDUreformat();
@@ -321,8 +314,8 @@ private slots:
     void taskInternalAstromphotom();
     void taskInternalSeparate();
 
-    void processExternalStdout();
-    void processExternalStderr();
+//    void processExternalStdout();
+//    void processExternalStderr();
     void finishedPreparationReceived();
     void waitForResamplingThreads(int threadID);
     void finishedScampReceived();
@@ -333,7 +326,7 @@ private slots:
     void copyZeroOrder();
     void errorFoundReceived();
     void addToProgressBarReceived(float differential);
-    void splitterMemoryReceived(long memoryUsed);
+//    void splitterMemoryReceived(long memoryUsed);
 
 public:
     explicit Controller(instrumentDataType *instrumentData, QString statusold, ConfDockWidget *cdw, Monitor *processMonitor,
@@ -365,19 +358,15 @@ public:
     int availableThreads = 1;
     bool useGPU = false;
     int verbosity = 0;
-
     bool userYield = false;
     bool userStop = false;
     bool userKill = false;
     bool abortProcess = false;     // Triggered by critical() signals emitted anywhere
-
     bool swapWarningShown = false;
     bool dataTreeUpdateOngoing = false;
 
     QString currentSwarpProcess = "";
-
     QString mainDirName;
-
     QString instrument_dir;
 
     Query *gaiaQuery;
@@ -394,7 +383,6 @@ public:
 
     QString taskBasename;
     QString instructions;
-
     QString backupDirName = "";
     QString statusOld = "";
     QString statusNew = "";
@@ -413,9 +401,7 @@ public:
     QList<Data*> DT_STANDARD;
 
     QList<QList<Data*>> masterListDT;
-
     Data* GLOBALWEIGHTS = nullptr;
-
     instrumentDataType *instData;
     Mask *mask = nullptr;
     Mask *altMask = nullptr;         // for GROND types with different simultaneous detectors
@@ -471,8 +457,7 @@ public:
     void checkForUnsavedImages(long &numUnsavedLatest, long &numUnsavedAll);
     void wipeDataTree();
     void writeUnsavedImagesToDrive(bool includeBackup);
-    //    void coaddPrepareStep2();
-    QStringList getFilterList(QString scienceDir);
+//    QStringList getFilterList(QString scienceDir);
     void downloadGaiaCatalog(Data *scienceData);
     void downloadGaiaCatalog(Data *scienceData, QString radius);
     void releaseAllMemory();
@@ -490,12 +475,10 @@ signals:
     void progressUpdate(float progress);
     void targetResolved(QString alpha, QString delta);
     void resetProgressBar();
-    void endThread();
     void swarpStartResampling();
     void swarpStartCoaddition();
     void swarpStartSwarpfilter();
     void swarpStartUpdate();
-    void swarpGetAbsZP();
     void showScampCheckPlots();
     void scienceDataDirUpdated(QString allDir);
     void clearMemoryView();
@@ -518,7 +501,7 @@ public slots:
     void appendOKReceived();
     void showMessageBoxReceived(QString trigger, QString part1, QString part2);
     void updateVerbosity(int verbosityLevel);
-    void progressUpdateReceived(float progress);
+//    void progressUpdateReceived(float progress);
     void dataTreeEditedReceived();
     void newProjectLoadedReceived();
     void coaddResample();
