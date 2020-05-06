@@ -43,6 +43,8 @@ Query::Query(int *verbose)
     QString server = settings.value("prefServerComboBox").toString();
     downloadServer = translateServer(server);
 
+    pythonExecutable = findExecutableName("python");
+
     // reserve 1MB for the downloaded catalog
     byteArray.reserve(1e6);
 
@@ -289,8 +291,7 @@ void Query::buildQuerySyntaxAstrom()
     if (!successProcessing) return;
 
     // Vizier queries
-
-    queryCommand = "vizquery.py ";
+    queryCommand = pythonExecutable + " " + thelidir+"/src/python/vizquery.py ";
     queryCommand.append("-mime=tsv -out.max=170000 ");        // TODO: More than ~170000 crashes writeAstromScamp(), for unknown reasons
     //        queryCommand.append("-site="+downloadServer+" ");
     queryCommand.append("-c.rm="+radius_string+" ");
@@ -433,8 +434,6 @@ QString Query::filterStringToVizierName(QString filter)
 QString Query::resolveTarget(QString target)
 {
     if (!successProcessing) return "Unresolved";
-
-    QString pythonExecutable = findExecutableName("python");
 
     queryCommand = pythonExecutable + " " + thelidir+"/src/python/resolvetargets.py "+target;
 

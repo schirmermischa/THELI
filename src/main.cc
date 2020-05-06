@@ -70,7 +70,6 @@ int main(int argc, char *argv[])
 void dependencyCheck()
 {
     // Dependency checks
-    QString vizquery = QStandardPaths::findExecutable("vizquery.py");
     QString scamp = findExecutableName("scamp");    // testing different executable names
     QString swarp = findExecutableName("swarp");
     QString sourceExtractor = findExecutableName("source-extractor");
@@ -78,7 +77,6 @@ void dependencyCheck()
     QString python = findExecutableName("python");
     QString build_astrometry_index = findExecutableName("build-astrometry-index");
 
-    QString vizqueryDep = "";
     QString scampDep = "";
     QString swarpDep = "";
     QString sourceExtractorDep = "";
@@ -86,11 +84,6 @@ void dependencyCheck()
     QString pythonDep = "";
 
     int missingDep = 0;
-
-    if (vizquery.isEmpty()) {
-        vizqueryDep = "'vizquery.py' required.\nhttp://cds.u-strasbg.fr/resources/doku.php?id=cdsclient\n\n";
-        ++missingDep;
-    }
 
     if (solve_field.isEmpty()) {
         anetDep = "astrometry.net 'solve-field' not found.\n";
@@ -192,7 +185,6 @@ void dependencyCheck()
     if (missingDep > 1) title = "Missing dependencies:\n\n";
 
     QMessageBox::critical(0, "THELI", title
-                          +vizqueryDep
                           +scampDep
                           +swarpDep
                           +pythonDep

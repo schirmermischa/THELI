@@ -112,6 +112,7 @@ private:
     QString thelidir;
     QString userdir;
     QString instrument_dir;
+    QString pythonExecutable = "";
 
     // The location and radius for the search, and their string representations
     double alpha = 0.;
