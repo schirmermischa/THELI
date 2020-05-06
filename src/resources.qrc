@@ -332,5 +332,6 @@
         <file>images/Signal-yield-icon.png</file>
         <file>images/settings-icon.png</file>
         <file>python/resolvetargets.py</file>
+        <file>python/vizquery.py</file>
     </qresource>
 </RCC>
