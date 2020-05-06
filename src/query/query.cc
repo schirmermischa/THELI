@@ -432,9 +432,11 @@ QString Query::filterStringToVizierName(QString filter)
 
 QString Query::resolveTarget(QString target)
 {
-    if (!successProcessing) return "Nothing found";
+    if (!successProcessing) return "Unresolved";
 
-    queryCommand = "sesame -ox "+target;
+    QString pythonExecutable = findExecutableName("python");
+
+    queryCommand = pythonExecutable + " " + thelidir+"/src/python/resolvetargets.py "+target;
 
     runCommand(queryCommand);
 
@@ -443,17 +445,18 @@ QString Query::resolveTarget(QString target)
     QString line;
     while (stream.readLineInto(&line)) {
         line = line.simplified();
-        if (line.contains("Nothing found")) return "Nothing found";
-        else if (line.contains("Unknown host")) return "Unknown host";
-        else if (line.contains("jpos")) {
-            parseXML2(line, "jpos", targetAlpha, targetDelta);
+        if (line.contains("Traceback")) return "Unresolved";
+        else {
+            QStringList coordList = line.split(' ');
+            targetAlpha = coordList[0];
+            targetDelta = coordList[1];
             return "Resolved";
         }
-        else continue;
     }
-    return "Nothing found";
+    return "Unresolved";
 }
 
+/*
 // Extract 'value' in a line <tag>value</tag>
 QString Query::parseXML(QString &line, const QString &tag)
 {
@@ -471,6 +474,7 @@ void Query::parseXML2(QString &line, const QString &tag, QString &val1, QString 
     val1 = list[0];
     val2 = list[1];
 }
+*/
 
 void Query::clearAstrom()
 {
@@ -1063,7 +1067,6 @@ void Query::runCommand(QString command)
 
     if (*verbosity > 1) {
         if (command.contains("vizquery")) emit messageAvailable("vizquery command: <br>"+queryCommand, "ignore");
-        if (command.contains("sesame")) emit messageAvailable("sesame command: <br>"+queryCommand, "ignore");
     }
 
     byteArray.clear();

@@ -193,8 +193,8 @@ private:
     QString filterStringToVizierName(QString filter);
     QString extractRaDecMagPhotom(QString &line);
     QString extractRaDecGaia(QString &line);
-    QString parseXML(QString &line, const QString &tag);
-    void parseXML2(QString &line, const QString &tag, QString &val1, QString &val2);
+//    QString parseXML(QString &line, const QString &tag);
+//    void parseXML2(QString &line, const QString &tag, QString &val1, QString &val2);
     QString extractRaDecMagColorCalib(QString &line);
     void printCfitsioError(QString funcName, int status);
 };

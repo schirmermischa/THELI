@@ -201,12 +201,6 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
             break;
         }
     }
-    else if (trigger == "Controller::UNKNOWN_HOST") {
-        QMessageBox::warning(this, tr("Unknown host"),
-                             tr("The host used by the 'sesame' service to resolve the coordinates for ")+
-                             part1+tr(" is unknown, or offline."),
-                             QMessageBox::Ok);
-    }
     else if (trigger == "Colorpicture::EmptySelection") {
         QMessageBox::warning(this, tr("Empty selection"),
                              tr("At least two images must be chosen from the list of coadded images."),

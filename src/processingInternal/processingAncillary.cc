@@ -218,14 +218,14 @@ void Controller::taskInternalResolveTarget()
 
     QString targetName = cdw->ui->ARCtargetresolverLineEdit->text();
     if (targetName.isEmpty()) return;
+    targetName = targetName.simplified().replace(" ", "_");
 
     Query *query = new Query(&verbosity);
     connect(query, &Query::messageAvailable, monitor, &Monitor::displayMessage);
     connect(query, &Query::critical, this, &Controller::criticalReceived);
     QString check = query->resolveTarget(targetName);
     if (check == "Resolved") emit targetResolved(query->targetAlpha, query->targetDelta);
-    else if (check == "Nothing found") emit showMessageBox("Controller::TARGET_UNRESOLVED", targetName, "");
-    else if (check == "Unknown host") emit showMessageBox("Controller::UNKNOWN_HOST", targetName, "");
+    else if (check == "Unresolved") emit showMessageBox("Controller::TARGET_UNRESOLVED", cdw->ui->ARCtargetresolverLineEdit->text(), "");
     else {
         // nothing yet.
     }

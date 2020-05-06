@@ -479,6 +479,7 @@ QString findExecutableName(QString program)
     QStringList swarplist = {"swarp", "Swarp", "SWarp"};
     QStringList anetlist1 = {"solve-field"};
     QStringList anetlist2 = {"build-astrometry-index"};
+    QStringList pythonlist = {"python", "python3"};
 
     QString commandname = "";
     if (program == "source-extractor") {
@@ -507,6 +508,12 @@ QString findExecutableName(QString program)
     }
     else if (program == "build-astrometry-index") {
         for (auto &it : anetlist2) {
+            commandname = QStandardPaths::findExecutable(it);
+            if (!commandname.isEmpty()) break;
+        }
+    }
+    else if (program == "python") {
+        for (auto &it : pythonlist) {
             commandname = QStandardPaths::findExecutable(it);
             if (!commandname.isEmpty()) break;
         }

@@ -71,21 +71,19 @@ void dependencyCheck()
 {
     // Dependency checks
     QString vizquery = QStandardPaths::findExecutable("vizquery.py");
-    QString sesame = QStandardPaths::findExecutable("sesame");
-    QString wwwget = QStandardPaths::findExecutable("wwwget");  // needed by sesame
     QString scamp = findExecutableName("scamp");    // testing different executable names
     QString swarp = findExecutableName("swarp");
     QString sourceExtractor = findExecutableName("source-extractor");
     QString solve_field = findExecutableName("solve-field");
+    QString python = findExecutableName("python");
     QString build_astrometry_index = findExecutableName("build-astrometry-index");
 
     QString vizqueryDep = "";
-    QString sesameDep = "";
-    QString wwwgetDep = "";
     QString scampDep = "";
     QString swarpDep = "";
     QString sourceExtractorDep = "";
     QString anetDep = "";
+    QString pythonDep = "";
 
     int missingDep = 0;
 
@@ -94,18 +92,12 @@ void dependencyCheck()
         ++missingDep;
     }
 
-    if (sesame.isEmpty()) {
-        sesameDep = "'sesame' required.\nhttp://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz\n\n";
-        ++missingDep;
-    }
-
-    if (wwwget.isEmpty()) {
-        wwwgetDep = "'wwwget' required, compile with 'make wwwget' after unpacking cdsclient \nhttp://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz\n\n";
-        ++missingDep;
-    }
-
     if (solve_field.isEmpty()) {
         anetDep = "astrometry.net 'solve-field' not found.\n";
+    }
+
+    if (python.isEmpty()) {
+        pythonDep = "python required (working binary names: 'python' or 'python3').\n";
     }
 
     if (build_astrometry_index.isEmpty()) {
@@ -117,13 +109,8 @@ void dependencyCheck()
         qDebug() << "Astrometry.net is available at https://github.com/dstndstn/astrometry.net/releases\n";
     }
 
-    if (wwwget.isEmpty()) {
-        wwwgetDep = "'wwwget' required, compile with 'make wwwget' after unpacking cdsclient \nhttp://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz\n\n";
-        ++missingDep;
-    }
-
     if (scamp.isEmpty()) {
-        scampDep = "'Scamp' v2.7.7 or later required (working binary names: 'scamp or Scamp').\nhttps://github.com/astromatic/scamp\n";
+        scampDep = "'Scamp' v2.7.7 or later required (working binary names: 'scamp' or 'Scamp').\nhttps://github.com/astromatic/scamp\n";
         ++missingDep;
     }
     else {
@@ -206,10 +193,9 @@ void dependencyCheck()
 
     QMessageBox::critical(0, "THELI", title
                           +vizqueryDep
-                          +sesameDep
-                          +wwwgetDep
                           +scampDep
                           +swarpDep
+                          +pythonDep
                           +sourceExtractorDep,
                           QMessageBox::Ok);
     exit (1);

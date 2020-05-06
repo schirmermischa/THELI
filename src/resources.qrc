@@ -331,5 +331,6 @@
         <file>images/Actions-process-stop-icon.png</file>
         <file>images/Signal-yield-icon.png</file>
         <file>images/settings-icon.png</file>
+        <file>python/resolvetargets.py</file>
     </qresource>
 </RCC>
