@@ -311,7 +311,7 @@ void Query::buildQuerySyntaxGaia()
     if (!successProcessing) return;
 
     // Vizier query for GAIA point sources. Point sources are identified by means of proper motion, in extractRaDecGaia();
-    queryCommand = "vizquery.py ";
+    queryCommand = pythonExecutable + " " + thelidir+"/src/python/vizquery.py ";
     queryCommand.append("-mime=tsv -out.max=1000000 ");
     queryCommand.append("-c.rm="+radius_string+" ");
     queryCommand.append("-c='"+alpha_string+delta_string+"' ");
@@ -324,7 +324,7 @@ void Query::buildQuerySyntaxPhotom()
 
     // Vizier queries
 
-    queryCommand = "vizquery.py ";
+    queryCommand = pythonExecutable + " " + thelidir+"/src/python/vizquery.py ";
     queryCommand.append("-mime=tsv -out.max=1000000 ");
     //        queryCommand.append("-site="+downloadServer+" ");
     queryCommand.append("-c.rm="+radius_string+" ");
@@ -348,7 +348,7 @@ void Query::buildQuerySyntaxColorCalib()
 
     // Vizier queries
 
-    queryCommand = "vizquery.py ";
+    queryCommand = pythonExecutable + " " + thelidir+"/src/python/vizquery.py ";
     queryCommand.append("-mime=tsv -out.max=1000000 ");
     queryCommand.append("-c.rm="+radius_string+" ");
     queryCommand.append("-c='"+alpha_string+delta_string+"' ");
