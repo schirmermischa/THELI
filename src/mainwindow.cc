@@ -569,11 +569,11 @@ void MainWindow::initGUI()
     QString styleSheet = QString::fromLatin1(file.readAll());
     qApp->setStyleSheet(styleSheet);
 
-    QIcon key(":/images/key.png");
-    QIcon redoarrow(":/images/redoarrow.png");
-    QIcon projectLoad(":/images/open_project.png");
-    QIcon projectReset(":/images/db-restart-icon.png");
-    QIcon projectDataReset(":/images/db-reset.png");
+    QIcon key(":/icons/key.png");
+    QIcon redoarrow(":/icons/redoarrow.png");
+    QIcon projectLoad(":/icons/open_project.png");
+    QIcon projectReset(":/icons/db-restart-icon.png");
+    QIcon projectDataReset(":/icons/db-reset.png");
     // configuration dialog
 
     ui->HDUreformatConfigureToolButton->setIcon(key);
@@ -617,8 +617,8 @@ void MainWindow::initGUI()
     }
     */
 
-    QIcon yield(":/images/Signal-yield-icon.png");
-    QIcon stop(":/images/Actions-process-stop-icon.png");
+    QIcon yield(":/icons/Signal-yield-icon.png");
+    QIcon stop(":/icons/Actions-process-stop-icon.png");
     ui->yieldToolButton->setIcon(yield);
     ui->stopToolButton->setIcon(stop);
 }

@@ -73,7 +73,7 @@
       </property>
       <property name="icon">
        <iconset>
-        <normaloff>../images/download.png</normaloff>../images/download.png</iconset>
+        <normaloff>../icons/download.png</normaloff>../icons/download.png</iconset>
       </property>
       <property name="iconSize">
        <size>
@@ -99,7 +99,7 @@
       </property>
       <property name="icon">
        <iconset>
-        <normaloff>../images/upload.png</normaloff>../images/upload.png</iconset>
+        <normaloff>../icons/upload.png</normaloff>../icons/upload.png</iconset>
       </property>
       <property name="iconSize">
        <size>

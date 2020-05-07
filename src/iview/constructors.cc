@@ -596,7 +596,7 @@ void IView::initGUI()
     }
 
     readPreferenceSettings();
-    setWindowIcon(QIcon(":/images/iview.png"));
+    setWindowIcon(QIcon(":/icons/iview.png"));
 
     //    QFile file(":/qss/default.qss");
     //    file.open(QFile::ReadOnly);

@@ -1544,8 +1544,8 @@
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>images/xtalk_nor_2x2p.png</normaloff>
-                   <normalon>images/xtalk_nor_2x2a.png</normalon>images/xtalk_nor_2x2p.png</iconset>
+                   <normaloff>icons/xtalk_nor_2x2p.png</normaloff>
+                   <normalon>icons/xtalk_nor_2x2a.png</normalon>icons/xtalk_nor_2x2p.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -1574,8 +1574,8 @@
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>images/xtalk_nor_1x2p.png</normaloff>
-                   <normalon>images/xtalk_nor_1x2a.png</normalon>images/xtalk_nor_1x2p.png</iconset>
+                   <normaloff>icons/xtalk_nor_1x2p.png</normaloff>
+                   <normalon>icons/xtalk_nor_1x2a.png</normalon>icons/xtalk_nor_1x2p.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -1604,8 +1604,8 @@
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>images/xtalk_nor_2x1p.png</normaloff>
-                   <normalon>images/xtalk_nor_2x1a.png</normalon>images/xtalk_nor_2x1p.png</iconset>
+                   <normaloff>icons/xtalk_nor_2x1p.png</normaloff>
+                   <normalon>icons/xtalk_nor_2x1a.png</normalon>icons/xtalk_nor_2x1p.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -1699,8 +1699,8 @@
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>images/xtalk_row_2x2p.png</normaloff>
-                   <normalon>images/xtalk_row_2x2a.png</normalon>images/xtalk_row_2x2p.png</iconset>
+                   <normaloff>icons/xtalk_row_2x2p.png</normaloff>
+                   <normalon>icons/xtalk_row_2x2a.png</normalon>icons/xtalk_row_2x2p.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -1729,8 +1729,8 @@
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>images/xtalk_row_2x1p.png</normaloff>
-                   <normalon>images/xtalk_row_2x1a.png</normalon>images/xtalk_row_2x1p.png</iconset>
+                   <normaloff>icons/xtalk_row_2x1p.png</normaloff>
+                   <normalon>icons/xtalk_row_2x1a.png</normalon>icons/xtalk_row_2x1p.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -1759,8 +1759,8 @@
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>images/xtalk_row_1x2p.png</normaloff>
-                   <normalon>images/xtalk_row_1x2a.png</normalon>images/xtalk_row_1x2p.png</iconset>
+                   <normaloff>icons/xtalk_row_1x2p.png</normaloff>
+                   <normalon>icons/xtalk_row_1x2a.png</normalon>icons/xtalk_row_1x2p.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -1789,8 +1789,8 @@
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>images/xtalk_col_2x2p.png</normaloff>
-                   <normalon>images/xtalk_col_2x2a.png</normalon>images/xtalk_col_2x2p.png</iconset>
+                   <normaloff>icons/xtalk_col_2x2p.png</normaloff>
+                   <normalon>icons/xtalk_col_2x2a.png</normalon>icons/xtalk_col_2x2p.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -1819,8 +1819,8 @@
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>images/xtalk_col_2x1p.png</normaloff>
-                   <normalon>images/xtalk_col_2x1a.png</normalon>images/xtalk_col_2x1p.png</iconset>
+                   <normaloff>icons/xtalk_col_2x1p.png</normaloff>
+                   <normalon>icons/xtalk_col_2x1a.png</normalon>icons/xtalk_col_2x1p.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -1849,8 +1849,8 @@
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>images/xtalk_col_1x2p.png</normaloff>
-                   <normalon>images/xtalk_col_1x2a.png</normalon>images/xtalk_col_1x2p.png</iconset>
+                   <normaloff>icons/xtalk_col_1x2p.png</normaloff>
+                   <normalon>icons/xtalk_col_1x2a.png</normalon>icons/xtalk_col_1x2p.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -22137,7 +22137,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                    </property>
                    <property name="icon">
                     <iconset>
-                     <normaloff>images/magnifyer.png</normaloff>images/magnifyer.png</iconset>
+                     <normaloff>icons/magnifyer.png</normaloff>icons/magnifyer.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>

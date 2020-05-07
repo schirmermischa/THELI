@@ -84,7 +84,7 @@ ImageStatistics::ImageStatistics(QVector<QList<MyImage*>> &imlist, QString main,
     ui->statPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iMultiSelect);
     ui->statPlot->plotLayout()->clear();
 
-    setWindowIcon(QIcon(":/images/sigma.png"));
+    setWindowIcon(QIcon(":/icons/sigma.png"));
 
     // Plot data right away
     on_statisticsPushButton_clicked();

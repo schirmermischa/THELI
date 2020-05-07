@@ -62,24 +62,24 @@ ConfDockWidget::~ConfDockWidget()
 
 void ConfDockWidget::initConfDockWidget()
 {
-    QIcon magnifyer(":/images/magnifyer.png");
+    QIcon magnifyer(":/icons/magnifyer.png");
     ui->ARCtargetresolverToolButton->setIcon(magnifyer);
 
-    ui->xtalk_col_1x2ToolButton->setIcon(QIcon(":/images/xtalk_col_1x2.png"));
-    ui->xtalk_col_2x1ToolButton->setIcon(QIcon(":/images/xtalk_col_2x1.png"));
-    ui->xtalk_col_2x2ToolButton->setIcon(QIcon(":/images/xtalk_col_2x2.png"));
-    ui->xtalk_nor_1x2ToolButton->setIcon(QIcon(":/images/xtalk_nor_1x2.png"));
-    ui->xtalk_nor_2x1ToolButton->setIcon(QIcon(":/images/xtalk_nor_2x1.png"));
-    ui->xtalk_nor_2x2ToolButton->setIcon(QIcon(":/images/xtalk_nor_2x2.png"));
-    ui->xtalk_row_1x2ToolButton->setIcon(QIcon(":/images/xtalk_row_1x2.png"));
-    ui->xtalk_row_2x1ToolButton->setIcon(QIcon(":/images/xtalk_row_2x1.png"));
-    ui->xtalk_row_2x2ToolButton->setIcon(QIcon(":/images/xtalk_row_2x2.png"));
+    ui->xtalk_col_1x2ToolButton->setIcon(QIcon(":/icons/xtalk_col_1x2.png"));
+    ui->xtalk_col_2x1ToolButton->setIcon(QIcon(":/icons/xtalk_col_2x1.png"));
+    ui->xtalk_col_2x2ToolButton->setIcon(QIcon(":/icons/xtalk_col_2x2.png"));
+    ui->xtalk_nor_1x2ToolButton->setIcon(QIcon(":/icons/xtalk_nor_1x2.png"));
+    ui->xtalk_nor_2x1ToolButton->setIcon(QIcon(":/icons/xtalk_nor_2x1.png"));
+    ui->xtalk_nor_2x2ToolButton->setIcon(QIcon(":/icons/xtalk_nor_2x2.png"));
+    ui->xtalk_row_1x2ToolButton->setIcon(QIcon(":/icons/xtalk_row_1x2.png"));
+    ui->xtalk_row_2x1ToolButton->setIcon(QIcon(":/icons/xtalk_row_2x1.png"));
+    ui->xtalk_row_2x2ToolButton->setIcon(QIcon(":/icons/xtalk_row_2x2.png"));
 
     ui->skyReadmePushButton->hide();
 
     // update the collapse direction icon
     QString colldir = ui->COCdirectionComboBox->currentText();
-    ui->COCdirectionLabel->setPixmap(QPixmap(":/images/collapse_"+colldir));
+    ui->COCdirectionLabel->setPixmap(QPixmap(":/icons/collapse_"+colldir));
 
     // These comboboxes do not get initialized or filled properly unless one clicks on it:
     on_APDrefcatComboBox_currentTextChanged(ui->APDrefcatComboBox->currentText());
@@ -446,7 +446,7 @@ void ConfDockWidget::switch_static_dynamic()
 
 void ConfDockWidget::on_COCdirectionComboBox_currentTextChanged(const QString &arg1)
 {
-    ui->COCdirectionLabel->setPixmap(QPixmap(":/images/collapse_"+arg1));
+    ui->COCdirectionLabel->setPixmap(QPixmap(":/icons/collapse_"+arg1));
 }
 
 void ConfDockWidget::on_APDrefcatComboBox_currentTextChanged(const QString &arg1)

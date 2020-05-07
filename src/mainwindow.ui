@@ -143,7 +143,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/images/db-reset.png</normaloff>:/images/db-reset.png</iconset>
+           <normaloff>:/icons/db-reset.png</normaloff>:/icons/db-reset.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -203,7 +203,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/images/open_project.png</normaloff>:/images/open_project.png</iconset>
+           <normaloff>:/icons/open_project.png</normaloff>:/icons/open_project.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -279,7 +279,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/images/db-restart-icon.png</normaloff>:/images/db-restart-icon.png</iconset>
+           <normaloff>:/icons/db-restart-icon.png</normaloff>:/icons/db-restart-icon.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -859,7 +859,7 @@
         </property>
         <property name="icon">
          <iconset resource="resources.qrc">
-          <normaloff>:/images/Signal-yield-icon.png</normaloff>:/images/Signal-yield-icon.png</iconset>
+          <normaloff>:/icons/Signal-yield-icon.png</normaloff>:/icons/Signal-yield-icon.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -894,7 +894,7 @@
         </property>
         <property name="icon">
          <iconset resource="resources.qrc">
-          <normaloff>:/images/Actions-process-stop-icon.png</normaloff>:/images/Actions-process-stop-icon.png</iconset>
+          <normaloff>:/icons/Actions-process-stop-icon.png</normaloff>:/icons/Actions-process-stop-icon.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -1658,7 +1658,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>images/key.png</normaloff>images/key.png</iconset>
+            <normaloff>icons/key.png</normaloff>icons/key.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -1766,7 +1766,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>images/key.png</normaloff>images/key.png</iconset>
+            <normaloff>icons/key.png</normaloff>icons/key.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -1801,7 +1801,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>images/key.png</normaloff>images/key.png</iconset>
+            <normaloff>icons/key.png</normaloff>icons/key.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -1918,7 +1918,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>images/key.png</normaloff>images/key.png</iconset>
+            <normaloff>icons/key.png</normaloff>icons/key.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -1975,7 +1975,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>images/key.png</normaloff>images/key.png</iconset>
+            <normaloff>icons/key.png</normaloff>icons/key.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -2029,7 +2029,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>images/key.png</normaloff>images/key.png</iconset>
+            <normaloff>icons/key.png</normaloff>icons/key.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -2071,7 +2071,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>images/key.png</normaloff>images/key.png</iconset>
+            <normaloff>icons/key.png</normaloff>icons/key.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -2122,7 +2122,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>images/key.png</normaloff>images/key.png</iconset>
+            <normaloff>icons/key.png</normaloff>icons/key.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -2176,7 +2176,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>images/key.png</normaloff>images/key.png</iconset>
+            <normaloff>icons/key.png</normaloff>icons/key.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -2230,7 +2230,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>images/key.png</normaloff>images/key.png</iconset>
+            <normaloff>icons/key.png</normaloff>icons/key.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -2281,7 +2281,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>images/key.png</normaloff>images/key.png</iconset>
+            <normaloff>icons/key.png</normaloff>icons/key.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -2332,7 +2332,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>images/key.png</normaloff>images/key.png</iconset>
+            <normaloff>icons/key.png</normaloff>icons/key.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -2386,7 +2386,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>images/key.png</normaloff>images/key.png</iconset>
+            <normaloff>icons/key.png</normaloff>icons/key.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -2434,7 +2434,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>images/key.png</normaloff>images/key.png</iconset>
+            <normaloff>icons/key.png</normaloff>icons/key.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -2485,7 +2485,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>images/key.png</normaloff>images/key.png</iconset>
+            <normaloff>icons/key.png</normaloff>icons/key.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -2602,7 +2602,7 @@
   <action name="actioniView">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/images/iview.png</normaloff>:/images/iview.png</iconset>
+     <normaloff>:/icons/iview.png</normaloff>:/icons/iview.png</iconset>
    </property>
    <property name="text">
     <string>iView</string>
@@ -2614,7 +2614,7 @@
   <action name="actionImage_statistics">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/images/sigma.png</normaloff>:/images/sigma.png</iconset>
+     <normaloff>:/icons/sigma.png</normaloff>:/icons/sigma.png</iconset>
    </property>
    <property name="text">
     <string>Image statistics</string>
@@ -2626,7 +2626,7 @@
   <action name="actionColor_picture">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/images/color.png</normaloff>:/images/color.png</iconset>
+     <normaloff>:/icons/color.png</normaloff>:/icons/color.png</iconset>
    </property>
    <property name="text">
     <string>Color picture</string>
@@ -2638,7 +2638,7 @@
   <action name="actionNew_instrument">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/images/addInst.png</normaloff>:/images/addInst.png</iconset>
+     <normaloff>:/icons/addInst.png</normaloff>:/icons/addInst.png</iconset>
    </property>
    <property name="text">
     <string>New instrument</string>
@@ -2650,7 +2650,7 @@
   <action name="actionAbsZP">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/images/abszp.png</normaloff>:/images/abszp.png</iconset>
+     <normaloff>:/icons/abszp.png</normaloff>:/icons/abszp.png</iconset>
    </property>
    <property name="text">
     <string>AbsZP</string>
@@ -2695,7 +2695,7 @@
   <action name="actionPreferences">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/images/settings-icon.png</normaloff>:/images/settings-icon.png</iconset>
+     <normaloff>:/icons/settings-icon.png</normaloff>:/icons/settings-icon.png</iconset>
    </property>
    <property name="text">
     <string>Preferences</string>
@@ -2707,7 +2707,7 @@
   <action name="actionEdit_preferences">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/images/settings-icon.png</normaloff>:/images/settings-icon.png</iconset>
+     <normaloff>:/icons/settings-icon.png</normaloff>:/icons/settings-icon.png</iconset>
    </property>
    <property name="text">
     <string>Edit preferences</string>
@@ -2716,7 +2716,7 @@
   <action name="actionAdd_new_instrument_configuration">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/images/addInst.png</normaloff>:/images/addInst.png</iconset>
+     <normaloff>:/icons/addInst.png</normaloff>:/icons/addInst.png</iconset>
    </property>
    <property name="text">
     <string>Add new instrument configuration</string>
@@ -2725,7 +2725,7 @@
   <action name="actionKill">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/images/bones_final.png</normaloff>:/images/bones_final.png</iconset>
+     <normaloff>:/icons/bones_final.png</normaloff>:/icons/bones_final.png</iconset>
    </property>
    <property name="text">
     <string>Kill current task. Restart recommended.</string>

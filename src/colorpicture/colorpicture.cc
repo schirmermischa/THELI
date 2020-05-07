@@ -95,7 +95,7 @@ ColorPicture::ColorPicture(instrumentDataType *instrumentData, QString main, QWi
     palette.setColor(QPalette::Background, QColor("#c6c6c6"));
     ui->statusbar->setPalette(palette);
 
-    setWindowIcon(QIcon(":/images/color.png"));
+    setWindowIcon(QIcon(":/icons/color.png"));
 
     loadPreferences();
 

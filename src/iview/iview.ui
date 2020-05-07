@@ -127,7 +127,7 @@
   <action name="actionStart">
    <property name="icon">
     <iconset resource="../resources.qrc">
-     <normaloff>:/images/icon_start.png</normaloff>:/images/icon_start.png</iconset>
+     <normaloff>:/icons/icon_start.png</normaloff>:/icons/icon_start.png</iconset>
    </property>
    <property name="text">
     <string/>
@@ -139,7 +139,7 @@
   <action name="actionPrevious">
    <property name="icon">
     <iconset resource="../resources.qrc">
-     <normaloff>:/images/icon_previous.png</normaloff>:/images/icon_previous.png</iconset>
+     <normaloff>:/icons/icon_previous.png</normaloff>:/icons/icon_previous.png</iconset>
    </property>
    <property name="text">
     <string/>
@@ -154,7 +154,7 @@
    </property>
    <property name="icon">
     <iconset resource="../resources.qrc">
-     <normaloff>:/images/icon_back.png</normaloff>:/images/icon_back.png</iconset>
+     <normaloff>:/icons/icon_back.png</normaloff>:/icons/icon_back.png</iconset>
    </property>
    <property name="text">
     <string/>
@@ -169,7 +169,7 @@
    </property>
    <property name="icon">
     <iconset resource="../resources.qrc">
-     <normaloff>:/images/icon_forward.png</normaloff>:/images/icon_forward.png</iconset>
+     <normaloff>:/icons/icon_forward.png</normaloff>:/icons/icon_forward.png</iconset>
    </property>
    <property name="text">
     <string/>
@@ -181,7 +181,7 @@
   <action name="actionNext">
    <property name="icon">
     <iconset resource="../resources.qrc">
-     <normaloff>:/images/icon_next.png</normaloff>:/images/icon_next.png</iconset>
+     <normaloff>:/icons/icon_next.png</normaloff>:/icons/icon_next.png</iconset>
    </property>
    <property name="text">
     <string/>
@@ -193,7 +193,7 @@
   <action name="actionEnd">
    <property name="icon">
     <iconset resource="../resources.qrc">
-     <normaloff>:/images/icon_end.png</normaloff>:/images/icon_end.png</iconset>
+     <normaloff>:/icons/icon_end.png</normaloff>:/icons/icon_end.png</iconset>
    </property>
    <property name="text">
     <string/>
@@ -230,7 +230,7 @@
    </property>
    <property name="icon">
     <iconset resource="../resources.qrc">
-     <normaloff>:/images/hand.png</normaloff>:/images/hand.png</iconset>
+     <normaloff>:/icons/hand.png</normaloff>:/icons/hand.png</iconset>
    </property>
    <property name="text">
     <string>Drag Mode</string>
@@ -245,7 +245,7 @@
    </property>
    <property name="icon">
     <iconset resource="../resources.qrc">
-     <normaloff>:/images/pipette.png</normaloff>:/images/pipette.png</iconset>
+     <normaloff>:/icons/pipette.png</normaloff>:/icons/pipette.png</iconset>
    </property>
    <property name="text">
     <string>Sky Mode</string>
@@ -260,7 +260,7 @@
    </property>
    <property name="icon">
     <iconset resource="../resources.qrc">
-     <normaloff>:/images/wcs.png</normaloff>:/images/wcs.png</iconset>
+     <normaloff>:/icons/wcs.png</normaloff>:/icons/wcs.png</iconset>
    </property>
    <property name="text">
     <string>WCS Mode</string>

@@ -128,7 +128,7 @@ void AbsZeroPoint::initGUI()
     ui->zpPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
     ui->zpPlot->plotLayout()->clear(); // clear default axis rect so we can start from scratch
 
-    setWindowIcon(QIcon(":/images/abszp.png"));
+    setWindowIcon(QIcon(":/icons/abszp.png"));
 
     loadPreferences();
 }

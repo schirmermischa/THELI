@@ -59,8 +59,8 @@ MemoryViewer::MemoryViewer(Controller *ctrl, MainWindow *parent) :
     QString styleSheet = QString::fromLatin1(file.readAll());
     qApp->setStyleSheet(styleSheet);
 
-    QIcon download(":/images/download.png");
-    QIcon upload(":/images/upload.png");
+    QIcon download(":/icons/download.png");
+    QIcon upload(":/icons/upload.png");
     ui->downloadToolButton->setIcon(download);
     ui->uploadToolButton->setIcon(upload);
 

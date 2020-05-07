@@ -75,15 +75,15 @@ Instrument::Instrument(QWidget *parent) :
     bayerButtonGroup->addButton(ui->bayerBGGRToolButton);
     bayerButtonGroup->addButton(ui->bayerGRBGToolButton);
     bayerButtonGroup->setExclusive(true);
-    ui->bayerGBRGToolButton->setIcon(QIcon(":/images/bayer_gbrg.png"));
-    ui->bayerRGGBToolButton->setIcon(QIcon(":/images/bayer_rggb.png"));
-    ui->bayerBGGRToolButton->setIcon(QIcon(":/images/bayer_bggr.png"));
-    ui->bayerGRBGToolButton->setIcon(QIcon(":/images/bayer_grbg.png"));
+    ui->bayerGBRGToolButton->setIcon(QIcon(":/icons/bayer_gbrg.png"));
+    ui->bayerRGGBToolButton->setIcon(QIcon(":/icons/bayer_rggb.png"));
+    ui->bayerBGGRToolButton->setIcon(QIcon(":/icons/bayer_bggr.png"));
+    ui->bayerGRBGToolButton->setIcon(QIcon(":/icons/bayer_grbg.png"));
     ui->buttonFrame->hide();
 
     paintNumLineEdits("");
 
-    setWindowIcon(QIcon(":/images/addInst.png"));
+    setWindowIcon(QIcon(":/icons/addInst.png"));
 
     applyStyleSheets();
 
