@@ -78,20 +78,16 @@ void RAM::readStatsRAM_Linux()
     // Reset file to beginning
     instream.seek(0);
 
-    int count = 0;
-    int failSafe = 0;
-    while (count < 1 && failSafe < 100) {
-        QString line = instream.readLine().simplified();
+    // Files in /proc/ report their size as zero. Hence we can't 'while until EOF, but just read until nothing is read anymore.
+
+    QString line = instream.readLine().simplified();
+    while (!line.isNull()) {
         QStringList values = line.split(" ");
-//        if (values[0] == "MemTotal:") {
-//            totalRAM = values[1].toDouble();
-//            ++count;
-//        }
         if (values[0] == "MemAvailable:") {
             availableRAM = values[1].toLong();
-            ++count;
+            break;
         }
-        ++failSafe;
+        line = instream.readLine().simplified();
     }
 }
 
