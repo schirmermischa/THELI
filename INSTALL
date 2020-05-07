@@ -30,21 +30,6 @@ Source Extractor v2.19   https://github.com/astromatic/sextractor
 python/astropy           https://www.astropy.org/
 astrometry.net           https://github.com/dstndstn/astrometry.net/releases   (OPTIONAL)
 
-Environment variable
-====================
-
-For example, let's assume that the THELI source package was unpacked in a 'software' folder in your home
-directory:
-
-$HOME/software/THELI-master/
-
-You must set the THELIDIR environment variable to this path. For 'bash' you would do
-
-> export THELIDIR=$HOME/software/THELI-master/
-
-Include the line above in your ~/.bashrc to make it permament.
-
-
 Compilation
 ===========
 
@@ -56,12 +41,34 @@ Create the 'Makefile' and build it:
 > cd $HOME/software/THELI-master/src
 > qmake -o Makefile THELI.pro
 > make
-> make install (copies the binary to /usr/bin/theli and config files to /usr/share/theli/)
+> make install (copies the binary to /usr/bin/theli and the config files to /usr/share/theli/)
 > make clean
 
 To speed up, replace 'make' by 'make -j x", where 'x' is the number of your CPUs 
 
 The 'qmake' executable is part of the Qt5 dependence you have installed in the beginning.
+
+
+THELIDIR Environment variable (optional)
+========================================
+
+There are two cases in which you must set a THELIDIR environment variable:
+
+(1) You did not use 'make install' for a system-wide installation, e.g. if you don't have write permission in /usr
+
+(2) You want to install a newer version locally, next to a system-wide installation.
+
+Let's assume that the master branch of the THELI source package was unpacked in a 'software' folder 
+in your home directory:
+
+$HOME/software/THELI-master/
+
+Then you must set the THELIDIR environment variable to this path. For 'bash' you would do
+
+> export THELIDIR=$HOME/software/THELI-master/
+
+Include the line above in your ~/.bashrc to make it permament. 
+When launching THELI, Make sure you invoke $HOME/software/THELI-master/src/theli instead of /usr/bin/theli
 
 
 MacOS C++ compiler and openMP

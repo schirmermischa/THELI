@@ -39,13 +39,22 @@ int main(int argc, char *argv[])
 
     // Read the THELIDIR environment variable
     if (!QProcessEnvironment::systemEnvironment().contains("THELIDIR")) {
-         QMessageBox::critical(0,"THELI","The THELIDIR environment variable was not set!\n\n"
-                                        "For example, if THELI was installed under \n"
-                                        ""+QDir::homePath()+"/THELI/ and you are using the 'bash' shell, "
-                                                            "then you would include the following line in your .bashrc file:\n\n"
-                                                            "export THELIDIR="+QDir::homePath()+"/THELI/",
-                              QMessageBox::Ok);
-        exit (1);
+        // See if we can find it under /usr/share/theli/
+        QDir thelidir1("/usr/share/theli/config/");
+        QDir thelidir2("/usr/share/theli/python/");
+        if (thelidir1.exists() && thelidir2.exists()) {
+            // system-wide installation found, we are good!
+            break;
+        }
+        else {
+            QMessageBox::critical(0,"THELI","THELI configuration files not found under /usr/share/theli/\n\n"
+                                            "You can fix this by setting the THELIDIR environment variable. For example, if the THELI source tree was installed under \n"
+                                            ""+QDir::homePath()+"/THELI/ and you are using the 'bash' shell, "
+                                                                "then you would include the following line in your .bashrc file:\n\n"
+                                                                "export THELIDIR="+QDir::homePath()+"/THELI/",
+                                  QMessageBox::Ok);
+            exit (1);
+        }
     }
 
     // Dependency checks

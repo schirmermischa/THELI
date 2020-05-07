@@ -136,7 +136,7 @@ QString sanityCheckWCS(wcsprm *wcs)
         det = cd11*cd22 - cd12*cd21;
 
         if (fabs(det)-1. > 0.05) {
-              return "WCS matrix is significantly sheared";
+            return "WCS matrix is significantly sheared";
         }
     }
     return "";
@@ -448,8 +448,17 @@ QString read_MultipleLines_system_command(QString shell_command)
 
 void initEnvironment(QString &thelidir, QString &userdir)
 {
-    // Read the THELIDIR environment variable
-    thelidir = QProcessEnvironment::systemEnvironment().value("THELIDIR","");
+    // If the THELIDIR variable is NOT set, try finding THELI in the system path
+    if (!QProcessEnvironment::systemEnvironment().contains("THELIDIR")) {
+        QDir thelidir1("/usr/share/theli/config/");
+        QDir thelidir2("/usr/share/theli/python/");
+        if (thelidir1.exists() && thelidir2.exists()) {
+            thelidir = "/usr/share/theli/";
+        }
+    }
+    else {
+        thelidir = QProcessEnvironment::systemEnvironment().value("THELIDIR","");
+    }
 
     QSysInfo *sysInfo = new QSysInfo;
 
