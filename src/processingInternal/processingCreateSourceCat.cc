@@ -447,9 +447,9 @@ void Controller::buildSourceExtractorCommandOptions()
 
     if (!successProcessing) return;
 
-    sourceExtractorCommandOptions = " -PARAMETERS_NAME " + thelidir + "/src/config/default.param";
-    sourceExtractorCommandOptions += " -FILTER_NAME "     + thelidir + "/src/config/default.conv";
-    sourceExtractorCommandOptions += " -STARNNW_NAME "    + thelidir + "/src/config/default.nnw";
+    sourceExtractorCommandOptions = " -PARAMETERS_NAME "  + thelidir + "/config/default.param";
+    sourceExtractorCommandOptions += " -FILTER_NAME "     + thelidir + "/config/default.conv";
+    sourceExtractorCommandOptions += " -STARNNW_NAME "    + thelidir + "/config/default.nnw";
     sourceExtractorCommandOptions += " -DETECT_MINAREA "  + getUserParamLineEdit(cdw->ui->CSCDMINLineEdit);
     sourceExtractorCommandOptions += " -DETECT_THRESH "   + getUserParamLineEdit(cdw->ui->CSCDTLineEdit);
     sourceExtractorCommandOptions += " -ANALYSIS_THRESH " + getUserParamLineEdit(cdw->ui->CSCDTLineEdit);
