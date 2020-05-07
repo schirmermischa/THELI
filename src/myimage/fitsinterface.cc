@@ -183,7 +183,10 @@ bool MyImage::loadData(QString loadFileName)
     initFITS(&fptr, loadFileName, &status);
     readHeader(&fptr, &status);
     readData(&fptr, &status);
-    initWCS();
+#pragma omp critical
+    {
+        initWCS();
+    }
     initTHELIheader(&status);
     checkTHELIheader(&status);
     cornersToRaDec();
@@ -210,16 +213,16 @@ void MyImage::initWCS()
     if (check > 1) {
         emit messageAvailable("MyImage::initWCS(): " + baseName + ": wcspih() returned" + QString::number(check), "error" );
         emit critical();
-        emit setWCSLock(false);
         successProcessing = false;
         wcsInit = false;
+        emit setWCSLock(false);
         return;
     }
     if (nwcs == 0 || check == 1) {
         // OK state, e.g. for master calibrators which don't have a valid WCS
         if (*verbosity > 2) emit messageAvailable(chipName + " : No WCS representation found", "image");
-        emit setWCSLock(false);
         wcsInit = false;
+        emit setWCSLock(false);
         return;
     }
     int wcsCheck = wcsset(wcs);
@@ -256,13 +259,15 @@ void MyImage::initWCS()
 void MyImage::loadHeader(QString loadFileName)
 {
     if (headerInfoProvided) return;
-
     if (loadFileName.isEmpty()) loadFileName = path+"/"+baseName+".fits";
     int status = 0;
     fitsfile *fptr = nullptr;
     initFITS(&fptr, loadFileName, &status);
     readHeader(&fptr, &status);
-    initWCS();
+#pragma omp critical
+    {
+        initWCS();
+    }
     initTHELIheader(&status);
     checkTHELIheader(&status);
     cornersToRaDec();
@@ -291,17 +296,6 @@ void MyImage::getMJD()
     if (status) hasMJDread = false;
     else hasMJDread = true;
 }
-
-/*
-void MyImage::initWCS(int *status)
-{
-    if (*status) return;
-    for (auto &it : header) {
-        extractKeywordLong(it, "NAXIS1", naxis1);
-        extractKeywordLong(it, "NAXIS2", naxis2);
-    }
-}
-*/
 
 void MyImage::initTHELIheader(int *status)
 {
