@@ -102,9 +102,9 @@ void dependencyCheck()
         anetDep = "astrometry.net 'solve-field' not found.\n";
     }
 
-    if (anet3.isEmpty()) {
-        anetDep += "astrometry.net 'astrometry-engine' not found.\n";
-    }
+//    if (anet3.isEmpty()) {
+//        anetDep += "astrometry.net 'astrometry-engine' not found.\n";
+//    }
 
     if (python.isEmpty()) {
         pythonDep = "python required (working binary names: 'python3' or 'python').\n";

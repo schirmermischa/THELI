@@ -206,7 +206,8 @@ void MyImage::readImage(bool determineMode)
     }
 }
 
-// Used by iview when loading directly from FITS files, and by swarpfilter when reading weights
+// Used by iview when loading directly from FITS files, by swarpfilter when reading weights,
+// and by color picture when cropping images
 void MyImage::readImage(QString loadFileName)
 {
     dataCurrent_deletable = false;
