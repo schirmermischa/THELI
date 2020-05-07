@@ -44,7 +44,6 @@ int main(int argc, char *argv[])
         QDir thelidir2("/usr/share/theli/python/");
         if (thelidir1.exists() && thelidir2.exists()) {
             // system-wide installation found, we are good!
-            break;
         }
         else {
             QMessageBox::critical(0,"THELI","THELI configuration files not found under /usr/share/theli/\n\n"
