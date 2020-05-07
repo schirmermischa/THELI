@@ -446,8 +446,13 @@ QString Query::resolveTarget(QString target)
         line = line.simplified();
         if (line.contains("Traceback")) return "Unresolved";
         else {
+            // In case python2 is used instead of python3, we have to remove parentheses and commas from the output
+            line = line.remove("(");
+            line = line.remove(")");
+            line = line.replace(",", " ");
+            line = line.simplified();
             QStringList coordList = line.split(' ');
-            targetAlpha = coordList[0];
+            targetAlpha = coordList[0].remove;
             targetDelta = coordList[1];
             return "Resolved";
         }

@@ -90,7 +90,7 @@ void dependencyCheck()
     }
 
     if (python.isEmpty()) {
-        pythonDep = "python required (working binary names: 'python' or 'python3').\n";
+        pythonDep = "python required (working binary names: 'python3' or 'python').\n";
     }
 
     if (build_astrometry_index.isEmpty()) {
