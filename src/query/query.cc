@@ -452,7 +452,7 @@ QString Query::resolveTarget(QString target)
             line = line.replace(",", " ");
             line = line.simplified();
             QStringList coordList = line.split(' ');
-            targetAlpha = coordList[0].remove;
+            targetAlpha = coordList[0];
             targetDelta = coordList[1];
             return "Resolved";
         }
