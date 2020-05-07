@@ -224,6 +224,24 @@ FORMS += \
 
 RESOURCES = resources.qrc
 
+installfiles.files = theli
+installfiles.path = /usr/bin
+INSTALLS += installfiles
+
+configfiles.files += config/default.conv
+configfiles.files += config/default.nnw
+configfiles.files += config/default.param
+configfiles.path = /usr/share/theli/config/
+INSTALLS += configfiles
+
+instrumentfiles.files = config/instruments/*
+instrumentfiles.path = /usr/share/theli/config/instruments
+INSTALLS += instrumentfiles
+
+python.files += python/*
+python.path = /usr/share/theli/python
+INSTALLS += python
+
 CONFIG += c++11
 
 QMAKE_CXXFLAGS += -fopenmp -g
