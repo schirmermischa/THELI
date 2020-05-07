@@ -10,7 +10,7 @@ fftw3           http://fftw.org/
 GSL v2.5        https://www.gnu.org/software/gsl/
 wcslib v7.2     https://www.atnf.csiro.au/people/mcalabre/WCS/
 libraw v0.19.4  https://www.libraw.org/
-libtiff         https://gitlab.com/libtiff/libtiff      (MUST BE configured with --enable-reentrant !)
+libtiff         https://gitlab.com/libtiff/libtiff
 
 On an Ubuntu 18.04 LTS installation, the following command should resolve all dependencies, and also enable the compilation of 'scamp':
 
