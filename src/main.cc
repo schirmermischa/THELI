@@ -81,9 +81,10 @@ void dependencyCheck()
     QString scamp = findExecutableName("scamp");    // testing different executable names
     QString swarp = findExecutableName("swarp");
     QString sourceExtractor = findExecutableName("source-extractor");
-    QString solve_field = findExecutableName("solve-field");
     QString python = findExecutableName("python");
-    QString build_astrometry_index = findExecutableName("build-astrometry-index");
+    QString anet1 = findExecutableName("build-astrometry-index");
+    QString anet2 = findExecutableName("solve-field");
+    QString anet3 = findExecutableName("astrometry-engine");
 
     QString scampDep = "";
     QString swarpDep = "";
@@ -93,16 +94,20 @@ void dependencyCheck()
 
     int missingDep = 0;
 
-    if (solve_field.isEmpty()) {
+    if (anet1.isEmpty()) {
+        anetDep += "astrometry.net 'build-astrometry-index' not found.\n";
+    }
+
+    if (anet2.isEmpty()) {
         anetDep = "astrometry.net 'solve-field' not found.\n";
+    }
+
+    if (anet3.isEmpty()) {
+        anetDep += "astrometry.net 'astrometry-engine' not found.\n";
     }
 
     if (python.isEmpty()) {
         pythonDep = "python required (working binary names: 'python3' or 'python').\n";
-    }
-
-    if (build_astrometry_index.isEmpty()) {
-        anetDep += "astrometry.net 'build-astrometry-index' not found.\n";
     }
 
     if (!anetDep.isEmpty()) {
