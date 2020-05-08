@@ -230,11 +230,14 @@ void Controller::taskInternalIndividualweight()
 
         auto &it = allMyImages[k];
 
+        qDebug() << it->baseName << "1";
+
         if (!it->successProcessing) continue;
         if (it->activeState != MyImage::ACTIVE) continue;
         int chip = it->chipNumber - 1;
         if (instData->badChips.contains(chip)) continue;
         releaseMemory(nimg*instData->storage, maxCPU);
+        qDebug() << it->baseName << "2";
 
         if (verbosity >= 0) emit messageAvailable(it->chipName + " : Creating weight map ...", "image");
         it->setupDataInMemorySimple(false);

@@ -183,9 +183,12 @@ bool MyImage::loadData(QString loadFileName)
     initFITS(&fptr, loadFileName, &status);
     readHeader(&fptr, &status);
     readData(&fptr, &status);
+    if (!lockForInitWCSneeded) initWCS();         // CHECK: DSLR RAW data must not set a lock here (MyImage::initGlobWeight)
+    else {
 #pragma omp critical
-    {
-        initWCS();
+        {
+            initWCS();
+        }
     }
     initTHELIheader(&status);
     checkTHELIheader(&status);

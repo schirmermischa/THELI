@@ -166,6 +166,8 @@ public:
     SourceExtractorWorker *sourceExtractorWorker;
     AnetWorker *anetWorker;
 
+    bool lockForInitWCSneeded = true;
+
     // Defining data
     QString path = "";
     QString pathBackupL1 = "";
