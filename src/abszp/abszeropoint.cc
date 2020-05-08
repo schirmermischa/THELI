@@ -299,7 +299,7 @@ void AbsZeroPoint::taskInternalAbszeropoint()
             myImage->apertures = apertures;
 
             // Detect objects
-            myImage->readImage();
+            myImage->readImage(ui->zpImageLineEdit->text());
             if (!myImage->successProcessing) successDetection = false;
             myImage->readWeight();
             myImage->successProcessing = true;
