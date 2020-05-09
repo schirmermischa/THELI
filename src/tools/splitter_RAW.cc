@@ -167,7 +167,7 @@ void Splitter::buildHeaderRAW()
 
     headerTHELI.clear();
     headerTHELI.append(cards);
-    QString card1 = "GAINEFF = "+QString::number(chipGain, 'f', 6) + " / Effective gain for this image";
+    QString card1 = "GAINEFF = 1.0     / Effective gain for this image";
     QString card2 = "GAIN    = 1.0     / ADUs were converted to e- in this image using GAINEFF";
     card1.resize(80, ' ');
     card2.resize(80, ' ');

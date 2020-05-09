@@ -328,13 +328,14 @@ void ColorPicture::colorCalibSegmentImages()
         emit messageAvailable("Detecting sources in " + it->baseName +" ...", "ignore");
         it->maxCPU = maxCPU / croppedList.length();
         it->resetObjectMasking();
-        it->readImage();
+        it->readImage(it->path + "/" +it->name);
         it->readWeight();
         it->backgroundModel(100, "interpolate");
         it->segmentImage("5", "5", true, false);
         it->estimateMatchingTolerance();
         it->releaseBackgroundMemory();
         it->releaseDetectionPixelMemory();
+
         emit messageAvailable(it->baseName +" : " + QString::number(it->objectList.length()) + " sources found", "ignore");
     }
 }

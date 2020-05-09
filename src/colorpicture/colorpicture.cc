@@ -83,6 +83,8 @@ ColorPicture::ColorPicture(instrumentDataType *instrumentData, QString main, QWi
 
     connect(this, &ColorPicture::updateNrefStars, this, &ColorPicture::updateNrefStarsReceived);
 
+    connect(this, &ColorPicture::addCombinedImage, this, &ColorPicture::addCombinedImageReceived);
+
     ui->tabWidget->setCurrentIndex(0);
 
     resultButtonGroup->setExclusive(true);
@@ -337,7 +339,6 @@ void ColorPicture::updateCalibFactors()
 MyImage* ColorPicture::identifyCroppedMyImage(QString name)
 {
     for (auto &myImage : croppedList) {
-        qDebug() << myImage->name << name;
         if (myImage->name == name) return myImage;
     }
     emit messageAvailable("Could not identify "+name+"<br>in the list of cropped images!", "error");
@@ -504,6 +505,11 @@ void ColorPicture::on_previewCalibPushButton_clicked()
 void ColorPicture::updateIviewStatus()
 {
     iViewOpen = false;
+}
+
+void ColorPicture::addCombinedImageReceived(MyImage *combinedImage)
+{
+    croppedList.append(combinedImage);
 }
 
 void ColorPicture::measureStatistics(long x, long y)

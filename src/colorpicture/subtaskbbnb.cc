@@ -184,6 +184,8 @@ void ColorPicture::taskInternalBBNBcombine()
 
     QVector<bool> dummyMask;
     dummyMask.clear();
+    QString newName = bbImage->baseName + nbImage->baseName + "_cropped.fits";
+    QString newNameWeight = bbImage->baseName + nbImage->baseName + "_cropped.weight.fits";
     MyImage *combinedImage = new MyImage(path, bbImage->name, "", 1, dummyMask, &verbosity, false);
     MyImage *combinedWeight = new MyImage(path, bbImage->name, "", 1, dummyMask, &verbosity, false);
     combinedImage->loadHeader();
@@ -194,15 +196,20 @@ void ColorPicture::taskInternalBBNBcombine()
     float weight = ui->narrowbandWeightLineEdit->text().toFloat();
     if (ui->narrowbandWeightLineEdit->text().isEmpty()) weight = 1.0;
     float scale = 1. - weight * bbnbFluxRatio;
+    combinedImage->baseName = bbImage->baseName + nbImage->baseName;
+    combinedImage->name = bbImage->baseName + nbImage->baseName + "_cropped.fits";
+    combinedImage->weightPath = combinedImage->path;
+    combinedImage->weightName = bbImage->baseName + nbImage->baseName + "_cropped.weight";
     combinedImage->dataCurrent.resize(n*m);
     combinedWeight->dataCurrent.resize(n*m);
     for (long i=0; i<n*m; ++i) {
         combinedImage->dataCurrent[i] = scale * bbImage->dataCurrent[i] + weight * nbImage->dataCurrent[i];
         combinedWeight->dataCurrent[i] = bbImage->dataWeight[i] + nbImage->dataWeight[i];
     }
-    combinedImage->writeImage(path+bbImage->baseName + nbImage->baseName + "_cropped.fits");
-    combinedWeight->writeImage(path+bbImage->baseName + nbImage->baseName + "_cropped.weight.fits");
+    combinedImage->writeImage(path+newName);
+    combinedWeight->writeImage(path+newNameWeight);
 
-    delete combinedImage;
+    emit addCombinedImage(combinedImage);
+
     delete combinedWeight;
 }

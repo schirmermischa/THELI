@@ -66,6 +66,7 @@ signals:
     void finished();
     void showMessageBox(QString trigger, QString part1, QString part2);
     void updateNrefStars(QString name, long number);
+    void addCombinedImage(MyImage *myImage);
 
 public slots:
     void taskFinished(QString taskname);
@@ -99,6 +100,7 @@ private slots:
     void displayMessage(QString message, QString type);
     void criticalReceived();
     void on_abortPushButton_clicked();
+    void addCombinedImageReceived(MyImage *combinedImage);
 
 private:
     QString mainDir;
