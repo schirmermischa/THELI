@@ -25834,7 +25834,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                 </size>
                </property>
                <property name="statusTip">
-                <string>SExtractor keywords and FITS keywords. The latter must be preceeded by a colon, e.g. &quot;:AIRMASS&quot;</string>
+                <string>SExtractor keywords and FITS keywords. The latter must be preceded by a colon, e.g. &quot;:AIRMASS&quot;</string>
                </property>
               </widget>
              </item>

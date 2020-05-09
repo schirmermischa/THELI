@@ -337,6 +337,7 @@ void ColorPicture::updateCalibFactors()
 MyImage* ColorPicture::identifyCroppedMyImage(QString name)
 {
     for (auto &myImage : croppedList) {
+        qDebug() << myImage->name << name;
         if (myImage->name == name) return myImage;
     }
     emit messageAvailable("Could not identify "+name+"<br>in the list of cropped images!", "error");

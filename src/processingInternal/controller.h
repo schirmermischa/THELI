@@ -290,7 +290,7 @@ private slots:
     void displayProgress();
 //    void displayDriveSpace();
 
-    // The following can also be under 'private', but then the declaration must be preceeded like this:
+    // The following can also be under 'private', but then the declaration must be preceded like this:
     // Q_INVOKABLE QString taskHDUreformat();
     void taskInternalProcessbias();
     void taskInternalProcessdark();

@@ -194,7 +194,7 @@ private slots:
     int writePreferenceSettings();
     int writeGUISettings();
 
-    // The following can also be under 'private', but then the declaration must be preceeded like this:
+    // The following can also be under 'private', but then the declaration must be preceded like this:
     // Q_INVOKABLE QString taskHDUreformat();
     QStringList taskHDUreformat(bool &stop, QString mode);
     QStringList taskProcessbias(bool &stop, QString mode);

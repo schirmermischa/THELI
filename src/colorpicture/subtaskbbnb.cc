@@ -98,13 +98,13 @@ void ColorPicture::taskInternalBBNBratio()
         emit messageAvailable("Detecting sources in " + it->baseName +" ...", "ignore");
         it->maxCPU = maxCPU / bbnbList.length();
         it->resetObjectMasking();
-        it->readImage();
+        it->readImage(it->path+"/"+it->name);
         it->readWeight();
         it->backgroundModel(100, "interpolate");
-        it->segmentImage("5","5", true, false);
+        it->segmentImage("5", "5", true, true);
         it->estimateMatchingTolerance();
         it->releaseBackgroundMemory();
-        it->releaseAllDetectionMemory();
+        it->releaseDetectionPixelMemory();
     }
 
     emit messageAvailable("Matching broadband and narrowband catalogs ...", "ignore");

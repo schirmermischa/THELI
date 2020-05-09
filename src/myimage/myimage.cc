@@ -101,6 +101,11 @@ MyImage::MyImage(QString fullPathName, const QVector<bool> &mask, int *verbose, 
     name = fi.fileName();
     chipNumber = 1;
     baseName = fi.completeBaseName();
+
+    rootName = baseName;
+    rootName.truncate(rootName.lastIndexOf('_'));
+    chipName = rootName+"_"+QString::number(chipNumber);
+
     makeBackup = false;
     weightName = baseName+".weight";
 

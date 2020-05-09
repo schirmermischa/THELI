@@ -167,9 +167,10 @@ void ColorPicture::colorCalibMatchCatalogs()
     // Match with reference catalogs
     tolerance = (imageR->matchingTolerance + imageG->matchingTolerance + imageB->matchingTolerance) / 3.;
 
+
+    colorCalibMatchReferenceCatalog(matchedRGB, PANSTARRS, tolerance);
     colorCalibMatchReferenceCatalog(matchedRGB, SDSS, tolerance);
     colorCalibMatchReferenceCatalog(matchedRGB, APASS, tolerance);
-    colorCalibMatchReferenceCatalog(matchedRGB, PANSTARRS, tolerance);
 }
 
 void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>> &matchedRGB, RefCatData *REFCAT, float tolerance)
