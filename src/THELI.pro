@@ -258,3 +258,6 @@ INCLUDEPATH += /usr/include/wcslib/
 INCLUDEPATH += /usr/local/include/wcslib/
 
 LIBS += -lcfitsio -lcurl -lfftw3_omp -lfftw3 -lm -lgsl -lgslcblas -lwcs -ltiff -lraw
+
+DISTFILES += \
+    ../man/theli.1
