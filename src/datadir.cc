@@ -76,7 +76,7 @@ void DataDir::setPaths(QString data, QString main)
         if (numFITS == 0) {
             // Check for RAW files instead
             filter.clear();
-            filter << "*.cr2" << "*.CR2" << "*.arw" << "*.ARW" << "*.dng" << "*.DNG" ;
+            filter << "*.cr2" << "*.CR2" << "*.arw" << "*.ARW" << "*.dng" << "*.DNG" << "*.nef" << "*.NEF";
             dir.setNameFilters(filter);
             fileList = dir.entryList();
             numFITS = fileList.length();

@@ -243,7 +243,7 @@ bool Data::checkForRawData()
 {
     // Only checking .fits files. Everything else ("*.fit", "*.cr2", "*.fz" etc) it is clear that we have raw data (or other files)
     QStringList filter = {"*.fits"};
-    QStringList filter2 = {"*.fits", "*.fit", "*.FIT", "*.fz", "*.cr2", "*.CR2"};
+    QStringList filter2 = {"*.fits", "*.fit", "*.FIT", "*.fz", "*.cr2", "*.CR2", "*.arw", "*.ARW", "*.dng", "*.DNG", "*.nef", "*.NEF"};
     dir.setFilter(QDir::Files);
     QStringList fileNames = dir.entryList(filter);          // Contains processed images and potential raw data
     QStringList allFileNames = dir.entryList(filter2);      // Everything
