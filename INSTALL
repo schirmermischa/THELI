@@ -27,8 +27,8 @@ THELI will check for their presence upon launch and report any misconfigurations
 swarp v2.38              https://github.com/astromatic/swarp
 scamp v2.7               https://github.com/astromatic/scamp
 Source Extractor v2.19   https://github.com/astromatic/sextractor
-python/astropy           https://www.astropy.org/
-astrometry.net           https://github.com/dstndstn/astrometry.net/releases   (OPTIONAL)
+python/astropy v4.0      https://www.astropy.org/
+astrometry.net v0.79     https://github.com/dstndstn/astrometry.net/releases   (OPTIONAL)
 
 Compilation
 ===========
