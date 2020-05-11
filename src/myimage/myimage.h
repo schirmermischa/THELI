@@ -166,7 +166,7 @@ public:
     SourceExtractorWorker *sourceExtractorWorker;
     AnetWorker *anetWorker;
 
-    bool lockForInitWCSneeded = true;
+//    bool lockForInitWCSneeded = true;
 
     // Defining data
     QString path = "";

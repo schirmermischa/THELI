@@ -65,9 +65,9 @@ void MyImage::initWeightfromGlobalWeight(const QList<MyImage*> &gwList)
     for (auto &gw: gwList) {
         if (gw->filter == filter) {
             if (!gw->imageInMemory) {
-                gw->lockForInitWCSneeded = false;
+//                gw->lockForInitWCSneeded = false;
                 gw->readImage();
-                gw->lockForInitWCSneeded = true;
+//                gw->lockForInitWCSneeded = true;
             }
             dataWeight = gw->dataCurrent;
             loadSuccess = true;

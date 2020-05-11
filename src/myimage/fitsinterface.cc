@@ -177,19 +177,15 @@ bool MyImage::loadData(QString loadFileName)
 {
     if (loadFileName.isEmpty()) loadFileName = path + "/" + chipName+processingStatus->statusString+".fits";
 
+//    qDebug() << "loadData():" << path + "/" + chipName+processingStatus->statusString+".fits";
+
     int status = 0;
 
     fitsfile *fptr = nullptr;
     initFITS(&fptr, loadFileName, &status);
     readHeader(&fptr, &status);
     readData(&fptr, &status);
-    if (!lockForInitWCSneeded) initWCS();         // CHECK: DSLR RAW data must not set a lock here (MyImage::initGlobWeight)
-    else {
-#pragma omp critical
-        {
-            initWCS();
-        }
-    }
+    initWCS();
     initTHELIheader(&status);
     checkTHELIheader(&status);
     cornersToRaDec();

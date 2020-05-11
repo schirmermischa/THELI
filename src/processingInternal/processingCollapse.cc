@@ -270,6 +270,7 @@ void Controller::taskInternalBinnedpreview()
         connect(myBinnedImage, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
         connect(myBinnedImage, &MyImage::warning, this, &Controller::warningReceived);
         connect(myBinnedImage, &MyImage::setMemoryLock, this, &Controller::setMemoryLockReceived, Qt::DirectConnection);
+        connect(myBinnedImage, &MyImage::setMemoryLock, this, &Controller::setWCSLockReceived, Qt::DirectConnection);
         myBinnedImage->naxis1 = nGlobal;
         myBinnedImage->naxis2 = mGlobal;
         myBinnedImage->dataCurrent.swap(dataBinnedGlobal);

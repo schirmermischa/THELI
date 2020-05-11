@@ -993,6 +993,7 @@ void Controller::coaddUpdate()
         connect(coadd, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
         connect(coadd, &MyImage::warning, this, &Controller::warningReceived);
         connect(coadd, &MyImage::setMemoryLock, this, &Controller::setMemoryLockReceived, Qt::DirectConnection);
+        connect(coadd, &MyImage::setWCSLock, this, &Controller::setWCSLockReceived, Qt::DirectConnection);
         coadd->chipName = "coadd";
         emit messageAvailable("coadd.fits : Loading image data ...", "image");
         coadd->setupData(false, false, true);

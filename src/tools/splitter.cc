@@ -1082,6 +1082,7 @@ void Splitter::initMyImage(int chip)
     connect(myImage, &MyImage::warning, data, &Data::pushWarning);
     connect(myImage, &MyImage::messageAvailable, data, &Data::pushMessageAvailable);
     connect(myImage, &MyImage::setMemoryLock, data, &Data::setMemoryLockReceived, Qt::DirectConnection);
+    connect(myImage, &MyImage::setWCSLock, data, &Data::setWCSLockReceived, Qt::DirectConnection);
     myImage->emitModelUpdateNeeded();
     ++data->numImages;
 }

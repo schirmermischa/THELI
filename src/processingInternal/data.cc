@@ -153,6 +153,7 @@ Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maind
             connect(myImage, &MyImage::warning, this, &Data::pushWarning);
             connect(myImage, &MyImage::messageAvailable, this, &Data::pushMessageAvailable);
             connect(myImage, &MyImage::setMemoryLock, this, &Data::setMemoryLockReceived, Qt::DirectConnection);
+            connect(myImage, &MyImage::setWCSLock, this, &Data::setWCSLockReceived, Qt::DirectConnection);
         }
     }
     if (numMasterCalibs == instData->numChips) {
