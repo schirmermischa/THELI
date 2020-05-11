@@ -237,9 +237,9 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
     writeG2refcat(REFCAT->name, matchedREFCAT);
 
     QString nstars = QString::number(matchedREFCAT.length()) + " stars";
-    if (REFCAT->name == "SDSS") ui->numSDSSLabel->setText(nstars);
+    if (REFCAT->name == "PANSTARRS") ui->numPANSTARRSLabel->setText(nstars);
+    else if (REFCAT->name == "SDSS") ui->numSDSSLabel->setText(nstars);
     else if (REFCAT->name == "APASS") ui->numAPASSLabel->setText(nstars);
-    else if (REFCAT->name == "PANSTARRS") ui->numPANSTARRSLabel->setText(nstars);
     else if (REFCAT->name == "AVGWHITE") ui->numAVGWHITELabel->setText(nstars);
 
     QString type = "note";
@@ -292,21 +292,21 @@ void ColorPicture::colorCalibRetrieveCatalogs(QList<Query*> queryList)
 
 void ColorPicture::filterSolarTypeStars(QList<Query*> queryList)
 {
+    PANSTARRS->clear();
     SDSS->clear();
     APASS->clear();
-    PANSTARRS->clear();
 
     for (auto &query : queryList) {
         if (query->numSources == 0) continue;
         for (long k=0; k<query->mag1_out.length(); ++k) {
             if (!query->G2type[k]) continue;
-            if (query->refcatName == "SDSS") {
-                SDSS->ra.append(query->ra_out[k]);
-                SDSS->de.append(query->de_out[k]);
-            }
             if (query->refcatName == "PANSTARRS") {
                 PANSTARRS->ra.append(query->ra_out[k]);
                 PANSTARRS->de.append(query->de_out[k]);
+            }
+            if (query->refcatName == "SDSS") {
+                SDSS->ra.append(query->ra_out[k]);
+                SDSS->de.append(query->de_out[k]);
             }
             if (query->refcatName == "APASS") {
                 APASS->ra.append(query->ra_out[k]);
@@ -343,8 +343,8 @@ void ColorPicture::colorCalibSegmentImages()
 void ColorPicture::updateNrefStarsReceived(QString name, long number)
 {
     QString nstars = QString::number(number) + " stars";
-    if (name == "SDSS") ui->numSDSSLabel->setText(nstars);
+    if (name == "PANSTARRS") ui->numPANSTARRSLabel->setText(nstars);
+    else if (name == "SDSS") ui->numSDSSLabel->setText(nstars);
     else if (name == "APASS") ui->numAPASSLabel->setText(nstars);
-    else if (name == "PANSTARRS") ui->numPANSTARRSLabel->setText(nstars);
     else if (name == "AVGWHITE") ui->numAVGWHITELabel->setText(nstars);
 }

@@ -76,20 +76,17 @@ ColorPicture::ColorPicture(instrumentDataType *instrumentData, QString main, QWi
     connect(ui->resultPANSTARRSPushButton, &QPushButton::clicked, this, &ColorPicture::sendColorFactors);
     connect(ui->resultAPASSPushButton, &QPushButton::clicked, this, &ColorPicture::sendColorFactors);
     connect(ui->resultAVGWHITEPushButton, &QPushButton::clicked, this, &ColorPicture::sendColorFactors);
-
     connect(ui->getStatisticsPushButton, &QPushButton::clicked, this, &ColorPicture::on_previewCalibPushButton_clicked);
 
     connect(this, &ColorPicture::messageAvailable, this, &ColorPicture::displayMessage);
-
     connect(this, &ColorPicture::updateNrefStars, this, &ColorPicture::updateNrefStarsReceived);
-
     connect(this, &ColorPicture::addCombinedImage, this, &ColorPicture::addCombinedImageReceived);
 
     ui->tabWidget->setCurrentIndex(0);
 
     resultButtonGroup->setExclusive(true);
-    resultButtonGroup->addButton(ui->resultSDSSPushButton);
     resultButtonGroup->addButton(ui->resultPANSTARRSPushButton);
+    resultButtonGroup->addButton(ui->resultSDSSPushButton);
     resultButtonGroup->addButton(ui->resultAPASSPushButton);
     resultButtonGroup->addButton(ui->resultAVGWHITEPushButton);
 
@@ -102,19 +99,19 @@ ColorPicture::ColorPicture(instrumentDataType *instrumentData, QString main, QWi
     loadPreferences();
 
     // Init queries
+    PANSTARRSquery->refcatName = "PANSTARRS";
     SDSSquery->refcatName = "SDSS";
     APASSquery->refcatName = "APASS";
-    PANSTARRSquery->refcatName = "PANSTARRS";
+    connect(PANSTARRSquery, &Query::messageAvailable, this, &ColorPicture::displayMessage);
     connect(SDSSquery, &Query::messageAvailable, this, &ColorPicture::displayMessage);
     connect(APASSquery, &Query::messageAvailable, this, &ColorPicture::displayMessage);
-    connect(PANSTARRSquery, &Query::messageAvailable, this, &ColorPicture::displayMessage);
 }
 
 ColorPicture::~ColorPicture()
 {
+    delete PANSTARRSquery;
     delete SDSSquery;
     delete APASSquery;
-    delete PANSTARRSquery;
 
     delete ui;
 }
@@ -305,8 +302,8 @@ void ColorPicture::updateCalibFactors()
             maxIndex = i;
         }
     }
-    if (maxIndex == 0) ui->resultSDSSPushButton->setChecked(true);
-    else if (maxIndex == 1) ui->resultPANSTARRSPushButton->setChecked(true);
+    if (maxIndex == 0) ui->resultPANSTARRSPushButton->setChecked(true);
+    else if (maxIndex == 1) ui->resultSDSSPushButton->setChecked(true);
     else if (maxIndex == 2) ui->resultAPASSPushButton->setChecked(true);
     else {
         // Fallback onto AVGWHITE solution
@@ -399,8 +396,8 @@ void ColorPicture::updateBBNBcombine()
 void ColorPicture::toggleCalibResult()
 {
     int i;
-    if (ui->resultSDSSPushButton->isChecked()) i = 0;
-    else if (ui->resultPANSTARRSPushButton->isChecked()) i = 1;
+    if (ui->resultPANSTARRSPushButton->isChecked()) i = 0;
+    else if (ui->resultSDSSPushButton->isChecked()) i = 1;
     else if (ui->resultAPASSPushButton->isChecked()) i = 2;
     else if (ui->resultAVGWHITEPushButton->isChecked()) i = 3;
     else i = 4;
@@ -585,8 +582,8 @@ void ColorPicture::resetResultButtonGroup(QString resetLabels)
     resultButtonGroup->setExclusive(true);
 
     if (!resetLabels.isEmpty()) {
-        ui->numSDSSLabel->setText("? stars");
         ui->numPANSTARRSLabel->setText("? stars");
+        ui->numSDSSLabel->setText("? stars");
         ui->numAPASSLabel->setText("? stars");
         ui->numAVGWHITELabel->setText("? stars");
     }
