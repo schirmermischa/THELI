@@ -889,6 +889,50 @@ QString decimalSecondsToHms(float value)
     return hh+":"+mm+":"+ss;
 }
 
+QString decimalToHms(float value)
+{
+    double h;
+    double m;
+    double s;
+    value /= 15.;
+    value = 60.0 * modf(value, &h);
+    s = 60.0 * modf(value, &m);
+    QString hh;
+    QString mm;
+    QString ss;
+    if (h<10) hh = '0'+QString::number(int(h));
+    else hh = QString::number(int(h));
+    if (m<10) mm = '0'+QString::number(int(m));
+    else mm = QString::number(int(m));
+    ss = QString::number(s, 'f', 3);
+    if (s<10) ss = '0'+ss;
+    return hh+":"+mm+":"+ss;
+}
+
+QString decimalToDms(float value)
+{
+    QString sign = "";
+    if (value < 0.) {
+        value *= -1.;
+        sign = "-";
+    }
+    double d;
+    double m;
+    double s;
+    value = 60.0 * modf(value, &d);
+    s = 60.0 * modf(value, &m);
+    QString dd;
+    QString mm;
+    QString ss;
+    if (d<10) dd = '0'+QString::number(int(d));
+    else dd = QString::number(int(d));
+    if (m<10) mm = '0'+QString::number(int(m));
+    else mm = QString::number(int(m));
+    ss = QString::number(s, 'f', 3);
+    if (s<10) ss = '0'+ss;
+    return sign+dd+":"+mm+":"+ss;
+}
+
 double dateobsToDecimal(QString dateobs)
 {
     // dateobs format: YYYY-MM-DDTHH:MM:SS.sss

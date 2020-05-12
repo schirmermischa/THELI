@@ -454,6 +454,9 @@ QString Query::resolveTarget(QString target)
             QStringList coordList = line.split(' ');
             targetAlpha = coordList[0];
             targetDelta = coordList[1];
+            // Convert to HHMMSS and DDMMSS
+            if (!targetAlpha.contains(":")) targetAlpha = decimalToHms(targetAlpha.toDouble());
+            if (!targetDelta.contains(":")) targetDelta = decimalToDms(targetDelta.toDouble());
             return "Resolved";
         }
     }

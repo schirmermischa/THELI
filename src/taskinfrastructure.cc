@@ -185,7 +185,7 @@ QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList
 
     // Loop over all directories found for the current task
     for (auto &it : goodDirList) {
-        datadir.setPaths(it);
+        if (taskBasename != "ResolveTarget") datadir.setPaths(it);   // triggers  qdebug() message if just resolving a target
         // Now call a consistency check by the function's string representation.
         // The function name is "check_task<taskBasename>()"
         // and it simply updates the 'stop' and 'skip' flags

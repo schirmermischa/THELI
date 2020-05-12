@@ -83,6 +83,8 @@ float meanIterative(QVector<float> data, float kappa, int iterMax);
 QString hmsToDecimal(QString hms);
 QString dmsToDecimal(QString dms);
 QString decimalSecondsToHms(float value);
+QString decimalToHms(float value);
+QString decimalToDms(float value);
 double dateobsToDecimal(QString dateobs);
 QString getLastWord(QString string, const QChar sep);
 QString get2ndLastWord(QString string, const QChar sep);
