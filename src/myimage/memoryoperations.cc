@@ -662,6 +662,14 @@ void MyImage::setDeletable(QString dataX, bool deletable)
 }
 */
 
+void MyImage::releaseMemoryForBackground()
+{
+    if (enteredBackgroundWindow && leftBackgroundWindow) {
+        if (!backupL1OnDrive) writeImageBackupL1();
+        freeData("dataBackupL1");
+        if (minimizeMemoryUsage) freeAll();
+    }
+}
 
 void MyImage::freeAncillaryData(QVector<float> &data)
 {

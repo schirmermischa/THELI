@@ -226,6 +226,8 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
                 // DO NOT UNPROTECT MEMORY HERE (could be needed elsewhere)
             }
 
+            if (mode == "dynamic") it->releaseMemoryForBackground();
+
 #pragma omp atomic
             progress += progressStepSize;
             ++currentExposure;
