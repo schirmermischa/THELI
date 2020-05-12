@@ -483,6 +483,12 @@ void IView::updateCRPIXFITS()
     if (currentMyImage != nullptr) {
         int status = 0;
         if (currentFileName.isEmpty()) currentFileName = currentMyImage->baseName+".fits";
+        // force drive dump if FITS file does not exist yet
+        if (!currentMyImage->imageOnDrive) currentMyImage->writeImage();
+        // Identical way to reconstruct filenames
+        // TODO: uniformize
+//        qDebug() << dirName+"/"+currentMyImage->pathExtension+"/"+currentFileName;
+//        qDebug() << currentMyImage->path+"/"+currentMyImage->chipName+currentMyImage->processingStatus->statusString+".fits";
         fitsfile *fptr = nullptr;
         fits_open_file(&fptr, (dirName+"/"+currentMyImage->pathExtension+"/"+currentFileName).toUtf8().data(), READWRITE, &status);
         fits_update_key_flt(fptr, "CRPIX1", wcs->crpix[0], -5, nullptr, &status);
