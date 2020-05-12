@@ -116,7 +116,7 @@ void dependencyCheck()
     }
 
     if (scamp.isEmpty()) {
-        scampDep = "'Scamp' v2.7.7 or later required (working binary names: 'scamp' or 'Scamp').\nhttps://github.com/astromatic/scamp\n";
+        scampDep = "'Scamp' v2.0.4 or later required (working binary names: 'scamp' or 'Scamp').\nhttps://github.com/astromatic/scamp\n";
         ++missingDep;
     }
     else {
@@ -126,13 +126,13 @@ void dependencyCheck()
         QStringList list = result.split(" ");
         if (list.length() < 3) {
             qDebug() << "WARNING: Unexpected output format when checking Scamp version:" << result;
-            qDebug() << "WARNING: Required version: 2.7.7 or later";
+            qDebug() << "WARNING: Required version: 2.0.4 or later";
         }
         else {
-            // Minimum scamp version required: 2.7.7
+            // Minimum scamp version required: 2.0.4
             int version = list[2].remove('.').toInt();
-            if (version < 277) {
-                scampDep = "'Scamp' v2.7.7 or later required.\nhttps://github.com/astromatic/scamp\nInstalled:  " + result + "\n";
+            if (version < 204) {
+                scampDep = "'Scamp' v2.0.4 or later required.\nhttps://github.com/astromatic/scamp\nInstalled:  " + result + "\n";
                 ++missingDep;
             }
         }
