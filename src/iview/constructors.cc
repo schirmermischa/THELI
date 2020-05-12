@@ -53,6 +53,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QPointF>
 #include <QScrollBar>
 #include <QTimer>
+#include <QScreen>
 
 // using namespace SPLINTER;
 // Various constructors
@@ -577,7 +578,9 @@ void IView::initGUI()
 {
     addDockWidgets();  // Widgets must be alive early on
 
-    QRect rec = QApplication::desktop()->screenGeometry();
+//    QRect rec = QApplication::desktop()->screenGeometry();  // deprecated in Qt5.14
+    QScreen *screen = QGuiApplication::screens().at(0);
+    QRect rec = screen->geometry();
     screenHeight = rec.height();
     screenWidth = rec.width();
 

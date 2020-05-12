@@ -381,7 +381,7 @@ void ConfDockWidget::loadDefaults()
             ui->ASTfocalplaneComboBox->setCurrentIndex(0);
         }
         else {
-            ui->ASTmosaictypeComboBox->setCurrentIndex(3);
+            ui->ASTmosaictypeComboBox->setCurrentIndex(4);
             ui->ASTfocalplaneComboBox->setCurrentIndex(0);
         }
         ui->ASTphotinstrukeyLineEdit->setText("FILTER");
@@ -390,7 +390,7 @@ void ConfDockWidget::loadDefaults()
         ui->ASTpositionLineEdit->setText("2.0");
         ui->ASTresolutionLineEdit->setText("800");
         ui->ASTsnthreshLineEdit->setText("5,20");
-        ui->ASTstabilityComboBox->setCurrentIndex(0);
+        ui->ASTstabilityComboBox->setCurrentIndex(1);
     }
 
     if (sender() == mainGUI->ui->setupProjectResetToolButton || sender() == 0 ||
