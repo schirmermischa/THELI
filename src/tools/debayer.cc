@@ -45,9 +45,12 @@ int direction(float N, float E, float W, float S)
     }
 }
 
-// Qt5 implementation of the PPG (patterened pixel grouping) algorithm developed by Chuan-Kai Lin,
-// originally published at https://sites.google.com/site/chklin/demosaic (URL no longer available).
-// Originally written by Carsten Moos for THELI v2.
+// Qt5 implementation of the PPG (patterened pixel grouping) algorithm by Chuan-Kai Lin,
+// originally published at https://sites.google.com/site/chklin/demosaic. The URL is no longer available
+// but can be found here:
+// https://web.archive.org/web/20160923211135/https://sites.google.com/site/chklin/demosaic/
+// First implementation for THELI v2 by Carsten Moos.
+
 // The input image becomes the R-band channel
 void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage *imageR)
 {
@@ -145,6 +148,10 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
             card.resize(80, ' ');
         }
     }
+
+    /* ====================
+     *  BEGIN PPG algorithm
+    */
 
     // cut all patterns to RGGB
     int xoffset;
@@ -435,6 +442,11 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
             }
         }
     }
+
+    /*
+     *  END PPG algorithm
+     * ==================
+    */
 }
 
 void updateDebayerMemoryStatus(MyImage *image)
