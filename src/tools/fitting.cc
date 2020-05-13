@@ -57,7 +57,7 @@ void Fitting::makePolynomialFit2D(const int order, const QVector<double> x_in, c
     if (lx != ly
             || lx != lz
             || ( lx != lw && lw > 0)) {
-        qDebug() << "QDEBUG: ERROR: Fitting::makePolynomialFit2D(): Inconsistent size of input arrays" << lx << ly << lz << lw;
+        qDebug() << "ERROR: Fitting::makePolynomialFit2D(): Inconsistent size of input arrays" << lx << ly << lz << lw;
         FITSUCCESS = false;
         return;
     }
@@ -72,7 +72,7 @@ void Fitting::makePolynomialFit2D(const int order, const QVector<double> x_in, c
     int P = 2*order + 1;
 
     if (N < P) {
-        qDebug() << "QDEBUG: ERROR: Fitting::makePolynomialFit2D(): Insufficient number of data points (" << N << ") to do a fit of degree" << order;
+        qDebug() << "ERROR: Fitting::makePolynomialFit2D(): Insufficient number of data points (" << N << ") to do a fit of degree" << order;
         FITSUCCESS = false;
         return;
     }

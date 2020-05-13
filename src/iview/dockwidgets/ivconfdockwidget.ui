@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>183</width>
-    <height>683</height>
+    <height>649</height>
    </rect>
   </property>
   <property name="features">
@@ -21,13 +21,6 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="7" column="0">
-     <widget class="QPushButton" name="waveletPushButton">
-      <property name="text">
-       <string>WaveLet</string>
-      </property>
-     </widget>
-    </item>
     <item row="4" column="0" colspan="2">
      <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0">
@@ -569,7 +562,7 @@
       </property>
      </spacer>
     </item>
-    <item row="9" column="1">
+    <item row="8" column="1">
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -2629,7 +2622,7 @@
       </property>
      </spacer>
     </item>
-    <item row="8" column="0">
+    <item row="7" column="0">
      <widget class="QPushButton" name="quitPushButton">
       <property name="statusTip">
        <string>Cloes iView, all changes to images will be saved.</string>
@@ -2639,7 +2632,7 @@
       </property>
      </widget>
     </item>
-    <item row="8" column="1">
+    <item row="7" column="1">
      <spacer name="horizontalSpacer">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>

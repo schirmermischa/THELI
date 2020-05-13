@@ -31,7 +31,7 @@ void addRegionFilesToWeight(long n, long m, QString regionFile, QVector<float> &
 void region2circle(QString circlestring, float &x, float &y, float &r);
 
 /*
-Polygon tester (pnpoly)
+Polygon tester (pnpoly), implemented in pnpoly_T() below
 
 Copyright (c) 1970-2003, Wm. Randolph Franklin
 

@@ -45,8 +45,9 @@ int direction(float N, float E, float W, float S)
     }
 }
 
-// Thx @Carsten Moos for initial coding.
-// PPG algorithm, https://sites.google.com/site/chklin/demosaic  (Chuan-Kai Lin)
+// Qt5 implementation of the PPG (patterened pixel grouping) algorithm developed by Chuan-Kai Lin,
+// originally published at https://sites.google.com/site/chklin/demosaic (URL no longer available).
+// Originally written by Carsten Moos for THELI v2.
 // The input image becomes the R-band channel
 void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage *imageR)
 {
@@ -57,7 +58,7 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
          && pattern != "GRBG"
          && pattern != "GBRG"
          && pattern != "BGGR") {
-        qDebug() << "Tools:: debayer(): Bayer pattern not recognised. Nothing will be done.\n";
+        qDebug() << "Tools::debayer(): Bayer pattern not recognised. Nothing will be done.\n";
         image->successProcessing = false;
         return;
     }

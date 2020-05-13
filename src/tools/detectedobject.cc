@@ -17,7 +17,8 @@ along with this program in the LICENSE file.
 If not, see https://www.gnu.org/licenses/ .
 */
 
-// This program mimics Source Extractor measurements
+// THELI internal source detection, using the definitions and nomenclature from
+// https://sextractor.readthedocs.io/en/latest/index.html
 
 #include "detectedobject.h"
 

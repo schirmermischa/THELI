@@ -52,23 +52,6 @@ AbsZeroPoint::AbsZeroPoint(QString image, instrumentDataType *instrumentData, QW
         ui->zpImageLineEdit->setText(startImage);
     }
 
-    //  for testing purposes
-    /*
-    ui->zpImageLineEdit->setText("/data1/tim_0101.A-0892/SPT-CLJ2259-6057/coadd_Ks/coadd.fits");
-    ui->zpRefcatComboBox->setCurrentText("2MASS");
-    ui->zpFitOrderSpinBox->setValue(3);
-    ui->zpSaturationLineEdit->setText("5000");
-    */
-
-    /*
-    ui->zpImageLineEdit->setText("/data1/TESTDATA/ST10new/JACOBY/coadd_OIII/coadd.fits");
-    ui->zpRefcatComboBox->setCurrentText("PANSTARRS");
-    ui->zpFitOrderSpinBox->setValue(1);
-    ui->zpSaturationLineEdit->setText("30");
-    ui->zpDTLineEdit->setText("20");
-    ui->zpDMINLineEdit->setText("20");
-    */
-
     performingStartup = false;
 
     connect(this, &AbsZeroPoint::messageAvailable, this, &AbsZeroPoint::displayMessage);

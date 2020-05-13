@@ -59,7 +59,7 @@ QStringList datadir2StringList(QLineEdit *lineEdit)
 QString get_fileparameter(QFile *file, QString parametername, QString warn)
 {
     if(!file->open(QIODevice::ReadOnly)) {
-        qDebug() << "QDEBUG:: get_fileparameter: "+file->fileName()+" "+file->errorString();
+        qDebug() << "get_fileparameter: "+file->fileName()+" "+file->errorString();
         return "";
     }
 
@@ -86,7 +86,7 @@ QString get_fileparameter(QFile *file, QString parametername, QString warn)
 QString get_fileHeaderParameter(QFile *file, QString parametername)
 {
     if(!file->open(QIODevice::ReadOnly)) {
-        qDebug() << "QDEBUG:: get_fileparameter: "+file->fileName()+" "+file->errorString();
+        qDebug() << "get_fileparameter: "+file->fileName()+" "+file->errorString();
         return "";
     }
 
@@ -777,7 +777,7 @@ bool moveFiles(QString filter, QString sourceDirName, QString targetDirName)
     QDir dir1(sourceDirName);
     QDir dir2(targetDirName);
     if (!dir1.exists() || !dir2.exists()) {
-        qDebug() << "QDEBUG: ERROR: moveFiles(): One or both of these directories does not exist:" << dir1 << dir2;
+        qDebug() << "ERROR: moveFiles(): One or both of these directories does not exist:" << dir1 << dir2;
         return false;
     }
     QStringList filterList(filter);
@@ -939,7 +939,7 @@ double dateobsToDecimal(QString dateobs)
     if (!dateobs.contains("T")
             || !dateobs.contains(":")
             || !dateobs.contains("-")) {
-        qDebug() << "QDEBUG: ERROR: dateobsToDecimal(): DATE-OBS string " << dateobs << "does not have YYYY-MM-DDTHH:MM:SS.sss format!";
+        qDebug() << "ERROR: dateobsToDecimal(): DATE-OBS string " << dateobs << "does not have YYYY-MM-DDTHH:MM:SS.sss format!";
         return 0.;
     }
     QStringList list = dateobs.split("T");
@@ -949,7 +949,7 @@ double dateobsToDecimal(QString dateobs)
     QStringList timelist = time.split(":");
     if (datelist.length() != 3
             || timelist.length() != 3) {
-        qDebug() << "QDEBUG: ERROR: dateobsToDecimal(): DATE-OBS string " << dateobs << "does not have YYYY-MM-DDTHH:MM:SS.sss format!";
+        qDebug() << "ERROR: dateobsToDecimal(): DATE-OBS string " << dateobs << "does not have YYYY-MM-DDTHH:MM:SS.sss format!";
         return 0.;
     }
     double year = datelist[0].toDouble();
@@ -1001,7 +1001,7 @@ QVector<float> modeMask(QVector<float> &data, QString mode, const QVector<bool> 
     long n = data.length();
     if (n == 0) return sky << 0. << -1.;
     if (!mask.isEmpty() && n != mask.length()) {
-        qDebug() << "QDEBUG: ERROR: modeMask: Mask is not empty but has different size than data vector." << n << mask.length();
+        qDebug() << "ERROR: modeMask: Mask is not empty but has different size than data vector." << n << mask.length();
         return sky << 0. << -1.;
     }
 
@@ -1108,13 +1108,13 @@ QVector<long> modeMask_buildHistogram(QVector<float> &data, float &rescale, cons
     if (width < 3) width = 3;
 
     //    if (histogram[20] == 0 && histogram[21] == 0 && histogram[22] == 0 && histogram[23] == 0) {
-    //        qDebug() << "AAAAAAAAAAA" << data;
+    //        qDebug() << data;
     //        qDebug() << histogram;
     //    }
     if (smooth) smooth_array_T(histogram, width);
     //    if (histogram[20] == 0 && histogram[21] == 0 && histogram[22] == 0 && histogram[23] == 0) {
     //        qDebug() << " ";
-    //        qDebug() << "BBBBBBBBBBB" << data;
+    //        qDebug() << data;
     //        qDebug() << histogram;
     //    }
 
@@ -1196,7 +1196,7 @@ void modeMask_stable(const QVector<long> histogram, float &skyValue)
     }
     */
     if (cutOn == cutOff) {
-        qDebug() << "QDEBUG: functions:modeMask_stable():  Error determining 50% cut-on and cut-off values for image statistics. Using middle quantile.";
+        qDebug() << "modeMask_stable():  Error determining 50% cut-on and cut-off values for image statistics. Using middle quantile.";
         cutOn = 0.25*numBins;
         cutOff = 0.75*numBins;
     }

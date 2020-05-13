@@ -29,13 +29,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "dockwidgets/ivscampdockwidget.h"
 #include "dockwidgets/ivcolordockwidget.h"
 
-#include "wavelet/wavelet.h"
-//#include "tinysplinecpp.h"
 #include "../tools/tools.h"
-
-// #include <SPLINTER/data_table.h>
-// #include <SPLINTER/bspline_builders.h>
-// #include <SPLINTER/bspline.h>
 
 #include "fitsio2.h"
 
@@ -55,7 +49,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QTimer>
 #include <QScreen>
 
-// using namespace SPLINTER;
 // Various constructors
 
 // Open the window without loading an image

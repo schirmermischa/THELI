@@ -58,8 +58,6 @@ SOURCES += \
     iview/mygraphicsellipseitem.cc \
     iview/mygraphicsscene.cc \
     iview/mygraphicsview.cc \
-    iview/wavelet/filtercoeffs.cc \
-    iview/wavelet/wavelet.cc \
     mainwindow.cc \
     myimage/astrometrynet.cc \
     myimage/background.cc \
@@ -108,6 +106,7 @@ SOURCES += \
     threading/mainguiworker.cc \
     threading/memoryworker.cc \
     threading/scampworker.cc \
+    threading/sourceextractorworker.cc \
     threading/swarpworker.cc \
     threading/worker.cc \
     threading/anetworker.cc \
@@ -132,11 +131,9 @@ SOURCES += \
     tools/swarpfilter.cc \
     tools/tools.cc \
     tools/xcorr.cc \
-    validators.cc \
-    threading/sourceextractorworker.cc
+    validators.cc
 
 HEADERS += \
-        mainwindow.h \
     abszp/absphot.h \
     abszp/abszeropoint.h \
     colorpicture/colorpicture.h \
@@ -158,7 +155,7 @@ HEADERS += \
     iview/mygraphicsellipseitem.h \
     iview/mygraphicsscene.h \
     iview/mygraphicsview.h \
-    iview/wavelet/wavelet.h \
+    mainwindow.h \
     myimage/myimage.h \
     preferences.h \
     processingExternal/errordialog.h \
@@ -169,16 +166,20 @@ HEADERS += \
     processingStatus/processingStatus.h \
     qcustomplot.h \
     query/query.h \
+    readmes/acknowledging.h \
     readmes/imstatsreadme.h \
+    readmes/license.h \
     readmes/multidirreadme.h \
     readmes/scampreadme.h \
     readmes/swarpreadme.h \
     status.h \
     threading/abszpworker.h \
+    threading/anetworker.h \
     threading/colorpictureworker.h \
     threading/mainguiworker.h \
     threading/memoryworker.h \
     threading/scampworker.h \
+    threading/sourceextractorworker.h \
     threading/swarpworker.h \
     threading/worker.h \
     tools/cfitsioerrorcodes.h \
@@ -190,14 +191,10 @@ HEADERS += \
     tools/fitting.h \
     tools/imagequality.h \
     tools/polygon.h \
+    tools/ram.h \
     tools/splitter.h \
     tools/swarpfilter.h \
-    tools/tools.h \
-    readmes/license.h \
-    readmes/acknowledging.h \
-    threading/anetworker.h \
-    tools/ram.h \
-    threading/sourceextractorworker.h
+    tools/tools.h
 
 FORMS += \
         mainwindow.ui \
@@ -212,6 +209,7 @@ FORMS += \
     iview/dockwidgets/ivconfdockwidget.ui \
     iview/dockwidgets/ivscampdockwidget.ui \
     iview/dockwidgets/ivcolordockwidget.ui \
+    iview/dockwidgets/ivwcsdockwidget.ui \
     preferences.ui \
     processingExternal/errordialog.ui \
     readmes/imstatsreadme.ui \
@@ -219,8 +217,7 @@ FORMS += \
     readmes/scampreadme.ui \
     readmes/swarpreadme.ui \
     readmes/license.ui \
-    readmes/acknowledging.ui \
-    iview/dockwidgets/ivwcsdockwidget.ui
+    readmes/acknowledging.ui
 
 RESOURCES = resources.qrc
 
@@ -250,9 +247,6 @@ QMAKE_CXXFLAGS += -Wno-unused
 QMAKE_CXXFLAGS += -O3
 
 QMAKE_LFLAGS  +=  -fopenmp
-
-# INCLUDEPATH += /usr/local/include/SPLINTER/
-# LIBS += -lcfitsio -lcurl -lpthread -lfftw3_omp -lfftw3 -lsplinter-4-0 -lm -lgsl -lgslcblas
 
 INCLUDEPATH += /usr/include/wcslib/
 INCLUDEPATH += /usr/local/include/wcslib/

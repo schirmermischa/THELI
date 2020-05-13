@@ -37,17 +37,17 @@ DataDir::DataDir()
 void DataDir::setPaths(QString data, QString main)
 {
     if (data.isEmpty()) {
-        qDebug() << "QDEBUG: DataDir: sub-directory cannot be an empty string!";
+        qDebug() << "DataDir::setPaths(): sub-directory cannot be an empty string!";
         return;
     }
     if (!main.isEmpty()) {
         QDir maindir(main);
         if (!maindir.exists()) {
-            qDebug() << "QDEBUG: DataDir: main directory does not exist!";
+            qDebug() << "DataDir::setPaths(): main directory does not exist!";
             return;
         }
         if (!maindir.isAbsolute()) {
-            qDebug() << "QDEBUG: DataDir: main directory must be absolute!";
+            qDebug() << "DataDir::setPaths(): main directory must be absolute!";
             return;
         }
     }

@@ -21,10 +21,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../functions.h"
 #include "myimage.h"
 
-// #include <SPLINTER/data_table.h>
-// #include <SPLINTER/bspline_builders.h>
-// #include <SPLINTER/bspline.h>
-
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_interp2d.h>
 #include <gsl/gsl_spline2d.h>
@@ -72,8 +68,6 @@ void MyImage::backgroundModel(int filtersize, QString splinemode)
     // Do the spline fit
     fitBackgroundGSL();
 
-    // fitBackgroundSPLINTER();   // slow!!!
-
     backgroundModelDone = true;
 }
 
@@ -87,80 +81,6 @@ void MyImage::getMeanBackground()
     }
     meanExposureBackground = skysum / (naxis1*naxis2);
 }
-
-/*
-void MyImage::fitBackgroundSPLINTER()
-{
-    // Using the SPLINTER library (v0.4)
-
-    // Add grid points and values to the splinter data table
-    SPLINTER::DataTable sample;
-    for (long i=0; i<nGridPoints; ++i) {
-        vector<double> gridPoint;
-        gridPoint.push_back(double(grid[0][i]));
-        gridPoint.push_back(double(grid[1][i]));
-        SPLINTER::DataPoint dataPoint(gridPoint, backStatsGrid[i]);
-        sample.add_sample(dataPoint);
-    }
-
-    // Quadratic B-spline (could easily make it cubic if needed, 2->3, but execution time is longer)
-    // Cannot just declare SPLINTER::BSpline bspline in SPLINTER v0.4dev.
-    // Hence the explicit declarations and for loop inside the following if-else construct
-    dataBackground.clear();
-    dataBackground.resize(naxis1*naxis2);
-    if (splineMode == "interpolate") {
-        SPLINTER::BSpline bspline = SPLINTER::bspline_interpolator(sample, 2);
-        // Evaluate b-spline (remove padding at the same time)
-        for (long j=pad_b; j<m_pad-pad_t; ++j) {
-            for (long i=pad_l; i<n_pad-pad_r; ++i) {
-                vector<double> gridPoint;
-                gridPoint.push_back(double(i));
-                gridPoint.push_back(double(j));
-                dataBackground[i-pad_l+naxis1*(j-pad_b)] = bspline.eval(gridPoint)[0];
-            }
-        }
-    }
-    else {
-        // splineMode = "smooth"
-        SPLINTER::BSpline bspline = SPLINTER::bspline_smoother(sample, 2, SPLINTER::BSpline::Smoothing::PSPLINE, 10);
-        // Evaluate b-spline (remove padding at the same time)
-        for (long j=pad_b; j<m_pad-pad_t; ++j) {
-            for (long i=pad_l; i<n_pad-pad_r; ++i) {
-                vector<double> gridPoint;
-                gridPoint.push_back(double(i));
-                gridPoint.push_back(double(j));
-                dataBackground[i-pad_l+naxis1*(j-pad_b)] = bspline.eval(gridPoint)[0];
-            }
-        }
-    }
-
-    // TINYSPLINE implementation, works, but eval() is much slower
-    //
-    // Populate the control points and setup the spline
-    tinyspline::BSpline spline(nGridPoints, 3, 3, TS_CLAMPED);
-    vector<tinyspline::real> controlPoints = spline.controlPoints();
-    long ipoint = 0;
-    for (long j=0; j<m_grid; ++j) {
-        for (long i=0; i<=n_grid; ++i) {
-            controlPoints[ipoint++] = i;
-            controlPoints[ipoint++] = j;
-            controlPoints[ipoint++] = backStatsGrid[i+ngrid*j];
-        }
-    }
-    spline.setControlPoints(controlPoints);
-
-    // Evaluate the spline at all pixels (remove padding at the same time)
-    backgroundModel.clear();
-    backgroundModel.resize(naxis1*naxis2);
-    for (long j=pad_b; j<m_pad-pad_t; ++j) {
-        for (long i=pad_l; i<n_pad-pad_r; ++i) {
-            tinyspline::real u = (i+n_pad*j) / (n_pad*m_pad);
-            backgroundModel[i-pad_l+n*(j-pad_b)] = spline.eval(u).result()[1];
-        }
-    }
-    //
-}
-*/
 
 void MyImage::fitBackgroundGSL()
 {

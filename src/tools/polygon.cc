@@ -223,7 +223,7 @@ void addRegionFilesToMask(long n, long m, QString regionFile, QVector<bool> &mas
     QFile file(regionFile);
     if (!file.exists()) return;
     if ( !file.open(QIODevice::ReadOnly)) {
-        qDebug() << "QDEBUG: polygon::addRegionFilesToWeight: could not open "+regionFile;
+        qDebug() << "polygon::addRegionFilesToWeight: could not open "+regionFile;
         return;
     }
 

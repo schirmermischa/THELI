@@ -36,7 +36,6 @@ IvConfDockWidget::~IvConfDockWidget()
 
 void IvConfDockWidget::switchMode(QString mode)
 {
-    ui->waveletPushButton->hide();
     if (mode == "FITSmonochrome" || mode == "MEMview") {
         ui->valueGreenLabel->hide();
         ui->valueBlueLabel->hide();

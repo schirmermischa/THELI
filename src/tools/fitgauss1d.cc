@@ -29,9 +29,12 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QDebug>
 #include <QVector>
 
-// A Levenberg-Markquardt solver with geodesic acceleration, adapted from a GSL example
+// A Levenberg-Markquardt solver with geodesic acceleration, see e.g.
+// https://www.gnu.org/software/gsl/doc/html/nls.html#examples
 
 // WARNING: for some reason this does not work. It returns the initial values, only!
+
+// UNUSED, kept for reference
 
 // model function: a * exp( -1/2 * [ (t - b) / c ]^2 )
 double gaussian(const double a, const double b, const double c, const double t)
