@@ -105,6 +105,8 @@ void Splitter::importRAW()
     cameraTemp = P2.CameraTemperature;
     isoSpeed = QString::number(int(P2.iso_speed));
 
+    // From RAW data (unreliable, because of potential trimming)
+    /*
     bayerPattern = "";
     if (P1.filters) {
         if (!P1.cdesc[3]) P1.cdesc[3] = 'G';
@@ -112,6 +114,10 @@ void Splitter::importRAW()
             bayerPattern.append(P1.cdesc[rawProcessor.fcol(i >> 1, i & 1)]);
         }
     }
+    */
+
+    // Rather, take user-defined setup
+    bayerPattern = instData.bayer;
 }
 
 // UNUSED
