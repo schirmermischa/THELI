@@ -227,11 +227,7 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
             }
 
 //            if (mode == "dynamic") it->releaseMemoryForBackground();
-            if (mode == "dynamic") {
-                it->dataBackground_deletable = true;
-                it->dataBackupL1_deletable = true;
-                if (minimizeMemoryUsage) it->freeAll();
-            }
+            if (mode == "dynamic") scienceData->unprotectMemoryForBackground(chip);
 
 #pragma omp atomic
             progress += progressStepSize;

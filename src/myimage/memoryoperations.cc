@@ -675,6 +675,8 @@ void MyImage::unprotectMemoryForBackground()
 {
     if (enteredBackgroundWindow && leftBackgroundWindow) {
         dataBackupL1_deletable = true;
+        dataBackground_deletable = true;
+        if (minimizeMemoryUsage) freeAll();        // implies that we write the FITS image before calling this function!
     }
 }
 

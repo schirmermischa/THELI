@@ -228,6 +228,7 @@ public:
     void resetBackupInfo();
     void removeCatalogs();
     bool doesCoaddContainRaDec(const QString &refRA, const QString &refDEC);
+    void unprotectMemoryForBackground(int chip);
 public slots:
     void setMemoryLockReceived(bool locked);
     void setWCSLockReceived(bool locked);

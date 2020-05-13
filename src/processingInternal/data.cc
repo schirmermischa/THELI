@@ -1459,6 +1459,13 @@ void Data::unprotectMemory(int chip)
     }
 }
 
+void Data::unprotectMemoryForBackground(int chip)
+{
+    for (auto &it : myImageList[chip]) {
+        it->unprotectMemoryForBackground();
+    }
+}
+
 float Data::releaseMemory(float RAMneededThisThread, float RAMneededAllThreads, float currentTotalMemoryUsed, QString mode)
 {
     // Return if we have enough RAM available
