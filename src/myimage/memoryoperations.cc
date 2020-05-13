@@ -671,6 +671,13 @@ void MyImage::releaseMemoryForBackground()
     }
 }
 
+void MyImage::unprotectMemoryForBackground()
+{
+    if (enteredBackgroundWindow && leftBackgroundWindow) {
+        dataBackupL1_deletable = true;
+    }
+}
+
 void MyImage::freeAncillaryData(QVector<float> &data)
 {
     QVector<float>().swap(data);

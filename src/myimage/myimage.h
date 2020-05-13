@@ -473,6 +473,7 @@ public:
     bool informSwarpfilter(long &naxis1, long &naxis2, double &crpix1, double &crpix2, double &sky, double &fluxscale);
     void readImage(QString loadFileName);
     void releaseMemoryForBackground();
+    void unprotectMemoryForBackground();
 signals:
     void modelUpdateNeeded(QString baseName, QString chipName);
     void messageAvailable(QString message, QString type);
