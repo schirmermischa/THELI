@@ -30,7 +30,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QMetaObject>
 #include <QVector>
 #include <QStringList>
-#include <QSettings>
+// #include <QSettings>
 #include <QProcess>
 #include <QStandardPaths>
 
@@ -39,9 +39,9 @@ Query::Query(int *verbose)
     // Initialization
     initEnvironment(thelidir, userdir);
 
-    QSettings settings("THELI", "PREFERENCES");
-    QString server = settings.value("prefServerComboBox").toString();
-    downloadServer = translateServer(server);
+//    QSettings settings("THELI", "PREFERENCES");
+//    QString server = settings.value("prefServerComboBox").toString();
+//    downloadServer = translateServer(server);
 
     pythonExecutable = findExecutableName("python");
 

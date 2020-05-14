@@ -137,7 +137,7 @@ private:
     double epoch = 0;
     double epochReference = 2015.5;      // Reference epoch for GAIA-DR2. WARNING: might change with newer GAIA releases!
 
-    QString downloadServer = "";
+//    QString downloadServer = "";
     QString queryCommand = "";
     QByteArray byteArray;
 

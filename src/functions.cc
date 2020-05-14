@@ -82,6 +82,7 @@ QString get_fileparameter(QFile *file, QString parametername, QString warn)
     return "";
 }
 
+/*
 // same as above, but for .head files with additional (undesired) comment strings, and a card length of 8 chars
 QString get_fileHeaderParameter(QFile *file, QString parametername)
 {
@@ -114,6 +115,7 @@ QString get_fileHeaderParameter(QFile *file, QString parametername)
 
     return "";
 }
+*/
 
 QString sanityCheckWCS(wcsprm *wcs)
 {
@@ -142,6 +144,7 @@ QString sanityCheckWCS(wcsprm *wcs)
     return "";
 }
 
+/*
 void listSwapLastPairs(QStringList &stringlist, int n)
 {
     // At some point during creation of the commandList, we need to swap pairs
@@ -178,7 +181,9 @@ void listSwapLastPairs(QStringList &stringlist, int n)
         stringlist.swap(l7,l3);
     }
 }
+*/
 
+/*
 QString translateServer(QString downloadServer)
 {
     QString server;
@@ -192,6 +197,7 @@ QString translateServer(QString downloadServer)
     else server = "vizieridia.saao.ac.za";
     return server;
 }
+*/
 
 void selectFirstActiveItem(QComboBox *cb)
 {
@@ -202,24 +208,6 @@ void selectFirstActiveItem(QComboBox *cb)
         if (model->item(i,0)->isEnabled()) cb->setCurrentIndex(i);
         break;
     }
-}
-
-QString countReferenceSources(QString catalog)
-{
-    QString execstr = "gawk 'END {if ($1~/---/ || $1~/ /) print 0; else print $1}' ";
-    execstr.append(catalog);
-    QString numstars = read_system_command(execstr);
-    QString messageString;
-    if (numstars.toInt() > 0)
-        messageString = numstars+" reference sources retrieved.";
-    else {
-        messageString = "WARNING: No reference sources retrieved!\n"
-                        "-- try a different download server\n"
-                        "-- try a different catalog\n"
-                        "-- check your internet connection\n"
-                        "-- adjust mag limit and radius";
-    }
-    return messageString;
 }
 
 long numFilesDir(QString path, QString filter)
@@ -238,6 +226,7 @@ long numFilesDir(QString path, QString filter)
     return numFiles;
 }
 
+/*
 // Get the first vector entry from a parameter in the camera.ini files
 QString get_fileparameter_vector(QFile *file, QString parametername, QString warn)
 {
@@ -266,7 +255,9 @@ QString get_fileparameter_vector(QFile *file, QString parametername, QString war
     }
     return "";
 }
+*/
 
+/*
 // Get the full vector entry from a parameter in the camera.ini files
 // THE FILE IS OPENED / CLOSED EXTERNALLY to avoid repeated file handle operations
 // NOTE: already subtracting -1 to make it conform with C++ indexing
@@ -290,6 +281,7 @@ QVector<int> get_fileparameter_FullVector(QFile *file, QString parametername)
     // Return empty vector if nothing found.
     return result;
 }
+*/
 
 void showLogfile(QString logname, QString line)
 {
@@ -416,6 +408,7 @@ long remainingDataDriveSpace(QString maindir)
     return long(GBfree_data);
 }
 
+/*
 // Execute a shell command, ignore output;
 // If you want to send it to the background and return immediately, append "&" to shell_command
 void exec_system_command(QString shell_command)
@@ -424,6 +417,7 @@ void exec_system_command(QString shell_command)
     process.start("/bin/sh -c \""+shell_command+"\"");
     process.waitForFinished(-1);
 }
+*/
 
 // Execute a shell command, and retrieve single line output
 QString read_system_command(QString shell_command)
@@ -435,6 +429,7 @@ QString read_system_command(QString shell_command)
     return result;
 }
 
+/*
 // Execute a shell command, and retrieve multiple line output
 QString read_MultipleLines_system_command(QString shell_command)
 {
@@ -445,6 +440,7 @@ QString read_MultipleLines_system_command(QString shell_command)
     QString result = QString::fromStdString(ba.toStdString());
     return result;
 }
+*/
 
 void initEnvironment(QString &thelidir, QString &userdir)
 {
@@ -580,6 +576,7 @@ long get_memory()
     return memory.toLong();
 }
 
+/*
 bool listContains(QStringList stringList, QString string)
 {
     bool test = false;
@@ -588,6 +585,7 @@ bool listContains(QStringList stringList, QString string)
     }
     return test;
 }
+*/
 
 QString removeLastWords(QString string, int n, const QChar sep)
 {

@@ -543,6 +543,7 @@ float MyImage::freeData(QString type)
         // TODO / CHECK: comment these if causing problems
         dataBackground.clear();
         dataBackground.squeeze();
+        backgroundModelDone = false;
         released = true;
     }
     else if (type == "dataBackupL1" && dataBackupL1_deletable && dataBackupL1.capacity() > 0) {
@@ -586,6 +587,7 @@ float MyImage::freeData(QString type)
         if (dataBackground.capacity() > 0) {
             dataBackground.clear();
             dataBackground.squeeze();
+            backgroundModelDone = false;
         }
         if (dataBackupL1.capacity() > 0) {
             dataBackupL1.clear();

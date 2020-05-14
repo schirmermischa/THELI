@@ -63,6 +63,13 @@ void MyImage::initWeightfromGlobalWeight(const QList<MyImage*> &gwList)
     // Load the matching global weight
     bool loadSuccess = false;
     for (auto &gw: gwList) {
+        if (gw->filter == filter && filter == "RGB") {
+            emit messageAvailable("MyImage::initWeightFromGlobalWeight(): You must first apply the flatfield to the science data!", "error");
+            emit critical();
+            successProcessing = false;
+            loadSuccess = false;
+            break;
+        }
         if (gw->filter == filter) {
             if (!gw->imageInMemory) {
 //                gw->lockForInitWCSneeded = false;
@@ -77,6 +84,12 @@ void MyImage::initWeightfromGlobalWeight(const QList<MyImage*> &gwList)
     }
     if (!loadSuccess) {
         emit messageAvailable(chipName + " : MyImage::initWeightFromGlobalWeight(): Did not find the globalweight for filter " + filter, "error");
+        emit critical();
+        successProcessing = false;
+    }
+    // An oddball, not sure that will ever happen
+    if (loadSuccess && dataWeight.length() != dataCurrent.length()) {
+        emit messageAvailable(chipName + " : MyImage::initWeightFromGlobalWeight(): weight and science image do not have the same size!", "error");
         emit critical();
         successProcessing = false;
     }

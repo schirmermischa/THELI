@@ -112,7 +112,7 @@ void MyImage::fitBackgroundGSL()
     // interpolate; remove padding at the same time
     dataBackground.clear();
     dataBackground.resize(naxis1*naxis2);
-//    dataBackground.squeeze();             //deactivated; causes random crash I don't understand
+//    dataBackground.squeeze();             // deactivated; causes random crash I don't understand (perhaps not anymore after reading memory directly from /proc/meminfo
     for (long j=pad_b; j<m_pad-pad_t; ++j) {
         double y = double(j);
         for (long i=pad_l; i<n_pad-pad_r; ++i) {
