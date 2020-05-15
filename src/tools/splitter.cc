@@ -322,7 +322,7 @@ void Splitter::extractImagesFITS()
                 convertToElectrons(chipMapped);
                 applyMask(chipMapped);
                 writeImage(chipMapped);
-                //       initMyImage(chip);
+//                initMyImage(chip);
             }
 
             // Cube
@@ -766,21 +766,21 @@ void Splitter::writeImage(int chipMapped)
     baseName.replace(' ','_');
 
     // Output file name
-    QString outName = "!"+path+"/"+baseName+"_"+QString::number(chipID)+"P.fits";
+    splitFileName = "!"+path+"/"+baseName+"_"+QString::number(chipID)+"P.fits";
     // If renaming active, and dateobs was determined successfully
     if (cdw->ui->theliRenamingCheckBox->isChecked() && dateObsValue != "2020-01-01T00:00:00.000") {
         if (dataFormat == "RAW" || !instData.bayer.isEmpty()) {
             // No filter name for bayer matrix images
-            outName = "!"+path+"/"+instData.shortName+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
+            splitFileName = "!"+path+"/"+instData.shortName+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
         }
         else {
             // general case
-            outName = "!"+path+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
+            splitFileName = "!"+path+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
             // special cases (overrides outName)
-            individualFixOutName(outName, chipID);
+            individualFixOutName(chipID);
         }
     }
-    fits_create_file(&fptr, outName.toUtf8().data(), &status);
+    fits_create_file(&fptr, splitFileName.toUtf8().data(), &status);
     fits_create_img(fptr, FLOAT_IMG, naxis, naxes, &status);
     fits_write_img(fptr, TFLOAT, fpixel, nelements, array, &status);
 
@@ -795,7 +795,7 @@ void Splitter::writeImage(int chipMapped)
     printCfitsioError("writeImage()", status);
 }
 
-void Splitter::individualFixOutName(QString &outname, const int chipID)
+void Splitter::individualFixOutName(const int chipID)
 {
     bool individualFixDone = false;
     bool test = true;
@@ -826,10 +826,10 @@ void Splitter::individualFixOutName(QString &outname, const int chipID)
                 QString newPath = path+"_"+filter;
                 QDir newDir(newPath);
                 newDir.mkpath(newPath);
-                outname = "!"+newPath+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
+                splitFileName = "!"+newPath+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
             }
             else {
-                outname = "!"+path+"/"+instData.shortName+"."+filter+"."+uniqueID+"_"+QString::number(chipID)+"P.fits";
+                splitFileName = "!"+path+"/"+instData.shortName+"."+filter+"."+uniqueID+"_"+QString::number(chipID)+"P.fits";
             }
         }
     }
@@ -1077,13 +1077,14 @@ void Splitter::initMyImage(int chip)
     data->myImageList[chip].append(myImage);
     if (!data->uniqueChips.contains(chip+1)) data->uniqueChips.push_back(chip+1);
     omp_unset_lock(genericLock);
-    connect(myImage, &MyImage::modelUpdateNeeded, data, &Data::modelUpdateReceiver);
-    connect(myImage, &MyImage::critical, data, &Data::pushCritical);
-    connect(myImage, &MyImage::warning, data, &Data::pushWarning);
-    connect(myImage, &MyImage::messageAvailable, data, &Data::pushMessageAvailable);
-    connect(myImage, &MyImage::setMemoryLock, data, &Data::setMemoryLockReceived, Qt::DirectConnection);
-    connect(myImage, &MyImage::setWCSLock, data, &Data::setWCSLockReceived, Qt::DirectConnection);
-    myImage->emitModelUpdateNeeded();
+//    connect(myImage, &MyImage::modelUpdateNeeded, data, &Data::modelUpdateReceiver);
+//    connect(myImage, &MyImage::critical, data, &Data::pushCritical);
+//    connect(myImage, &MyImage::warning, data, &Data::pushWarning);
+//    connect(myImage, &MyImage::messageAvailable, data, &Data::pushMessageAvailable);
+//    connect(myImage, &MyImage::setMemoryLock, data, &Data::setMemoryLockReceived, Qt::DirectConnection);
+//    connect(myImage, &MyImage::setWCSLock, data, &Data::setWCSLockReceived, Qt::DirectConnection);
+//    myImage->emitModelUpdateNeeded();
+    myImage->readImage(splitFileName.remove("!"));
     ++data->numImages;
 }
 

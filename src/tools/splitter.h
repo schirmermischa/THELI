@@ -53,6 +53,7 @@ public:
     QString xtalkNorAmpString = "";
     QString xtalkRowAmpString = "";
     QString dataType = "";
+    QString splitFileName = "";
     bool doXtalkNor = false;
     bool doXtalkRow = false;
     int xtalkNorMethod = -1;
@@ -258,7 +259,7 @@ private:
 
     bool individualFixGAIN(int chip);
     bool isDetectorAlive(int &chipMapped);
-    void individualFixOutName(QString &outname, const int chipID);
+    void individualFixOutName(const int chipID);
     void applyMask(int chip);
     bool individualFixWriteImage(int chipMapped);
     bool isImageUsable(int &chipMapped);
