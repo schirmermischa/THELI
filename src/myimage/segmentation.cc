@@ -571,6 +571,20 @@ void MyImage::maskExpand(QString expFactor, bool writeObjectmaskImage)
     if (writeObjectmaskImage) writeObjectMask(path + "/" + baseName+".mask.fits");
 }
 
+// not part of the segmentation process, actually
+void MyImage::addExludedRegionToMask(long imin, long imax, long jmin, long jmax)
+{
+    if (imin < 0) imin = 0;
+    if (imax > naxis1 - 1) imax = naxis1 - 1;
+    if (jmin < 0) jmin = 0;
+    if (jmax > naxis2 - 1) jmax = naxis2 - 1;
+    if (jmin == 0)
+    for (long j=jmin; j<=jmax; ++j) {
+        for (long i=imin; i<=imax; ++i) {
+            objectMask[i+naxis2*j] = true;
+        }
+    }
+}
 
 void MyImage::releaseAllDetectionMemory()
 {

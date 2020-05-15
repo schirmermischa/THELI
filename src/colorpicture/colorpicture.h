@@ -169,6 +169,7 @@ private:
     QVector<QVector<double> > getObjectData(MyImage *myImage);
     void updateBBNBcombine();
     void writeG2refcat(const QString refcatName, const QVector<QVector<double> > matchedREFCAT);
+    void writeRGBTIFF(QVector<float> &R, QVector<float> &G, QVector<float> &B, long n, long m, float min, float max, QString path);
 };
 
 

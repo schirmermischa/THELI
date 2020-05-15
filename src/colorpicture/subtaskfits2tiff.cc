@@ -24,6 +24,8 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../query/query.h"
 #include "../tools/cfitsioerrorcodes.h"
 
+#include "tiffio.h"
+
 #include <omp.h>
 #include <QStringList>
 #include <QStringListModel>
@@ -97,4 +99,70 @@ void ColorPicture::taskInternalFits2Tiff()
         myImage->writeImage(myImage->path + "/"+myImage->baseName + "_2tiff.fits");
         emit messageAvailable("TIFF written to " + myImage->path + "/"+myImage->baseName + ".tiff", "info");
     }
+}
+
+// Implementation not finished.
+void ColorPicture::writeRGBTIFF(QVector<float> &R, QVector<float> &G, QVector<float> &B, long n, long m, float min, float max, QString path)
+{
+    emit messageAvailable("Creating RGB.tiff ...", "ignore");
+
+    long dim = n*m;
+
+    // Clipping min and max values
+    QVector<QVector<float>> RGBlist;
+    RGBlist << R << G << B;
+
+#pragma omp parallel for
+    for (int i=0; i<3; ++i) {
+        for (auto &pixel : RGBlist[i]) {
+            if (pixel <= min) pixel = min;
+            if (pixel >= max) pixel = max;
+        }
+    }
+
+    float grey = 0.;  // inactive
+    grey = grey / 100. * 65000.;
+    float blowup = (65000. - grey) / (max - min);
+
+    std::vector< std::vector<long> > imtiff(n);
+    for (long i=0; i<n; ++i) {
+        imtiff[i].resize(m,0);
+    }
+
+#pragma omp parallel for
+    for (int img=0; img<3; ++img) {
+        for (long i=0; i<n; ++i)  {
+            for (long j=0; j<m; ++j)  {
+                RGBlist[img][i+n*j] = blowup * (RGBlist[img][i+n*j] - min) + grey;
+                // flipping TIFF in y dir
+                imtiff[i][m-j-1] = (long) RGBlist[img][i+n*j];
+            }
+        }
+    }
+
+    QString outname = path+"/RGB.tiff";
+    TIFF     *outtiff;             // pointer to the TIFF file, defined in tiffio.h
+    outtiff = TIFFOpen(outname.toUtf8().data(), "w");
+    TIFFSetField(outtiff, TIFFTAG_IMAGEWIDTH, n);
+    TIFFSetField(outtiff, TIFFTAG_IMAGELENGTH, m);
+    TIFFSetField(outtiff, TIFFTAG_COMPRESSION, 1);
+    TIFFSetField(outtiff, TIFFTAG_BITSPERSAMPLE, 16);
+    TIFFSetField(outtiff, TIFFTAG_SAMPLESPERPIXEL, 3);
+    TIFFSetField(outtiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
+    TIFFSetField(outtiff, TIFFTAG_PLANARCONFIG, 1);       // store pixel values as sequential RGB RGB RGB
+    TIFFSetField(outtiff, TIFFTAG_SOFTWARE, "THELI");
+    TIFFSetField(outtiff, TIFFTAG_IMAGEDESCRIPTION, "Created by THELI");
+
+    uint16 *outbuf;
+    uint16 *outb;
+    outbuf = (uint16 *)_TIFFmalloc(TIFFScanlineSize(outtiff));
+    for (long row=0; row<m; ++row) {
+        outb = outbuf;
+        for (long column=0; column<n; ++column) {
+            *outb++ = (uint16) (imtiff[column][row]);
+        }
+        TIFFWriteScanline(outtiff, outbuf, row, 0);
+    }
+    TIFFClose(outtiff);
+    _TIFFfree(outbuf);
 }

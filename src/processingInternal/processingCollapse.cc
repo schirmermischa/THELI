@@ -102,6 +102,15 @@ void Controller::taskInternalCollapse()
 
     doDataFitInRAM(numMyImages*instData->numUsedChips, instData->storage);
 
+    long imin = 0;
+    long imax = 0;
+    long jmin = 0;
+    long jmax = 0;
+    if (!cdw->ui->COCxminLineEdit->text().isEmpty()) imin = cdw->ui->COCxminLineEdit->text().toLong() - 1;
+    if (!cdw->ui->COCxmaxLineEdit->text().isEmpty()) imax = cdw->ui->COCxmaxLineEdit->text().toLong() - 1;
+    if (!cdw->ui->COCyminLineEdit->text().isEmpty()) jmin = cdw->ui->COCyminLineEdit->text().toLong() - 1;
+    if (!cdw->ui->COCymaxLineEdit->text().isEmpty()) jmax = cdw->ui->COCymaxLineEdit->text().toLong() - 1;
+
 #pragma omp parallel for num_threads(maxCPU)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
@@ -124,6 +133,7 @@ void Controller::taskInternalCollapse()
         it->segmentImage(DT, DMIN, true, false);
         it->transferObjectsToMask();
         it->maskExpand(expFactor, false);
+        it->addExludedRegionToMask(imin, imax, jmin, jmax);
         it->collapseCorrection(threshold, direction);
         it->releaseAllDetectionMemory();
         it->releaseBackgroundMemory("entirely");

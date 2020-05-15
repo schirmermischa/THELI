@@ -474,6 +474,7 @@ public:
     void readImage(QString loadFileName);
     void releaseMemoryForBackground();
     void unprotectMemoryForBackground();
+    void addExludedRegionToMask(long imin, long imax, long jmin, long jmax);
 signals:
     void modelUpdateNeeded(QString baseName, QString chipName);
     void messageAvailable(QString message, QString type);

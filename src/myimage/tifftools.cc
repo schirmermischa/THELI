@@ -71,7 +71,7 @@ void MyImage::toTIFF(int bit, float minthresh, float maxthresh, bool zscaleing, 
         blowup = (253. - grey) / (maxthresh - minthresh);
     }
     else {
-        grey = grey / 100. * 65000;
+        grey = grey / 100. * 65000.;
         blowup = (65000. - grey) / (maxthresh - minthresh);
     }
 
