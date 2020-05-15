@@ -281,6 +281,12 @@ void ColorPicture::validate()
     ui->redFactorLineEdit->setValidator( validator );
     ui->filterRatioLineEdit->setValidator( validator );
     ui->narrowbandWeightLineEdit->setValidator( validator );
+    ui->DTLineEdit->setValidator( validator );
+
+    // Positive integer validator
+    QRegExp ri( "^[0-9]+" );
+    QValidator* validator_int_pos = new QRegExpValidator( ri, this );
+    ui->DMINLineEdit->setValidator( validator_int_pos );
 }
 
 

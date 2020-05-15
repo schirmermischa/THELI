@@ -47,6 +47,9 @@ void ColorPicture::on_calibratePushButton_clicked()
     ui->greenErrorLineEdit->setText("0.000");
     ui->blueErrorLineEdit->setText("");
 
+    if (ui->DTLineEdit->text().isEmpty()) ui->DTLineEdit->setText("3.0");
+    if (ui->DMINLineEdit->text().isEmpty()) ui->DMINLineEdit->setText("5.0");
+
     QDir colorCalibDir(mainDir+"/color_theli/PHOTCAT_calibration/");
     if (! colorCalibDir.exists()) {
         if (!colorCalibDir.mkdir(mainDir+"/color_theli/PHOTCAT_calibration/")) {
@@ -319,6 +322,8 @@ void ColorPicture::filterSolarTypeStars(QList<Query*> queryList)
 void ColorPicture::colorCalibSegmentImages()
 {
     // Create object catalogs, get matching tolerance
+    QString DT = ui->DTLineEdit->text();
+    QString DMIN = ui->DMINLineEdit->text();
 #pragma omp parallel for num_threads(maxCPU)
     for (int i=0; i<croppedList.length(); ++i) {
         auto &it = croppedList[i];
@@ -331,7 +336,7 @@ void ColorPicture::colorCalibSegmentImages()
         it->readImage(it->path + "/" +it->name);
         it->readWeight();
         it->backgroundModel(100, "interpolate");
-        it->segmentImage("5", "5", true, false);
+        it->segmentImage(DT, DMIN, true, false);
         it->estimateMatchingTolerance();
         it->releaseBackgroundMemory();
         it->releaseDetectionPixelMemory();
