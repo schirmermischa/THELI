@@ -44,7 +44,7 @@ Controller::Controller(instrumentDataType *instrumentData, QString statusold, Co
                        Monitor *processMonitor, MainWindow *parent) : QMainWindow(parent), cdw(confDockWidget)
 {
     mainGUI = parent;
-//    cdw = confDockWidget;
+    //    cdw = confDockWidget;
     instData = instrumentData;
     statusOld = statusold;
     monitor = processMonitor;
@@ -673,8 +673,10 @@ void Controller::releaseMemory(float RAMneededThisThread, int numThreads, QStrin
             && RAMfreed < currentTotalMemoryUsed - 100                        // 100 is to suppress insignificant warnings
             && RAMneededThisThread > maxRAM - currentTotalMemoryUsed) {
         //            && !swapWarningShown) {
-        emit messageAvailable(QString::number(long(RAMneededThisThread)) + " MB requested, " + QString::number(long(RAMfreed))
-                              + " MB released. Try fewer CPUs to avoid swapping.", "warning");
+        if (verbosity > 1) {
+            emit messageAvailable(QString::number(long(RAMneededThisThread)) + " MB requested, " + QString::number(long(RAMfreed))
+                                  + " MB released. Try fewer CPUs to avoid swapping.", "warning");
+        }
         swapWarningShown = true;
     }
 

@@ -392,6 +392,13 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  6.611e-5";
         individualFixDone = true;
     }
+    if (instData.name.contains("WFI_2x2") && instData.name.contains("MPGESO") ) {
+        cd11_card = "CD1_1   =  -1.322e-4";
+        cd12_card = "CD1_2   =  0.0";
+        cd21_card = "CD2_1   =  0.0";
+        cd22_card = "CD2_2   =  1.322e-4";
+        individualFixDone = true;
+    }
     if (instData.name == "WFC@INT") {
         if (chip == 0) {
             cd11_card = "CD1_1   =  -1.186589131599E-06";
@@ -700,7 +707,7 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 1) chipGain = 3.30;
         individualFixDone = true;
     }
-    else if (instData.name == "WFI@MPGESO") {  // http://www.ls.eso.org:8081/sci/facilities/lasilla/sciops/CCDs/WFI/qc_suite/plots/plot1.png
+    else if (instData.name.contains("WFI") && instData.name.contains("MPGESO")) {  // http://www.ls.eso.org:8081/sci/facilities/lasilla/sciops/CCDs/WFI/qc_suite/plots/plot1.png
         if (chip == 0) chipGain = 1.99;        // Does not have GAIN keywords for all detectors
         if (chip == 1) chipGain = 2.02;
         if (chip == 2) chipGain = 2.29;

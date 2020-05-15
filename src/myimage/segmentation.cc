@@ -628,7 +628,10 @@ void MyImage::writeCatalog(QString minFWHM_string, QString maxFlag_string)
         QTextStream outputStream(&file);
         for (auto &object : objectList) {
             outputStream.setRealNumberPrecision(9);
-            if (3.*object->AWIN >= minFWHM && object->FLAGS <= maxFlag && object->FLUX_AUTO > 0.) {
+            if (3.*object->AWIN >= minFWHM
+                    && object->FLAGS <= maxFlag
+                    && object->FLUX_AUTO > 0.
+                    && object->ELLIPTICITY < 0.6) {
                 // MUST APPLY ORIGIN OFFSET CORRECTION (+1), because calculations were done starting counting at 0 (in FITS files we start at 1)
                 outputStream << object->XWIN + 1. << " "
                              << object->YWIN + 1. << " "

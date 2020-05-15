@@ -120,6 +120,19 @@ void Controller::taskInternalGlobalweight()
     QString defectColTol = cdw->ui->CGWflatcoltolLineEdit->text();
     QString defectClusTol = cdw->ui->CGWflatclustolLineEdit->text();
 
+    if (defectKernel.isEmpty() && (
+                !defectRowTol.isEmpty() || !defectColTol.isEmpty() || !defectClusTol.isEmpty())) {
+        emit messageAvailable("For defect detection, a kernel size must be specified as well!", "error");
+        emit criticalReceived();
+        return;
+    }
+    if (!defectKernel.isEmpty() && (
+                defectRowTol.isEmpty() && defectColTol.isEmpty() && defectClusTol.isEmpty())) {
+        emit messageAvailable("For defect detection, at least one of row, column or cluster tolerance must be specified as well", "error");
+        emit criticalReceived();
+        return;
+    }
+
     progressStepSize = 100./(float(instData->numChips));
 
     float nimg = 6;  // bias, flat, 4 for image detection back, seg, measure, mask)

@@ -1301,7 +1301,7 @@ void Data::detectDefects(int chip, Data *comparisonData, QString filter, bool sa
     }
 
     // Bad cols
-    if (!defectRowTol.isEmpty()) {
+    if (!defectColTol.isEmpty()) {
         QVector<float> row1D = collapse_y(divImage, comparisonData->combinedImage[chip]->globalMask,
                                           comparisonData->combinedImage[chip]->objectMask, kappa, n, m, "1Dmodel");
         for (auto &gw: myImageList[chip]) {
