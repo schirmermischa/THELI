@@ -370,6 +370,7 @@ bool MyImage::scanAstromHeader(int chip, QString mode)
     if (sanityCheckWCS(wcs).isEmpty()) {
         wcs->flag = 0;  // Trigger recomputation
         cornersToRaDec();
+        updateCRVALCDinHeader();
         return true;
     }
     else {
@@ -481,7 +482,7 @@ void MyImage::updateMode()
     }
 }
 
-void MyImage::updateHeaderValue(QString keyName, float keyValue)
+void MyImage::updateHeaderValue(QString keyName, float keyValue, char format)
 {
     if (!successProcessing) return;
 
@@ -489,7 +490,31 @@ void MyImage::updateHeaderValue(QString keyName, float keyValue)
     card.resize(8, ' ');
     card.append("= ");
     QString keyword = card;
-    card.append(QString::number(keyValue));
+    card.append(QString::number(keyValue, format, 6));
+    card.resize(80, ' ');
+    if (!header.contains(keyword) && !header.isEmpty()) {
+        header.insert(header.end()-1, card);
+    }
+    else {
+        for (auto &existingCard : header) {
+            if (existingCard.contains(keyword)) {
+                // Replace old entry
+                existingCard = card;
+                break;
+            }
+        }
+    }
+}
+
+void MyImage::updateHeaderValue(QString keyName, double keyValue, char format)
+{
+    if (!successProcessing) return;
+
+    QString card = keyName;
+    card.resize(8, ' ');
+    card.append("= ");
+    QString keyword = card;
+    card.append(QString::number(keyValue, format, 12));
     card.resize(80, ' ');
     if (!header.contains(keyword) && !header.isEmpty()) {
         header.insert(header.end()-1, card);
@@ -624,15 +649,16 @@ void MyImage::updateKeywordInHeader(QString key, QString value)
 }
 
 // Here, 'biasData' may also refer to a dark or flatoff image
-void MyImage::subtractBias(MyImage *biasImage, QString dataType)
+//void MyImage::subtractBias(MyImage *&biasImage, QString dataType)
+void MyImage::subtractBias(const MyImage *biasImage, QString dataType)
 {
     if (!successProcessing) return;
     if (!validMode) return;
     // We have verified "above" that the bias was successfully loaded
-
     long i = 0;
     for (auto &pixel : dataCurrent) {
-        pixel -= biasImage->dataCurrent[i];
+//        pixel -= biasImage->dataCurrent[i];
+        pixel -= 0.;
         ++i;
     }
 
@@ -648,7 +674,50 @@ void MyImage::subtractBias(MyImage *biasImage, QString dataType)
     successProcessing = true;
 }
 
-void MyImage::divideFlat(MyImage *flatImage)
+// UNUSED, for memory testing
+// Here, 'biasData' may also refer to a dark or flatoff image
+void MyImage::subtractBias(QVector<float> const &dataCorr, QString dataType)
+{
+    if (!successProcessing) return;
+    if (!validMode) return;
+    // We have verified "above" that the bias was successfully loaded
+
+    long i = 0;
+    for (auto &pixel : dataCurrent) {
+        pixel -= dataCorr.at(i);
+        ++i;
+    }
+
+    QString mode = "";
+    if (dataType == "BIAS") mode = "bias subtracted";
+    else if (dataType == "DARK") mode = "dark subtracted";
+    else if (dataType == "FLATOFF") mode = "flatoff subtracted";
+    else {
+        // nothing
+    }
+
+    if (*verbosity > 1) emit messageAvailable(chipName + " : "+mode, "image");
+    successProcessing = true;
+}
+
+// UNUSED, for memory testing
+// Here, 'biasData' may also refer to a dark or flatoff image
+/*
+void MyImage::subtractBias()
+{
+    if (!successProcessing) return;
+    if (!validMode) return;
+    // We have verified "above" that the bias was successfully loaded
+
+    long i = 0;
+    for (auto &pixel : dataCurrent) {
+        pixel -= 0.;
+        ++i;
+    }
+}
+*/
+
+void MyImage::divideFlat(const MyImage *flatImage)
 {
     if (!successProcessing) return;
     if (!validMode) return;
@@ -983,10 +1052,10 @@ void MyImage::updateCRVALCDinHeader()
 {
     updateHeaderValue("CRVAL1", wcs->crval[0]);
     updateHeaderValue("CRVAL2", wcs->crval[1]);
-    updateHeaderValue("CD1_1", wcs->cd[0]);
-    updateHeaderValue("CD1_2", wcs->cd[1]);
-    updateHeaderValue("CD2_1", wcs->cd[2]);
-    updateHeaderValue("CD2_2", wcs->cd[3]);
+    updateHeaderValue("CD1_1", wcs->cd[0], 'e');
+    updateHeaderValue("CD1_2", wcs->cd[1], 'e');
+    updateHeaderValue("CD2_1", wcs->cd[2], 'e');
+    updateHeaderValue("CD2_2", wcs->cd[3], 'e');
 }
 
 void MyImage::updateCRVALinHeaderOnDrive()
@@ -1170,6 +1239,7 @@ bool MyImage::containsRaDec(QString alphaStr, QString deltaStr)
     // Convert to decimal if required
     if (alphaStr.contains(":")) alphaStr = hmsToDecimal(alphaStr);
     if (deltaStr.contains(":")) deltaStr = dmsToDecimal(deltaStr);
+
     return pnpoly_T(raVec, decVec, alphaStr.toDouble(), deltaStr.toDouble());
 }
 

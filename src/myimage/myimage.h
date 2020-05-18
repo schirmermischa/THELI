@@ -356,7 +356,7 @@ public:
     void cosmicsFilter(QString aggressiveness);
     void checkBrightStars(QList<QVector<double>> &brightStarList, float safetyDistance, float plateScale);
     void divide(float value);
-    void divideFlat(MyImage *flatImage);
+    void divideFlat(const MyImage *flatImage);
     void emitModelUpdateNeeded();
     void estimateMatchingTolerance();
     void evaluateSkyNodes(const QVector<double> alpha, const QVector<double> delta, const QVector<double> radius);
@@ -406,7 +406,7 @@ public:
     void showProcInfo();
     void sky2xy(const double alpha, const double delta, double &x, double &y);
     void subtract(float value);
-    void subtractBias(MyImage *biasImage, QString dataType);
+    void subtractBias(const MyImage *biasImage, QString dataType);
     void subtractSkyFit(int order, gsl_vector *c, bool saveSkyModel);
     void subtractPolynomialSkyFit(gsl_vector *c, int order);
     void subtractBackgroundModel();
@@ -430,7 +430,8 @@ public:
     void writeWeightSmoothed(QString fileName);
     void xy2sky(const double x, const double y, double &alpha, double &delta);
     void xtalk(int method, float scale, QString direction = "", int nsection = -1);
-    void updateHeaderValue(QString keyName, float keyValue);
+    void updateHeaderValue(QString keyName, float keyValue, char format = 'f');
+    void updateHeaderValue(QString keyName, double keyValue, char format = 'f');
     void updateHeaderValue(QString keyName, QString keyValue);
     void updateHeaderValueInFITS(QString keyName, QString keyValue);
     void calcMedianSeeingEllipticity();
@@ -475,6 +476,8 @@ public:
     void releaseMemoryForBackground();
     void unprotectMemoryForBackground();
     void addExludedRegionToMask(long imin, long imax, long jmin, long jmax);
+    void subtractBias();
+    void subtractBias(QVector<float> const &dataCurrent, QString dataType);
 signals:
     void modelUpdateNeeded(QString baseName, QString chipName);
     void messageAvailable(QString message, QString type);
