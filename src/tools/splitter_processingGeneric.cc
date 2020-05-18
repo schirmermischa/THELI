@@ -318,9 +318,6 @@ void Splitter::cropDataSection(QVector<long> dataSect)
         }
     }
 
-    memoryUsed += dataCurrent.capacity()*sizeof(float);
-    emit splitterMemoryIncreased(memoryUsed);
-
     // TODO
     /*
     int crpix1 = getKeyword("CRPIX1").toFloat() - dataSection[0];

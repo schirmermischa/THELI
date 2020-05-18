@@ -135,11 +135,6 @@ void Splitter::determineFileFormat()
     }
 }
 
-void Splitter::emitMemoryReleased()
-{
-    emit splitterMemoryDecreased(-memoryUsed);
-}
-
 void Splitter::uncompress()
 {
     if (!successProcessing) return;
@@ -528,9 +523,6 @@ void Splitter::getCurrentExtensionData()
 
     delete [] buffer;
 
-    memoryUsed += dataRaw.capacity()*sizeof(float);
-    emit splitterMemoryIncreased(memoryUsed);
-
     printCfitsioError("getCurrentExtensionData()", rawStatus);
 }
 
@@ -601,9 +593,6 @@ void Splitter::getDataInCube()
             dataCubeRaw.append(val);
         }
     }
-
-    memoryUsed += dataCubeRaw.capacity()*sizeof(float);
-    emit splitterMemoryIncreased(memoryUsed);
 
     delete [] bufferAll;
 
@@ -1077,13 +1066,13 @@ void Splitter::initMyImage(int chip)
     data->myImageList[chip].append(myImage);
     if (!data->uniqueChips.contains(chip+1)) data->uniqueChips.push_back(chip+1);
     omp_unset_lock(genericLock);
-//    connect(myImage, &MyImage::modelUpdateNeeded, data, &Data::modelUpdateReceiver);
-//    connect(myImage, &MyImage::critical, data, &Data::pushCritical);
-//    connect(myImage, &MyImage::warning, data, &Data::pushWarning);
-//    connect(myImage, &MyImage::messageAvailable, data, &Data::pushMessageAvailable);
-//    connect(myImage, &MyImage::setMemoryLock, data, &Data::setMemoryLockReceived, Qt::DirectConnection);
-//    connect(myImage, &MyImage::setWCSLock, data, &Data::setWCSLockReceived, Qt::DirectConnection);
-//    myImage->emitModelUpdateNeeded();
+    connect(myImage, &MyImage::modelUpdateNeeded, data, &Data::modelUpdateReceiver);
+    connect(myImage, &MyImage::critical, data, &Data::pushCritical);
+    connect(myImage, &MyImage::warning, data, &Data::pushWarning);
+    connect(myImage, &MyImage::messageAvailable, data, &Data::pushMessageAvailable);
+    connect(myImage, &MyImage::setMemoryLock, data, &Data::setMemoryLockReceived, Qt::DirectConnection);
+    connect(myImage, &MyImage::setWCSLock, data, &Data::setWCSLockReceived, Qt::DirectConnection);
+    myImage->emitModelUpdateNeeded();
     myImage->readImage(splitFileName.remove("!"));
     ++data->numImages;
 }
