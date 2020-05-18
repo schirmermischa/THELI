@@ -140,6 +140,7 @@ private:
 //    QString downloadServer = "";
     QString queryCommand = "";
     QByteArray byteArray;
+    bool successfulDataBaseAccess = true;
 
     int firstUsableRow = 0;   // The first line in the downloaded catalog that contains usable data (not counting #-ed lines)
 

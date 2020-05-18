@@ -48,6 +48,7 @@ private slots:
     void on_minLineEdit_returnPressed();
     void on_maxLineEdit_returnPressed();
     void on_autocontrastPushButton_toggled(bool checked);
+    void on_quitPushButton_clicked();
 
 public slots:
     void on_zoomFitPushButton_clicked();

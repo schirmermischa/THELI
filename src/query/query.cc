@@ -556,10 +556,19 @@ void Query::processAstromCatalog()
     QString line;
     long i=0;
     while (stream.readLineInto(&line)) {
+        if (line.contains("database is not currently reachable")) {
+            successfulDataBaseAccess = false;
+            emit messageAvailable("Query:: The CDS database is currently not reachable", "error");
+            emit critical();
+            break;
+        }
         if (line.contains("#")
                 || line.isEmpty()
                 || line.contains("deg")
                 || line.contains("RA")
+                || line.contains("Content-Type")
+                || line.contains("Content-Disposition")
+                || line.contains("DocumentRef")
                 || line.contains("---")) continue;
         QString result = extractRaDecMagAstrom(line);  // also prepares scamp and anet
         if (!result.isEmpty()) {
@@ -604,10 +613,19 @@ void Query::processGaiaCatalog()
     QString line;
     long i=0;
     while (stream.readLineInto(&line)) {
+        if (line.contains("database is not currently reachable")) {
+            successfulDataBaseAccess = false;
+            emit messageAvailable("Query:: The CDS database is currently not reachable", "error");
+            emit critical();
+            break;
+        }
         if (line.contains("#")
                 || line.isEmpty()
                 || line.contains("deg")
                 || line.contains("RA")
+                || line.contains("Content-Type")
+                || line.contains("Content-Disposition")
+                || line.contains("DocumentRef")
                 || line.contains("---")) continue;
         QString result = extractRaDecGaia(line);         // includes point source filtering
         if (!result.isEmpty()) {
@@ -638,10 +656,19 @@ void Query::processBrightStarCatalog()
     QString line;
     long i=0;
     while (stream.readLineInto(&line)) {
+        if (line.contains("database is not currently reachable")) {
+            successfulDataBaseAccess = false;
+            emit messageAvailable("Query:: The CDS database is currently not reachable", "error");
+            emit critical();
+            break;
+        }
         if (line.contains("#")
                 || line.isEmpty()
                 || line.contains("deg")
                 || line.contains("RA")
+                || line.contains("Content-Type")
+                || line.contains("Content-Disposition")
+                || line.contains("DocumentRef")
                 || line.contains("---")) continue;
         QString result = extractRaDecMagAstrom(line);
         if (!result.isEmpty()) ++numSources;
@@ -673,10 +700,19 @@ void Query::processPhotomCatalog()
     QString line;
     long i=0;
     while (stream.readLineInto(&line)) {
+        if (line.contains("database is not currently reachable")) {
+            successfulDataBaseAccess = false;
+            emit messageAvailable("Query:: The CDS database is currently not reachable", "error");
+            emit critical();
+            break;
+        }
         if (line.contains("#")
                 || line.isEmpty()
                 || line.contains("deg")
                 || line.contains("RA")
+                || line.contains("Content-Type")
+                || line.contains("Content-Disposition")
+                || line.contains("DocumentRef")
                 || line.contains("---")) continue;
         QString result = extractRaDecMagPhotom(line);
         if (!result.isEmpty()) {
@@ -713,10 +749,19 @@ void Query::processColorCalibCatalog()
     QString line;
     long i=0;
     while (stream.readLineInto(&line)) {
+        if (line.contains("database is not currently reachable")) {
+            successfulDataBaseAccess = false;
+            emit messageAvailable("Query:: The CDS database is currently not reachable", "error");
+            emit critical();
+            break;
+        }
         if (line.contains("#")
                 || line.isEmpty()
                 || line.contains("deg")
                 || line.contains("RA")
+                || line.contains("Content-Type")
+                || line.contains("Content-Disposition")
+                || line.contains("DocumentRef")
                 || line.contains("---")) continue;
         QString result = extractRaDecMagColorCalib(line);
         if (!result.isEmpty()) {
@@ -748,6 +793,11 @@ void Query::pushNumberOfSources()
         }
     }
     else {
+        if (!successfulDataBaseAccess) {
+            emit messageAvailable("Query:: The CDS database is currently not reachable", "stop");
+            emit critical();
+            successfulDataBaseAccess = true;
+        }
         if (!suppressCatalogWarning) {
             messageString = "WARNING: No reference sources retrieved! <br>"
                             "-- try a different catalog <br>"

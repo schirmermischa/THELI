@@ -134,3 +134,8 @@ void IvConfDockWidget::on_filterLineEdit_textChanged(const QString &arg1)
 
     iview->pageLabel->setText(" Image ? / "+QString::number(iview->numImages));
 }
+
+void IvConfDockWidget::on_quitPushButton_clicked()
+{
+    close();
+}
