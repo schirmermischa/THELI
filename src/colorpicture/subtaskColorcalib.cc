@@ -170,10 +170,35 @@ void ColorPicture::colorCalibMatchCatalogs()
     // Match with reference catalogs
     tolerance = (imageR->matchingTolerance + imageG->matchingTolerance + imageB->matchingTolerance) / 3.;
 
-
+    filterReferenceCatalog(PANSTARRS, imageG);
     colorCalibMatchReferenceCatalog(matchedRGB, PANSTARRS, tolerance);
+
+    filterReferenceCatalog(SDSS, imageG);
     colorCalibMatchReferenceCatalog(matchedRGB, SDSS, tolerance);
+
+    filterReferenceCatalog(APASS, imageG);
     colorCalibMatchReferenceCatalog(matchedRGB, APASS, tolerance);
+}
+
+// Remove objects outside the actual field of view (simply for clarity)
+// We need to test a single exposure, only. Does not matter whether it is the red, green or blue channel
+void ColorPicture::filterReferenceCatalog(RefCatData *REFCAT, MyImage *channelImage)
+{
+    long countG2inside = 0;
+    for (int i=0; i<REFCAT->ra.length(); ++i) {
+        // is the reference source within the FITS image?
+        if (channelImage->containsRaDec(REFCAT->ra[i], REFCAT->de[i])) {
+            // if yes, is it covered by valid pixels (rejecting empty image borders)
+            double x = 0.;
+            double y = 0.;
+            channelImage->sky2xy(REFCAT->ra[i], REFCAT->de[i], x, y);
+            long n = channelImage->naxis1;
+            if (channelImage->dataCurrent[x + n * y] != 0.) ++countG2inside;
+        }
+    }
+    if (REFCAT->ra.length() > 0) {
+        emit messageAvailable(REFCAT->name + " : " + QString::number(countG2inside) + " of the G2 references located inside pixel area", "note");
+    }
 }
 
 void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>> &matchedRGB, RefCatData *REFCAT, float tolerance)
@@ -338,6 +363,7 @@ void ColorPicture::colorCalibSegmentImages()
         it->backgroundModel(100, "interpolate");
         it->segmentImage(DT, DMIN, true, false);
         it->estimateMatchingTolerance();
+        it->matchingTolerance *= 3.;
         it->releaseBackgroundMemory();
         it->releaseDetectionPixelMemory();
 

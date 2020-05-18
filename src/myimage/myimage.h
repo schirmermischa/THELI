@@ -454,6 +454,7 @@ public:
     void removeSourceCatalogs();
     void dumpToDriveIfPossible();
     bool containsRaDec(QString alphaStr, QString deltaStr);
+    bool containsRaDec(double alpha, double delta);
     double getPlateScale();
     void calcMedianSeeingEllipticitySex();
     void updateCRVALinHeader();

@@ -1243,6 +1243,33 @@ bool MyImage::containsRaDec(QString alphaStr, QString deltaStr)
     return pnpoly_T(raVec, decVec, alphaStr.toDouble(), deltaStr.toDouble());
 }
 
+bool MyImage::containsRaDec(double alpha, double delta)
+{
+    double alpha_ul;
+    double alpha_ur;
+    double alpha_ll;
+    double alpha_lr;
+    double delta_ul;
+    double delta_ur;
+    double delta_ll;
+    double delta_lr;
+
+    // Convert the cartesian image vertices to RA/DEC
+    xy2sky(1, 1, alpha_ll, delta_ll);
+    xy2sky(naxis1, 1, alpha_lr, delta_lr);
+    xy2sky(1, naxis2, alpha_ul, delta_ul);
+    xy2sky(naxis1, naxis2, alpha_ur, delta_ur);
+
+    // Check if the sky coordinates are contained in this picture frame
+    QVector<double> raVec;
+    QVector<double> decVec;
+    // order is important! we don't want a line crossing in the polygon line
+    raVec << alpha_ll << alpha_lr << alpha_ur << alpha_ul;
+    decVec << delta_ll << delta_lr << delta_ur << delta_ul;
+
+    return pnpoly_T(raVec, decVec, alpha, delta);
+}
+
 void MyImage::cornersToRaDec()
 {
     xy2sky(1, 1, alpha_ll, delta_ll);
