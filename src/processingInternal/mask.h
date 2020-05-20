@@ -32,7 +32,7 @@ class Mask : public QObject
 {
     Q_OBJECT
 public:
-    explicit Mask(instrumentDataType *instrumentData, QObject *parent = nullptr);
+    explicit Mask(const instrumentDataType *instrumentData, QObject *parent = nullptr);
 
     QVector< QVector<bool> > globalMask;
     QVector<bool> isChipMasked;
@@ -40,7 +40,7 @@ public:
     void invert();
     void reset();
     void initMasks();
-    instrumentDataType *instData;
+    const instrumentDataType *instData;
 
 private:
     // See polygon.h for further functionality

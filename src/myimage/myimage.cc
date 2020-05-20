@@ -370,7 +370,7 @@ bool MyImage::scanAstromHeader(int chip, QString mode)
     if (sanityCheckWCS(wcs).isEmpty()) {
         wcs->flag = 0;  // Trigger recomputation
         cornersToRaDec();
-        updateCRVALCDinHeader();
+        updateCRVALCRPIXCDinHeader();
         return true;
     }
     else {
@@ -477,9 +477,17 @@ void MyImage::updateMode()
     if (*verbosity > 1) emit messageAvailable(chipName + " : " + skyvalue, "image");
     skyvalue.resize(80,' ');
     // header is empty when running equalizeBayerFlat
-    if (!header.contains("SKYVALUE=") && !header.isEmpty()) {
+    if (!doesHeaderContain("SKYVALUE=") && !header.isEmpty()) {
         header.insert(header.end()-1, skyvalue);
     }
+}
+
+bool MyImage::doesHeaderContain(QString keyword)
+{
+    for (auto &it : header) {
+        if (it.contains(keyword)) return true;
+    }
+    return false;
 }
 
 void MyImage::updateHeaderValue(QString keyName, float keyValue, char format)
@@ -492,7 +500,7 @@ void MyImage::updateHeaderValue(QString keyName, float keyValue, char format)
     QString keyword = card;
     card.append(QString::number(keyValue, format, 6));
     card.resize(80, ' ');
-    if (!header.contains(keyword) && !header.isEmpty()) {
+    if (!doesHeaderContain(keyword) && !header.isEmpty()) {
         header.insert(header.end()-1, card);
     }
     else {
@@ -516,14 +524,13 @@ void MyImage::updateHeaderValue(QString keyName, double keyValue, char format)
     QString keyword = card;
     card.append(QString::number(keyValue, format, 12));
     card.resize(80, ' ');
-    if (!header.contains(keyword) && !header.isEmpty()) {
+    if (!doesHeaderContain(keyword) && !header.isEmpty()) {
         header.insert(header.end()-1, card);
     }
     else {
-        for (auto &existingCard : header) {
-            if (existingCard.contains(keyword)) {
-                // Replace old entry
-                existingCard = card;
+        for (auto &it : header) {
+            if (it.contains(keyword)) {
+                it = card;   // Replace old keyword
                 break;
             }
         }
@@ -540,7 +547,7 @@ void MyImage::updateHeaderValue(QString keyName, QString keyValue)
     QString keyword = card;
     card.append(keyValue);
     card.resize(80, ' ');
-    if (!header.contains(keyword) && !header.isEmpty()) {
+    if (!doesHeaderContain(keyword) && !header.isEmpty()) {
         header.insert(header.end()-1, card);
     }
     else {
@@ -596,7 +603,7 @@ void MyImage::getMode(bool determineMode)
         if (*verbosity > 1) emit messageAvailable(chipName + " : " + skyvalue, "image");
         skyvalue.resize(80,' ');
         if (!header.isEmpty()) {
-            if (!header.contains("SKYVALUE=")) {
+            if (!doesHeaderContain("SKYVALUE=")) {
                 header.insert(header.end()-1, skyvalue);
             }
         }
@@ -657,8 +664,8 @@ void MyImage::subtractBias(const MyImage *biasImage, QString dataType)
     // We have verified "above" that the bias was successfully loaded
     long i = 0;
     for (auto &pixel : dataCurrent) {
-//        pixel -= biasImage->dataCurrent[i];
-        pixel -= 0.;
+        pixel -= biasImage->dataCurrent[i];
+//        pixel -= 0.;     // testing memory accumulation
         ++i;
     }
 
@@ -1040,18 +1047,31 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
         }
         */
 
-// Update the 'header' QVector passed onto any newly ritten FITS file
+// Update the 'header' QVector passed onto any newly written FITS file
 void MyImage::updateCRVALinHeader()
 {
     updateHeaderValue("CRVAL1", wcs->crval[0]);
     updateHeaderValue("CRVAL2", wcs->crval[1]);
 }
 
-// Update the 'header' QVector passed onto any newly ritten FITS file
+// Update the 'header' QVector passed onto any FITS file written in the future
 void MyImage::updateCRVALCDinHeader()
 {
     updateHeaderValue("CRVAL1", wcs->crval[0]);
     updateHeaderValue("CRVAL2", wcs->crval[1]);
+    updateHeaderValue("CD1_1", wcs->cd[0], 'e');
+    updateHeaderValue("CD1_2", wcs->cd[1], 'e');
+    updateHeaderValue("CD2_1", wcs->cd[2], 'e');
+    updateHeaderValue("CD2_2", wcs->cd[3], 'e');
+}
+
+// Update the 'header' QVector passed onto any FITS file written in the future
+void MyImage::updateCRVALCRPIXCDinHeader()
+{
+    updateHeaderValue("CRVAL1", wcs->crval[0]);
+    updateHeaderValue("CRVAL2", wcs->crval[1]);
+    updateHeaderValue("CRPIX1", wcs->crpix[0]);
+    updateHeaderValue("CRPIX2", wcs->crpix[1]);
     updateHeaderValue("CD1_1", wcs->cd[0], 'e');
     updateHeaderValue("CD1_2", wcs->cd[1], 'e');
     updateHeaderValue("CD2_1", wcs->cd[2], 'e');
@@ -1224,6 +1244,7 @@ bool MyImage::containsRaDec(QString alphaStr, QString deltaStr)
     double delta_lr;
 
     // Convert the cartesian image vertices to RA/DEC
+    loadHeader();  // if not yet provided, e.g. UI was just started and we are doing a coadd
     xy2sky(1, 1, alpha_ll, delta_ll);
     xy2sky(naxis1, 1, alpha_lr, delta_lr);
     xy2sky(1, naxis2, alpha_ul, delta_ul);
@@ -1255,6 +1276,7 @@ bool MyImage::containsRaDec(double alpha, double delta)
     double delta_lr;
 
     // Convert the cartesian image vertices to RA/DEC
+    loadHeader();  // if not yet provided, e.g. UI was just started and we are doing a coadd
     xy2sky(1, 1, alpha_ll, delta_ll);
     xy2sky(naxis1, 1, alpha_lr, delta_lr);
     xy2sky(1, naxis2, alpha_ul, delta_ul);

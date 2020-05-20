@@ -20,7 +20,6 @@ If not, see https://www.gnu.org/licenses/ .
 #ifndef COLORPICTURE_H
 #define COLORPICTURE_H
 
-#include "../processingExternal/errordialog.h"
 #include "../threading/colorpictureworker.h"
 #include "../iview/iview.h"
 #include "../query/query.h"
@@ -44,7 +43,7 @@ class ColorPicture : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit ColorPicture(instrumentDataType *instrumentData, QString main = "", QWidget *parent = nullptr);
+    explicit ColorPicture(QString main = "", QWidget *parent = nullptr);
     ~ColorPicture();
 
     bool iViewOpen = false;
@@ -108,10 +107,8 @@ private:
 
     QString thelidir;
     QString userdir;
-    instrumentDataType *instData;
     QStringListModel *coaddImageModel;
     QStringListModel *coaddDirModel;
-    ErrorDialog *errordialog = new ErrorDialog(this);
     IView *iView;
     QButtonGroup *resultButtonGroup = new QButtonGroup(this);
     QPalette buttonPalette;

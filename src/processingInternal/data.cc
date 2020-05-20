@@ -44,10 +44,10 @@ If not, see https://www.gnu.org/licenses/ .
 // Ctor, given an absolute path name (dirName), status string, and optionally chip number
 // It creates a list of all matching images in that directory, and also reads some
 // essential FITS header keywords.
-Data::Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maindirname,
-           QString subdirname, int *verbose, QObject *parent)
+Data::Data(const instrumentDataType *instrumentData, Mask *detectorMask, QString maindirname,
+           QString subdirname, int *verbose, QObject *parent) : instData(instrumentData)
 {
-    instData = instrumentData;
+//    instData = instrumentData;
 
     emit messageAvailable("DATA: Setting up "+subdirname, "data");
 
@@ -498,13 +498,13 @@ void Data::resetGlobalWeight(QString filter)
     }
 }
 
-void Data::loadCombinedImage(int chip)
+void Data::loadCombinedImage(const int chip)
 {
     if (!successProcessing) return;
 
     if (userStop || userKill) return;
 
-    if (*verbosity > 0 && !combinedImage[chip]->imageInMemory) {
+    if (*verbosity > 0 && !combinedImage.at(chip)->imageInMemory) {
         emit messageAvailable("Chip " + QString::number(chip+1) + " : Loading master "+ subDirName + " ...", "data");
     }
 
@@ -548,7 +548,8 @@ void Data::resetSuccessProcessing()
 
 // Used for creating master calibrators
 void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVector<float> &, const QVector<bool> &, long),
-                              QString nlowString, QString nhighString, QString dirName, QString subDirName, QString dataType)
+                              const QString nlowString, const QString nhighString, const QString dirName, const QString subDirName,
+                              const QString dataType)
 {
     if (!successProcessing) return;
 
@@ -568,8 +569,8 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
     }
 
     // Get image geometry from first image in list
-    long n = myImageList[chip].at(0)->naxis1;
-    long m = myImageList[chip].at(0)->naxis2;
+    long n = myImageList.at(chip).at(0)->naxis1;
+    long m = myImageList.at(chip).at(0)->naxis2;
     if (n == 0 || m == 0) {
         emit messageAvailable(subDirName + " : Data::combineImgesCalib(): Could not determine size of combined image.", "error");
         emit critical();
@@ -579,13 +580,13 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
     long dim = n*m;
 
     // Container for the temporary pixel stack
-    int numImages = myImageList[chip].length();
+    int numImages = myImageList.at(chip).length();
     // Instantiate a MyImage object for the combined set of images.
     // It does not create a FITS object yet.
     // Delete the instance if it exists already from a previous run of this task to not (re)create it
     //    if (combinedImage[chip] != nullptr) delete combinedImage[chip];
 
-    if (combinedImage[chip] == nullptr) {
+    if (combinedImage.at(chip) == nullptr) {
         MyImage *combinedImageDummy = new MyImage(dirName, subDirName+"_"+QString::number(chip+1)+".fits", "", chip+1,
                                                   mask->globalMask[chip], verbosity);
         connect(combinedImageDummy, &MyImage::modelUpdateNeeded, this, &Data::modelUpdateReceiver);
@@ -616,9 +617,9 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
     QString goodImages;
     int k = 0;
     for (auto &gi : goodIndex) {
-        MyImage *it = myImageList[chip][gi];
-        goodImages.append(it->baseName + ": " + QString::number(it->skyValue,'f',3) + " e-, rescaled with "
-                          + QString::number(rescaleFactors[k],'f',3));
+        goodImages.append(myImageList[chip][gi]->baseName + ": "
+                          + QString::number(myImageList[chip][gi]->skyValue, 'f', 3) + " e-, rescaled with "
+                          + QString::number(rescaleFactors[k], 'f', 3));
         if (k<goodIndex.length()-1) goodImages.append("<br>");
         ++k;
     }
@@ -635,7 +636,7 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
     long progCountComparison = dim / 10;
 
     // works on dataCurrent
-    dim = combinedImage[chip]->dataCurrent.length();
+    dim = combinedImage.at(chip)->dataCurrent.length();
     // Crashed by stack.append(), but not when running through valgrind (no multi-threading)?
     // Update: does not crash anymore ... (at least for single-chip cameras)
     // TODO: more efficient with semaphore if numcpu and numchips divide with remainder
@@ -659,11 +660,11 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
 
             if (myImageList[chip][gi]->objectMaskDone) {
                 if (!myImageList[chip][gi]->objectMask[i]) {
-                    stack.append(myImageList[chip][gi]->dataCurrent[i] * rescaleFactors[k]);
+                    stack.append(myImageList.at(chip).at(gi)->dataCurrent.at(i) * rescaleFactors[k]);
                 }
             }
             else {
-                stack.append(myImageList[chip][gi]->dataCurrent[i] * rescaleFactors[k]);
+                stack.append(myImageList.at(chip).at(gi)->dataCurrent.at(i) * rescaleFactors[k]);
             }
 
             /*
@@ -719,7 +720,7 @@ void Data::combineImages(const int chip, const QString nlowString, const QString
     // Get image geometry from first image in list that has its size measured
     long n = 0;
     long m = 0;
-    for (auto &back : myImageList[chip]) {
+    for (auto &back : myImageList.at(chip)) {
         if (back->useForBackground) {
             n = back->naxis1;
             m = back->naxis2;
@@ -734,11 +735,11 @@ void Data::combineImages(const int chip, const QString nlowString, const QString
     }
     long dim = n*m;
 
-    int numImages = myImageList[chip].length();
+    int numImages = myImageList.at(chip).length();
 
     // Instantiate a MyImage object for the combined set of images. It does not create a FITS object yet.
     // if (combinedImage[chip] != nullptr) delete combinedImage[chip];
-    if (combinedImage[chip] == nullptr) {       // re-using previously created object
+    if (combinedImage.at(chip) == nullptr) {       // re-using previously created object
         MyImage *masterCombined = new MyImage(dirName, currentImage, "", chip+1, mask->globalMask[chip], verbosity);
         connect(masterCombined, &MyImage::modelUpdateNeeded, this, &Data::modelUpdateReceiver);
         connect(masterCombined, &MyImage::critical, this, &Data::pushCritical);
@@ -768,9 +769,9 @@ void Data::combineImages(const int chip, const QString nlowString, const QString
     {
         int k = 0;
         for (auto &gi : goodIndex) {
-            MyImage *it = myImageList[chip][gi];
-            goodImages.append(it->chipName + ": " + QString::number(it->skyValue,'f',3) + " e-, rescaled with "
-                              + QString::number(rescaleFactors[k],'f',3));
+            goodImages.append(myImageList[chip][gi]->chipName + ": "
+                              + QString::number(myImageList[chip][gi]->skyValue, 'f', 3) + " e-, rescaled with "
+                              + QString::number(rescaleFactors[k], 'f', 3));
             if (k<goodIndex.length()-1) goodImages.append("<br>");
             ++k;
         }
@@ -801,11 +802,11 @@ void Data::combineImages(const int chip, const QString nlowString, const QString
             for (auto &gi : goodIndex) {
                 if (myImageList[chip][gi]->objectMaskDone) {         // needed because objectmask can be empty and the lookup will segfault
                     if (!myImageList[chip][gi]->objectMask[i]) {
-                        stack.append(myImageList[chip][gi]->dataBackupL1[i] * rescaleFactors[k]);
+                        stack.append(myImageList.at(chip).at(gi)->dataBackupL1.at(i) * rescaleFactors[k]);
                     }
                 }
                 else {
-                    stack.append(myImageList[chip][gi]->dataBackupL1[i] * rescaleFactors[k]);
+                    stack.append(myImageList.at(chip).at(gi)->dataBackupL1.at(i) * rescaleFactors[k]);
                 }
                 ++k;
             }
@@ -825,11 +826,11 @@ void Data::combineImages(const int chip, const QString nlowString, const QString
             for (auto &gi : goodIndex) {
                 if (myImageList[chip][gi]->objectMaskDone) {         // needed because objectmask can be empty and the lookup will segfault
                     if (!myImageList[chip][gi]->objectMask[i]) {
-                        stack.append(myImageList[chip][gi]->dataBackupL1[i] * rescaleFactors[k]);
+                        stack.append(myImageList.at(chip).at(gi)->dataBackupL1.at(i) * rescaleFactors[k]);
                     }
                 }
                 else {
-                    stack.append(myImageList[chip][gi]->dataBackupL1[i] * rescaleFactors[k]);
+                    stack.append(myImageList.at(chip).at(gi)->dataBackupL1.at(i) * rescaleFactors[k]);
                 }
                 ++k;
             }
@@ -1051,7 +1052,7 @@ QVector<float> Data::getNormalizedRescaleFactors(int chip, QVector<long> &goodIn
     if (!rescaleFlag) {
         // Combining a BIAS or DARK
         long j=0;
-        for (auto &it : myImageList[chip]) {
+        for (auto &it : myImageList.at(chip)) {
             if (it->validMode) {
                 rescaleFactors.append(1.0);
                 goodIndex.append(j);
@@ -1068,7 +1069,7 @@ QVector<float> Data::getNormalizedRescaleFactors(int chip, QVector<long> &goodIn
     else if (mode == "forCalibration") {
         // Combining a FLAT
         long j=0;
-        for (auto &it : myImageList[chip] ) {
+        for (auto &it : myImageList.at(chip) ) {
             if (it->validMode) {
                 rescaleFactors.append(it->skyValue);
                 goodIndex.append(j);
@@ -1084,7 +1085,7 @@ QVector<float> Data::getNormalizedRescaleFactors(int chip, QVector<long> &goodIn
     else if (mode == "forBackground") {
         // Combining a SCIENCE / SKY image
         long j=0;
-        for (auto &it : myImageList[chip] ) {
+        for (auto &it : myImageList.at(chip) ) {
             if (it->useForBackground) {
                 rescaleFactors.append(it->skyValue);
                 goodIndex.append(j);
@@ -1158,7 +1159,7 @@ void Data::initGlobalWeight(int chip, Data *flatData, QString filter, bool sameW
                 if (*verbosity > 0) emit messageAvailable("Initializing globalweight for chip " + QString::number(chip+1) + " from master flat"+thresholds, "data");
                 // done before calling this function
                 //               if (!flatData->combinedImage[chip]->imageInMemory) flatData->combinedImage[chip]->setupDataInMemorySimple(true);
-                myImage->dataCurrent = flatData->combinedImage[chip]->dataCurrent;
+                myImage->dataCurrent = flatData->combinedImage[chip]->dataCurrent;  // shallow copy
             }
         }
     }
@@ -1185,7 +1186,7 @@ void Data::initGlobalWeight(int chip, Data *flatData, QString filter, bool sameW
 }
 
 // Threshold the global weight based on clipping values for the current combined image
-void Data::thresholdGlobalWeight(int chip, Data *comparisonData, QString filter, QString threshMin, QString threshMax)
+void Data::thresholdGlobalWeight(int chip, const Data *comparisonData, const QString filter, const QString threshMin, const QString threshMax)
 {
     if (!successProcessing) return;
 
@@ -1231,8 +1232,8 @@ void Data::thresholdGlobalWeight(int chip, Data *comparisonData, QString filter,
     }
 }
 
-void Data::detectDefects(int chip, Data *comparisonData, QString filter, bool sameWeight,
-                         QString defectKernel, QString defectRowTol, QString defectColTol, QString defectClusTol)
+void Data::detectDefects(int chip, Data *comparisonData, const QString filter, const bool sameWeight,
+                         const QString defectKernel, const QString defectRowTol, const QString defectColTol, const QString defectClusTol)
 {
     if (!successProcessing) return;
 
@@ -1255,12 +1256,12 @@ void Data::detectDefects(int chip, Data *comparisonData, QString filter, bool sa
     comparisonData->combinedImage[chip]->backgroundModel(filtersize, splinemode);
 
     // Normalize the flat field by the smoothed image
-    long n = comparisonData->combinedImage[chip]->naxis1;
-    long m = comparisonData->combinedImage[chip]->naxis2;
+    long n = comparisonData->combinedImage.at(chip)->naxis1;
+    long m = comparisonData->combinedImage.at(chip)->naxis2;
     QVector<float> divImage(n*m);
     long i = 0;
     for (auto &it : divImage) {
-        it = comparisonData->combinedImage[chip]->dataCurrent[i] / comparisonData->combinedImage[chip]->dataBackground[i];
+        it = comparisonData->combinedImage.at(chip)->dataCurrent.at(i) / comparisonData->combinedImage.at(chip)->dataBackground.at(i);
         ++i;
     }
     comparisonData->combinedImage[chip]->releaseBackgroundMemory();
@@ -1327,7 +1328,7 @@ void Data::applyMask(int chip, QString filter)
         long i = 0;
         if (filter == it->filter) {
             for (auto &jt: it->dataCurrent) {
-                if (mask->globalMask[chip].at(i)) {
+                if (mask->globalMask.at(chip).at(i)) {
                     jt = 0.;
                 }
                 ++i;
@@ -1734,7 +1735,7 @@ void Data::countUnsavedImages(long &numUnsavedLatest, long &numUnsavedBackup)
 {
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (instData->badChips.contains(chip)) continue;
-        for (auto &it : myImageList[chip]) {
+        for (auto &it : myImageList.at(chip)) {
             if (!it->imageOnDrive) ++numUnsavedLatest;
             if (it->backupL1InMemory && !it->backupL1OnDrive) ++numUnsavedBackup;
             if (it->backupL2InMemory && !it->backupL2OnDrive) ++numUnsavedBackup;
@@ -1893,7 +1894,7 @@ void Data::cleanBackgroundModelStatus()
     }
 }
 
-QVector<double> Data::getKeyFromAllImages(QString key)
+QVector<double> Data::getKeyFromAllImages(const QString key)
 {
     if (*verbosity > 1) emit messageAvailable("Retrieving key " + key + " for images in " + subDirName + " ...", "data");
 
@@ -2001,7 +2002,7 @@ int Data::identifyClusters(QString toleranceString)
     return groupNumber;
 }
 
-void Data::doImagesOverlap(MyImage &imgRef, MyImage &imgTest, float tolerance)
+void Data::doImagesOverlap(const MyImage &imgRef, MyImage &imgTest, const float tolerance)
 {
     if (!successProcessing) return;
 
@@ -2019,7 +2020,7 @@ void Data::doImagesOverlap(MyImage &imgRef, MyImage &imgTest, float tolerance)
     if (distance <= 2.* instData->radius + tolerance) imgTest.groupNumber = imgRef.groupNumber;
 }
 
-void Data::findOverlappingImages(MyImage *img, float tolerance)
+void Data::findOverlappingImages(const MyImage *img, const float tolerance)
 {
     if (!successProcessing) return;
 
@@ -2411,9 +2412,10 @@ bool Data::doesCoaddContainRaDec(const QString &refRA, const QString &refDEC)
 {
     if (refRA.isEmpty() && refDEC.isEmpty()) return true;
 
+    // Start assuming that no chip of a multi-chip camera contains this coordinate. if a single chip does contain it, we can break and exit
     bool containsRADEC = false;
     for (int chip=0; chip<instData->numChips; ++chip) {
-        for (auto &it : myImageList[chip]) {
+        for (auto &it : myImageList.at(chip)) {
             if (it->containsRaDec(refRA, refDEC)) {
                 containsRADEC = true;
                 break;

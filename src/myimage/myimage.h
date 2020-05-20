@@ -127,6 +127,7 @@ private:
                       const QVector<QString> header);
     void writeSegmentation(QString fileName);
     void readDataWeight(fitsfile **fptr, int *status);
+    bool doesHeaderContain(QString keyword);
 public:
     explicit MyImage(QString pathname, QString filename, QString statusString, int chipnumber,
                      const QVector<bool> &mask, int *verbose, bool makebackup = true,
@@ -251,7 +252,8 @@ public:
     float skyValue = -1e9;         // previously set to zero
     float skySigma = -1;
     float gain = 1.0;              // Read from raw fits header; fallback: taken from instrument config file
-    float plateScale = 0.;
+    float plateScale = 0.;         // in arcsec
+    float radius = 0.;             // image radius in degrees
     float gainNormalization = 1.0;
     int bitpix = -32;
     // Processing stages
@@ -459,6 +461,7 @@ public:
     void calcMedianSeeingEllipticitySex();
     void updateCRVALinHeader();
     void updateCRVALCDinHeader();
+    void updateCRVALCRPIXCDinHeader();
     void unprotectMemoryWeight();
     void checkWCSsanity();
     void buildAnetCommand(QString pixscale_maxerr);

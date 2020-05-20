@@ -137,5 +137,5 @@ void IvConfDockWidget::on_filterLineEdit_textChanged(const QString &arg1)
 
 void IvConfDockWidget::on_quitPushButton_clicked()
 {
-    close();
+    emit closeIview();
 }

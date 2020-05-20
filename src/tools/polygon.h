@@ -23,11 +23,11 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QVector>
 
 void polygon2vertices(QString polystring, QVector<float> &vertx, QVector<float> &verty);
-void addCircle_bool(long n, long m, float x, float y, float r, QString senseMode, QVector<bool> &mask);
+void addCircle_bool(const long n, const long m, float x, float y, float r, QString senseMode, QVector<bool> &mask);
 void addPolygon_bool(const long n, const long m, const QVector<float> &vertx, const QVector<float> &verty, const QString senseMode, QVector<bool> &mask);
-void addPolygon_float(long n, long m, QVector<float> &vertx, QVector<float> &verty, QString senseMode, QVector<float> &weight);
-void addRegionFilesToMask(long n, long m, QString regionFile, QVector<bool> &mask, bool &isChipMasked);
-void addRegionFilesToWeight(long n, long m, QString regionFile, QVector<float> &mask);
+void addPolygon_float(const long n, const long m, const QVector<float> &vertx, const QVector<float> &verty, QString senseMode, QVector<float> &weight);
+void addRegionFilesToMask(const long n, const long m, QString regionFile, QVector<bool> &mask, bool &isChipMasked);
+void addRegionFilesToWeight(const long n, const long m, QString regionFile, QVector<float> &mask);
 void region2circle(QString circlestring, float &x, float &y, float &r);
 
 /*

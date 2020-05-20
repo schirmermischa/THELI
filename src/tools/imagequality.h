@@ -30,7 +30,7 @@ class ImageQuality : public QObject
 {
     Q_OBJECT
 public:
-    explicit ImageQuality(Data *scienceData, instrumentDataType *instrumentData, QString maindirname, QObject *parent = nullptr);
+    explicit ImageQuality(const instrumentDataType *instrumentData, QString maindirname, QObject *parent = nullptr);
 
     bool getSeeingFromGaia();
     bool getSeeingFromRhMag();
@@ -50,8 +50,7 @@ public:
     QVector<double> refDEC;
 
 private:
-    instrumentDataType *instData;
-    Data *scienceData;
+    const instrumentDataType *instData;
     QString mainDirName;
 
 signals:

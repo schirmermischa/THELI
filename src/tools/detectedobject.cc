@@ -55,9 +55,9 @@ DetectedObject::DetectedObject(const QList<long> &objectIndices, const QVector<f
     for (auto &index : objectIndices) {
         pixels_x.append(index % naxis1);
         pixels_y.append(index / naxis1);
-        pixels_flux.append(data[index]);
-        pixels_back.append(background[index]);
-        if (weightInMemory) pixels_weight.append(weight[index]);
+        pixels_flux.append(data.at(index));
+        pixels_back.append(background.at(index));
+        if (weightInMemory) pixels_weight.append(weight.at(index));
         else pixels_weight.append(1.0);
     }
     //    dataMeasure = &data;
@@ -168,9 +168,9 @@ void DetectedObject::getAperturePixels(float aperture)
             double ii = double(i);
             double rsq = (X-ii)*(X-ii) + (Y-jj)*(Y-jj);
             if (rsq <= 0.25*aperture*aperture) {
-                pixelsAper_flux.append(dataMeasure[i+naxis1*j]);
-                pixelsAper_back.append(dataBackground[i+naxis1*j]);
-                pixelsAper_weight.append(dataWeight[i+naxis1*j]);
+                pixelsAper_flux.append(dataMeasure.at(i+naxis1*j));
+                pixelsAper_back.append(dataBackground.at(i+naxis1*j));
+                pixelsAper_weight.append(dataWeight.at(i+naxis1*j));
                 pixelsAper_x.append(i);
                 pixelsAper_y.append(j);
             }
@@ -207,11 +207,11 @@ QVector<double> DetectedObject::calcFluxAper(float aperture)
     // Subsample the original pixel data. The window is the minimum rectangular envelope
     long dim = pixelsAper_flux.length();
     for (long k=0; k<dim; ++k) {
-        double flux = pixelsAper_flux[k];
-        double back = pixelsAper_back[k];
-        double weight = pixelsAper_weight[k];
-        double spx = s*(pixelsAper_x[k]-xminAper);
-        double spy = s*(pixelsAper_y[k]-yminAper);
+        double flux = pixelsAper_flux.at(k);
+        double back = pixelsAper_back.at(k);
+        double weight = pixelsAper_weight.at(k);
+        double spx = s*(pixelsAper_x.at(k)-xminAper);
+        double spy = s*(pixelsAper_y.at(k)-yminAper);
         for (int ss1=0; ss1<s; ++ss1) {
             long jj = spy + ss1;
             for (int ss2=0; ss2<s; ++ss2) {
@@ -298,10 +298,10 @@ void DetectedObject::calcMoments()
     double xysum = 0.;
     bool saturated = false;
     for (long i=0; i<area; ++i) {
-        double pi = pixels_flux[i];
-        double px = pixels_x[i];
-        double py = pixels_y[i];
-        if (pixels_flux[i] >= saturationValue) saturated = true;
+        double pi = pixels_flux.at(i);
+        double px = pixels_x.at(i);
+        double py = pixels_y.at(i);
+        if (pixels_flux.at(i) >= saturationValue) saturated = true;
         xsum += px*pi;
         ysum += py*pi;
         xxsum += px*px*pi;
@@ -364,11 +364,11 @@ void DetectedObject::calcWindowedMoments()
         double YWIN0 = YWIN;
         long i=0;
         for (auto &pixel : pixelsWin_flux) {
-            double rsq = pow((pixelsWin_x[i] - XWIN0),2.) + pow((pixelsWin_y[i] - YWIN0),2.);
+            double rsq = pow((pixelsWin_x.at(i) - XWIN0),2.) + pow((pixelsWin_y.at(i) - YWIN0),2.);
             if (rsq < rmaxsq) {
                 double w = exp(-rsq / (2.*dsq));
-                xwsum += w*pixel*(pixelsWin_x[i]-XWIN0);
-                ywsum += w*pixel*(pixelsWin_y[i]-YWIN0);
+                xwsum += w*pixel*(pixelsWin_x.at(i)-XWIN0);
+                ywsum += w*pixel*(pixelsWin_y.at(i)-YWIN0);
                 wsum += w*pixel;
             }
             ++i;
@@ -394,8 +394,8 @@ void DetectedObject::calcWindowedMoments()
     double wsum = 0.;
     long i=0;
     for (auto &pixel : pixelsWin_flux) {
-        double px = pixelsWin_x[i];
-        double py = pixelsWin_y[i];
+        double px = pixelsWin_x.at(i);
+        double py = pixelsWin_y.at(i);
         double rsq = pow((px - XWIN),2.) + pow((py - YWIN),2.);
         if (rsq < rmaxsq) {
             double w = exp(-rsq / (2.*dsq));
@@ -420,9 +420,9 @@ void DetectedObject::calcMomentsErrors()
     double xysum = 0.;
     double psum = 0.;
     for (long i=0; i<area; ++i) {
-        double pi = pixels_flux[i];
-        double px = pixels_x[i];
-        double py = pixels_y[i];
+        double pi = pixels_flux.at(i);
+        double px = pixels_x.at(i);
+        double py = pixels_y.at(i);
         double sisq = sigma_back*sigma_back + pi / gain;
         xsum += sisq*(px-X)*(px-X);
         ysum += sisq*(py-Y)*(py-Y);
@@ -459,8 +459,8 @@ void DetectedObject::calcWindowedMomentsErrors()
     double wsum = 0.;
     long i=0;
     for (auto &pixel : pixelsWin_flux) {
-        double px = pixelsWin_x[i];
-        double py = pixelsWin_y[i];
+        double px = pixelsWin_x.at(i);
+        double py = pixelsWin_y.at(i);
         double rsq = pow((px - XWIN),2.) + pow((py - YWIN),2.);
         double sisq = sigma_back*sigma_back + pixel / gain;  // I think this is wrong, should divide sigma_back by gain, too!
         if (rsq < rmaxsq) {
@@ -686,7 +686,7 @@ void DetectedObject::getWindowedPixels()
             double ii = double(i);
             double rsq = (X-ii)*(X-ii) + (Y-jj)*(Y-jj);
             if (rsq <= 4.*FLUX_RADIUS*FLUX_RADIUS) {
-                pixelsWin_flux.append(dataMeasure[i+naxis1*j]);
+                pixelsWin_flux.append(dataMeasure.at(i+naxis1*j));
                 pixelsWin_x.append(i);
                 pixelsWin_y.append(j);
             }
@@ -718,8 +718,8 @@ void DetectedObject::calcMagAuto()
             // Work on pixels within 6x the ellipse
             if (CXX*dx*dx + CYY*dy*dy + CXY*dx*dy <= 36.*A*A) {
                 double r = sqrt(CXX*dx*dx + CYY*dy*dy + CXY*dx*dy);
-                rkron += float(dataMeasure[i+naxis1*j]);
-                fsum += dataMeasure[i+naxis1*j];
+                rkron += float(dataMeasure.at(i+naxis1*j));
+                fsum += dataMeasure.at(i+naxis1*j);
             }
         }
     }
@@ -757,9 +757,9 @@ void DetectedObject::calcMagAuto()
             if (dx*dx + dy*dy < auto_radius*auto_radius) {
                 // With global mask
                 if (globalMaskAvailable) {
-                    if (!mask[i+naxis1*j]) {
-                        FLUX_AUTO += dataMeasure[i+naxis1*j];
-                        FLUXERR_AUTO += dataBackground[i+naxis1*j]/gain + dataMeasure[i+naxis1*j]/gain;   // neglecting readout noise
+                    if (!mask.at(i+naxis1*j)) {
+                        FLUX_AUTO += dataMeasure.at(i+naxis1*j);
+                        FLUXERR_AUTO += dataBackground.at(i+naxis1*j)/gain + dataMeasure.at(i+naxis1*j)/gain;   // neglecting readout noise
                     }
                     else {
                         ++numMasked;
@@ -767,8 +767,8 @@ void DetectedObject::calcMagAuto()
                 }
                 // without global mask
                 else {
-                    FLUX_AUTO += dataMeasure[i+naxis1*j];
-                    FLUXERR_AUTO += dataBackground[i+naxis1*j]/gain + dataMeasure[i+naxis1*j]/gain;   // neglecting readout noise
+                    FLUX_AUTO += dataMeasure.at(i+naxis1*j);
+                    FLUXERR_AUTO += dataBackground.at(i+naxis1*j)/gain + dataMeasure.at(i+naxis1*j)/gain;   // neglecting readout noise
                 }
                 ++numTot;
             }

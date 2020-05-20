@@ -36,14 +36,13 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QSettings>
 #include <QMessageBox>
 
-ColorPicture::ColorPicture(instrumentDataType *instrumentData, QString main, QWidget *parent) :
+ColorPicture::ColorPicture(QString main, QWidget *parent) :
     QMainWindow(parent),
     mainDir(main),
     ui(new Ui::ColorPicture)
 {
     ui->setupUi(this);
     initEnvironment(thelidir, userdir);
-    instData = instrumentData;
 
     // Model views
     coaddDirModel = new QStringListModel(this);

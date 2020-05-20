@@ -117,7 +117,7 @@ QString get_fileHeaderParameter(QFile *file, QString parametername)
 }
 */
 
-QString sanityCheckWCS(wcsprm *wcs)
+QString sanityCheckWCS(const wcsprm *wcs)
 {
     double det = wcs->cd[0]*wcs->cd[3] - wcs->cd[1]*wcs->cd[2];
     if (det == 0.) return "WCS matrix is singular: "+ QString::number(wcs->cd[0],'g',5) + QString::number(wcs->cd[1],'g',5) + QString::number(wcs->cd[2],'g',5) + QString::number(wcs->cd[3],'g',5);
@@ -682,7 +682,7 @@ bool hasMatchingPartnerFiles(QString dirname1, QString suffix1, QString dirname2
     }
 }
 
-void get_array_subsample(QVector<float> &data, QVector<double> &datasub, int stepSize)
+void get_array_subsample(const QVector<float> &data, QVector<double> &datasub, int stepSize)
 {
     // Select the small array
     for (long i=0; i<data.length(); i+=stepSize) {
@@ -992,7 +992,7 @@ QVector<float> getSmallSample(const QVector<float> &data, const QVector<bool> &m
 
 // A fast mode calculator
 // Optionally, it also provides an rms estimate based on the truncated histogram
-QVector<float> modeMask(QVector<float> &data, QString mode, const QVector<bool> &mask, bool smooth)
+QVector<float> modeMask(const QVector<float> &data, QString mode, const QVector<bool> &mask, bool smooth)
 {
     QVector<float> sky;
 
@@ -1324,7 +1324,7 @@ float meanMask(const QVector<float> &vector_in, const QVector<bool> &mask, long 
 // Calculate an iterative mean using sigma outlier rejection.
 // The algorithm terminates after iterMax iterations, or if converged.
 // Data points can re-enter the process.
-float meanIterative(QVector<float> data, float kappa, int iterMax)
+float meanIterative(const QVector<float> data, float kappa, int iterMax)
 {
     long dim = data.length();
     if (dim == 0) return 0.;

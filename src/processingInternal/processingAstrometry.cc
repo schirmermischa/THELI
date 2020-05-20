@@ -622,7 +622,7 @@ void Controller::doImageQualityAnalysis()
         }
         // Setup seeing measurement
         it->estimateMatchingTolerance();
-        ImageQuality *imageQuality = new ImageQuality(scampScienceData, instData, mainDirName);
+        ImageQuality *imageQuality = new ImageQuality(instData, mainDirName);
         imageQuality->matchingTolerance = it->matchingTolerance;
         imageQuality->baseName = it->chipName;
         // pass the reference data

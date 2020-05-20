@@ -34,16 +34,15 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QStringList>
 #include <QRegExpValidator>
 
-ImageStatistics::ImageStatistics(QVector<QList<MyImage*>> &imlist, QString main, QString sciencedir,
-                                 instrumentDataType *instrumentData, QWidget *parent):
+ImageStatistics::ImageStatistics(QVector<QList<MyImage*>> &imlist, const QString main, const QString sciencedir,
+                                 const instrumentDataType *instrumentData, QWidget *parent):
     QMainWindow(parent),
     mainDir(main),
+    instData(instrumentData),
     ui(new Ui::ImageStatistics)
 {
     ui->setupUi(this);
     initEnvironment(thelidir, userdir);
-
-    instData = instrumentData;
 
     myImageList = imlist;
 

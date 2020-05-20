@@ -62,6 +62,7 @@ signals:
     void zoomInPushButton_clicked();
     void zoomOutPushButton_clicked();
     void zoomZeroPushButton_clicked();
+    void closeIview();
 };
 
 #endif // IVCONFDOCKWIDGET_H

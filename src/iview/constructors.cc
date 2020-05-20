@@ -683,6 +683,7 @@ void IView::addDockWidgets()
         connect(icdw, &IvConfDockWidget::zoomInPushButton_clicked, this, &IView::zoomInPushButton_clicked_receiver);
         connect(icdw, &IvConfDockWidget::zoomOutPushButton_clicked, this, &IView::zoomOutPushButton_clicked_receiver);
         connect(icdw, &IvConfDockWidget::zoomZeroPushButton_clicked, this, &IView::zoomZeroPushButton_clicked_receiver);
+        connect(icdw, &IvConfDockWidget::closeIview, this, &IView::close);
     }
 }
 

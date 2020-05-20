@@ -121,7 +121,7 @@ private:
     int recurseCounter = 0;
 
     // Processing functions
-    void checkSuccessProcessing(Data *data);
+    void checkSuccessProcessing(const Data *data);
 //    void decrementCurrentThreads(omp_lock_t &lock);
     QVector<QString> getBackgroundThresholds(const int loop, const bool twoPass, const QString DT, const QString DMIN, bool &doSourceDetection);
     void getDetectorSections();
@@ -172,22 +172,22 @@ private:
     bool manualCoordsUpdate(Data *scienceData, QString mode);
     void prepareScampRun(Data *scienceData);
     long prepareScampCats(Data *scienceData, long &totNumObjects);
-    QString getUserParamLineEdit(QLineEdit *le);
-    QString getUserParamCheckBox(QCheckBox *cb);
-    QString getUserParamComboBox(QComboBox *cb);
+    QString getUserParamLineEdit(const QLineEdit *le);
+    QString getUserParamCheckBox(const QCheckBox *cb);
+    QString getUserParamComboBox(const QComboBox *cb);
     void buildScampCommand(Data *scienceData);
     void sendMemoryPreferenceToImages(QList<Data*> DT_x);
     int countBackgroundImages(QList<MyImage *> list, QString baseName);
     //    int getInternalThreads(int chip);
 
     void populateCommentMap();
-    void pushBeginMessage(QString idstring, QString targetdir);
+    void pushBeginMessage(const QString idstring, const QString targetdir);
     void pushConfigCoadd();
     void pushConfigAstromphotom();
     void pushConfigGetCatalogFromWeb();
     void pushConfigGetCatalogFromImage();
     void pushConfigCreatesourcecat();
-    void pushEndMessage(QString idstring, QString targetdir);
+    void pushEndMessage(QString idstring, const QString targetdir);
     bool idChipsWithBrightStars(Data *skyData, QList<QVector<double> > &brightStarList);
     void flagImagesWithBrightStars(const QList<MyImage *> &backgroundList);
     void getNumberOfActiveImages(Data *&data);
@@ -275,8 +275,8 @@ private:
     void pushConfigSkysubConst();
     void pushConfigSkysubPoly();
     void flagLowDetectionImages(Data *scienceData, long &numExpRejected, long &numImgRejected);
-    void doDataFitInRAM(long nImages, long storageSize);
-    bool testResetDesire(Data *data);
+    void doDataFitInRAM(const long nImages, const long storageSize);
+    bool testResetDesire(const Data *data);
     void runAnet(Data *scienceData);
     void prepareAnetRun(Data *scienceData);
     long getNumAnetChips(QString ahead);
@@ -325,11 +325,11 @@ private slots:
     void continueWithCopyZeroOrder();
     void copyZeroOrder();
     void errorFoundReceived();
-    void addToProgressBarReceived(float differential);
+    void addToProgressBarReceived(const float differential);
 //    void splitterMemoryReceived(long memoryUsed);
 
 public:
-    explicit Controller(instrumentDataType *instrumentData, QString statusold, ConfDockWidget *cdw, Monitor *processMonitor,
+    explicit Controller(const instrumentDataType *instrumentData, QString statusold, ConfDockWidget *cdw, Monitor *processMonitor,
                         MainWindow *parent = nullptr);
     ~Controller();
 
@@ -402,11 +402,11 @@ public:
 
     QList<QList<Data*>> masterListDT;
     Data* GLOBALWEIGHTS = nullptr;
-    instrumentDataType *instData;
     Mask *mask = nullptr;
     Mask *altMask = nullptr;         // for GROND types with different simultaneous detectors
     MainWindow *mainGUI;
     ConfDockWidget *cdw;
+    const instrumentDataType *instData;
     Monitor *monitor;
     MemoryViewer *memoryViewer;
     bool successProcessing = true;   // Reset externally to 'true' when clicking the 'start' button
@@ -485,7 +485,7 @@ signals:
     void populateMemoryView();
     void stopFileProgressTimer();
     void addBackupDirToMemoryviewer(QString scienceDir, QString backupDirName);
-    void loadAbsZP(QString coaddImagePath, instrumentDataType *instData, float maxVal);
+    void loadAbsZP(QString coaddImagePath, float maxVal);
     void updateMemoryProgressBar(long splitterMemory);
     void forceFinish();
 

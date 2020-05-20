@@ -47,7 +47,7 @@ class Data : public QObject
 {
     Q_OBJECT
 public:
-    explicit Data(instrumentDataType *instrumentData, Mask *detectorMask, QString maindirname,
+    explicit Data(const instrumentDataType *instrumentData, Mask *detectorMask, QString maindirname,
                   QString subdirname, int *verbose, QObject *parent = nullptr);
 
     ~Data();
@@ -66,7 +66,7 @@ public:
     Mask *mask;
     ProcessingStatus *processingStatus = nullptr;
 
-    instrumentDataType *instData;
+    const instrumentDataType *instData;
 
     bool successProcessing = true;
 
@@ -146,8 +146,8 @@ public:
 //    QString getMasterFilename(QString type, int chip);
 
     // Processing functions
-    void combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVector<float> &, const QVector<bool> &, long), QString nlow, QString nhigh,
-                            QString dirName, QString subDirName, QString dataType);
+    void combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVector<float> &, const QVector<bool> &, long), const QString nlow, const QString nhigh,
+                            const QString dirName, const QString subDirName, const QString dataType);
     void combineImages(const int chip, const QString nlowString, const QString nhighString, const QString currentImage, const QString mode,
                        const QString dirName, const QString subDirName, QVector<bool> &dataStaticModelDone);
     void combineImages_newParallel(int chip, MyImage *masterCombined, QList<MyImage *> &backgroundList, QString nlow, QString nhigh, QString currentImage, QString mode, const QString subDirName);
@@ -180,9 +180,9 @@ public:
     bool getPointingCharacteristics();
     void initGlobalWeight(int chip, Data *flatData, QString filter, bool sameWeight, QString flatMin, QString flatMax);
     void resetGlobalWeight(QString filter);
-    void thresholdGlobalWeight(int chip, Data *comparisonData, QString filter, QString threshMin, QString threshMax);
-    void detectDefects(int chip, Data *flatData, QString scienceFilter, bool sameWeight,
-                       QString defectKernel, QString defectRowTol, QString defectColTol, QString defectClusTol);    
+    void thresholdGlobalWeight(int chip, const Data *comparisonData, const QString filter, const QString threshMin, const QString threshMax);
+    void detectDefects(int chip, Data *flatData, const QString scienceFilter, const bool sameWeight,
+                       const QString defectKernel, const QString defectRowTol, const QString defectColTol, const QString defectClusTol);
     void writeGlobalWeights(int chip, QString filter);
     bool collectMJD();
 
@@ -192,7 +192,7 @@ public:
 
     void populateExposureList();
     void getModeCombineImages(int chip);
-    QVector<double> getKeyFromAllImages(QString key);
+    QVector<double> getKeyFromAllImages(const QString key);
 
     void checkPresenceOfMasterCalibs();
     void reportModeCombineImages();
@@ -252,9 +252,9 @@ private:
 //    void getFixedHeaderKeys(QString filename, QStringList &badImages);
     QVector<float> getNormalizedRescaleFactors(int chip, QVector<long> &goodIndex, QString mode);
 //    void printCfitsioError(QString funcName, int status);
-    void doImagesOverlap(MyImage &imgRef, MyImage &imgTest, float tolerance);
+    void doImagesOverlap(const MyImage &imgRef, MyImage &imgTest, const float tolerance);
     bool checkForUnassignedImages(int &groupNumber);
-    void findOverlappingImages(MyImage *img, float tolerance);
+    void findOverlappingImages(const MyImage *img, float tolerance);
     void releaseMemoryCombined(float &RAMfreed, const float RAMneededThisThread);
     void releaseMemoryIndividual(const QStringList &datalist, float &RAMfreed, const float RAMneededThisThread);
     void removeCurrentFITSfiles();

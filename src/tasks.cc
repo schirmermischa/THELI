@@ -39,7 +39,7 @@ void MainWindow::deleteDummyLineEdits(QLineEdit *le1, QLineEdit *le2)
     delete le2;
 }
 
-QStringList MainWindow::taskHDUreformat(bool &stop, QString mode)
+QStringList MainWindow::taskHDUreformat(bool &stop, const QString mode)
 {
     QString taskBasename = "HDUreformat";
     QStringList goodDirList;
@@ -60,7 +60,7 @@ QStringList MainWindow::taskHDUreformat(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskProcessbias(bool &stop, QString mode)
+QStringList MainWindow::taskProcessbias(bool &stop, const QString mode)
 {
     QString taskBasename = "Processbias";
     QStringList goodDirList;   
@@ -75,7 +75,7 @@ QStringList MainWindow::taskProcessbias(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskProcessdark(bool &stop, QString mode)
+QStringList MainWindow::taskProcessdark(bool &stop, const QString mode)
 {
     QString taskBasename = "Processdark";
     QStringList goodDirList;
@@ -90,7 +90,7 @@ QStringList MainWindow::taskProcessdark(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskProcessflatoff(bool &stop, QString mode)
+QStringList MainWindow::taskProcessflatoff(bool &stop, const QString mode)
 {
     QString taskBasename = "Processflatoff";
     QStringList goodDirList;    
@@ -105,7 +105,7 @@ QStringList MainWindow::taskProcessflatoff(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskProcessflat(bool &stop, QString mode)
+QStringList MainWindow::taskProcessflat(bool &stop, const QString mode)
 {
     QString taskBasename = "Processflat";
     QStringList goodDirList;    
@@ -128,7 +128,7 @@ QStringList MainWindow::taskProcessflat(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskProcessscience(bool &stop, QString mode)
+QStringList MainWindow::taskProcessscience(bool &stop, const QString mode)
 {
     QString taskBasename = "Processscience";
     QStringList goodDirList;    
@@ -159,7 +159,7 @@ QStringList MainWindow::taskProcessscience(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskChopnod(bool &stop, QString mode)
+QStringList MainWindow::taskChopnod(bool &stop, const QString mode)
 {
     QString taskBasename = "Chopnod";
     QStringList goodDirList;    
@@ -175,7 +175,7 @@ QStringList MainWindow::taskChopnod(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskBackground(bool &stop, QString mode)
+QStringList MainWindow::taskBackground(bool &stop, const QString mode)
 {
     QString taskBasename = "Background";
     QStringList goodDirList;    
@@ -201,7 +201,7 @@ QStringList MainWindow::taskBackground(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskCollapse(bool &stop, QString mode)
+QStringList MainWindow::taskCollapse(bool &stop, const QString mode)
 {
     QString taskBasename = "Collapse";
     QStringList goodDirList;    
@@ -218,7 +218,7 @@ QStringList MainWindow::taskCollapse(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskBinnedpreview(bool &stop, QString mode)
+QStringList MainWindow::taskBinnedpreview(bool &stop, const QString mode)
 {
     QString taskBasename = "Binnedpreview";
     QStringList goodDirList;    
@@ -234,7 +234,7 @@ QStringList MainWindow::taskBinnedpreview(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskGlobalweight(bool &stop, QString mode)
+QStringList MainWindow::taskGlobalweight(bool &stop, const QString mode)
 {
     QString taskBasename = "Globalweight";
     QStringList goodDirList;    
@@ -261,7 +261,7 @@ QStringList MainWindow::taskGlobalweight(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskIndividualweight(bool &stop, QString mode)
+QStringList MainWindow::taskIndividualweight(bool &stop, const QString mode)
 {
     QString taskBasename = "Individualweight";
     QStringList goodDirList;    
@@ -278,7 +278,7 @@ QStringList MainWindow::taskIndividualweight(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskSeparate(bool &stop, QString mode)
+QStringList MainWindow::taskSeparate(bool &stop, const QString mode)
 {
     QString taskBasename = "Separate";
     QStringList goodDirList;    
@@ -294,7 +294,7 @@ QStringList MainWindow::taskSeparate(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskAbsphotindirect(bool &stop, QString mode)
+QStringList MainWindow::taskAbsphotindirect(bool &stop, const QString mode)
 {
     QString taskBasename = "Absphotindirect";
     QStringList goodDirList;    
@@ -309,7 +309,7 @@ QStringList MainWindow::taskAbsphotindirect(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskCreatesourcecat(bool &stop, QString mode)
+QStringList MainWindow::taskCreatesourcecat(bool &stop, const QString mode)
 {
     QString taskBasename = "Createsourcecat";
     QStringList goodDirList;    
@@ -325,7 +325,7 @@ QStringList MainWindow::taskCreatesourcecat(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskAstromphotom(bool &stop, QString mode)
+QStringList MainWindow::taskAstromphotom(bool &stop, const QString mode)
 {
     QString taskBasename = "Astromphotom";
     QStringList goodDirList;    
@@ -341,7 +341,7 @@ QStringList MainWindow::taskAstromphotom(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskGetCatalogFromWEB(bool &stop, QString mode)
+QStringList MainWindow::taskGetCatalogFromWEB(bool &stop, const QString mode)
 {
     QString taskBasename = "GetCatalogFromWEB";
     QStringList goodDirList;    
@@ -356,7 +356,7 @@ QStringList MainWindow::taskGetCatalogFromWEB(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskGetCatalogFromIMAGE(bool &stop, QString mode)
+QStringList MainWindow::taskGetCatalogFromIMAGE(bool &stop, const QString mode)
 {
     QString taskBasename = "GetCatalogFromIMAGE";
     QStringList goodDirList;    
@@ -371,7 +371,7 @@ QStringList MainWindow::taskGetCatalogFromIMAGE(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskRestoreHeader(bool &stop, QString mode)
+QStringList MainWindow::taskRestoreHeader(bool &stop, const QString mode)
 {
     QString taskBasename = "RestoreHeader";
     QStringList goodDirList;    
@@ -386,7 +386,7 @@ QStringList MainWindow::taskRestoreHeader(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskSkysub(bool &stop, QString mode)
+QStringList MainWindow::taskSkysub(bool &stop, const QString mode)
 {
     QString taskBasename = "Skysub";
     QStringList goodDirList;    
@@ -402,7 +402,7 @@ QStringList MainWindow::taskSkysub(bool &stop, QString mode)
     return createCommandlistBlock(taskBasename, goodDirList, stop, mode);
 }
 
-QStringList MainWindow::taskCoaddition(bool &stop, QString mode)
+QStringList MainWindow::taskCoaddition(bool &stop, const QString mode)
 {
     QString taskBasename = "Coaddition";
     QStringList goodDirList;    
@@ -418,7 +418,7 @@ QStringList MainWindow::taskCoaddition(bool &stop, QString mode)
 }
 
 // TODO: go through these tasks and clean up those we don't need anymore, or info therein we don't need
-QStringList MainWindow::taskResolveTarget(bool &stop, QString mode)
+QStringList MainWindow::taskResolveTarget(bool &stop, const QString mode)
 {
     QString taskBasename = "ResolveTarget";
     QStringList goodDirList;

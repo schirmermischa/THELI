@@ -36,12 +36,16 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QFile>
 #include <QDir>
 
-Splitter::Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Mask *altDetectorMask, Data *someData, QString datatype,
-                   ConfDockWidget *confDockWidget, QString maindirname,
+Splitter::Splitter(const instrumentDataType &instrumentData, const Mask *detectorMask, const Mask *altDetectorMask,
+                   Data *someData, QString datatype, const ConfDockWidget *confDockWidget, QString maindirname,
                    QString subdirname, QString filename, int *verbose,
-                   QObject *parent) : QObject(parent)
+                   QObject *parent) :
+    QObject(parent),
+    mask(detectorMask),
+    altMask(altDetectorMask),
+    cdw(confDockWidget)
 {
-    instData = instrumentData;
+    instData = instrumentData;   // instData is modified locally during splitting, in the Splitter class only
     fileName = filename;
     cdw = confDockWidget;
     mainDirName = maindirname;
@@ -52,8 +56,6 @@ Splitter::Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Mask 
     QFileInfo fi(name);
     baseName = fi.completeBaseName();
     verbosity = verbose;
-    mask = detectorMask;
-    altMask = altDetectorMask;
     data = someData;
 
     QDir rawdata(path+"/RAWDATA");

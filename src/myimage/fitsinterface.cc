@@ -242,7 +242,7 @@ void MyImage::initWCS()
         return;
     }
     wcsInit = true;
-    plateScale = sqrt(wcs->cd[0] * wcs->cd[0] + wcs->cd[2] * wcs->cd[2]) * 3600.;
+    plateScale = sqrt(wcs->cd[0] * wcs->cd[0] + wcs->cd[2] * wcs->cd[2]) * 3600.;       // in arcsec
     if (plateScale == 0.) plateScale = 1.0;
 
     if (*verbosity > 2) {
@@ -270,6 +270,9 @@ void MyImage::loadHeader(QString loadFileName)
     initTHELIheader(&status);
     checkTHELIheader(&status);
     cornersToRaDec();
+
+    radius = sqrt(naxis1*naxis1 + naxis2*naxis2)/2. * plateScale / 3600;         // image radius in degrees. Must be determined after initWCS and initTHELIheader when naxis_i/j are known
+
     fits_close_file(fptr, &status);
 
     printCfitsioError("MyImage::loadHeader()", status);

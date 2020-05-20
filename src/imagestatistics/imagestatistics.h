@@ -41,8 +41,8 @@ class ImageStatistics : public QMainWindow
 
 public:
     // Constructor passing a list of MyImages
-    explicit ImageStatistics(QVector<QList<MyImage *> > &imlist, QString main, QString sciencedir,
-                             instrumentDataType *instrumentData, QWidget *parent);
+    explicit ImageStatistics(QVector<QList<MyImage *> > &imlist, const QString main, const QString sciencedir,
+                             const instrumentDataType *instrumentData, QWidget *parent);
     ~ImageStatistics();
 
     void keyReleaseEvent(QKeyEvent *event);
@@ -78,10 +78,10 @@ private:
     QString mainDir;
     QString statusString;
     ProcessingStatus *processingStatus;
+    const instrumentDataType *instData;
     Ui::ImageStatistics *ui;
     QString thelidir;
     QString userdir;
-    instrumentDataType *instData;
     QVector<QList<MyImage*>> myImageList;
     QList<MyImage*> allMyImages;
     QStringList dataName;

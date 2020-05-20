@@ -27,7 +27,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QMessageBox>
 
 // Get the max size of a mosaic-ed exposure
-void getBinnedSize(instrumentDataType *instData, QVector<QVector<int>> Tmatrices,
+void getBinnedSize(const instrumentDataType *instData, const QVector<QVector<int>> Tmatrices,
                    int &n_bin, int &m_bin, int binFactor, int &xminOffset, int &yminOffset)
 {
     // The extreme vertices of a mosaic-ed image
@@ -122,7 +122,7 @@ void rotateCDmatrix(QVector<double> &CD, float pa_new)
 }
 
 // Get the position angle of a CD matrix
-float posangle(QVector<double> CD)
+float posangle(const QVector<double> CD)
 {
     double cd11 = CD[0];
     double cd12 = CD[1];
@@ -200,8 +200,8 @@ float posangle(QVector<double> CD)
 }
 
 // Calculate binned image (using median filter)
-void binData(const QVector<float> &data, QVector<float> &dataBinned, int n, int m,
-             int nb, int mb, int binX, int binY)
+void binData(const QVector<float> &data, QVector<float> &dataBinned, const int n, const int m,
+             const int nb, const int mb, const int binX, const int binY)
 {
     long bsq = binX * binY;
     QVector<float> chunk(bsq,0);
@@ -225,8 +225,8 @@ void binData(const QVector<float> &data, QVector<float> &dataBinned, int n, int 
 // Map an individual binned image onto a global output image, using
 // the transformation matrix
 void mapBinnedData(QVector<float> &dataBinnedGlobal, const QVector<float> &dataBinnedIndividual,
-                   QVector<int> T, int nGlobal, int mGlobal, int nInd, int mInd,
-                   long crpix1, long crpix2, int xminOffset, int yminOffset, const QString instName)
+                   const QVector<int> T, const int nGlobal, const int mGlobal, const int nInd, const int mInd,
+                   const long crpix1, const long crpix2, const int xminOffset, const int yminOffset, const QString instName)
 {
     // Transformation matrix, derived from CD matrix, for relative positioning
     int T0 = T[0];
@@ -260,7 +260,7 @@ void mapBinnedData(QVector<float> &dataBinnedGlobal, const QVector<float> &dataB
 }
 
 QVector<float> collapse_x(QVector<float> &data, const QVector<bool> &globalMask, QVector<bool> &objectMask,
-                          float kappa, long n, long m, QString returnMode)
+                          const float kappa, const long n, const long m, const QString returnMode)
 {
     long i, j;
     int iterMax = 5;
@@ -312,7 +312,7 @@ QVector<float> collapse_x(QVector<float> &data, const QVector<bool> &globalMask,
 // Keeping a functor version as comments for future reference
 QVector<float> collapse_y(QVector<float> &data, const QVector<bool> &globalMask, QVector<bool> &objectMask,
                           //                                float (*statisticsMode)(QVector<float>, float, int),
-                          float kappa, long n, long m, QString returnMode)
+                          const float kappa, const long n, const long m, const QString returnMode)
 {
     long i, j;
     int iterMax = 5;
@@ -364,7 +364,7 @@ QVector<float> collapse_y(QVector<float> &data, const QVector<bool> &globalMask,
 // collapse along vhhv (vertical, horizontal, horizontal,
 // vertical readout quadrants) or hvvh, hhhh, vvvv directions
 QVector<float> collapse_quad(QVector<float> &data, const QVector<bool> &globalMask, QVector<bool> &objectMask,
-                             float kappa, long n, long m, QString direction, QString returnMode)
+                             const float kappa, const long n, const long m, const QString direction, const QString returnMode)
 {
     long i, j;
 
@@ -476,7 +476,8 @@ QVector<float> collapse_quad(QVector<float> &data, const QVector<bool> &globalMa
 // Sort a 2D QVector by its first element
 void sort2DVector(QVector<QVector<double>> data)
 {
-    std::sort(data.begin(), data.end(), [](const QVector<double>& left, const QVector<double>& right)->bool {
+    std::sort(data.begin(), data.end(),
+              [](const QVector<double>& left, const QVector<double>& right)->bool {
         if (left.empty() && right.empty()) return false;
         if (left.empty()) return true;
         if (right.empty()) return false;
@@ -487,7 +488,7 @@ void sort2DVector(QVector<QVector<double>> data)
 
 // Copy magnitudes and mag errors from a {DEC, RA, <MAG>, <MAGERR>} vector to another {DEC, RA, <MAG>, <MAGERR>} vector (matching)
 // <MAG> can be one or more numbers, e.g. 2 ref mags, or several aperture mags
-void match2D(QVector<QVector<double>> vec1, QVector<QVector<double>> vec2, QVector<QVector<double>> &matched,
+void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>> vec2, QVector<QVector<double>> &matched,
              double tolerance, int &multiple1, int &multiple2, int nthreads)
 {
     if (vec1.isEmpty() || vec2.isEmpty()) return;

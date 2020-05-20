@@ -125,21 +125,21 @@ bool MainWindow::checkMultipledirConsistency(QString mode)
     return true;
 }
 
-void MainWindow::hasDirCurrentData(DataDir datadir, bool &stop)
+void MainWindow::hasDirCurrentData(DataDir *datadir, bool &stop)
 {
     QString currentStatus = status.getStatusFromHistory();
     // The task does not change the status string. We expect the status to be current
-    if (!datadir.hasType(currentStatus)) {
-        message(ui->plainTextEdit, "STOP: '"+datadir.subdirname+"' does not contain expected images (*"+currentStatus+".fits).");
+    if (!datadir->hasType(currentStatus)) {
+        message(ui->plainTextEdit, "STOP: '"+datadir->subdirname+"' does not contain expected images (*"+currentStatus+".fits).");
         stop = true;
     }
 }
 
-QString MainWindow::estimateStatusFromFilename(DataDir datadir)
+QString MainWindow::estimateStatusFromFilename(DataDir *datadir)
 {
     // Get the name of a single fits file
     QStringList filterList("*.fits");
-    QDir dir(datadir.name);
+    QDir dir(datadir->name);
     QStringList imageList = dir.entryList(filterList);
     QString image;
     if (!imageList.isEmpty()) image = imageList.at(0);
@@ -148,149 +148,149 @@ QString MainWindow::estimateStatusFromFilename(DataDir datadir)
     return image;
 }
 
-void MainWindow::check_taskHDUreformat(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskHDUreformat(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
     QString taskName = checkboxMap.key(taskBasename)->text();
 
-    if (datadir.isEmpty()) {
-        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir.subdirname+"' contains no images. Skipping...", "note");
+    if (datadir->isEmpty()) {
+        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' contains no images. Skipping...", "note");
         skip = true;
     }
-    if (datadir.hasType("P")) {
-        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir.subdirname+"' already contains HDU reformatted images. Skipping...", "note");
+    if (datadir->hasType("P")) {
+        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' already contains HDU reformatted images. Skipping...", "note");
         skip = true;
     }
-    if (datadir.numEXT("PA*") > 0) {
-        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir.subdirname+"' contains preprocessed images. Skipping...", "note");
+    if (datadir->numEXT("PA*") > 0) {
+        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' contains preprocessed images. Skipping...", "note");
         skip = true;
     }
 }
 
-void MainWindow::check_taskProcessbias(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskProcessbias(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
     QString taskName = checkboxMap.key(taskBasename)->text();
-    if (datadir.isEmpty()) {
-        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir.subdirname+"' contains no images. Skipping...", "note");
+    if (datadir->isEmpty()) {
+        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' contains no images. Skipping...", "note");
         skip = true;
     }
-    if (!datadir.hasType("P")
+    if (!datadir->hasType("P")
             && !ui->applyHDUreformatCheckBox->isChecked()) {
-        message(ui->plainTextEdit, "STOP: '"+datadir.subdirname+"' does not contain HDU reformatted images.");
+        message(ui->plainTextEdit, "STOP: '"+datadir->subdirname+"' does not contain HDU reformatted images.");
         stop = true;
     }
     if (!stop
-            && datadir.numCHIP1 < 3
+            && datadir->numCHIP1 < 3
             && !ui->applyHDUreformatCheckBox->isChecked()) {
-        message(ui->plainTextEdit, "STOP: Need at least 3 exposures in '"+datadir.subdirname+"'.");
+        message(ui->plainTextEdit, "STOP: Need at least 3 exposures in '"+datadir->subdirname+"'.");
         stop = true;
     }
 }
 
-void MainWindow::check_taskProcessdark(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskProcessdark(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
     QString taskName = checkboxMap.key(taskBasename)->text();
-    if (datadir.isEmpty()) {
-        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir.subdirname+"' contains no images. Skipping...", "note");
+    if (datadir->isEmpty()) {
+        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' contains no images. Skipping...", "note");
         skip = true;
     }
-    if (!datadir.hasType("P")
+    if (!datadir->hasType("P")
             && !ui->applyHDUreformatCheckBox->isChecked()) {
-        message(ui->plainTextEdit, "STOP: '"+datadir.subdirname+"' does not contain HDU reformatted images.");
+        message(ui->plainTextEdit, "STOP: '"+datadir->subdirname+"' does not contain HDU reformatted images.");
         stop = true;
     }
     if (!stop
-            && datadir.numCHIP1 < 3
+            && datadir->numCHIP1 < 3
             && !ui->applyHDUreformatCheckBox->isChecked()) {
-        message(ui->plainTextEdit, "STOP: Need at least 3 exposures in '"+datadir.subdirname+"'.");
+        message(ui->plainTextEdit, "STOP: Need at least 3 exposures in '"+datadir->subdirname+"'.");
         stop = true;
     }
 }
 
-void MainWindow::check_taskProcessflatoff(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskProcessflatoff(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
     QString taskName = checkboxMap.key(taskBasename)->text();
-    if (datadir.isEmpty()) {
-        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir.subdirname+"' contains no images. Skipping...", "note");
+    if (datadir->isEmpty()) {
+        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' contains no images. Skipping...", "note");
         skip = true;
     }
-    if (!datadir.hasType("P")
+    if (!datadir->hasType("P")
             && !ui->applyHDUreformatCheckBox->isChecked()) {
-        message(ui->plainTextEdit, "STOP: '"+datadir.subdirname+"' does not contain HDU reformatted images.");
+        message(ui->plainTextEdit, "STOP: '"+datadir->subdirname+"' does not contain HDU reformatted images.");
         stop = true;
     }
     if (!stop
-            && datadir.numCHIP1 < 3
+            && datadir->numCHIP1 < 3
             && !ui->applyHDUreformatCheckBox->isChecked()) {
-        message(ui->plainTextEdit, "STOP: Need at least 3 exposures in '"+datadir.subdirname+"'.");
+        message(ui->plainTextEdit, "STOP: Need at least 3 exposures in '"+datadir->subdirname+"'.");
         stop = true;
     }
 }
 
-void MainWindow::check_taskProcessflat(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskProcessflat(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
     QString taskName = checkboxMap.key(taskBasename)->text();
-    if (datadir.isEmpty()) {
-        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir.subdirname+"' contains no images. Skipping...", "note");
+    if (datadir->isEmpty()) {
+        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' contains no images. Skipping...", "note");
         skip = true;
     }
-    if (!datadir.hasType("P")
+    if (!datadir->hasType("P")
             && !ui->applyHDUreformatCheckBox->isChecked()) {
-        message(ui->plainTextEdit, "STOP: '"+datadir.subdirname+"' does not contain HDU reformatted images.");
+        message(ui->plainTextEdit, "STOP: '"+datadir->subdirname+"' does not contain HDU reformatted images.");
         stop = true;
     }
     if (!stop
-            && datadir.numCHIP1 < 2
+            && datadir->numCHIP1 < 2
             && !ui->applyHDUreformatCheckBox->isChecked()) {
-        message(ui->plainTextEdit, "STOP: Need at least 3 exposures in '"+datadir.subdirname+"'.");
+        message(ui->plainTextEdit, "STOP: Need at least 3 exposures in '"+datadir->subdirname+"'.");
         stop = true;
     }
 }
 
-void MainWindow::check_taskProcessscience(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskProcessscience(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
-    if (datadir.isEmpty()) {
-        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir.subdirname+"' contains no images. Skipping...", "note");
+    if (datadir->isEmpty()) {
+        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' contains no images. Skipping...", "note");
         skip = true;
     }
-    if (!datadir.hasType("P")
-            && !datadir.hasType("PA")
+    if (!datadir->hasType("P")
+            && !datadir->hasType("PA")
             && !ui->applyHDUreformatCheckBox->isChecked()) {
-        message(ui->plainTextEdit, "STOP: '"+datadir.subdirname+"' does not contain HDU reformatted images.");
+        message(ui->plainTextEdit, "STOP: '"+datadir->subdirname+"' does not contain HDU reformatted images.");
         stop = true;
     }
 }
 
-void MainWindow::check_taskChopnod(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskChopnod(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskBackground(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskBackground(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskCollapse(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskCollapse(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskBinnedpreview(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskBinnedpreview(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskGlobalweight(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskGlobalweight(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskIndividualweight(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskIndividualweight(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskAbsphotindirect(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskAbsphotindirect(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
     QString standardDir = ui->setupStandardLineEdit->text();
     if (standardDir.isEmpty()) {
@@ -299,38 +299,38 @@ void MainWindow::check_taskAbsphotindirect(DataDir datadir, QString taskBasename
     }
 }
 
-void MainWindow::check_taskSeparate(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskSeparate(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskCreatesourcecat(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskCreatesourcecat(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskAstromphotom(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskAstromphotom(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskGetCatalogFromWEB(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskGetCatalogFromWEB(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskGetCatalogFromIMAGE(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskGetCatalogFromIMAGE(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskRestoreHeader(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskRestoreHeader(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
     hasDirCurrentData(datadir, stop);
     // Check that original headers exist
 }
 
-void MainWindow::check_taskResolveTarget(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskResolveTarget(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
     QString target = cdw->ui->ARCtargetresolverLineEdit->text();
     if (target.isEmpty()) {
@@ -341,12 +341,12 @@ void MainWindow::check_taskResolveTarget(DataDir datadir, QString taskBasename, 
     }
 }
 
-void MainWindow::check_taskSkysub(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskSkysub(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskCoaddition(DataDir datadir, QString taskBasename, bool &stop, bool &skip, QString mode)
+void MainWindow::check_taskCoaddition(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
 {
 
 }

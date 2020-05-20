@@ -907,7 +907,7 @@ long Controller::coaddCoadditionGetSize()
 void Controller::coaddUpdate()
 {
     if (!successProcessing) {
-//        emit forceFinish();
+        //        emit forceFinish();
         if (workerThreadPrepare) workerThreadPrepare->quit();         // crashing sometimes, not sure why
         return;
     }
@@ -929,7 +929,16 @@ void Controller::coaddUpdate()
         if (tmpFile.exists()) tmpFile.remove();
     }
 
-    // Skip IQ analysis for very large data sets
+    pushBeginMessage("CoaddUpdate", coaddScienceDir);
+
+    bool skippedIQ = true;
+    float seeing_world = 0.;
+    float seeing_image = 0.;
+    float maxVal = 100.;
+
+    emit loadViewer(coaddDirName, "coadd.fits", "DragMode");
+
+    /*
     if (instData->pixscale > 2.0 || instData->radius > 0.5) {
         emit progressUpdate(100);
         // Finally, do flux calibration if requested
@@ -945,47 +954,14 @@ void Controller::coaddUpdate()
         emit loadViewer(coaddDirName, "coadd.fits", "DragMode");
 
         emit messageAvailable("<br>Image covering very large area on sky. Image quality analysis skipped, as it would require the download of a very large point source catalog.<br>", "image");
-        return;
+        skippedIQ = true;
     }
+    */
 
-    pushBeginMessage("CoaddUpdate", coaddScienceDir);
-
-    emit messageAvailable("coadd.fits : Downloading GAIA point sources ...", "image");
-
-    emit loadViewer(coaddDirName, "coadd.fits", "DragMode");
-
-    QString pixelScale = cdw->ui->COApixscaleLineEdit->text();
-    if (pixelScale.isEmpty()) pixelScale = QString::number(instData->pixscale, 'f', 9);
-
-    long naxis1 = 0;
-    long naxis2 = 0;
-    fitsfile *fptr0 = nullptr;
-    int status = 0;
-    QString filename = coaddDirName+ "/coadd.fits";
-    fits_open_file(&fptr0, filename.toUtf8().data(), READONLY, &status);
-    float radius = 1.0;
-    if (!status) {
-        fits_read_key_lng(fptr0, "NAXIS1", &naxis1, NULL, &status);
-        fits_read_key_lng(fptr0, "NAXIS2", &naxis2, NULL, &status);
-        radius = sqrt(naxis1*naxis1+naxis2*naxis2) / 2. * pixelScale.toFloat() / 60.;
-        // Enforce an upper limit to the download catalog (the query also has a built-in limit of # sources < 1e6)
-        if (radius > 60) radius = 60.;
-    }
-    fits_close_file(fptr0, &status);
-
-    downloadGaiaCatalog(coaddScienceData, QString::number(radius, 'f', 1)); // Point sources
-
-    // Measure the seeing if we have reference sources
-    float seeing_world = 0.;
-    float seeing_image = 0.;
-
-    float maxVal = 100;
-
-    if (gaiaQuery->numSources != 0) {
-
-        // Measure the seeing
-
-        // Cannot create dummy mask diretcly in the constructor with Qvector<bool>(), somehow the mask is not empty!
+    // Do IQ analysis only for small images with "normal" plate scales
+    if (instData->pixscale <= 2.0 && instData->radius <= 0.5) {
+        skippedIQ = false;
+        emit messageAvailable("coadd.fits : Loading image data ...", "image");
         QVector<bool> dummyMask;
         dummyMask.clear();
         MyImage *coadd = new MyImage(coaddDirName, "coadd.fits", "", 1, dummyMask, &verbosity, false);
@@ -995,77 +971,93 @@ void Controller::coaddUpdate()
         connect(coadd, &MyImage::setMemoryLock, this, &Controller::setMemoryLockReceived, Qt::DirectConnection);
         connect(coadd, &MyImage::setWCSLock, this, &Controller::setWCSLockReceived, Qt::DirectConnection);
         coadd->chipName = "coadd";
-        emit messageAvailable("coadd.fits : Loading image data ...", "image");
         coadd->setupData(false, false, true);
-//        coadd->globalMask = QVector<bool>();
         coadd->globalMaskAvailable = false;
         coadd->objectMaskDone = false;
         coadd->weightInMemory = false;
         coadd->gain = 1.0;
         maxVal = maxVec_T(coadd->dataCurrent);
-        emit messageAvailable("coadd.fits : Modeling background ...", "image");
-        coadd->backgroundModel(256, "interpolate");
-        emit messageAvailable("coadd.fits : Detecting sources ...", "image");
-        coadd->segmentImage("10", "3", true, false);
-        coadd->estimateMatchingTolerance();
+        float radius = sqrt(coadd->naxis1*coadd->naxis1 + coadd->naxis2*coadd->naxis2) / 2. * coadd->plateScale / 60.;   // in arcmin
+        // Enforce an upper limit to the download catalog (the query also has a built-in limit of # sources < 1e6)
+        if (radius > 60) radius = 60.;
 
-        ImageQuality *imageQuality = new ImageQuality(coaddScienceData, instData, mainDirName);
-        imageQuality->matchingTolerance = coadd->matchingTolerance;
-        imageQuality->baseName = "coadd.fits";
-        connect(imageQuality, &ImageQuality::messageAvailable, this, &Controller::messageAvailableReceived);
-        // pass the reference data
-        collectGaiaRaDec(coadd, gaiaQuery->de_out, gaiaQuery->ra_out, imageQuality->refCat);
-        // pass the source data (dec, ra, fwhm, ell on one hand, and mag separately)
-        coadd->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag, 0);
-        // match
-        bool gaia = imageQuality->getSeeingFromGaia();
-        //        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: not yet implemented
-        seeing_world = imageQuality->fwhm;
-        seeing_image = seeing_world / pixelScale.toFloat();
-        if (imageQuality->numSources > 0) {
-            emit messageAvailable("coadd.fits : FWHM = " + QString::number(seeing_world, 'f', 2) + "\"  ("
-                                  + QString::number(seeing_image, 'f', 2) + " pixel)", "image");
-            emit messageAvailable("coadd.fits : Ellipticity = " + QString::number(imageQuality->ellipticity, 'f', 3), "image");
-            //            emit messageAvailable("coadd.fits : # stars used for IQ analysis = " + QString::number(imageQuality->numSources), "image");
+        emit messageAvailable("coadd.fits : Downloading GAIA point sources ...", "image");
+        downloadGaiaCatalog(coaddScienceData, QString::number(radius, 'f', 1)); // Point sources
+
+        // Measure the seeing if we have reference sources
+        if (gaiaQuery->numSources > 0) {
+            emit messageAvailable("coadd.fits : Modeling background ...", "image");
+            coadd->backgroundModel(256, "interpolate");
+            emit messageAvailable("coadd.fits : Detecting sources ...", "image");
+            coadd->segmentImage("10", "3", true, false);
+            coadd->estimateMatchingTolerance();
+
+            ImageQuality *imageQuality = new ImageQuality(instData, mainDirName);
+            imageQuality->matchingTolerance = coadd->matchingTolerance;
+            imageQuality->baseName = "coadd.fits";
+            connect(imageQuality, &ImageQuality::messageAvailable, this, &Controller::messageAvailableReceived);
+            // pass the reference data
+            collectGaiaRaDec(coadd, gaiaQuery->de_out, gaiaQuery->ra_out, imageQuality->refCat);
+            // pass the source data (dec, ra, fwhm, ell on one hand, and mag separately)
+            coadd->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag, 0);
+            // match
+            bool gaia = imageQuality->getSeeingFromGaia();
+            //        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: not yet implemented
+            seeing_world = imageQuality->fwhm;                           // in arcsec
+            seeing_image = imageQuality->fwhm / coadd->plateScale;       // in pixel
+            if (imageQuality->numSources > 0) {
+                emit messageAvailable("coadd.fits : FWHM = " + QString::number(seeing_world, 'f', 2) + "\"  ("
+                                      + QString::number(seeing_image, 'f', 2) + " pixel)", "image");
+                emit messageAvailable("coadd.fits : Ellipticity = " + QString::number(imageQuality->ellipticity, 'f', 3), "image");
+                //            emit messageAvailable("coadd.fits : # stars used for IQ analysis = " + QString::number(imageQuality->numSources), "image");
+            }
+            else {
+                emit messageAvailable("coadd.fits : FWHM = undetermined", "image");
+                emit messageAvailable("coadd.fits : Ellipticity = undetermined", "image");
+                //            emit messageAvailable("coadd.fits : # stars used for IQ analysis = 0", "image");
+            }
+            if (seeing_image < 2.0 && seeing_image > 0. &&
+                    (cdw->ui->COAkernelComboBox->currentText() == "LANCZOS3" ||
+                     cdw->ui->COAkernelComboBox->currentText() == "LANCZOS4")) {
+                emit messageAvailable("<br>Undersampling detected. The chosen "+cdw->ui->COAkernelComboBox->currentText()
+                                      +" resampling kernel could lead to artifacts in compact sources (stars). The LANCZOS2 kernel likely gives a better result.", "warning");
+            }
+            else {
+                skippedIQ = true;
+            }
+            coadd->releaseAllDetectionMemory();
+            coadd->releaseBackgroundMemory("entirely");
         }
         else {
-            emit messageAvailable("coadd.fits : FWHM = undetermined", "image");
-            emit messageAvailable("coadd.fits : Ellipticity = undetermined", "image");
-            //            emit messageAvailable("coadd.fits : # stars used for IQ analysis = 0", "image");
+            emit messageAvailable("Seeing will not be determined because no reference point sources were retrieved.", "warning");
         }
-        if (seeing_image < 2.0 && seeing_image > 0. &&
-                (cdw->ui->COAkernelComboBox->currentText() == "LANCZOS3" ||
-                 cdw->ui->COAkernelComboBox->currentText() == "LANCZOS4")) {
-            emit messageAvailable("<br>Undersampling detected. The chosen "+cdw->ui->COAkernelComboBox->currentText()
-                                  +" resampling kernel could lead to artifacts in compact sources (stars). The LANCZOS2 kernel likely gives a better result.", "warning");
-        }
-        coadd->releaseAllDetectionMemory();
-        coadd->releaseBackgroundMemory("entirely");
+
         coadd->freeAll();
         delete coadd;
+
+        delete gaiaQuery;
+
+        /*
+       // TODO: that should be redone using the new gaia matching method
+       QVector<float> fluxRadius(coadd->objectList.length());
+       for (auto &obj : coadd->objectList) {
+           if (obj->FLAGS == 0) fluxRadius.append(obj->FLUX_RADIUS);
+       }
+       float seeing_image = modeMask(fluxRadius, "classic", QVector<bool>(), false)[0];
+       float seeing_world = seeing_image * instData->pixscale;
+       emit messageAvailable("coadd.fits : FWHM = " + QString::number(seeing_world, 'f', 2) + "\"  ("
+                             + QString::number(seeing_image, 'f', 2) + " pixel)"
+       */
     }
     else {
-        emit messageAvailable("Seeing will not be determined because no reference point sources were retrieved.", "warning");
+        skippedIQ = true;
+        emit messageAvailable("<br>The coadded image covers a very large area on sky. The image quality analysis is skipped, as it would require the download of a very large point source catalog.<br>", "data");
     }
 
-    delete gaiaQuery;
-
-    /*
-    // TODO: that should be redone using the new gaia matching method
-    QVector<float> fluxRadius(coadd->objectList.length());
-    for (auto &obj : coadd->objectList) {
-        if (obj->FLAGS == 0) fluxRadius.append(obj->FLUX_RADIUS);
-    }
-    float seeing_image = modeMask(fluxRadius, "classic", QVector<bool>(), false)[0];
-    float seeing_world = seeing_image * instData->pixscale;
-    emit messageAvailable("coadd.fits : FWHM = " + QString::number(seeing_world, 'f', 2) + "\"  ("
-                          + QString::number(seeing_image, 'f', 2) + " pixel)"
-    */
-
-    // Update header keywords
+    // IQ analysis ended. Update FITS header
     fitsfile *fptr = nullptr;
     QString name = coaddDirName+"/coadd.fits";
-    //    int status = 0;    // declared above
+    int status = 0;    // declared above
     if (name.isNull() || name.isEmpty()) {
         status = 1;
         emit messageAvailable("Controller::coaddUpdate(): file name empty or not initialized!", "error");
@@ -1080,8 +1072,10 @@ void Controller::coaddUpdate()
     fits_update_key_flt(fptr, "GAIN", coaddGain, 3, "Effective gain", &status);
     fits_update_key_str(fptr, "UNITS", "e-/s", "Pixels are photo-electrons / second", &status);
     fits_update_key_flt(fptr, "SATURATE", 1000., 3, "Currently undetermined (e-)", &status);
-    fits_update_key_flt(fptr, "FWHM_I", seeing_image, 3, "FWHM (pixel)", &status);
-    fits_update_key_flt(fptr, "FWHM_W", seeing_world, 3, "FWHM (arcsec)", &status);
+    if (!skippedIQ) {
+        fits_update_key_flt(fptr, "FWHM_I", seeing_image, 3, "FWHM (pixel)", &status);
+        fits_update_key_flt(fptr, "FWHM_W", seeing_world, 3, "FWHM (arcsec)", &status);
+    }
     fits_update_key_dbl(fptr, "MJDSTART", mjdStart, 12, "Begin of observation (MJD)", &status);
     fits_update_key_dbl(fptr, "MJDEND", mjdEnd, 12, "End of observation (MJD)", &status);
     fits_update_key_dbl(fptr, "MJDMED", mjdMedian, 12, "Median MJD of observations", &status);
@@ -1101,7 +1095,7 @@ void Controller::coaddUpdate()
     // Finally, do flux calibration if requested
     if (cdw->ui->COAfluxcalibCheckBox->isChecked()) {
         emit messageAvailable("coadd.fits : Loading flux calibration module ...", "image");
-        emit loadAbsZP(coaddDirName+"/coadd.fits", instData, maxVal);
+        emit loadAbsZP(coaddDirName+"/coadd.fits", maxVal);
     }
     else {
         // Now we can quit the first coaddition thread (which spawned all the other threads).

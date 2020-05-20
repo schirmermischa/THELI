@@ -38,7 +38,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QThread>
 #include <QTest>
 
-AbsZeroPoint::AbsZeroPoint(QString image, instrumentDataType *instrumentData, QWidget *parent) :
+AbsZeroPoint::AbsZeroPoint(QString image, QWidget *parent) :
     QMainWindow(parent),
     startImage(image),
     ui(new Ui::AbsZeroPoint)
@@ -47,7 +47,6 @@ AbsZeroPoint::AbsZeroPoint(QString image, instrumentDataType *instrumentData, QW
 
     initEnvironment(thelidir, userdir);
     initGUI();
-    instData = instrumentData;
     if (!startImage.isEmpty()) {
         ui->zpImageLineEdit->setText(startImage);
     }
@@ -68,7 +67,6 @@ void AbsZeroPoint::closeEvent(QCloseEvent *event)
 
 AbsZeroPoint::~AbsZeroPoint()
 {
-    delete errordialog;
     delete absPhot;
     delete ui;
 }
@@ -159,27 +157,6 @@ void AbsZeroPoint::loadPreferences()
     QSettings settings("THELI", "PREFERENCES");
     maxCPU = settings.value("prefCPUSpinBox").toInt();
     verbosity = settings.value("prefVerbosityComboBox").toInt();
-}
-
-void AbsZeroPoint::processErrorOutput(QString errormessage, QString logname)
-{
-    // comment first part?
-    if (errormessage.isEmpty()) {
-        qDebug() << "QDEBUG: AbsZeroPoint::processErrorOutput: You should not see this message.";
-    }
-    else if (!errormessage.isEmpty()) {
-        errordialog->code = errormessage;
-        errordialog->logname = logname;
-        errordialog->translate();
-        errordialog->getErrorLine(errormessage);
-        errordialog->update();
-        errordialog->show();
-    }
-    ui->startPushButton->setEnabled(true);
-    ui->startPushButton->setText("Start");
-    ui->zpColorComboBox->setEnabled(true);
-    ui->zpFilterComboBox->setEnabled(true);
-    ui->zpRefcatComboBox->setEnabled(true);
 }
 
 void AbsZeroPoint::on_startPushButton_clicked()

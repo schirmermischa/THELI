@@ -54,7 +54,7 @@ QString get_fileparameter(QFile *, QString, QString warn = "");
 // QString get_fileparameter_vector(QFile *, QString, QString warn = "");
 // QVector<int> get_fileparameter_FullVector(QFile *file, QString parametername);
 QString findExecutableName(QString program);
-QString sanityCheckWCS(wcsprm *wcs);
+QString sanityCheckWCS(const wcsprm *wcs);
 void killProcessChildren(qint64 parentProcessId);
 long get_memory();
 void showLogfile(QString logname, QString line = "");
@@ -75,10 +75,10 @@ QString read_system_command(QString);
 QString truncateImageList(QStringList list, int dim);
 void message(QPlainTextEdit *pte, QString text, QString type="");
 void selectFirstActiveItem(QComboBox *cb);
-void get_array_subsample(QVector<float> &data, QVector<double> &datasub, int stepSize);
+void get_array_subsample(const QVector<float> &data, QVector<double> &datasub, int stepSize);
 double medianerrMask(const QVector<double> &vector_in, const QVector<bool> &mask = QVector<bool>());
 double madMask(const QVector<double> &vector_in, const QVector<bool> &mask = QVector<bool>(), QString ignoreZeroes = "");
-float meanIterative(QVector<float> data, float kappa, int iterMax);
+float meanIterative(const QVector<float> data, float kappa, int iterMax);
 QString hmsToDecimal(QString hms);
 QString dmsToDecimal(QString dms);
 QString decimalSecondsToHms(float value);
@@ -91,7 +91,7 @@ void removeLastCharIf(QString &string, const QChar character);
 bool moveFiles(QString filter, QString sourceDirName, QString targetDirName);
 bool moveFile(QString filename, QString sourceDirPath, QString targetDirPath, bool skipNonExistingFile = false);
 bool deleteFile(QString fileName, QString path);
-QVector<float> modeMask(QVector<float> &data, QString mode, const QVector<bool> &mask = QVector<bool>(), bool smooth = true);
+QVector<float> modeMask(const QVector<float> &data, QString mode, const QVector<bool> &mask = QVector<bool>(), bool smooth = true);
 int modeMask_sampleDensity(long numDataPoints, int numBins, float SNdesired);
 QVector<float> modeMask_clipData(const QVector<float> &data, const QVector<bool> &mask, int sampleDensity = 1, float minVal = 0., float maxVal = 0.);
 QVector<long> modeMask_buildHistogram(QVector<float> &data, float &rescale, const int numBins, const float minVal,
@@ -121,7 +121,7 @@ void mkAbsDir(QString absDirName);
 // Stores the result in the elements of the second matrix
 //***************************************************************
 template<class T1, class T2>
-void matrixMult_T(T1 a11, T1 a12, T1 a21, T1 a22,
+void matrixMult_T(const T1 a11, const T1 a12, const T1 a21, const T1 a22,
                   T2 &b11, T2 &b12, T2 &b21, T2 &b22)
 {
     T2 c11, c12, c21, c22;
@@ -143,9 +143,6 @@ QVector<T> removeVectorItems_T(QVector<T> data, QVector<int> badIndexes)
     int i=0;
     QVector<bool> removeFlag = QVector<bool>(data.length(), false);
     for (i=0; i<badIndexes.length(); ++i) {
-        if (i==10000) qDebug() << "10000";
-        if (i==100000) qDebug() << "100000";
-        if (i==1500000) qDebug() << "1500000";
         removeFlag.operator[](i) = true;
     }
 
@@ -157,7 +154,7 @@ QVector<T> removeVectorItems_T(QVector<T> data, QVector<int> badIndexes)
 }
 
 template<class T>
-T minVec_T(QVector<T> const &qv)
+T minVec_T(const QVector<T> &qv)
 {
     if (qv.length() == 0) {
         qDebug() << "QDEBUG: minVec(): vector has zero length.";
@@ -171,7 +168,7 @@ T minVec_T(QVector<T> const &qv)
 }
 
 template<class T>
-T maxVec_T(QVector<T> const &qv)
+T maxVec_T(const QVector<T> &qv)
 {
     if (qv.length() == 0) {
         qDebug() << "QDEBUG: maxVec_T(): vector has zero length.";
@@ -185,7 +182,7 @@ T maxVec_T(QVector<T> const &qv)
 }
 
 template<class T>
-T meanQuantile_T(QVector<float> const &data, const long start, const long end)
+T meanQuantile_T(const QVector<float> &data, const long start, const long end)
 {
     T mean = 0.;
     long numpixels = 0;
@@ -254,7 +251,7 @@ T straightMedianInline(QVector<T> &data)
 
 // Masked median
 template<class T>
-T medianMask_T(QVector<T> vector_in, QVector<bool> mask = QVector<bool>(), QString ignoreZeroes = "")
+T medianMask_T(const QVector<T> vector_in, QVector<bool> mask = QVector<bool>(), QString ignoreZeroes = "")
 {
     long maxDim = vector_in.length();
     if (maxDim == 0) return 0.;
@@ -273,8 +270,8 @@ T medianMask_T(QVector<T> vector_in, QVector<bool> mask = QVector<bool>(), QStri
     vector.reserve(maxDim);
     int i = 0;
     for (auto &it: vector_in) {
-        if (!mask[i] && ignoreZeroes == "") vector.append(it);
-        if (!mask[i] && ignoreZeroes != "" && it != 0.) vector.append(it);
+        if (!mask.at(i) && ignoreZeroes == "") vector.append(it);
+        if (!mask.at(i) && ignoreZeroes != "" && it != 0.) vector.append(it);
         ++i;
     }
 
@@ -286,7 +283,7 @@ T medianMask_T(QVector<T> vector_in, QVector<bool> mask = QVector<bool>(), QStri
 
 // Masked mean
 template<class T>
-T meanMask_T(QVector<T> &vector_in, QVector<bool> mask = QVector<bool>())
+T meanMask_T(const QVector<T> &vector_in, QVector<bool> mask = QVector<bool>())
 {
     long maxDim = vector_in.length();
     if (maxDim == 0) return 0.;
@@ -301,7 +298,7 @@ T meanMask_T(QVector<T> &vector_in, QVector<bool> mask = QVector<bool>())
         vector.reserve(maxDim);
         int i = 0;
         for (auto &it: vector_in) {
-            if (!mask[i]) vector.append(it);
+            if (!mask.at(i)) vector.append(it);
             ++i;
         }
 
@@ -312,7 +309,7 @@ T meanMask_T(QVector<T> &vector_in, QVector<bool> mask = QVector<bool>())
 }
 
 template<class T>
-T rmsMask_T(QVector<T> &vector_in, QVector<bool> mask = QVector<bool>())
+T rmsMask_T(const QVector<T> &vector_in, QVector<bool> mask = QVector<bool>())
 {
     long maxDim = vector_in.length();
     if (maxDim == 0) return 0.;
@@ -342,7 +339,7 @@ T rmsMask_T(QVector<T> &vector_in, QVector<bool> mask = QVector<bool>())
 
 // Masked mad
 template<class T>
-T madMask_T(QVector<T> vector_in, const QVector<bool> mask = QVector<bool>(), QString ignoreZeroes = "")
+T madMask_T(const QVector<T> vector_in, const QVector<bool> mask = QVector<bool>(), QString ignoreZeroes = "")
 {
     long maxDim = vector_in.length();
     if (maxDim == 0) return 0.;
@@ -352,8 +349,8 @@ T madMask_T(QVector<T> vector_in, const QVector<bool> mask = QVector<bool>(), QS
     long i = 0;
     if (!mask.isEmpty()) {
         for (auto &it: vector_in) {
-            if (!mask[i] && ignoreZeroes == "") vector.append(it);
-            if (!mask[i] && ignoreZeroes != "" && it != 0.) vector.append(it);
+            if (!mask.at(i) && ignoreZeroes == "") vector.append(it);
+            if (!mask.at(i) && ignoreZeroes != "" && it != 0.) vector.append(it);
             ++i;
         }
     }
@@ -401,7 +398,7 @@ bool hasDuplicates_T(QVector<T> data)
 
 // The index of the entry with the highest value
 template<class T>
-T maxIndex(QVector<T> const &data)
+T maxIndex(const QVector<T> &data)
 {
     long index = 0;
     T maxval = data[0];
@@ -450,7 +447,7 @@ void smooth_array_T(QVector<T1> &data, T2 sigma)
 }
 
 template<class T1, class T2>
-void matrix_mult_T(T1 a11, T1 a12, T1 a21, T1 a22,
+void matrix_mult_T(const T1 a11, const T1 a12, const T1 a21, const T1 a22,
                    T2 &b11, T2 &b12, T2 &b21, T2 &b22)
 {
     T2 c11, c12, c21, c22;

@@ -545,6 +545,7 @@ void MainWindow::updateControllerFunctors(QString text)
 }
 
 // currently not in use
+/*
 bool MainWindow::maybeSave()
 {
     const QMessageBox::StandardButton ret
@@ -561,6 +562,7 @@ bool MainWindow::maybeSave()
     }
     return true;
 }
+*/
 
 void MainWindow::initGUI()
 {
@@ -1434,15 +1436,15 @@ void MainWindow::updateExcludedDetectors(QString badDetectors)
 
 void MainWindow::load_dialog_abszeropoint()
 {
-    AbsZeroPoint *abszeropoint = new AbsZeroPoint("", &instData, this);
+    AbsZeroPoint *abszeropoint = new AbsZeroPoint("", this);
     // crashes, probably because 'preferences' doesn't exist yet.
     //   connect(preferences, &Preferences::verbosityLevelChanged, abszeropoint, &AbsZeroPoint::updateVerbosity);
     abszeropoint->show();
 }
 
-void MainWindow::loadCoaddAbsZP(QString coaddImage, instrumentDataType *instData, float maxVal)
+void MainWindow::loadCoaddAbsZP(QString coaddImage, float maxVal)
 {
-    AbsZeroPoint *abszeropoint = new AbsZeroPoint(coaddImage, instData, this);
+    AbsZeroPoint *abszeropoint = new AbsZeroPoint(coaddImage, this);
     abszeropoint->updateSaturationValue(maxVal);
     connect(abszeropoint, &AbsZeroPoint::abszpClosed, controller, &Controller::absZeroPointCloseReceived);
     abszeropoint->show();
@@ -1490,7 +1492,7 @@ void MainWindow::load_dialog_imageStatistics()
 
 void MainWindow::load_dialog_colorpicture()
 {
-    ColorPicture *colorPicture = new ColorPicture(&instData,  ui->setupMainLineEdit->text(), this);
+    ColorPicture *colorPicture = new ColorPicture(ui->setupMainLineEdit->text(), this);
     connect(colorPicture, &ColorPicture::showMessageBox, this, &MainWindow::showMessageBoxReceived);
     colorPicture->show();
 }

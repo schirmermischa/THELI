@@ -1133,6 +1133,7 @@ void Query::runCommand(QString command)
     byteArray = process.readAllStandardOutput();
 }
 
+/*
 // needed if the data isn't in memory yet (e.g. immediately after starting the main GUI)
 void Query::provideHeaderInfo()
 {
@@ -1142,6 +1143,7 @@ void Query::provideHeaderInfo()
         }
     }
 }
+*/
 
 void Query::writeAstromScamp()
 {

@@ -725,9 +725,9 @@ void Splitter::xtalk_method5()
         }
     }
 
-    QVector<bool> mask(n*m/2,false);
-    QVector<float> bo_mean = collapse_x(bo_input, mask, mask, xtalkKappa, n, m/2, "2Dmodel");
-    QVector<float> up_mean = collapse_x(up_input, mask, mask, xtalkKappa, n, m/2, "2Dmodel");
+    QVector<bool> maskLocal(n*m/2,false);
+    QVector<float> bo_mean = collapse_x(bo_input, maskLocal, maskLocal, xtalkKappa, n, m/2, "2Dmodel");
+    QVector<float> up_mean = collapse_x(up_input, maskLocal, maskLocal, xtalkKappa, n, m/2, "2Dmodel");
 
     // bo = bo - xtalkRowAmp * mean(bo+up)
     for (j=0; j<m/2; ++j) {
@@ -769,9 +769,9 @@ void Splitter::xtalk_method6()
         }
     }
 
-    QVector<bool> mask(n/2*m,false);
-    QVector<float> le_mean = collapse_x(le_input, mask, mask, xtalkKappa, n/2, m, "2Dmodel");
-    QVector<float> ri_mean = collapse_x(ri_input, mask, mask, xtalkKappa, n/2, m, "2Dmodel");
+    QVector<bool> maskLocal(n/2*m,false);
+    QVector<float> le_mean = collapse_x(le_input, maskLocal, maskLocal, xtalkKappa, n/2, m, "2Dmodel");
+    QVector<float> ri_mean = collapse_x(ri_input, maskLocal, maskLocal, xtalkKappa, n/2, m, "2Dmodel");
 
     // le = le - xtalkRowAmp * mean(le+ri)
     for (j=0; j<m; ++j) {
@@ -828,11 +828,11 @@ void Splitter::xtalk_method7()
         }
     }
 
-    QVector<bool> mask(n/2*m/2,false);
-    QVector<float> ll_mean = collapse_y(ll_input, mask, mask, xtalkKappa, n/2, m/2, "2Dmodel");
-    QVector<float> lr_mean = collapse_y(lr_input, mask, mask, xtalkKappa, n/2, m/2, "2Dmodel");
-    QVector<float> ul_mean = collapse_y(ul_input, mask, mask, xtalkKappa, n/2, m/2, "2Dmodel");
-    QVector<float> ur_mean = collapse_y(ur_input, mask, mask, xtalkKappa, n/2, m/2, "2Dmodel");
+    QVector<bool> maskLocal(n/2*m/2,false);
+    QVector<float> ll_mean = collapse_y(ll_input, maskLocal, maskLocal, xtalkKappa, n/2, m/2, "2Dmodel");
+    QVector<float> lr_mean = collapse_y(lr_input, maskLocal, maskLocal, xtalkKappa, n/2, m/2, "2Dmodel");
+    QVector<float> ul_mean = collapse_y(ul_input, maskLocal, maskLocal, xtalkKappa, n/2, m/2, "2Dmodel");
+    QVector<float> ur_mean = collapse_y(ur_input, maskLocal, maskLocal, xtalkKappa, n/2, m/2, "2Dmodel");
 
     // ll = ll - xtalkRowAmp * mean(ll+lr+ul+ur)
     for (j=0; j<m/2; ++j) {
@@ -895,9 +895,9 @@ void Splitter::xtalk_method8()
         }
     }
 
-    QVector<bool> mask(n*m/2,false);
-    QVector<float> bo_mean = collapse_y(bo_input, mask, mask, xtalkKappa, n, m/2, "2Dmodel");
-    QVector<float> up_mean = collapse_y(up_input, mask, mask, xtalkKappa, n, m/2, "2Dmodel");
+    QVector<bool> maskLocal(n*m/2,false);
+    QVector<float> bo_mean = collapse_y(bo_input, maskLocal, maskLocal, xtalkKappa, n, m/2, "2Dmodel");
+    QVector<float> up_mean = collapse_y(up_input, maskLocal, maskLocal, xtalkKappa, n, m/2, "2Dmodel");
 
     // bo = bo - xtalkRowAmp * mean(bo+up)
     for (j=0; j<m/2; ++j) {
@@ -939,9 +939,9 @@ void Splitter::xtalk_method9()
         }
     }
 
-    QVector<bool> mask(n/2*m,false);
-    QVector<float> le_mean = collapse_y(le_input, mask, mask, xtalkKappa, n/2, m, "2Dmodel");
-    QVector<float> ri_mean = collapse_y(ri_input, mask, mask, xtalkKappa, n/2, m, "2Dmodel");
+    QVector<bool> maskLocal(n/2*m,false);
+    QVector<float> le_mean = collapse_y(le_input, maskLocal, maskLocal, xtalkKappa, n/2, m, "2Dmodel");
+    QVector<float> ri_mean = collapse_y(ri_input, maskLocal, maskLocal, xtalkKappa, n/2, m, "2Dmodel");
 
     // le = le - xtalkRowAmp * mean(le+ri)
     for (j=0; j<m; ++j) {

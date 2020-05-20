@@ -81,8 +81,12 @@ void ColorPicture::on_calibratePushButton_clicked()
 
 void ColorPicture::taskInternalColorCalib()
 {
+    // get platescale
+    if (croppedList.isEmpty()) return;
+    croppedList.at(0)->loadHeader();     // get access to platescale and radius
+
     QList<Query*> queryList;
-    if (instData->pixscale > 3. || instData->radius > 1.5) {
+    if (croppedList.at(0)->plateScale > 3. || croppedList.at(0)->radius > 1.5) {
         queryList = {APASSquery};
         ui->resultPANSTARRSPushButton->setDisabled(true);
         ui->resultSDSSPushButton->setDisabled(true);

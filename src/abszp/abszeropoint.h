@@ -20,10 +20,8 @@ If not, see https://www.gnu.org/licenses/ .
 #ifndef ABSZEROPOINT_H
 #define ABSZEROPOINT_H
 
-#include "../processingExternal/errordialog.h"
 #include "../threading/abszpworker.h"
 #include "../qcustomplot.h"
-#include "../instrumentdata.h"
 #include "../myimage/myimage.h"
 
 #include <QMainWindow>
@@ -44,7 +42,7 @@ class AbsZeroPoint : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit AbsZeroPoint(QString image, instrumentDataType *instrumentData, QWidget *parent = nullptr);
+    explicit AbsZeroPoint(QString image, QWidget *parent = nullptr);
     ~AbsZeroPoint();
 
     void plot();
@@ -70,7 +68,6 @@ signals:
     void abszpClosed();
 
 public slots:
-    void processErrorOutput(QString errormessage, QString logname);
     void updateVerbosity(int verbosityLevel);
 
 private slots:
@@ -102,8 +99,6 @@ private:
     QString taskBasename = "AbsZeropoint";
     QString thelidir;
     QString userdir;
-    instrumentDataType *instData;
-    ErrorDialog *errordialog = new ErrorDialog(this);
     QFileInfo fileInfo;
     QStringList totalCommandList;
     bool performingStartup = true;

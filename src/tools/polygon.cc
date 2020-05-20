@@ -131,7 +131,7 @@ void addPolygon_bool(const long n, const long m, const QVector<float> &vertx, co
     }
 }
 
-void addPolygon_float(long n, long m, QVector<float> &vertx, QVector<float> &verty, QString senseMode, QVector<float> &weight)
+void addPolygon_float(const long n, const long m, const QVector<float> &vertx, const QVector<float> &verty, QString senseMode, QVector<float> &weight)
 {
     float x, y;
 
@@ -163,7 +163,7 @@ void addPolygon_float(long n, long m, QVector<float> &vertx, QVector<float> &ver
     }
 }
 
-void addCircle_bool(long n, long m, float x, float y, float r, QString senseMode, QVector<bool> &mask)
+void addCircle_bool(const long n, const long m, float x, float y, float r, QString senseMode, QVector<bool> &mask)
 {
     float ii, jj, d;
 
@@ -191,7 +191,7 @@ void addCircle_bool(long n, long m, float x, float y, float r, QString senseMode
     }
 }
 
-void addCircle_float(long n, long m, float x, float y, float r, QString senseMode, QVector<float> &weight)
+void addCircle_float(const long n, const long m, float x, float y, float r, QString senseMode, QVector<float> &weight)
 {
     float ii, jj, d;
 // NOT THREADSAFE
@@ -218,7 +218,7 @@ void addCircle_float(long n, long m, float x, float y, float r, QString senseMod
     }
 }
 
-void addRegionFilesToMask(long n, long m, QString regionFile, QVector<bool> &mask, bool &isChipMasked)
+void addRegionFilesToMask(const long n, const long m, QString regionFile, QVector<bool> &mask, bool &isChipMasked)
 {
     QFile file(regionFile);
     if (!file.exists()) return;
@@ -268,7 +268,7 @@ void addRegionFilesToMask(long n, long m, QString regionFile, QVector<bool> &mas
     file.close();
 }
 
-void addRegionFilesToWeight(long n, long m, QString regionFile, QVector<float> &weight)
+void addRegionFilesToWeight(const long n, const long m, QString regionFile, QVector<float> &weight)
 {
     QFile file(regionFile);
     if (!file.exists()) return;

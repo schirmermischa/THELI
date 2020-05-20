@@ -25,10 +25,9 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QTextStream>
 #include <QString>
 
-Mask::Mask(instrumentDataType *instrumentData, QObject *parent) : QObject(parent)
+Mask::Mask(const instrumentDataType *instrumentData, QObject *parent) : QObject(parent),
+    instData(instrumentData)
 {
-    instData = instrumentData;
-
     // Initialize the masks
     initMasks();
 }
@@ -39,7 +38,6 @@ void Mask::initMasks()
 
     // Masks are fully populated, even for chips the user does not want to use, because the latter may change,
     // but the mask is initialized when the instrument is selected, so we need it for all chips.
-
 
     globalMask.resize(instData->numChips);
     isChipMasked.resize(instData->numChips);
@@ -57,7 +55,8 @@ void Mask::initMasks()
     // There can be a global mask (without chip number), ending in .reg which is valid for all chips.
     // And there can be additional, individual masks, ending in_chip.reg
 
-    QString baseName = instData->nameFullPath.remove(".ini");
+    QString baseName = instData->nameFullPath;
+    baseName = baseName.remove(".ini");
 
     // Global mask: create the mask for chip 1, then copy it to all other chips.
     // This assumes that all chips have identical geometries!

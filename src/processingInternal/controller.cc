@@ -40,12 +40,15 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QTimer>
 #include <QProgressBar>
 
-Controller::Controller(instrumentDataType *instrumentData, QString statusold, ConfDockWidget *confDockWidget,
-                       Monitor *processMonitor, MainWindow *parent) : QMainWindow(parent), cdw(confDockWidget)
+Controller::Controller(const instrumentDataType *instrumentData, QString statusold, ConfDockWidget *confDockWidget,
+                       Monitor *processMonitor, MainWindow *parent) :
+    QMainWindow(parent),
+    cdw(confDockWidget),
+    instData(instrumentData)
 {
     mainGUI = parent;
     //    cdw = confDockWidget;
-    instData = instrumentData;
+//    instData = instrumentData;
     statusOld = statusold;
     monitor = processMonitor;
 
@@ -114,7 +117,7 @@ void Controller::getNumberOfActiveImages(Data *&data)
     progress = 0.;
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (instData->badChips.contains(chip)) continue;
-        for (auto &it : data->myImageList[chip]) {
+        for (auto &it : data->myImageList.at(chip)) {
             if (it->activeState == MyImage::ACTIVE) ++numActiveImages;
         }
     }
@@ -596,7 +599,7 @@ void Controller::pushParallelizationToData(Data *data)
     data->maxRAM = maxRAM;
 }
 
-void Controller::addToProgressBarReceived(float differential)
+void Controller::addToProgressBarReceived(const float differential)
 {
     omp_set_lock(&progressLock);
     progress += differential;
@@ -621,7 +624,7 @@ void Controller::releaseAllMemory()
     }
 }
 
-void Controller::doDataFitInRAM(long nImages, long storageSize)
+void Controller::doDataFitInRAM(const long nImages, const long storageSize)
 {
     if (alwaysStoreData) return;    // we are good
 
@@ -730,7 +733,7 @@ void Controller::satisfyMaxMemorySetting()
     omp_unset_lock(&memoryLock);
 }
 
-void Controller::checkSuccessProcessing(Data *data)
+void Controller::checkSuccessProcessing(const Data *data)
 {
     if (userStop || userKill) {
         emit messageAvailable("Aborted", "stop");
@@ -749,7 +752,7 @@ void Controller::checkSuccessProcessing(Data *data)
 
 // Shows a message box where the user can optionally trigger a clearance of the error state.
 // The task that triggers this
-bool Controller::testResetDesire(Data *data)
+bool Controller::testResetDesire(const Data *data)
 {
     if (!data->successProcessing) {
         emit showMessageBox("Controller::RESET_REQUESTED", data->subDirName, "");
@@ -981,25 +984,25 @@ void Controller::memoryDecideDeletableStatus(Data *data, bool deletable)
     }
 }
 
-QString Controller::getUserParamLineEdit(QLineEdit *le)
+QString Controller::getUserParamLineEdit(const QLineEdit *le)
 {
     QString value = le->text();
     if (value == "") value = cdw->defaultMap[le->objectName()];
     return value;
 }
 
-QString Controller::getUserParamCheckBox(QCheckBox *cb)
+QString Controller::getUserParamCheckBox(const QCheckBox *cb)
 {
     if (cb->isChecked()) return "Y";
     else return "N";
 }
 
-QString Controller::getUserParamComboBox(QComboBox *cb)
+QString Controller::getUserParamComboBox(const QComboBox *cb)
 {
     return cb->currentText();
 }
 
-void Controller::pushBeginMessage(QString idstring, QString targetdir)
+void Controller::pushBeginMessage(const QString idstring, const QString targetdir)
 {
     QString message = commentMap.value(idstring);
     emit messageAvailable("<br>##############################################", "output");
@@ -1007,7 +1010,7 @@ void Controller::pushBeginMessage(QString idstring, QString targetdir)
     emit messageAvailable("##############################################<br>\n", "output");
 }
 
-void Controller::pushEndMessage(QString idstring, QString targetdir)
+void Controller::pushEndMessage(const QString idstring, const QString targetdir)
 {
     QString message = commentMap.value(idstring);
     emit messageAvailable("<br>##############################################", "output");

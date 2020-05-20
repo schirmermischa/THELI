@@ -27,10 +27,11 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QString>
 #include <QFile>
 
-ImageQuality::ImageQuality(Data *data, instrumentDataType *instrumentData, QString maindirname, QObject *parent) : QObject(parent)
+ImageQuality::ImageQuality(const instrumentDataType *instrumentData, QString maindirname, QObject *parent) :
+    QObject(parent),
+    instData(instrumentData)
 {
-    scienceData = data;
-    instData = instrumentData;
+//    instData = instrumentData;
     mainDirName = maindirname;
 }
 

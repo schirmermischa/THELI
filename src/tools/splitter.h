@@ -35,8 +35,8 @@ class Splitter : public QObject
 {
     Q_OBJECT
 public:
-    explicit Splitter(instrumentDataType &instrumentData, Mask *detectorMask, Mask *altDetectorMask,
-                      Data *someData, QString datatype, ConfDockWidget *confDockWidget, QString maindirname,
+    explicit Splitter(const instrumentDataType &instrumentData, const Mask *detectorMask, const Mask *altDetectorMask,
+                      Data *someData, QString datatype, const ConfDockWidget *confDockWidget, QString maindirname,
                       QString subdirname, QString filename, int *verbose, QObject *parent = nullptr);
 
     void extractImages();
@@ -71,8 +71,8 @@ public:
     float (*combineOverscan_ptr) (const QVector<float> &, const QVector<bool> &, long);
 
 
-    Mask *mask;
-    Mask *altMask;     // alternative mask, in case of e.g. GRONG where we have two very different detector types
+    const Mask *mask;
+    const Mask *altMask;     // alternative mask, in case of e.g. GRONG where we have two very different detector types
 
     Data *data;
 
@@ -128,9 +128,9 @@ private:
     QVector<long> multiportOffsetY;                      // The y-offset of that port's data section from the lower left pixel of the pasted image
     QStringList multiportOverscanDirections;             // Whether the overscan strips are vertical or horizontal
 
-    instrumentDataType instData;      // No pointer, because it is not thread safe (QVectors, QStrings)
-    instrumentDataType altInstData;   // For GROND, where we have two very different detector types
-    ConfDockWidget *cdw;
+    instrumentDataType instData;                         // No pointer, because it is accessed from multiple threads and is not thread safe (QVectors, QStrings)
+    instrumentDataType altInstData;                      // For GROND, where we have two very different detector types
+    const ConfDockWidget *cdw;
     QString name;
     QString fileName;
     QString path;

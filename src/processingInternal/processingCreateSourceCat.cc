@@ -500,13 +500,15 @@ bool Controller::manualCoordsUpdate(Data *scienceData, QString mode)
         auto &it = allMyImages[k];
         int chip = it->chipNumber - 1;
         if (instData->badChips.contains(chip)) continue;
-
         if (!it->successProcessing) continue;
-        it->setupDataInMemorySimple(false);
+
+        it->loadHeader();
+
         if (!it->successProcessing) {
             abortProcess = true;
             continue;
         }
+
         // TODO: should be sufficient, but crashes when executed right after launch
         // it->loadHeader();
         if (mode == "crval") {

@@ -372,7 +372,9 @@ void Controller::taskInternalProcessflat()
             it->setupCalibDataInMemory(true, true, true);    // read from backupL1, if not then from disk. Makes backup copy if not yet done
             it->setModeFlag(min, max);                       // Must set mode flags before subtracting dark component (flatoffs can have really high levels in NIR data)
             if (biasData != nullptr && biasData->successProcessing) { // cannot pass nullptr to subtractBias()
+//                it->subtractBias(ref, biasDataType);
                 it->subtractBias(biasData->combinedImage[chip], biasDataType);
+//                  it->subtractBias(biasData->combinedImage[chip]->dataCurrent, biasDataType);
                 it->skyValue -= biasData->combinedImage[chip]->skyValue;
             }
 //            it->getMode(true);
@@ -388,10 +390,13 @@ void Controller::taskInternalProcessflat()
         flatData->getModeCombineImages(chip);
         // Individual images may be released; must keep master calib for further below
         flatData->memorySetDeletable(chip, "dataCurrent", true);
+        for (auto &it : flatData->myImageList[chip]) it->freeData("dataCurrent");     // Bias subtracted pixels, not needed anymore
         flatData->memorySetDeletable(chip, "dataBackupL1", true);
         if (minimizeMemoryUsage) {
             for (auto &it : flatData->myImageList[chip]) it->freeAll();
+            if (biasData != nullptr) biasData->combinedImage[chip]->freeAll();
         }
+
         if (!flatData->successProcessing) successProcessing = false;
 #pragma omp atomic
         progress += progressCombinedStepSize;

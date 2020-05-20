@@ -159,7 +159,7 @@ void MainWindow::updateProcessList(QStringList &commandList, QString taskBasenam
 
 // This function collects the internal process calls
 // NOTE: THIS IS CALLED FOR EACH TASK SEQUENTIALLY
-QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList goodDirList, bool &stop, QString mode)
+QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList goodDirList, bool &stop, const QString mode)
 {
     // Does the task exist in the checkbox map?
     QString taskName;
@@ -192,11 +192,11 @@ QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList
         bool skip = false;
         bool test = QMetaObject::invokeMethod(this, ("check_task"+taskBasename).toStdString().c_str(),
                                               Qt::DirectConnection,
-                                              Q_ARG(DataDir, datadir),
+                                              Q_ARG(DataDir*, &datadir),
                                               Q_ARG(QString, taskBasename),
                                               Q_ARG(bool &, stop),
                                               Q_ARG(bool &, skip),
-                                              Q_ARG(QString, mode));
+                                              Q_ARG(const QString, mode));
         if (!test) {
             qDebug() << "QDEBUG: createCommandListBlock: Could not evaluate QMetaObject.";
             stop = true;
@@ -678,7 +678,7 @@ bool MainWindow::OSPBC_addCommandBlock(const QString taskBasename, const QString
                                           Qt::DirectConnection,
                                           Q_RETURN_ARG(QStringList, commandblock),
                                           Q_ARG(bool &, stop),
-                                          Q_ARG(QString, mode));
+                                          Q_ARG(const QString, mode));
     if (!test) {
         qDebug() << "QDEBUG: on_startPushButton_clicked: Could not evaluate QMetaObject.";
         return false;
