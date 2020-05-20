@@ -39,7 +39,7 @@ DetectedObject::DetectedObject(const QList<long> &objectIndices, const QVector<f
     weightInMemory(weightinmemory),
     wcs(wcsImage),
     saturationValue(satVal),
-    gain(gainval)                    // GAIN is 1.0 always as we convert ADU to electrons during HDU reformatting, already!
+    gain(gainval)                    // GAIN is 1.0 always as we convert ADU to electrons during HDU reformatting, already. Kept for clarity
 {
     area = objectIndices.length();
     objID = objid;

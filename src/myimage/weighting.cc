@@ -110,8 +110,8 @@ void MyImage::thresholdWeight(QString imageMin, QString imageMax)
 
     long i=0;
     for (auto &pixel : dataWeight) {
-        if (dataCurrent[i] < minVal) pixel = 0.;
-        if (dataCurrent[i] > maxVal) pixel = 0.;
+        if (dataCurrent.at(i) < minVal) pixel = 0.;
+        if (dataCurrent.at(i) > maxVal) pixel = 0.;
         ++i;
     }
 }
@@ -128,12 +128,12 @@ void MyImage::roundEdgeOfWeight(float edge, bool roundEdge)
             // Optionally, round the edge
             if (roundEdge) {
                 if (dymin <= edge && dxmin <= edge) {
-                    d = edge - sqrt((edge-dxmin)*(edge-dxmin)+(edge-dymin)*(edge-dymin));
+                    d = edge - sqrt((edge-dxmin) * (edge-dxmin) + (edge-dymin) * (edge-dymin));
                     if (d < 0.) d = 0.;
                 }
             }
-            if (d<=edge) {
-                dataWeightSmooth[i+naxis1*j] = 0.5*(-cos(d/edge*3.14159)+1.)*dataWeight[i+naxis1*j];
+            if (d <= edge) {
+                dataWeightSmooth[i+naxis1*j] = 0.5*(-cos(d/edge*3.14159) +1.) * dataWeight.at(i+naxis1*j);
             }
         }
     }
@@ -333,7 +333,7 @@ void MyImage::laplaceFilter(QVector<float> &dataFiltered)
             for (int jt=j-1; jt<=j+1; ++jt) {
                 for (int it=i-1; it<=i+1; ++it) {
                     long t = it+n*jt;
-                    datatmp = dataCurrent[t] - baseLevel + 1000.; // make sure the image has a positive background
+                    datatmp = dataCurrent.at(t) - baseLevel + 1000.; // make sure the image has a positive background
                     sum += datatmp;
                     dataFiltered[k] += datatmp * kernel[l];
                     ++l;
@@ -382,6 +382,7 @@ void MyImage::median2D(const QVector<float> &data_in, QVector<float> &data_out, 
     }
 }
 
+// Turns out this algorithm is similar to "LAcosmic" (http://www.astro.yale.edu/dokkum/lacosmic/)
 void MyImage::cosmicsFilter(QString aggressiveness)
 {
     if (!successProcessing) return;

@@ -186,8 +186,8 @@ void ColorPicture::taskInternalBBNBcombine()
     dummyMask.clear();
     QString newName = bbImage->baseName + nbImage->baseName + "_cropped.fits";
     QString newNameWeight = bbImage->baseName + nbImage->baseName + "_cropped.weight.fits";
-    MyImage *combinedImage = new MyImage(path, bbImage->name, "", 1, dummyMask, &verbosity, false);
-    MyImage *combinedWeight = new MyImage(path, bbImage->name, "", 1, dummyMask, &verbosity, false);
+    MyImage *combinedImage = new MyImage(path, bbImage->name, "", 1, dummyMask, &verbosity);
+    MyImage *combinedWeight = new MyImage(path, bbImage->name, "", 1, dummyMask, &verbosity);
     combinedImage->loadHeader();
     combinedWeight->loadHeader();
 

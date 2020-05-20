@@ -284,7 +284,7 @@ void MyImage::writeObjectMask(QString fileName)
 
 
 // If the 'headerRef' member is set, the header from that image will be copied.
-void MyImage::writeConstImage(QString fileName, float constValue, float exptime, QString filter, QVector<QString> header)
+void MyImage::writeConstImage(QString fileName, float constValue, float exptime, QString filter, const QVector<QString> header)
 {
     // The new output file
     fitsfile *fptr;

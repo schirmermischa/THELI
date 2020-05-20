@@ -132,8 +132,8 @@ void SwarpFilter::getImages()
         // global masks don't apply here because of different image geometry. Hence passing QVector<bool>()
         QVector<bool> dummyMask;
         dummyMask.clear();
-        MyImage *myImage = new MyImage(coaddDirName, base+"resamp.fits", "", 0, dummyMask, verbosity, false);
-        MyImage *myWeight = new MyImage(coaddDirName, base+"resamp.weight.fits", "", 0, dummyMask, verbosity, false);
+        MyImage *myImage = new MyImage(coaddDirName, base+"resamp.fits", "", 0, dummyMask, verbosity);
+        MyImage *myWeight = new MyImage(coaddDirName, base+"resamp.weight.fits", "", 0, dummyMask, verbosity);
         images.append(myImage);
         weights.append(myWeight);
     }

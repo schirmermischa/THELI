@@ -29,8 +29,8 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QTextStream>
 #include <QFile>
 
+/*
 // subtract a polynomial fit
-// UNUSED?
 void MyImage::subtractPolynomialSkyFit(gsl_vector* c, int order)
 {
     if (!successProcessing) return;
@@ -41,6 +41,7 @@ void MyImage::subtractPolynomialSkyFit(gsl_vector* c, int order)
     //    readSkyPositions(ra, dec, sky);
     //    calculateSkyFit(ra, dec, sky, order);
 }
+*/
 
 // Needed for polynomial fit
 QVector<long> MyImage::locateSkyNode(const double alpha, const double delta, const double radius)

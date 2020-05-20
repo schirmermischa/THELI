@@ -938,33 +938,13 @@ void Controller::coaddUpdate()
 
     emit loadViewer(coaddDirName, "coadd.fits", "DragMode");
 
-    /*
-    if (instData->pixscale > 2.0 || instData->radius > 0.5) {
-        emit progressUpdate(100);
-        // Finally, do flux calibration if requested
-        if (cdw->ui->COAfluxcalibCheckBox->isChecked()) {
-            emit messageAvailable("coadd.fits : Loading flux calibration module ...", "image");
-            emit loadAbsZP(coaddDirName+"/coadd.fits", instData, 100);
-        }
-        else {
-            // Now we can quit the first coaddition thread (which spawned all the other threads).
-            // This will return control to mainGUI() (i.e. enable the start button again)
-            workerThreadPrepare->quit();
-        }
-        emit loadViewer(coaddDirName, "coadd.fits", "DragMode");
-
-        emit messageAvailable("<br>Image covering very large area on sky. Image quality analysis skipped, as it would require the download of a very large point source catalog.<br>", "image");
-        skippedIQ = true;
-    }
-    */
-
     // Do IQ analysis only for small images with "normal" plate scales
     if (instData->pixscale <= 2.0 && instData->radius <= 0.5) {
         skippedIQ = false;
         emit messageAvailable("coadd.fits : Loading image data ...", "image");
         QVector<bool> dummyMask;
         dummyMask.clear();
-        MyImage *coadd = new MyImage(coaddDirName, "coadd.fits", "", 1, dummyMask, &verbosity, false);
+        MyImage *coadd = new MyImage(coaddDirName, "coadd.fits", "", 1, dummyMask, &verbosity);
         connect(coadd, &MyImage::critical, this, &Controller::criticalReceived);
         connect(coadd, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
         connect(coadd, &MyImage::warning, this, &Controller::warningReceived);

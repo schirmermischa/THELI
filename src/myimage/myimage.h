@@ -89,7 +89,7 @@ private:
     bool insideImage(QPoint p);
     void floodFill(const QPoint startPoint, QList<long> &objectPixelIndices, long &objID,
                    QVector<long> &dataSegmentation, const long DMIN);
-    QVector<float> directConvolve(QVector<float> &data);
+    QVector<float> directConvolve(const QVector<float> &data);
     void writeObjectMask(QString fileName);
 
     // =================================================================
@@ -130,8 +130,7 @@ private:
     bool doesHeaderContain(QString keyword);
 public:
     explicit MyImage(QString pathname, QString filename, QString statusString, int chipnumber,
-                     const QVector<bool> &mask, int *verbose, bool makebackup = true,
-                     QObject *parent = nullptr);
+                     const QVector<bool> &mask, int *verbose, QObject *parent = nullptr);
     explicit MyImage(QString fullPathName, const QVector<bool> &mask, int *verbose, QObject *parent = nullptr);
     explicit MyImage(QObject *parent = nullptr);
 
@@ -186,7 +185,6 @@ public:
     QString baseNameBackupL1 = "";
     QString baseNameBackupL2 = "";
     QString baseNameBackupL3 = "";
-    bool makeBackup = true;  // used when reading an image for the first time in the pipeline context
     bool metadataTransferred = false;
     int groupNumber = -1; // The association of images this image belongs to (an overlapping group on sky)
 
@@ -328,7 +326,7 @@ public:
 
     // ================== Image segmentation ===========================
     QVector<long> dataSegmentation;
-    void segmentImage(QString DTstring, QString DMINstring, bool convolution, bool writeSegImage = false);
+    void segmentImage(const QString DTstring, const QString DMINstring, const bool convolution, const bool writeSegImage = false);
     void maskExpand(QString expFactor, bool writeObjectmaskImage = false);
     void transferObjectsToMask();
     void releaseAllDetectionMemory();
@@ -346,7 +344,7 @@ public:
     void add(float value);
     void appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_string, QString maxFlag_string);
     void appendToScampCatalogSourceExtractor(fitsfile *fptr);
-    void applyBackgroundModel(MyImage *backgroundImage, QString mode, bool rescaleFlag);
+    void applyBackgroundModel(const MyImage *backgroundImage, QString mode, bool rescaleFlag);
     void applyMask();
     void applyPolygons(int chip);
     void backupOrigHeader(int chip);
@@ -356,7 +354,7 @@ public:
     void createSourceExtractorCatalog();
     void collapseCorrection(QString threshold, QString direction);
     void cosmicsFilter(QString aggressiveness);
-    void checkBrightStars(QList<QVector<double>> &brightStarList, float safetyDistance, float plateScale);
+    void checkBrightStars(const QList<QVector<double> > &brightStarList, float safetyDistance, float plateScale);
     void divide(float value);
     void divideFlat(const MyImage *flatImage);
     void emitModelUpdateNeeded();
@@ -410,7 +408,7 @@ public:
     void subtract(float value);
     void subtractBias(const MyImage *biasImage, QString dataType);
     void subtractSkyFit(int order, gsl_vector *c, bool saveSkyModel);
-    void subtractPolynomialSkyFit(gsl_vector *c, int order);
+//    void subtractPolynomialSkyFit(gsl_vector *c, int order);
     void subtractBackgroundModel();
     void toTIFF(int bit, float minthresh, float maxthresh, bool zscaleing = false, float grey = 0., float gamma = 1.0);
     void thresholdWeight(QString imageMin, QString imageMax);

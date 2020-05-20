@@ -511,7 +511,9 @@ QString DataModel::getIndicator(bool flag)
 bool DataModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     beginInsertRows(parent, row, row + count - 1);
-    MyImage *newImage = new MyImage("path", "file", "", 1, QVector<bool>(), myData->verbosity, false);
+    QVector<bool> dummyMask;
+    dummyMask.clear();
+    MyImage *newImage = new MyImage("path", "file", "", 1, dummyMask, myData->verbosity);
     connect(newImage, &MyImage::modelUpdateNeeded, this, &DataModel::modelUpdateReceiver);
     imageList.insert(row, newImage);
     endInsertRows();

@@ -35,7 +35,7 @@ If not, see https://www.gnu.org/licenses/ .
 
 // C'tor
 MyImage::MyImage(QString pathname, QString filename, QString statusString, int chipnumber,
-                 const QVector<bool> &mask, int *verbose, bool makebackup, QObject *parent) : QObject(parent), globalMask(mask)
+                 const QVector<bool> &mask, int *verbose, QObject *parent) : QObject(parent), globalMask(mask)
 {
     path = pathname;
     name = filename;
@@ -47,7 +47,6 @@ MyImage::MyImage(QString pathname, QString filename, QString statusString, int c
     rootName = baseName;
     rootName.truncate(rootName.lastIndexOf('_'));
     chipName = rootName+"_"+QString::number(chipNumber);
-    makeBackup = makebackup;
     weightName = chipName+".weight";
 
     processingStatus = new ProcessingStatus(path, this);
@@ -106,7 +105,6 @@ MyImage::MyImage(QString fullPathName, const QVector<bool> &mask, int *verbose, 
     rootName.truncate(rootName.lastIndexOf('_'));
     chipName = rootName+"_"+QString::number(chipNumber);
 
-    makeBackup = false;
     weightName = baseName+".weight";
 
     if (globalMask.isEmpty()) globalMaskAvailable = false;
@@ -504,10 +502,10 @@ void MyImage::updateHeaderValue(QString keyName, float keyValue, char format)
         header.insert(header.end()-1, card);
     }
     else {
-        for (auto &existingCard : header) {
-            if (existingCard.contains(keyword)) {
+        for (auto &it : header) {
+            if (it.contains(keyword)) {
                 // Replace old entry
-                existingCard = card;
+                it = card;
                 break;
             }
         }
@@ -551,10 +549,10 @@ void MyImage::updateHeaderValue(QString keyName, QString keyValue)
         header.insert(header.end()-1, card);
     }
     else {
-        for (auto &existingCard : header) {
-            if (existingCard.contains(keyword)) {
+        for (auto &it : header) {
+            if (it.contains(keyword)) {
                 // Replace old entry
-                existingCard = card;
+                it = card;
                 break;
             }
         }
@@ -664,7 +662,7 @@ void MyImage::subtractBias(const MyImage *biasImage, QString dataType)
     // We have verified "above" that the bias was successfully loaded
     long i = 0;
     for (auto &pixel : dataCurrent) {
-        pixel -= biasImage->dataCurrent[i];
+        pixel -= biasImage->dataCurrent.at(i);
 //        pixel -= 0.;     // testing memory accumulation
         ++i;
     }
@@ -733,7 +731,7 @@ void MyImage::divideFlat(const MyImage *flatImage)
     long i = 0;
     for (auto &pixel : dataCurrent) {
         // Divide by flat, and correct for gain differences
-        pixel /= (flatImage->dataCurrent[i] * flatImage->gainNormalization);
+        pixel /= (flatImage->dataCurrent.at(i) * flatImage->gainNormalization);
         // NaN pixels slow down SourceExtractor enourmously (and make it fail).
         // we can probably get rid of this once we have completely thrown out SourceExtractor
         if (std::isnan(pixel) || std::isinf(pixel)) pixel = 0.;
@@ -744,7 +742,7 @@ void MyImage::divideFlat(const MyImage *flatImage)
     successProcessing = true;
 }
 
-void MyImage::applyBackgroundModel(MyImage *backgroundImage, QString mode, bool rescaleFlag)
+void MyImage::applyBackgroundModel(const MyImage *backgroundImage, QString mode, bool rescaleFlag)
 {
     if (!successProcessing) return;
 
@@ -753,8 +751,8 @@ void MyImage::applyBackgroundModel(MyImage *backgroundImage, QString mode, bool 
         float rescale = 1.0;
         if (rescaleFlag) rescale = skyValue / backgroundImage->skyValue;
         for (auto &pixel : dataCurrent) {
-            if (backgroundImage->dataCurrent[i] != 0.) {
-                pixel = dataBackupL1[i] - backgroundImage->dataCurrent[i] * rescale;
+            if (backgroundImage->dataCurrent.at(i) != 0.) {
+                pixel = dataBackupL1.at(i) - backgroundImage->dataCurrent.at(i) * rescale;
             }
             else {
                 pixel = 0.;
@@ -769,8 +767,8 @@ void MyImage::applyBackgroundModel(MyImage *backgroundImage, QString mode, bool 
     else if (mode == "Divide model") {
         // rescaling switched off. Background image is always normalized to its own mode
         for (auto &pixel : dataCurrent) {
-            if (backgroundImage->dataCurrent[i] != 0) {
-                pixel = dataBackupL1[i] / (backgroundImage->dataCurrent[i] / backgroundImage->skyValue);
+            if (backgroundImage->dataCurrent.at(i) != 0) {
+                pixel = dataBackupL1.at(i) / (backgroundImage->dataCurrent.at(i) / backgroundImage->skyValue);
             }
             else {
                 pixel = backgroundImage->skyValue;
@@ -811,7 +809,9 @@ void MyImage::illuminationCorrection(int chip, QString thelidir, QString instNam
     QString illumcorrFileName = "illumcorr_"+filter+"_"+QString::number(chip)+".fits";
     if (QFile(illumcorrPath+illumcorrFileName).exists()) {
         if (*verbosity > 1) emit messageAvailable(chipName + " : External illumination correction : <br>" + illumcorrPath+illumcorrFileName, "image");
-        MyImage *illumCorrFlat = new MyImage(illumcorrPath, illumcorrFileName, "", chip+1, QVector<bool>(), verbosity);
+        QVector<bool> dummyMask;
+        dummyMask.clear();
+        MyImage *illumCorrFlat = new MyImage(illumcorrPath, illumcorrFileName, "", chip+1, dummyMask, verbosity);
         illumCorrFlat->readImage();
         if (naxis1 != illumCorrFlat->naxis1 || naxis2 != illumCorrFlat->naxis2 ) {
             emit messageAvailable("MyImage::illuminationCorrection(): " + baseName + " : illumination correction image does not have the same size as the master flat!", "error");
@@ -821,7 +821,7 @@ void MyImage::illuminationCorrection(int chip, QString thelidir, QString instNam
         else {
             long i = 0;
             for (auto &pixel : dataCurrent) {
-                pixel *= illumCorrFlat->dataCurrent[i];
+                pixel *= illumCorrFlat->dataCurrent.at(i);
                 ++i;
             }
             successProcessing = true;
@@ -877,7 +877,7 @@ QVector<float> MyImage::extractPixelValues(long xmin, long xmax, long ymin, long
     long k = 0;
     for (long j=ymin; j<=ymax; ++j) {
         for (long i=xmin; i<=xmax; ++i) {
-            section[k] = dataCurrent[i+naxis1*j];
+            section[k] = dataCurrent.at(i+naxis1*j);
             ++k;
         }
     }
@@ -905,7 +905,7 @@ void MyImage::makeCutout(long xmin, long xmax, long ymin, long ymax)
     dataCut.resize(nsub*msub);
     for (long j=ymin; j<=ymax; ++j) {
         for (long i=xmin; i<=xmax; ++i) {
-            dataCut[k] = dataCurrent[i+naxis1*j];
+            dataCut[k] = dataCurrent.at(i+naxis1*j);
             ++k;
         }
     }
@@ -963,7 +963,9 @@ void MyImage::setupCoaddMode()
     QFile file(path+"/"+weightName);
     if (!file.exists()) return;
 
-    MyImage *myWeight = new MyImage(path, weightName, "", 1, QVector<bool>(), verbosity, false);
+    QVector<bool> dummyMask;
+    dummyMask.clear();
+    MyImage *myWeight = new MyImage(path, weightName, "", 1, dummyMask, verbosity);
     myWeight->readImage();
     dataWeight.swap(myWeight->dataCurrent);
 
@@ -1191,7 +1193,7 @@ QVector<double> MyImage::extractCDmatrix()
 }
 
 // TODO: update to use wcslib functions
-void MyImage::checkBrightStars(QList<QVector<double>> &brightStarList, float safetyDistance, float plateScale)
+void MyImage::checkBrightStars(const QList<QVector<double>> &brightStarList, float safetyDistance, float plateScale)
 {
     if (!successProcessing) return;
 
@@ -1333,7 +1335,7 @@ QVector<float> MyImage::retainUnmaskedData(int sampleDensity)
     dataThresholded.reserve(n/sampleDensity);
     if (!globalMask.isEmpty()) {
         for (long i=0; i<n; i+=sampleDensity) {
-            if (!globalMask[i]) dataThresholded.append(dataCurrent[i]);
+            if (!globalMask.at(i)) dataThresholded.append(dataCurrent[i]);
         }
     }
     else {
@@ -1354,7 +1356,7 @@ void MyImage::mergeObjectWithGlobalMask()
     else {
         long i=0;
         for (auto &pixel : objectMask) {
-            pixel *= globalMask[i];
+            pixel *= globalMask.at(i);
             ++i;
         }
     }

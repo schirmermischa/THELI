@@ -57,7 +57,7 @@ void MyImage::updateSaturation(QString saturation)
     }
 }
 
-void MyImage::segmentImage(QString DTstring, QString DMINstring, bool convolution, bool writeSegImage)
+void MyImage::segmentImage(const QString DTstring, const QString DMINstring, const bool convolution, const bool writeSegImage)
 {
     if (*verbosity > 1) emit messageAvailable(chipName + " : Detecting objects ... ", "image");
 
@@ -106,23 +106,23 @@ void MyImage::segmentImage(QString DTstring, QString DMINstring, bool convolutio
     long i=0;
     for (auto &pixel: dataCurrent) {
         // subtract background model
-        float dorig = pixel - dataBackground[i];
-        float dconv = dataConv[i] - dataBackground[i];
+        float dorig = pixel - dataBackground.at(i);
+        float dconv = dataConv.at(i) - dataBackground.at(i);
 //        dataMeasure.append(dorig);
         dataMeasure[i] = dorig;
-        // Initialize objects in the segmentation map with a negative value (still unprocessed)
+        // Initialize objects in the segmentation map with a negative value (meaning it is still unprocessed)
         // WARNING: Using the globalMask is essential, otherwise the floodfill alg seems to run forever. Really?
         // With global mask
         if (globalMaskAvailable) {
             if (!weightInMemory) {
-                if (dconv > threshold && !globalMask[i]) {
+                if (dconv > threshold && !globalMask.at(i)) {
                     dataSegmentation[i] = -1;
                     allObjectPixelIndices.append(i);
                 }
             }
             else {
-                float rescale = sqrt(maxWeight/dataWeight[i]);
-                if (dataWeight[i] > 0. && !globalMask[i] && dconv > threshold*rescale) {
+                float rescale = sqrt(maxWeight/dataWeight.at(i));
+                if (dataWeight.at(i) > 0. && !globalMask.at(i) && dconv > threshold*rescale) {
                     dataSegmentation[i] = -1;
                     allObjectPixelIndices.append(i);
                 }
@@ -137,8 +137,8 @@ void MyImage::segmentImage(QString DTstring, QString DMINstring, bool convolutio
                 }
             }
             else {
-                float rescale = sqrt(maxWeight/dataWeight[i]);
-                if (dataWeight[i] > 0. && dconv > threshold*rescale) {
+                float rescale = sqrt(maxWeight/dataWeight.at(i));
+                if (dataWeight.at(i) > 0. && dconv > threshold*rescale) {
                     dataSegmentation[i] = -1;
                     allObjectPixelIndices.append(i);
                 }
@@ -292,7 +292,7 @@ bool MyImage::insideImage(QPoint p)
 }
 
 // convolve with a general purpose noise filter
-QVector<float> MyImage::directConvolve(QVector<float> &data)
+QVector<float> MyImage::directConvolve(const QVector<float> &data)
 {
     float kernel[] = { 1./16., 2./16., 1./16.,
                        2./16., 4./16., 2./16.,
@@ -699,9 +699,9 @@ void MyImage::makeXcorrData()
     // Xcorrelation works best if we mask all unrelevant pixels
     long i = 0;
     for (auto &pixel: dataXcorr) {
-        if (globalMaskAvailable && globalMask[i]) pixel = 0.;
-        if (dataSegmentation[i] == -1) pixel = 0.;
-        if (weightInMemory && dataWeight[i] == 0.) pixel = 0.;
+        if (globalMaskAvailable && globalMask.at(i)) pixel = 0.;
+        if (dataSegmentation.at(i) == -1) pixel = 0.;
+        if (weightInMemory && dataWeight.at(i) == 0.) pixel = 0.;
         ++i;
     }
 }
