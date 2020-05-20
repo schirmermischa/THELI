@@ -86,16 +86,31 @@ void Controller::taskInternalProcessbias()
             if (abortProcess) break;
             if (!it->successProcessing) continue;
             it->setupCalibDataInMemory(false, true, false);   // Read image (if not already in memory), do not create backup, do get mode
-            it->setModeFlag(min, max);                        // Flag the image if its mode is outside acceptable ranges
+            it->setModeFlag(min, max);                        // Flag the image if its mode is outside a user-provided acceptable range
+
+            // WORKS
+            // it->dataCurrent.clear();
+            // it->dataCurrent.squeeze();
+
 #pragma omp atomic
             progress += progressHalfStepSize;
         }
+
+        // DOES NOT WORK. why?
+        // for (auto &it : biasData->myImageList[chip]) {
+        //    it->dataCurrent.clear();
+        //    it->dataCurrent.squeeze();
+        // }
+
+        // Commented to avoid crash depending on tests
         biasData->combineImagesCalib(chip, combineBias_ptr, nlow, nhigh, dataDirName, dataSubDirName, dataDataType);  // Combine images
         biasData->getModeCombineImages(chip);
         biasData->writeCombinedImage(chip);
         biasData->unprotectMemory(chip);
         if (minimizeMemoryUsage) {
-            for (auto &it : biasData->myImageList[chip]) it->freeAll();
+            for (auto &it : biasData->myImageList[chip]) {
+                it->freeAll();
+            }
         }
         biasData->combinedImage[chip]->emitModelUpdateNeeded();
         if (!biasData->successProcessing) successProcessing = false;

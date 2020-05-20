@@ -473,7 +473,6 @@ void MyImage::setupCalibDataInMemory(bool createBackup, bool determineMode, bool
     if (!successProcessing) return;
     if (activeState != ACTIVE) return;    // Don't change location of deactivated images
 
-
     // Restore level 1 backup (in case we reprocess the data).
     // Either get it from memory, or read it from disk
     // Backup only needed for FLATS (biases, darks and flatoff are not 'processed' at this point, but flats are bias-subtracted)

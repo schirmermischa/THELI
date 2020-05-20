@@ -78,7 +78,7 @@ void RAM::readStatsRAM_Linux()
     // Reset file to beginning
     instream.seek(0);
 
-    // Files in /proc/ report their size as zero. Hence we can't 'while until EOF, but just read until nothing is read anymore.
+    // Files in /proc/ report their size as zero. Hence we can't do "while until EOF", but just read until nothing is read anymore.
 
     QString line = instream.readLine().simplified();
     while (!line.isNull()) {
