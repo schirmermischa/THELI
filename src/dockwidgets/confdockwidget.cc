@@ -527,12 +527,14 @@ void ConfDockWidget::on_ASTmatchMethodComboBox_currentIndexChanged(int index)
     if (index >= 1) {
         ui->ASTposangleLineEdit->setDisabled(true);
         ui->ASTpositionLineEdit->setDisabled(true);
+        ui->ASTmatchflippedCheckBox->setDisabled(true);
         ui->ASTposangleLabel->setDisabled(true);
         ui->ASTpositionLabel->setDisabled(true);
     }
     else {
         ui->ASTposangleLineEdit->setEnabled(true);
         ui->ASTpositionLineEdit->setEnabled(true);
+        ui->ASTmatchflippedCheckBox->setEnabled(true);
         ui->ASTposangleLabel->setEnabled(true);
         ui->ASTpositionLabel->setEnabled(true);
     }
