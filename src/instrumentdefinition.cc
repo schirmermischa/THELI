@@ -218,6 +218,9 @@ void Instrument::on_numchipSpinBox_valueChanged(int arg1)
 {
     numChips = arg1;
     paintNumLineEdits("");
+
+    if (arg1 == 1) ui->flipComboBox->setEnabled(true);
+    else ui->flipComboBox->setDisabled(true);
 }
 
 void Instrument::validate(QString arg1)
@@ -386,6 +389,9 @@ void Instrument::on_saveConfigPushButton_clicked()
             QString bayerPattern = bayerButtonGroup->button(checkedId)->objectName().remove("bayer").remove("ToolButton");
             outputStream << "BAYER=" << bayerPattern << "\n";
         }
+        if (ui->flipComboBox->currentIndex() == 0) outputStream << "FLIP=NOFLIP" << "\n";
+        else if (ui->flipComboBox->currentIndex() == 1) outputStream << "FLIP=FLIPX" << "\n";
+        else if (ui->flipComboBox->currentIndex() == 2) outputStream << "FLIP=FLIPY" << "\n";
         configfile.close();
 
         // change the text label of the pushbutton for a short while
@@ -466,6 +472,7 @@ void Instrument::on_loadConfigPushButton_clicked()
         ui->bayerCheckBox->setChecked(false);
         //        ui->gainLineEdit->setText("1.0");
         ui->longitudeLineEdit->setText("0");
+        ui->flipComboBox->setCurrentIndex(0);
         while ( !stream.atEnd() ) {
             line = stream.readLine().simplified();
             // skip comments
@@ -517,6 +524,11 @@ void Instrument::on_loadConfigPushButton_clicked()
                     ui->bayerCheckBox->setChecked(true);
                     ui->buttonFrame->show();
                 }
+            }
+            if (keyword == "FLIP") {
+                if (keyvalue == "NOFLIP") ui->flipComboBox->setCurrentIndex(0);
+                else if (keyvalue == "FLIPX") ui->flipComboBox->setCurrentIndex(1);
+                else if (keyvalue == "FLIPY") ui->flipComboBox->setCurrentIndex(2);
             }
         }
         instrumentFile.close();

@@ -219,16 +219,21 @@ void Splitter::WCSbuildCDmatrix(int chip)
 
     QStringList wcsKeys = {"CD1_1", "CD1_2", "CD2_1", "CD2_2"};
 
+    float flipcd11 = 1.0;
+    float flipcd22 = 1.0;
+    if (instData.flip == "FLIPX") flipcd11 = -1.0;
+    else if (instData.flip == "FLIPY") flipcd22 = -1.0;
+
     for (auto &wcsKey : wcsKeys) {
         bool keyFound = searchKey(wcsKey, headerDictionary.value(wcsKey), headerWCS);
         // default values if failed
         if (!keyFound && wcsKey == "CD1_1") {
             bool found = searchKey("CD1_1", headerDictionary.value("CDELT1"), headerWCS);  // first argument, CD1_1, is taken to form the new header card. Value is taken from CDELT1
-            if (!found) fallback = "CD1_1   = "+QString::number(-1.*instData.pixscale/3600., 'g', 6);
+            if (!found) fallback = "CD1_1   = "+QString::number(-1.*flipcd11*instData.pixscale/3600., 'g', 6);
         }
         if (!keyFound && wcsKey == "CD2_2") {
             bool found = searchKey("CD2_2", headerDictionary.value("CDELT2"), headerWCS);
-            if (!found) fallback = "CD2_2   = "+QString::number(instData.pixscale/3600., 'g', 6);
+            if (!found) fallback = "CD2_2   = "+QString::number(flipcd22*instData.pixscale/3600., 'g', 6);
         }
         if (!keyFound && wcsKey == "CD1_2") fallback = "CD1_2   = 0.0";
         if (!keyFound && wcsKey == "CD2_1") fallback = "CD2_1   = 0.0";

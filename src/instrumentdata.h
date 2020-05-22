@@ -33,6 +33,7 @@ typedef struct {
     float obslong = 0.;
     QString bayer;
     QString type;
+    QString flip = "";
     float pixscale = 1.0; // in arcsec
 //    float gain = 1.0;
     float radius = 0.1;   // exposure coverage radius in degrees

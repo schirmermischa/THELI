@@ -834,6 +834,9 @@ void MainWindow::taskFinished()
     cpuTimer->setInterval(2000);
     ramTimer->setInterval(2000);
     driveTimer->setInterval(2000);
+
+    // not needed, handled by 'deleteLater'
+    // delete workerThread;
 }
 
 bool MainWindow::isRefcatRecent(QString dirname)

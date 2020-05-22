@@ -73,6 +73,8 @@ void Controller::taskInternalProcessbias()
     // Loop over all chips
     // NOTE: QString is not threadsafe, must create copies for threads!
     // NOTE: a 'bad' chip will 'continue', but openMP waits until at least one of the other threads has finished
+
+
 #pragma omp parallel for num_threads(maxExternalThreads) firstprivate(nlow, nhigh, min, max, dataDirName, dataSubDirName)
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (abortProcess || !successProcessing || instData->badChips.contains(chip)) continue;
@@ -87,20 +89,9 @@ void Controller::taskInternalProcessbias()
             if (!it->successProcessing) continue;
             it->setupCalibDataInMemory(false, true, false);   // Read image (if not already in memory), do not create backup, do get mode
             it->setModeFlag(min, max);                        // Flag the image if its mode is outside a user-provided acceptable range
-
-            // WORKS
-            // it->dataCurrent.clear();
-            // it->dataCurrent.squeeze();
-
 #pragma omp atomic
             progress += progressHalfStepSize;
         }
-
-        // DOES NOT WORK. why?
-        // for (auto &it : biasData->myImageList[chip]) {
-        //    it->dataCurrent.clear();
-        //    it->dataCurrent.squeeze();
-        // }
 
         // Commented to avoid crash depending on tests
         biasData->combineImagesCalib(chip, combineBias_ptr, nlow, nhigh, dataDirName, dataSubDirName, dataDataType);  // Combine images

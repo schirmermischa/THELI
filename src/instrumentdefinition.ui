@@ -1216,6 +1216,25 @@
               </item>
              </widget>
             </item>
+            <item row="4" column="2" colspan="3">
+             <widget class="QComboBox" name="flipComboBox">
+              <item>
+               <property name="text">
+                <string>Do not flip images</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Flip images horizontally</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Flip images vertically</string>
+               </property>
+              </item>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>

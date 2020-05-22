@@ -891,6 +891,7 @@ void MainWindow::resetInstrumentData()
     instData.obslat = 0.;
     instData.obslong = 0.;
     instData.bayer = "";
+    instData.flip = "";
     instData.type = "OPT";
     instData.pixscale = 1.0; // in arcsec
     //    instData.gain = 1.0;
@@ -925,6 +926,7 @@ void MainWindow::initInstrumentData(QString instrumentNameFullPath)
         return;
     }
 
+    instData.flip = "";
     bool bayerFound = false;
     QTextStream in(&(instDataFile));
     while(!in.atEnd()) {
@@ -946,6 +948,12 @@ void MainWindow::initInstrumentData(QString instrumentNameFullPath)
         if (line.contains("PIXSCALE=")) instData.pixscale = line.split("=")[1].toFloat();
         //        if (line.contains("GAIN=")) instData.gain = line.split("=")[1].toFloat();
 
+        QString tmp = "";
+        if (line.contains("FLIP=")) {
+            tmp = line.split("=")[1];
+            if (tmp == "NOFLIP") instData.flip = "";
+            else instData.flip = tmp;
+        }
         // vectors
         if (line.contains("OVSCANX1=")
                 || line.contains("OVSCANX2=")
