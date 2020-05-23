@@ -31490,6 +31490,31 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                  <string>CHI-MEAN</string>
                 </property>
                </item>
+               <item>
+                <property name="text">
+                 <string>CHI-MODE</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>CHI-OLD</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>SUM</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>WEIGHTED_WEIGHT</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>MEDIAN_WEIGHT</string>
+                </property>
+               </item>
               </widget>
              </item>
              <item row="3" column="0" colspan="3">
