@@ -472,7 +472,7 @@
        <number>1</number>
       </property>
       <property name="currentIndex">
-       <number>6</number>
+       <number>8</number>
       </property>
       <widget class="QWidget" name="HDUpage">
        <layout class="QGridLayout" name="gridLayout_31">
@@ -18461,23 +18461,37 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <enum>QFrame::Plain</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_16">
-             <item row="3" column="1">
-              <widget class="QLineEdit" name="CSCmincontLineEdit">
-               <property name="minimumSize">
-                <size>
-                 <width>80</width>
-                 <height>0</height>
-                </size>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_20">
+               <property name="text">
+                <string>Detection with</string>
                </property>
-               <property name="maximumSize">
-                <size>
-                 <width>80</width>
-                 <height>16777215</height>
-                </size>
+              </widget>
+             </item>
+             <item row="0" column="1" colspan="2">
+              <widget class="QComboBox" name="CSCMethodComboBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
                </property>
-               <property name="statusTip">
-                <string>Deblending contrast.</string>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
                </property>
+               <property name="toolTip">
+                <string>THELI internal detection method or Source Extractor</string>
+               </property>
+               <item>
+                <property name="text">
+                 <string>THELI</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Source Extractor</string>
+                </property>
+               </item>
               </widget>
              </item>
              <item row="1" column="0">
@@ -18490,56 +18504,20 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                </property>
               </widget>
              </item>
-             <item row="4" column="0">
-              <widget class="QLabel" name="confSourcecatFWHMLabel">
-               <property name="text">
-                <string>Min FWHM [pix]</string>
-               </property>
-               <property name="buddy">
-                <cstring>CSCFWHMLineEdit</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QLineEdit" name="CSCFWHMLineEdit">
-               <property name="minimumSize">
-                <size>
-                 <width>80</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>80</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="statusTip">
-                <string>Min FWHM (pixel) for a source to be kept</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="confSourcecatDeblendLabel">
-               <property name="text">
-                <string>DEBLEND</string>
-               </property>
-               <property name="buddy">
-                <cstring>CSCmincontLineEdit</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="confSourcecatDMINLabel">
-               <property name="text">
-                <string>DMIN</string>
-               </property>
-               <property name="buddy">
-                <cstring>CSCDTLineEdit</cstring>
-               </property>
-              </widget>
-             </item>
              <item row="1" column="1">
+              <spacer name="horizontalSpacer_23">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>49</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="1" column="2">
               <widget class="QLineEdit" name="CSCDTLineEdit">
                <property name="minimumSize">
                 <size>
@@ -18558,47 +18536,30 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                </property>
               </widget>
              </item>
-             <item row="0" column="1">
-              <widget class="QComboBox" name="CSCMethodComboBox">
-               <property name="focusPolicy">
-                <enum>Qt::NoFocus</enum>
-               </property>
-               <item>
-                <property name="text">
-                 <string>THELI</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>SExtr.</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-             <item row="5" column="0" colspan="2">
-              <widget class="QCheckBox" name="CSCconvolutionCheckBox">
-               <property name="focusPolicy">
-                <enum>Qt::ClickFocus</enum>
-               </property>
-               <property name="statusTip">
-                <string>Turn off if the field is highly crowded, or if the PSF is undersampled AND lots of hot pixels are present.</string>
-               </property>
+             <item row="2" column="0">
+              <widget class="QLabel" name="confSourcecatDMINLabel">
                <property name="text">
-                <string>Convolution</string>
+                <string>DMIN</string>
                </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_20">
-               <property name="text">
-                <string>Detection method</string>
+               <property name="buddy">
+                <cstring>CSCDTLineEdit</cstring>
                </property>
               </widget>
              </item>
              <item row="2" column="1">
+              <spacer name="horizontalSpacer_18">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="2" column="2">
               <widget class="QLineEdit" name="CSCDMINLineEdit">
                <property name="minimumSize">
                 <size>
@@ -18614,6 +18575,106 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                </property>
                <property name="statusTip">
                 <string>Minimum number of connected pixels above the detection threshold</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="confSourcecatDeblendLabel">
+               <property name="text">
+                <string>DEBLEND</string>
+               </property>
+               <property name="buddy">
+                <cstring>CSCmincontLineEdit</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <spacer name="horizontalSpacer_24">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>49</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="3" column="2">
+              <widget class="QLineEdit" name="CSCmincontLineEdit">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>80</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="statusTip">
+                <string>Deblending contrast.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="confSourcecatFWHMLabel">
+               <property name="text">
+                <string>Min FWHM [pix]</string>
+               </property>
+               <property name="buddy">
+                <cstring>CSCFWHMLineEdit</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <spacer name="horizontalSpacer_25">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>49</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="4" column="2">
+              <widget class="QLineEdit" name="CSCFWHMLineEdit">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>80</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="statusTip">
+                <string>Min FWHM (pixel) for a source to be kept</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QCheckBox" name="CSCconvolutionCheckBox">
+               <property name="focusPolicy">
+                <enum>Qt::ClickFocus</enum>
+               </property>
+               <property name="statusTip">
+                <string>Turn off if the field is highly crowded, or if the PSF is undersampled AND lots of hot pixels are present.</string>
+               </property>
+               <property name="text">
+                <string>Convolution</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -31426,7 +31487,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                </item>
                <item>
                 <property name="text">
-                 <string>CHI2</string>
+                 <string>CHI-MEAN</string>
                 </property>
                </item>
               </widget>

@@ -106,6 +106,7 @@ void SwarpWorker::processExternalStderr()
     errors << "core dumped";
     errors << "has flux scale = 0: I will take 1 instead";
     errors << "Could not allocate memory";
+    errors << "set to an unknown keyword";
 
     QString type = "normal";
     for (auto &warning : warnings) {
