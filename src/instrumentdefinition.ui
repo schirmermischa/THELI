@@ -1218,19 +1218,22 @@
             </item>
             <item row="4" column="2" colspan="3">
              <widget class="QComboBox" name="flipComboBox">
+              <property name="statusTip">
+               <string>Optionally, flip the WCS matrix to simplify astrometric solutions</string>
+              </property>
               <item>
                <property name="text">
-                <string>Do not flip images</string>
+                <string>Do not flip WCS</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>Flip images horizontally</string>
+                <string>Flip WCS horizontally</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>Flip images vertically</string>
+                <string>Flip WCS vertically</string>
                </property>
               </item>
              </widget>
