@@ -152,8 +152,10 @@ void ColorPicture::colorCalibMatchCatalogs()
     match2D(matchedRG, objDatB, matchedRGB, tolerance, multipleR, multipleB, maxCPU);
 
     // Extract AVGWHITE color correction factors
-    QVector<float> rCorr;   // red correction factors wrt. green channel
-    QVector<float> bCorr;   // cblue orrection factors wrt. green channel
+    QVector<double> rCorr;   // red correction factors wrt. green channel
+    QVector<double> bCorr;   // blue correction factors wrt. green channel
+    rCorr.clear();
+    bCorr.clear();
     rCorr.reserve(matchedRGB.length());
     bCorr.reserve(matchedRGB.length());
     for (auto &obj : matchedRGB) {
@@ -161,13 +163,13 @@ void ColorPicture::colorCalibMatchCatalogs()
         rCorr.append(obj[3] / obj[2]);
         bCorr.append(obj[3] / obj[4]);
     }
-    float num = rCorr.length();
-    photcatresult[3].rfac    = QString::number(meanMask_T(rCorr),'f',3);
-    photcatresult[3].rfacerr = QString::number(rmsMask_T(rCorr) / sqrt(num),'f',3);
+    double num = rCorr.length();
+    photcatresult[3].rfac    = QString::number(medianMask_T(rCorr),'f',3);
+    photcatresult[3].rfacerr = QString::number(medianerrMask(rCorr) / sqrt(num),'f',3);
     photcatresult[3].gfac    = "1.000";
     photcatresult[3].gfacerr = "0.000";
-    photcatresult[3].bfac    = QString::number(meanMask_T(bCorr),'f',3);
-    photcatresult[3].bfacerr = QString::number(rmsMask_T(bCorr) / sqrt(num),'f',3);
+    photcatresult[3].bfac    = QString::number(medianMask_T(bCorr),'f',3);
+    photcatresult[3].bfacerr = QString::number(medianerrMask(bCorr) / sqrt(num),'f',3);
     photcatresult[3].nstars = QString::number(num);
     emit updateNrefStars("AVGWHITE", rCorr.length());
 
