@@ -597,7 +597,7 @@ void Controller::coaddResampleBuildSwarpCommand(QString imageList, int i)
     swarpCommand += " -RESAMPLING_TYPE " + cdw->ui->COAkernelComboBox->currentText();
     swarpCommand += " -COMBINE_TYPE " + cdw->ui->COAcombinetypeComboBox->currentText();
     swarpCommand += " -RESCALE_WEIGHTS " + rescaleWeights;
-    swarpCommand += " -COPY_KEYWORDS OBJECT,SKYVALUE";
+    swarpCommand += " -COPY_KEYWORDS OBJECT,SKYVALUE,EXPTIME,DATE-OBS";
 
     swarpCommands[i] = swarpCommand;
 
