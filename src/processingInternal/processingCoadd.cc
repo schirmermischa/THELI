@@ -52,6 +52,15 @@ void Controller::taskInternalCoaddition()
     currentData = coaddScienceData;
     currentDirName = coaddScienceDir;
 
+    // Initialise, so we always have the correct values even when the coaddition is repeated several times
+    coaddTexptime = 0.;
+    coaddSkyvalue = 0.;
+    coaddFilter = "";
+    coaddGain = 0.;
+    mjdStart = 0.;
+    mjdEnd = 0.;
+    mjdMedian = 0.;
+
     memoryDecideDeletableStatus(coaddScienceData, false);
     QString coaddSubDir = "coadd_"+filterArg;
     QString coaddUniqueID = cdw->ui->COAuniqueidLineEdit->text();
@@ -267,10 +276,13 @@ void Controller::coaddPrepare(QString filterArg)
                     if (!doPMupdate) header.copy(coaddDirName+"/" + it->baseName + ".head");
                     else coaddPrepareProjectPM(header, headerNewName, refRA, refDE, mjdobsZero, it->mjdobs);
                     if (!filterNames.contains(it->filter)) filterNames.append(it->filter);
+                    coaddTexptime += it->exptime;
+                    coaddSkyvalue += it->skyValue / it->exptime;
+                    ++numexp;
                 }
-                coaddTexptime += it->exptime;
-                coaddSkyvalue += it->skyValue / it->exptime;
-                ++numexp;
+//                coaddTexptime += it->exptime;
+//                coaddSkyvalue += it->skyValue / it->exptime;
+//                ++numexp;
             }
         }
     }

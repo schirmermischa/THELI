@@ -37,6 +37,8 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    std::locale::global( std::locale( "en_US.UTF-8" ) );
+
     // Read the THELIDIR environment variable
     if (!QProcessEnvironment::systemEnvironment().contains("THELIDIR")) {
         // See if we can find it under /usr/share/theli/
