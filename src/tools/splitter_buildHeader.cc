@@ -223,6 +223,10 @@ void Splitter::WCSbuildCDmatrix(int chip)
     float flipcd22 = 1.0;
     if (instData.flip == "FLIPX") flipcd11 = -1.0;
     else if (instData.flip == "FLIPY") flipcd22 = -1.0;
+    else if (instData.flip == "ROT180") {
+        flipcd11 = -1.0;
+        flipcd22 = -1.0;
+    }
 
     for (auto &wcsKey : wcsKeys) {
         bool keyFound = searchKey(wcsKey, headerDictionary.value(wcsKey), headerWCS);

@@ -392,6 +392,7 @@ void Instrument::on_saveConfigPushButton_clicked()
         if (ui->flipComboBox->currentIndex() == 0) outputStream << "FLIP=NOFLIP" << "\n";
         else if (ui->flipComboBox->currentIndex() == 1) outputStream << "FLIP=FLIPX" << "\n";
         else if (ui->flipComboBox->currentIndex() == 2) outputStream << "FLIP=FLIPY" << "\n";
+        else if (ui->flipComboBox->currentIndex() == 3) outputStream << "FLIP=ROT180" << "\n";
         configfile.close();
 
         // change the text label of the pushbutton for a short while
@@ -408,7 +409,8 @@ void Instrument::on_saveConfigPushButton_clicked()
     }
 
     QMessageBox::information( this, "Restart required",
-                              "User-defined instrument configurations can be found at the bottom of the instrument selection menu after restarting THELI.");
+                              tr("User-defined instrument configurations can be found at the bottom of the instrument selection menu after restarting THELI.") +
+                              tr("If you edited an existing configuration, you must also restart THELI."));
 }
 
 void Instrument::on_instrumentTypeComboBox_currentIndexChanged(int index)
@@ -529,6 +531,7 @@ void Instrument::on_loadConfigPushButton_clicked()
                 if (keyvalue == "NOFLIP") ui->flipComboBox->setCurrentIndex(0);
                 else if (keyvalue == "FLIPX") ui->flipComboBox->setCurrentIndex(1);
                 else if (keyvalue == "FLIPY") ui->flipComboBox->setCurrentIndex(2);
+                else if (keyvalue == "ROT180") ui->flipComboBox->setCurrentIndex(3);
             }
         }
         instrumentFile.close();

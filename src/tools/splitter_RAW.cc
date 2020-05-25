@@ -139,6 +139,15 @@ void Splitter::buildHeaderRAW()
 {
     if (!successProcessing) return;
 
+    float flipcd11 = 1.0;
+    float flipcd22 = 1.0;
+    if (instData.flip == "FLIPX") flipcd11 = -1.0;
+    else if (instData.flip == "FLIPY") flipcd22 = -1.0;
+    else if (instData.flip == "ROT180") {
+        flipcd11 = -1.0;
+        flipcd22 = -1.0;
+    }
+
     QStringList cards;
     cards.append("OBJECT  = 'Unknown'");
     cards.append("CTYPE1  = 'RA---TAN'");
@@ -147,10 +156,10 @@ void Splitter::buildHeaderRAW()
     cards.append("CRVAL2  = 0.0");
     cards.append("CRPIX1  = "+QString::number(naxis1/2));
     cards.append("CRPIX2  = "+QString::number(naxis2/2));
-    cards.append("CD1_1   = "+QString::number(-1.*instData.pixscale/3600.));
+    cards.append("CD1_1   = "+QString::number(-1.*flipcd11*instData.pixscale/3600.));
     cards.append("CD1_2   = 0.0");
     cards.append("CD2_1   = 0.0");
-    cards.append("CD2_2   = "+QString::number(instData.pixscale/3600.));
+    cards.append("CD2_2   = "+QString::number(flipcd22*instData.pixscale/3600.));
     cards.append("EQUINOX = 2000.0");
     cards.append("RADESYS = 'ICRS'");
     cards.append("EXPTIME = "+QString::number(exptimeValue));
