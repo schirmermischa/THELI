@@ -137,6 +137,7 @@ bool Splitter::searchKeyInHeader(const QString &searchKey, const QStringList &po
             QString keyName = card.split("=")[0].simplified();
             if (keyName == possibleKey) {
                 QString keyValue = card.split("=")[1];
+                to_EN_US(keyName, keyValue);
                 keyFound = true;
                 int slashPosition = keyValue.lastIndexOf('/');  // (can be -1 if not found, treated as 0 by truncate(), i.e. entire string is set to empty
                 if (searchKey == "DATE-OBS") {
@@ -151,11 +152,12 @@ bool Splitter::searchKeyInHeader(const QString &searchKey, const QStringList &po
                     mjdobsValue = keyValue.simplified().toDouble();
                 }
                 QString newCard = searchKey;
+                // If input is numeric and has decimal comma, replace it with a decimal dot
                 newCard.resize(8, ' ');          // Keyword must be 8 chars long
                 newCard.append("= "+keyValue);
                 newCard.resize(80, ' ');         // Header card must be 80 chars long
                 outputHeader.append(newCard);
-//                if (searchKey == "CD1_1" && possibleKey == "CDELT1") qDebug() << card << "\n" << keyValue << slashPosition << "\n" << newCard;
+                //                if (searchKey == "CD1_1" && possibleKey == "CDELT1") qDebug() << card << "\n" << keyValue << slashPosition << "\n" << newCard;
                 break;
             }
         }
@@ -176,6 +178,7 @@ bool Splitter::searchKeyInHeaderCRVAL(const QString searchKey, const QStringList
             QString keyName = card.split("=")[0].simplified();
             if (keyName == possibleKey) {
                 QString keyValue = card.split("=")[1];
+                to_EN_US(keyName, keyValue);
                 // Isolate CRVAL value
                 int slashPosition = keyValue.lastIndexOf('/');
                 if (slashPosition > 12) keyValue.truncate(slashPosition);
@@ -239,6 +242,7 @@ bool Splitter::searchKeyInHeaderLST(const QStringList &possibleKeyNames, const Q
             QString keyName = card.split("=")[0].simplified();
             if (keyName == possibleKey) {
                 QString keyValue = card.split("=")[1];
+                to_EN_US(keyName, keyValue);
                 // Isolate LST value
                 int slashPosition = keyValue.lastIndexOf('/');
                 if (slashPosition > 12) keyValue.truncate(slashPosition);
@@ -276,6 +280,7 @@ bool Splitter::searchKeyInHeaderValue(const QStringList &possibleKeyNames, const
             // Loop over list of possible key names to find match
             if (keyName == possibleKey) {
                 QString keyValue = card.split("=")[1];
+                to_EN_US(keyName, keyValue);
                 // We are looking for a numeric value: remove quotes, simplify white space
                 keyValue.remove("'");
                 keyValue = keyValue.simplified();
@@ -302,6 +307,7 @@ bool Splitter::searchKeyInHeaderValue(const QStringList &possibleKeyNames, const
             // Loop over list of possible key names to find match
             if (keyName == possibleKey) {
                 QString keyValue = card.split("=")[1];
+                to_EN_US(keyName, keyValue);
                 // We are looking for a numeric value: remove quotes, simplify white space
                 keyValue.remove("'");
                 keyValue = keyValue.simplified();
@@ -328,6 +334,7 @@ bool Splitter::searchKeyInHeaderValue(const QStringList &possibleKeyNames, const
             // Loop over list of possible key names to find match
             if (keyName == possibleKey) {
                 QString keyValue = card.split("=")[1];
+                to_EN_US(keyName, keyValue);
                 // We are looking for a numeric value: remove quotes, simplify white space
                 keyValue.remove("'");
                 keyValue = keyValue.simplified();
@@ -377,4 +384,19 @@ bool Splitter::searchKeyInHeaderValue(const QStringList &possibleKeyNames, const
         if (keyFound) break;
     }
     return keyFound;
+}
+
+void Splitter::to_EN_US(QString &keyName, QString &keyValue)
+{
+    // If a key value, that can be potentially expressed as a decimal number, has a decimal comma, replace the comma with a decimal dot.
+    // Actually, keyValue is everything following the "=" char in the header card, hence just replace the first comma before the / comment starts
+    if (numericKeyNames.contains(keyName) && keyValue.contains(",")) {
+        int commaPosition = keyValue.indexOf(',');
+        int commentPosition = keyValue.indexOf('/');
+        // replace if no comment field, or if comma occurs before comment field starts
+        if (commentPosition == -1 || commaPosition < commentPosition) {
+            keyValue.replace(commaPosition, 1, '.');
+            commaDetected = true;
+        }
+    }
 }

@@ -281,9 +281,12 @@ bool Data::checkForRawData()
     else {
         processingStatus->deleteFromDrive();
         processingStatus->reset();
-        qDebug() << "Data::checkForRawData(): " << subDirName << numProcessedFiles << numRawFiles;
-        qDebug() << "Both processed and RAW files were found. This status is not allowed";
+        // TODO: this does not show!
+        emit showMessageBox("DATA::RAW_AND_PROCESSED_FOUND", dirName, "");
+//        qDebug() << "Data::checkForRawData(): " << subDirName << numProcessedFiles << numRawFiles;
+//        qDebug() << "Both processed and RAW files were found. This status is not allowed";
         // (numProcessedFiles > 0 && numRawFiles > 0) {
+        // TODO: this does not show!
         emit messageAvailable(dirName + " : Both processed and RAW files were found. This status is not allowed. You must clean the directory manually.", "error");
         emit critical();
         successProcessing = false;

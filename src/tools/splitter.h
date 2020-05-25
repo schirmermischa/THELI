@@ -91,6 +91,9 @@ public:
     omp_lock_t *progressLock;
     omp_lock_t *genericLock;
 
+    bool commaDetected = false;
+
+    void compileNumericKeys();
 private:
     fitsfile *rawFptr = nullptr;
     LibRaw rawProcessor;
@@ -142,6 +145,8 @@ private:
     QString bayerPattern = "";
     QString filter = "Unknown";
     QString instNameFromData = "";       // needed only for a very small number of cameras, where the instrument must be deduced from the headers (GROND)
+
+    QStringList numericKeyNames;
 
     QString dateObsValue = "";
     double crval1 = 0.0;
@@ -286,6 +291,7 @@ private:
     void resetInstrumentData();
     void initAltInstrumentData(QString instrumentNameFullPath);
     void testOverscan(QVector<int> &overscan);
+    void to_EN_US(QString &keyName, QString &keyValue);
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

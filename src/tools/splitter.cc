@@ -203,6 +203,31 @@ void Splitter::consistencyChecks()
     printCfitsioError("consistencyChecks()", rawStatus);
 }
 
+void Splitter::compileNumericKeys()
+{
+
+    numericKeyNames.clear();
+    numericKeyNames.append(headerDictionary.value("CRVAL1"));
+    numericKeyNames.append(headerDictionary.value("CRVAL2"));
+    numericKeyNames.append(headerDictionary.value("CRPIX1"));
+    numericKeyNames.append(headerDictionary.value("CRPIX2"));
+    numericKeyNames.append(headerDictionary.value("EXPTIME"));
+    numericKeyNames.append(headerDictionary.value("CD1_1"));
+    numericKeyNames.append(headerDictionary.value("CD1_2"));
+    numericKeyNames.append(headerDictionary.value("CD2_1"));
+    numericKeyNames.append(headerDictionary.value("CD2_2"));
+    numericKeyNames.append(headerDictionary.value("CDELT1"));
+    numericKeyNames.append(headerDictionary.value("CDELT2"));
+    numericKeyNames.append(headerDictionary.value("AIRMASS"));
+    numericKeyNames.append(headerDictionary.value("EQUINOX"));
+    numericKeyNames.append(headerDictionary.value("MJD-OBS"));
+    numericKeyNames.append(headerDictionary.value("GAIN"));
+    numericKeyNames.append(headerDictionary.value("DATE"));
+    numericKeyNames.append(headerDictionary.value("TIME"));
+    numericKeyNames.append(headerDictionary.value("LST"));
+}
+
+
 void Splitter::extractImages()
 {
     if (!successProcessing) return;
@@ -521,6 +546,9 @@ void Splitter::getCurrentExtensionData()
             if (std::isinf(val) || std::isnan(val)) val = 0.;      // set peculiar values to zero
             dataRaw[i] = val;
         }
+    }
+    else {
+        successProcessing = false;
     }
 
     delete [] buffer;
@@ -980,9 +1008,9 @@ bool Splitter::individualFixWriteImage(int chipMapped)
             // Update the filter keyword with the polarization angle
             QString newFilter = channelID;
             fits_update_key_str(fptr, "FILTER", newFilter.toUtf8().data(), nullptr, &status);
-            fits_update_key_flt(fptr, "GAINEFF", gain, 6, nullptr, &status);
-
             // Update the gain
+            fits_update_key_flt(fptr, "GAINORIG", gain, 6, nullptr, &status);
+
             fits_close_file(fptr, &status);
 
             delete [] array;

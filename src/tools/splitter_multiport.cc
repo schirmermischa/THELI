@@ -90,6 +90,8 @@ void Splitter::computeMultiportDataOffsets()
 // we must rely on the headers and do individual implementations
 void Splitter::getMultiportInformation(int chip)
 {
+    if (!successProcessing) return;
+
     multiportOverscanSections.clear();
     multiportIlluminatedSections.clear();
     multiportChannelSections.clear();
@@ -323,6 +325,8 @@ void Splitter::getMultiportInformation(int chip)
 
 void Splitter::pasteMultiportIlluminatedSections(int chip)
 {
+    if (!successProcessing) return;
+
     // Paste the data sections into a single image of dimensions naxis1, naxis2
     if (!multiChannelMultiExt.contains(instData.name)) {
         dataCurrent.resize(naxis1*naxis2);

@@ -235,6 +235,12 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
                              tr("Use a single CPU if you have problems. Once background modeling is done, you can revert to full parallelization."),
                              QMessageBox::Ok);
     }
+    else if (trigger == "DATA::RAW_AND_PROCESSED_FOUND") {
+        QMessageBox::warning(this, tr("Invalid data mix"),
+                             tr("Both processed and RAW files were found. This status is not allowed. ") +
+                             tr("You must manually clean up the data in ") + part1,
+                             QMessageBox::Ok);
+    }
     else if (trigger == "Data::BACKUP_DATA_NOT_FOUND") {
         QString warningText = "";
         warningText = tr("You were about to repeat a processing task.") + " "

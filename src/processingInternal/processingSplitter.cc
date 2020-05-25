@@ -89,6 +89,8 @@ void Controller::taskInternalHDUreformat()
 
     float dateObsIncrementor = 0;
 
+    bool commaDetected = false;
+
     // Loop over all chips
 #pragma omp parallel for num_threads(maxCPU) firstprivate(mainDirName, dataDir, dummyKeys, nonlinearityCoefficients, headerDictionary, filterDictionary, dataType)
     for (int i=0; i<numActiveImages; ++i) {
@@ -107,6 +109,7 @@ void Controller::taskInternalHDUreformat()
         splitter->genericLock = &genericLock;
         splitter->progress = &progress;
         splitter->dateObsIncrementor = &dateObsIncrementor;
+        splitter->compileNumericKeys();
         connect(splitter, &Splitter::messageAvailable, this, &Controller::messageAvailableReceived);
         connect(splitter, &Splitter::critical, this, &Controller::criticalReceived);
         connect(splitter, &Splitter::warning, this, &Controller::warningReceived);
@@ -114,6 +117,7 @@ void Controller::taskInternalHDUreformat()
         // Extract images. This also handles all low-level pixel processing.
         splitter->determineFileFormat();
         splitter->extractImages();
+        if (splitter->commaDetected) commaDetected = true;
         if (!splitter->successProcessing) successProcessing = false;
         delete splitter;     // Hogging lots of memory otherwise!
 
@@ -122,6 +126,11 @@ void Controller::taskInternalHDUreformat()
     }
 
     checkSuccessProcessing(data);
+
+    if (verbosity > 1 && commaDetected) {
+        emit messageAvailable("Decimal commas found in raw data, converted to decimal dots in output.", "warning");
+        emit warningReceived();
+    }
 
     if (successProcessing) {
         uniformMJDOBS(dir);              // rename file and update MJDOBS for a few specific instruments, only

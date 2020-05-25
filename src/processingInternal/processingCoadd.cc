@@ -280,9 +280,6 @@ void Controller::coaddPrepare(QString filterArg)
                     coaddSkyvalue += it->skyValue / it->exptime;
                     ++numexp;
                 }
-//                coaddTexptime += it->exptime;
-//                coaddSkyvalue += it->skyValue / it->exptime;
-//                ++numexp;
             }
         }
     }
