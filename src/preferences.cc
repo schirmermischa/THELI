@@ -135,21 +135,7 @@ void Preferences::updateParallelization(bool running)
 
 void Preferences::closeEvent(QCloseEvent *event)
 {
-    if (writeSettings() == QSettings::AccessError) {
-        emit messageAvailable("Could not store preferences (access error).", "warning");
-        emit warning();
-        event->accept();
-    }
-    else if (writeSettings() == QSettings::FormatError) {
-        emit messageAvailable("A formatting error occurred while writing the preferences.", "warning");
-        emit warning();
-        event->accept();
-    }
-    else {
-        // no error
-        event->accept();
-    }
-    emit preferencesUpdated();
+    // nothing
 }
 
 Preferences::~Preferences()
@@ -277,4 +263,26 @@ void Preferences::on_prefVerbosityComboBox_currentIndexChanged(int index)
 void Preferences::on_prefSwitchProcessMonitorCheckBox_clicked()
 {
     emit switchProcessMonitorChanged(ui->prefSwitchProcessMonitorCheckBox->isChecked());
+}
+
+void Preferences::on_prefCancelButton_clicked()
+{
+    close();
+}
+
+void Preferences::on_prefCloseButton_clicked()
+{
+    auto result = writeSettings();
+
+    if (result== QSettings::AccessError) {
+        emit messageAvailable("Could not store preferences (access error).", "warning");
+        emit warning();
+    }
+    else if (result == QSettings::FormatError) {
+        emit messageAvailable("A formatting error occurred while writing the preferences.", "warning");
+        emit warning();
+    }
+    emit preferencesUpdated();
+
+    close();
 }

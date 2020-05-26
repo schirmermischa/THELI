@@ -536,7 +536,9 @@ void MainWindow::on_startPushButton_clicked()
     resetProcessingErrorFlags();
 
     // Check whether the directory tree is consistent
-    if (!OSPBC_multipleDirConsistencyCheck()) return;
+    if (mode != "simulate") {
+        if (!OSPBC_multipleDirConsistencyCheck()) return;
+    }
 
     // Check if all data Dirs are valid. If there is a single one that isn't, abort!
     // Exception: mode = ResolveTarget does not require any data directories
@@ -691,7 +693,7 @@ bool MainWindow::OSPBC_addCommandBlock(const QString taskBasename, const QString
 
     // If an inconsistency in the data tree was detected.
     // Instead of checking and reporting this in handleDataDirs(), we just do it once to avoid multiple instances of the readme window shown
-    if (commandblock.isEmpty()) {
+    if (commandblock.isEmpty() && mode != "simulate") {
         QMessageBox::critical(this, tr("THELI: Invalid data dir configuration"),
                               tr("An incompatible number of directories was detected in the data tree.\n"
                                  "Allowed setups will be displayed next."),

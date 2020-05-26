@@ -63,6 +63,10 @@ private slots:
     void on_prefVerbosityComboBox_currentIndexChanged(int index);
     void on_prefSwitchProcessMonitorCheckBox_clicked();
 
+    void on_prefCancelButton_clicked();
+
+    void on_prefCloseButton_clicked();
+
 public slots:
     void receiveDefaultFont(QFont);
     void updateParallelization(bool running);
