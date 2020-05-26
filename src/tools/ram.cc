@@ -33,9 +33,9 @@ If not, see https://www.gnu.org/licenses/ .
 
 #ifdef __MACH__
 #include <mach/mach.h>
-define MACOS
+#define MACOS
 #elif __LINUX__
-define LINUX
+#define LINUX
 #endif
 
 RAM::RAM(QObject *parent) : QObject(parent)

@@ -242,16 +242,23 @@ INSTALLS += python
 CONFIG += c++11
 
 #QMAKE_CXXFLAGS += -g
-QMAKE_CXXFLAGS += -fopenmp
+unix:!macx {
+    QMAKE_CXXFLAGS += -fopenmp
+    QMAKE_LFLAGS  +=  -fopenmp
+    LIBS += -lcfitsio -lcurl -lfftw3_omp -lfftw3 -lm -lgsl -lgslcblas -lwcs -ltiff -lraw
+}
+
+macx: {
+    QMAKE_CXXFLAGS += -Xpreprocessor -fopenmp
+    QMAKE_LFLAGS += -Xpreprocessor -fopenmp
+    LIBS += -L/usr/local/lib -lcfitsio -lcurl -lfftw3_omp -lfftw3 -lm -lgsl -lgslcblas -lwcs -ltiff -lraw -lomp
+}
+
 QMAKE_CXXFLAGS += -Wno-unused
 QMAKE_CXXFLAGS += -O3
 
-QMAKE_LFLAGS  +=  -fopenmp
-
 INCLUDEPATH += /usr/include/wcslib/
 INCLUDEPATH += /usr/local/include/wcslib/
-
-LIBS += -lcfitsio -lcurl -lfftw3_omp -lfftw3 -lm -lgsl -lgslcblas -lwcs -ltiff -lraw
 
 DISTFILES += \
     ../man/theli.1
