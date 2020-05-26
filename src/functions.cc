@@ -199,6 +199,7 @@ QString translateServer(QString downloadServer)
 }
 */
 
+// UNUSED
 void selectFirstActiveItem(QComboBox *cb)
 {
     // This function selects the first enabled item in a combobox

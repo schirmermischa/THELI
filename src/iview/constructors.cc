@@ -101,6 +101,8 @@ IView::IView(QString mode, QWidget *parent) :
     switchMode();
     initGUIstep2();
 
+    fromMemory = true;
+
     // Can't use these in memory mode (ensuring internal consistency, and avoiding very complex code)
     icdw->ui->filterLabel->hide();
     icdw->ui->filterLineEdit->hide();
@@ -123,6 +125,8 @@ IView::IView(QString mode, QList<MyImage*> &list, QString dirname, QWidget *pare
     numImages = myImageList.length();
     setImageListFromMemory();
     dirName = dirname;
+
+    fromMemory = true;
 
     // 'currentId' is initialised externally in memoryViewer
     /*
@@ -416,7 +420,6 @@ void IView::closeEvent(QCloseEvent *event)
 
 IView::~IView()
 {
-
     if (dataIntSet) delete [] dataInt;
     if (dataIntRSet) delete [] dataIntR;
     if (dataIntGSet) delete [] dataIntG;
@@ -430,7 +433,9 @@ IView::~IView()
     //    if (icdwDefined) delete icdw;
     //    if (scampdwDefined) delete scampdw;
 
-    if (wcsInit) wcsfree(wcs);
+    if (!fromMemory) {
+        if (wcsInit) wcsfree(wcs);     //  wcs is a pointer to MyImage if loaded from memory, hence we must not delete it here!
+    }
     // delete wcs;
 }
 

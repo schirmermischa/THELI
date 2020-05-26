@@ -211,6 +211,8 @@ private:
     int naxis1;
     int naxis2;
 
+    bool fromMemory = false;
+
     struct wcsprm *wcs;
     bool wcsInit = false;
     char *fullheader = nullptr;
