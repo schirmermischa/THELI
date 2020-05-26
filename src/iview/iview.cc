@@ -147,20 +147,20 @@ QRect IView::adjustGeometry()
 
     if (naxis2 > screenHeight-minMargin) {
         myGraphicsView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        myGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+//        myGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         geometry.setHeight(screenHeight-minMargin);
     }
     else {
-        myGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+//        myGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
 
     if (naxis1 > screenWidth-minMargin) {
         myGraphicsView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        myGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+//        myGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         geometry.setWidth(screenWidth-minMargin);
     }
     else {
-        myGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+//        myGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
 
     return geometry;
