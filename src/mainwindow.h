@@ -74,6 +74,7 @@ public:
     QString instrument_userDir;
 
     QString GUIVERSION = "3.0.2";
+
     QString editorPreference;
     QString downloadServer;
     QString mainPID;
