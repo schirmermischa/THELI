@@ -406,7 +406,7 @@ void IView::closeEvent(QCloseEvent *event)
         msgBox.exec();
         if (msgBox.clickedButton()==pButtonAccept) emit solutionAcceptanceState(true);
         else if (msgBox.clickedButton()==pButtonReject) emit solutionAcceptanceState(false);
-        else {
+        else if (msgBox.clickedButton()==pButtonAgain) {
             event->ignore();
             return;
         }
@@ -437,6 +437,8 @@ IView::~IView()
         if (wcsInit) wcsfree(wcs);     //  wcs is a pointer to MyImage if loaded from memory, hence we must not delete it here!
     }
     // delete wcs;
+    delete myGraphicsView;
+    delete scene;
 }
 
 void IView::makeConnections()
@@ -452,7 +454,8 @@ void IView::makeConnections()
     connect(ui->actionSourceCat, &QAction::triggered, this, &IView::showSourceCat);
     connect(ui->actionRefCat, &QAction::triggered, this, &IView::showReferenceCat);
 
-    myGraphicsView = new MyGraphicsView(this);
+//    myGraphicsView = new MyGraphicsView(this);
+    myGraphicsView = new MyGraphicsView();
     QPalette backgroundPalette;
     backgroundPalette.setColor(QPalette::Base, QColor("#000000"));
     myGraphicsView->setPalette(backgroundPalette);

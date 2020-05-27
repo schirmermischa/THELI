@@ -20,7 +20,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "mygraphicsview.h"
 #include "iview.h"
 
-MyGraphicsView::MyGraphicsView(QWidget *parent) : QGraphicsView()
+MyGraphicsView::MyGraphicsView() : QGraphicsView()
 {
     QBrush brush(QColor("#000000"));
     brush.setStyle(Qt::SolidPattern);

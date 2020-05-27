@@ -198,7 +198,7 @@ void Splitter::extractImagesRAW()
         overwriteCameraIniRAW();
         getDetectorSections();
         getMultiportInformation(chip);
-        correctOverscan(chip);
+        correctOverscan();
         cropDataSection(dataSection[chip]);
         correctXtalk();
         correctNonlinearity(chip);

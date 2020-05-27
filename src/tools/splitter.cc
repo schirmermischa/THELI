@@ -335,7 +335,7 @@ void Splitter::extractImagesFITS()
                 getCurrentExtensionData();              // sets naxis1/2Raw, needed by everything below
                 getMultiportInformation(chipMapped);    // sets naxis1/2. Updates overscan and data sections for nonstandard multiport readouts
                 if (instData.name.contains("LIRIS")) descrambleLiris();
-                correctOverscan(chipMapped);
+                correctOverscan();
                 // correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
                 //                cropDataSection(dataSection[chipMapped]);
                 pasteMultiportIlluminatedSections(chipMapped);
@@ -358,7 +358,7 @@ void Splitter::extractImagesFITS()
                 QStringList instruments = {"TRECS@GEMINI"};
                 if (instruments.contains(instData.name)) {
                     stackCube();
-                    correctOverscan(chipMapped);
+                    correctOverscan();
                     // correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
                     //                    cropDataSection(dataSection[chipMapped]);
                     pasteMultiportIlluminatedSections(chipMapped);
@@ -379,7 +379,7 @@ void Splitter::extractImagesFITS()
                     // Loop over slices, extract each of them
                     for (long i=0; i<naxis3Raw; ++i) {
                         sliceCube(i);
-                        correctOverscan(chipMapped);
+                        correctOverscan();
                         //                        correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
                         cropDataSection(dataSection[chipMapped]);
                         correctXtalk();

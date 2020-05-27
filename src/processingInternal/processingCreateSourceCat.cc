@@ -129,8 +129,6 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
     }
 */
 
-    QString warningLevel = "";
-    QString stopLevel = "";
     long numExpRejected = 0;
     long numImgRejected = 0;
 
@@ -182,7 +180,7 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
         }
         if (it->successProcessing) {
             long nobj = it->objectList.length();
-            emitSourceCountMessage(nobj, it->chipName, warningLevel, stopLevel);
+            emitSourceCountMessage(nobj, it->chipName);
             if (!cdw->ui->CSCrejectExposureLineEdit->text().isEmpty()) {
                 long nReject = cdw->ui->CSCrejectExposureLineEdit->text().toLong();
                 if (nobj < nReject) {
@@ -279,7 +277,7 @@ void Controller::detectionSourceExtractor(Data *scienceData, QString minFWHM, QS
         }
         if (it->successProcessing) {
             long nobj = getNumObjectsSourceExtractorCat(it->path+"/cat/"+it->chipName+".cat");
-            emitSourceCountMessage(nobj, it->chipName, warningLevel, stopLevel);
+            emitSourceCountMessage(nobj, it->chipName);
             if (!cdw->ui->CSCrejectExposureLineEdit->text().isEmpty()) {
                 long nReject = cdw->ui->CSCrejectExposureLineEdit->text().toLong();
                 if (nobj < nReject) {
@@ -311,7 +309,7 @@ void Controller::detectionSourceExtractor(Data *scienceData, QString minFWHM, QS
     }
 }
 
-void Controller::emitSourceCountMessage(long &nobj, QString baseName, QString &warningLevel, QString &stopLevel)
+void Controller::emitSourceCountMessage(long &nobj, QString baseName)
 {
     // Color-coding output lines
     QString detStatus = "";

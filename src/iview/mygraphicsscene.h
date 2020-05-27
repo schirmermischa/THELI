@@ -28,7 +28,7 @@ class MyGraphicsScene : public QGraphicsScene
 {
     Q_OBJECT
 public:
-    MyGraphicsScene(QWidget *parent = nullptr);
+    MyGraphicsScene();
 
 signals:
     void itemDeleted();

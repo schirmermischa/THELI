@@ -359,7 +359,8 @@ void ImageStatistics::on_showPushButton_clicked()
             plotSelection(0);
             iView = new IView("MEMview", allMyImages, scienceDirName, this); // dirname is needed to overlay catalogs
             iViewOpen = true;
-            connect(iView, &IView::currentlyDisplayedIndex, this, &ImageStatistics::currentlyDisplayedIndexReceived);
+            // To be implemented
+            //            connect(iView, &IView::currentlyDisplayedIndex, this, &ImageStatistics::currentlyDisplayedIndexReceived);
             iView->scene->clear();
             iView->show();
         }
@@ -388,10 +389,13 @@ void ImageStatistics::on_showPushButton_clicked()
     connect(iView, &IView::closed, this, &ImageStatistics::uncheckIviewPushButton);
 }
 
+// To be implemented
+/*
 void ImageStatistics::currentlyDisplayedIndexReceived(int currentId)
 {
     // indicate displayed image, e.g. by a ring around the data point
 }
+*/
 
 void ImageStatistics::on_ClearPlotPushButton_clicked()
 {

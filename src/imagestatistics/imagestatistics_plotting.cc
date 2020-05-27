@@ -185,6 +185,7 @@ void ImageStatistics::plot(QString init)
     else statisticsDataDisplayed = false;
 }
 
+/*
 void ImageStatistics::showNoData(QCPGraph *graph, float xpos, float ypos)
 {
     QCPItemText *noData = new QCPItemText(ui->statPlot);
@@ -199,6 +200,7 @@ void ImageStatistics::showNoData(QCPGraph *graph, float xpos, float ypos)
     noData->setPadding(QMargins(4, 0, 4, 0));
     noData->setPen(QPen(Qt::black));
 }
+*/
 
 void ImageStatistics::plotSelection(int index)
 {

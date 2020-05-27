@@ -73,7 +73,7 @@ public:
     QString instrument_dir;
     QString instrument_userDir;
 
-    QString GUIVERSION = "3.0.1";
+    QString GUIVERSION = "3.0.2";
     QString editorPreference;
     QString downloadServer;
     QString mainPID;
@@ -219,28 +219,28 @@ private slots:
     QStringList taskCoaddition(bool &stop, const QString mode);
     QStringList taskResolveTarget(bool &stop, const QString mode);
 
-    void check_taskHDUreformat(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskProcessbias(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskProcessdark(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskProcessflatoff(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskProcessflat(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskProcessscience(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskChopnod(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskBackground(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskCollapse(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskBinnedpreview(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskGlobalweight(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskIndividualweight(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskSeparate(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskCreatesourcecat(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskAstromphotom(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskAbsphotindirect(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskGetCatalogFromWEB(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskGetCatalogFromIMAGE(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskRestoreHeader(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskSkysub(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskCoaddition(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
-    void check_taskResolveTarget(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode);
+    void check_taskHDUreformat(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskProcessbias(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskProcessdark(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskProcessflatoff(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskProcessflat(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskProcessscience(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskChopnod(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskBackground(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskCollapse(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskBinnedpreview(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskGlobalweight(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskIndividualweight(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskSeparate(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskCreatesourcecat(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskAstromphotom(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskAbsphotindirect(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskGetCatalogFromWEB(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskGetCatalogFromIMAGE(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskRestoreHeader(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskSkysub(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskCoaddition(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskResolveTarget(DataDir *datadir, bool &stop, bool &skip, const QString mode);
     void restoreOriginalData();
     void emitEditingFinished(const QString &arg1);
     void on_actionLicense_triggered();
@@ -308,7 +308,7 @@ private:
     void fill_setupInstrumentComboBox();
     QString getStatusForSettings();
     void handleDataDirs(QStringList &goodDirList, QLineEdit *scienceLineEdit, QLineEdit *calib1LineEdit,
-                        QLineEdit *calib2LineEdit, QString statusString, bool success);
+                        QLineEdit *calib2LineEdit, QString statusString, bool &success);
     void hasDirCurrentData(DataDir *datadir, bool &stop);
     void initProcessingStatus();
     void initInstrumentData(QString instrumentNameFullPath);

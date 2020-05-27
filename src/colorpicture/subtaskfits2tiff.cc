@@ -106,8 +106,6 @@ void ColorPicture::writeRGBTIFF(QVector<float> &R, QVector<float> &G, QVector<fl
 {
     emit messageAvailable("Creating RGB.tiff ...", "ignore");
 
-    long dim = n*m;
-
     // Clipping min and max values
     QVector<QVector<float>> RGBlist;
     RGBlist << R << G << B;

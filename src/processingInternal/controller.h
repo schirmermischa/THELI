@@ -154,7 +154,7 @@ private:
     // Coaddition
     void coaddPrepare(QString filterArg);
     void coaddSmoothEdge();
-    void coaddPrepareProjectPM(QFile &headerFileOld, QString newHeaderName, QString refRA, QString refDE, double mjdobsZero, double mjdobsNow);
+    void coaddPrepareProjectPM(QFile &headerFileOld, QString newHeaderName, QString refDE, double mjdobsZero, double mjdobsNow);
     void coaddPrepareProjectRotation();
     void coaddPrepareBuildSwarpCommand(QString refRA, QString refDE);
     void coaddResampleBuildSwarpCommand(QString imageList, int i);
@@ -217,7 +217,7 @@ private:
     long getNumObjectsScampCat(QString cat);
     void satisfyMaxMemorySetting();
     long getNumObjectsSourceExtractorCat(QString cat);
-    void emitSourceCountMessage(long &nobj, QString baseName, QString &warningLevel, QString &stopLevel);
+    void emitSourceCountMessage(long &nobj, QString baseName);
     void printCfitsioError(QString funcName, int status);
     void updateImageAndData(MyImage *image, Data *data);
     void maskObjectsInSkyImagesPass1(const int chip, Data *skyData, Data *scienceData, const bool twoPass, const QString dt,
@@ -227,14 +227,14 @@ private:
                                      const bool rescaleModel);
     bool filterBackgroundList(const int chip, Data *skyData, MyImage *it,  QString &backExpList, const int nGroups, const int nLength,
                               const int currentExposure, const QString mode);
-    void maskObjectsInSkyImagesPass1_newParallel(Data *skyData, Data *scienceData, const QList<MyImage *> &backgroundList,
-                                                 const bool twoPass, const QString dt, const QString dmin, const bool convolution,
-                                                 const QString expFactor, const int threadID);
-    void maskObjectsInSkyImagesPass2_newParallel(Data *skyData, Data *scienceData, MyImage *combinedImage, const QList<MyImage *> &backgroundList,
-                                                 const bool twoPass, const QString dt, const QString dmin, const bool convolution,
-                                                 const QString expFactor, const int chip, const bool rescaleModel,
-                                                 const int threadID, const QString mode);
-    void sendBackgroundMessage(const int chip, const QString mode, const bool staticmodeldone, const QString basename, const int pass);
+//    void maskObjectsInSkyImagesPass1_newParallel(Data *skyData, Data *scienceData, const QList<MyImage *> &backgroundList,
+//                                                 const bool twoPass, const QString dt, const QString dmin, const bool convolution,
+//                                                 const QString expFactor, const int threadID);
+//    void maskObjectsInSkyImagesPass2_newParallel(Data *skyData, Data *scienceData, MyImage *combinedImage, const QList<MyImage *> &backgroundList,
+//                                                 const bool twoPass, const QString dt, const QString dmin, const bool convolution,
+//                                                 const QString expFactor, const int chip, const bool rescaleModel,
+//                                                 const int threadID, const QString mode);
+    void sendBackgroundMessage(const QString mode, const bool staticmodeldone, const QString basename, const int pass);
     /*
     void processBackgroundStatic(Data *scienceData, Data *skyData, const float nimg, QVector<QString> &numBackExpList,
                                  QString dt, QString dmin, QString expFactor, QString nlow1,
@@ -484,7 +484,7 @@ signals:
     void clearMemoryView();
     void populateMemoryView();
     void stopFileProgressTimer();
-    void addBackupDirToMemoryviewer(QString scienceDir, QString backupDirName);
+    void addBackupDirToMemoryviewer(QString scienceDir);
     void loadAbsZP(QString coaddImagePath, float maxVal);
     void updateMemoryProgressBar(long splitterMemory);
     void forceFinish();

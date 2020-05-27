@@ -23,7 +23,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QGraphicsItem>
 #include <QList>
 
-MyGraphicsScene::MyGraphicsScene(QWidget *parent)
+MyGraphicsScene::MyGraphicsScene()
 {
 
 }

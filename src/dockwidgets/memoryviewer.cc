@@ -179,6 +179,7 @@ void MemoryViewer::addData(const QList<Data*> &DT_x, const QString &type)
 void MemoryViewer::addDataWeights(const QList<Data*> &DT_x)
 {
     if (DT_x.isEmpty()) return;
+
     QStringList list;
     QString weight = "WEIGHT:";
     for (auto &data : DT_x) {
@@ -278,7 +279,7 @@ void MemoryViewer::on_datadirComboBox_currentIndexChanged(int index)
 }
 
 // triggered when a processing task has created a new backup dir. Only for the currently visible science data
-void MemoryViewer::addBackupDirReceived(QString scienceDir, QString backupDirName)
+void MemoryViewer::addBackupDirReceived(QString scienceDir)
 {
     if (ui->datadirComboBox->currentText() == "SCI: "+scienceDir) {
         repopulateRestoreComboBox();
@@ -533,9 +534,9 @@ void MemoryViewer::updateStatusCheckBoxes(Data *data)
 }
 
 // reflect a status update in the currently shown checkboxes (if they represent the Data class that sent the signal)
-void MemoryViewer::updateStatusCheckBoxesReceived(QString statusstring)
+void MemoryViewer::updateStatusCheckBoxesReceived(QString statusString)
 {
-    // The argument is ignored (used in other slots)
+    // The statusString arg is used by another slot in mainwindow.cc
 
     int index = ui->datadirComboBox->currentIndex();
     if (dataModelList.isEmpty() || index == -1 || mainGUI->doingInitialLaunch) return;
@@ -586,7 +587,7 @@ void MemoryViewer::projectResetReceived()
 Data* MemoryViewer::getDataClassThisModel()
 {
     int index = ui->datadirComboBox->currentIndex();
-    if (dataModelList.isEmpty() || index == -1 || mainGUI->doingInitialLaunch) nullptr;
+    if (dataModelList.isEmpty() || index == -1 || mainGUI->doingInitialLaunch) return nullptr;
     return dataModelList[index]->myData;
 }
 

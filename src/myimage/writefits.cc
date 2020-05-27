@@ -46,7 +46,7 @@ void MyImage::writeImage(QString fileName, QString filter, float exptime, bool a
     if (success) imageOnDrive = true;
     else imageOnDrive = false;
 
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
 }
 
 void MyImage::writeImageBackupL1()
@@ -61,7 +61,7 @@ void MyImage::writeImageBackupL1()
     if (success) backupL1OnDrive = true;
     else backupL1OnDrive = false;
 
-    // emit modelUpdateNeeded(baseName, chipName);
+    // emit modelUpdateNeeded(chipName);
 }
 
 void MyImage::writeImageBackupL2()
@@ -76,7 +76,7 @@ void MyImage::writeImageBackupL2()
     if (success) backupL2OnDrive = true;
     else backupL2OnDrive = false;
 
-    //    emit modelUpdateNeeded(baseName, chipName);
+    //    emit modelUpdateNeeded(chipName);
 }
 
 void MyImage::writeImageBackupL3()
@@ -91,7 +91,7 @@ void MyImage::writeImageBackupL3()
     if (success) backupL3OnDrive = true;
     else backupL3OnDrive = false;
 
-    //    emit modelUpdateNeeded(baseName, chipName);
+    //    emit modelUpdateNeeded(chipName);
 }
 
 void MyImage::writeBackgroundModel()
@@ -122,7 +122,7 @@ void MyImage::writeWeightSmoothed(QString fileName)
     else weightOnDrive = false;
 }
 
-void MyImage::writeConstSkyImage(float constValue, QString filter, float exptime, bool addGain)
+void MyImage::writeConstSkyImage(float constValue)
 {
     if (!successProcessing) return;
 
@@ -130,7 +130,7 @@ void MyImage::writeConstSkyImage(float constValue, QString filter, float exptime
 
     QString fileName = path+"/SKY_IMAGES/"+baseName+".sky.fits";
 
-    writeConstImage(fileName, constValue, exptime, filter, header);
+    writeConstImage(fileName, constValue, header);
 }
 
 void MyImage::writeImageDebayer(bool addGain)
@@ -146,7 +146,7 @@ void MyImage::writeImageDebayer(bool addGain)
     if (success) imageOnDrive = true;
     else imageOnDrive = false;
 
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
 }
 
 // If the 'headerRef' member is set, the header from that image will be copied.
@@ -284,7 +284,7 @@ void MyImage::writeObjectMask(QString fileName)
 
 
 // If the 'headerRef' member is set, the header from that image will be copied.
-void MyImage::writeConstImage(QString fileName, float constValue, float exptime, QString filter, const QVector<QString> header)
+void MyImage::writeConstImage(QString fileName, float constValue, const QVector<QString> header)
 {
     // The new output file
     fitsfile *fptr;

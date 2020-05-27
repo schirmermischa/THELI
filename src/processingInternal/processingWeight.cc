@@ -261,7 +261,7 @@ void Controller::taskInternalIndividualweight()
             it->initWeightfromGlobalWeight(GLOBALWEIGHTS->myImageList[chip]);
         }
         it->thresholdWeight(imageMin, imageMax);
-        it->applyPolygons(chip);
+        it->applyPolygons();
         it->maskBloomingSpike(instType, range, minVal, cdw->ui->CIWmaskbloomingCheckBox->isChecked());
 #pragma omp atomic
         progress += progressHalfStepSize;

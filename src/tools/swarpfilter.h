@@ -34,7 +34,7 @@ class SwarpFilter : public QObject
     Q_OBJECT
 public:
     SwarpFilter(QString coadddirname, QString kappaString, QString clustersizeString,
-                QString borderwidthString, int maxCPU, int *verbose, QObject *parent = nullptr);
+                QString borderwidthString, int maxCPU, int *verbose);
     ~SwarpFilter();
 
     float *progress;

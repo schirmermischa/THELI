@@ -303,7 +303,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
         else if (msgBox.clickedButton() == pButtonContinue) {
             accept = accept && true;
         }
-        else accept = accept && false;
+        else if (msgBox.clickedButton() == pButtonCancel) {
+            accept = accept && false;
+        }
     }
 
     if (accept) event->accept();
@@ -1327,9 +1329,11 @@ void MainWindow::on_setupProjectLoadToolButton_clicked()
             else return;
         }
         else if (msgBox.clickedButton() == pButtonContinue) {
-            // nothing to be done
+            // see below
         }
-        else return;
+        else if (msgBox.clickedButton() == pButtonCancel) {
+            return;
+        }
     }
 
     QString projectname;
@@ -1620,9 +1624,11 @@ void MainWindow::resetParameters()
             else return;
         }
         else if (msgBox.clickedButton() == pButtonContinue) {
-            // nothing to be done
+            // see below
         }
-        else return;
+        else if (msgBox.clickedButton() == pButtonCancel) {
+            return;
+        }
     }
     else {
         QMessageBox msgBox;
@@ -1633,6 +1639,9 @@ void MainWindow::resetParameters()
         QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
         msgBox.exec();
         if (msgBox.clickedButton() == pButtonCancel) return;
+        else if (msgBox.clickedButton() == pButtonOK) {
+            // see below
+        }
     }
 
     // Purge all data from memory

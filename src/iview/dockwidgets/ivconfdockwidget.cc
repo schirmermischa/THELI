@@ -120,7 +120,7 @@ void IvConfDockWidget::on_autocontrastPushButton_toggled(bool checked)
 
 void IvConfDockWidget::on_filterLineEdit_textChanged(const QString &arg1)
 {
-    QString filter = ui->filterLineEdit->text();
+    QString filter = arg1;
 
     if (filter.isEmpty()
             || !filter.contains(".fits")

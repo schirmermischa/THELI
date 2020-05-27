@@ -171,7 +171,7 @@ void Controller::taskInternalCollapse()
         scienceData->processingStatus->writeToDrive();
         scienceData->transferBackupInfo();
         scienceData->emitStatusChanged();
-        emit addBackupDirToMemoryviewer(scienceDir, backupDirName);
+        emit addBackupDirToMemoryviewer(scienceDir);
         emit progressUpdate(100);
         //        pushEndMessage(taskBasename, scienceDir);
     }
@@ -256,7 +256,7 @@ void Controller::taskInternalBinnedpreview()
             QVector<float> dataBinned(nb*mb,0);
             // Bin the image; map it onto the output binned image;
             if (verbosity >= 1) emit messageAvailable(scienceData->myImageList[chip][img]->chipName + " : Binning ...", "image");
-            binData(scienceData->myImageList[chip][img]->dataCurrent, dataBinned, n, m, nb, mb, binFactor, binFactor);
+            binData(scienceData->myImageList[chip][img]->dataCurrent, dataBinned, n, nb, mb, binFactor, binFactor);
             mapBinnedData(dataBinnedGlobal, dataBinned, Tmatrices[chip], nGlobal, mGlobal,
                           nb, mb, crpix1, crpix2, xminOffset, yminOffset, instData->name);
             scienceData->myImageList[chip][img]->unprotectMemory();

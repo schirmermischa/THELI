@@ -121,8 +121,7 @@ private:
     void propagateHeader(fitsfile *fptr, QVector<QString> header);
     bool write(QString fileName, const QVector<float> &data,
                const float exptime, const QString filter, const QVector<QString> header);
-    void writeConstImage(QString fileName, const float constValue, const float exptime,
-                         const QString filter, const QVector<QString> header);
+    void writeConstImage(QString fileName, const float constValue, const QVector<QString> header);
     bool writeDebayer(QString fileName, const float exptime, const QString filter,
                       const QVector<QString> header);
     void writeSegmentation(QString fileName);
@@ -346,7 +345,7 @@ public:
     void appendToScampCatalogSourceExtractor(fitsfile *fptr);
     void applyBackgroundModel(const MyImage *backgroundImage, QString mode, bool rescaleFlag);
     void applyMask();
-    void applyPolygons(int chip);
+    void applyPolygons();
     void backupOrigHeader(int chip);
     void buildSourceExtractorCommand();
     void buildAnetCommand();
@@ -423,7 +422,7 @@ public:
     void updateZeroOrderOnDrive(QString updateMode);
     // Not sure I need the optional argument feature for the following two
     void writeImage(QString fileName = "", QString filter = "", float exptime = -1.0, bool addGain = false);
-    void writeConstSkyImage(float constValue, QString filter = "", float exptime = -1.0, bool addGain = false);
+    void writeConstSkyImage(float constValue);
     void writeImageDebayer(bool addGain = false);
     void writeWeight(QString fileName = "");
     void writeCatalog(QString minFWHM_string, QString maxFlag_string);
@@ -481,7 +480,7 @@ public:
     void subtractBias();
     void subtractBias(QVector<float> const &dataCurrent, QString dataType);
 signals:
-    void modelUpdateNeeded(QString baseName, QString chipName);
+    void modelUpdateNeeded(QString chipName);
     void messageAvailable(QString message, QString type);
     void setMemoryLock(bool locked);
     void setWCSLock(bool locked);

@@ -30,7 +30,7 @@ If not, see https://www.gnu.org/licenses/ .
 
 SwarpFilter::SwarpFilter(QString coadddirname, QString kappaString,
                          QString clustersizeString, QString borderwidthString,
-                         int maxCPU, int *verbose, QObject *parent)
+                         int maxCPU, int *verbose)
 {
     // Probably not needed, unless to case distinct linux and mac
     initEnvironment(thelidir, userdir);

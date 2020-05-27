@@ -671,7 +671,8 @@ void AbsZeroPoint::endScript()
 }
 */
 
-void AbsZeroPoint::showData(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event)
+// void AbsZeroPoint::showData(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event)
+void AbsZeroPoint::showData(QCPAbstractPlottable *plottable, int dataIndex)
 {
     if (plottable->parentLayerable()->objectName() == "aperRect") {
         absPhot->ZPSelected = QString::number(absPhot->qv_ZP[dataIndex], 'f', 3);
@@ -893,7 +894,8 @@ void AbsZeroPoint::plot()
         colorZPGraphManualOutlier->setLineStyle(QCPGraph::lsNone);
         colorZPGraphManualOutlier->rescaleKeyAxis();
         colorZPGraphManualOutlier->rescaleValueAxis();
-        colorZPGraphManualOutlier->setData(absPhot->qv_colorManualOutlier,absPhot->qv_ZPManualOutlier);
+        colorZPGraphManualOutlier->setData(absPhot->qv_colorManualOutlier,absPhot->qv_ZPManualOutlier);void AbsZeroPoint::showData(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event)
+
     }
     */
 
@@ -916,9 +918,8 @@ void AbsZeroPoint::on_actionClose_triggered()
 
 bool AbsZeroPoint::doColortermFit()
 {
+     /*
     int fitOrder = ui->zpFitOrderSpinBox->value();
-
-    /*
     if (!absPhot->regression(fitOrder)) {
         QMessageBox::information( this, "Ill-constrainend fit",
                                   "There are not enough photometric reference stars to perform a fit of order "+QString::number(fitOrder),

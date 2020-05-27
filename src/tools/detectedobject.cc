@@ -716,8 +716,8 @@ void DetectedObject::calcMagAuto()
         for (long i=imin; i<=imax; ++i) {
             float dx = X - i;
             // Work on pixels within 6x the ellipse
-            if (CXX*dx*dx + CYY*dy*dy + CXY*dx*dy <= 36.*A*A) {
-                double r = sqrt(CXX*dx*dx + CYY*dy*dy + CXY*dx*dy);
+            double rsq = CXX*dx*dx + CYY*dy*dy + CXY*dx*dy;
+            if (rsq <= 36.*A*A) {
                 rkron += float(dataMeasure.at(i+naxis1*j));
                 fsum += dataMeasure.at(i+naxis1*j);
             }

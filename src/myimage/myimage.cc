@@ -205,7 +205,7 @@ void MyImage::readImage(bool determineMode)
             emit critical();
             successProcessing = false;
         }
-        emit modelUpdateNeeded(baseName, chipName);
+        emit modelUpdateNeeded(chipName);
     }
 }
 
@@ -236,7 +236,7 @@ void MyImage::readImage(QString loadFileName)
             emit critical();
             successProcessing = false;
         }
-        emit modelUpdateNeeded(baseName, chipName);
+        emit modelUpdateNeeded(chipName);
     }
 }
 
@@ -266,7 +266,7 @@ void MyImage::readImageBackupL1Launch()
         emit critical();
         successProcessing = false;
     }
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
 }
 
 // when MyImage has been read before and all members are setup correctly, just the pixel data are missing.
@@ -1427,7 +1427,7 @@ void MyImage::xy2sky(const double x, const double y, double &alpha, double &delt
 
 void MyImage::emitModelUpdateNeeded()
 {
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
 }
 
 // For use from within the memory viewer

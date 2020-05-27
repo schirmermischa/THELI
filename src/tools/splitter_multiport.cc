@@ -334,7 +334,7 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
         int channel = 0;
         for (auto &section : multiportIlluminatedSections) {
             if (section.length() != 4) continue; // skip wrong vertices, for whatever reason they might be here
-            pasteSubArea(dataCurrent, dataRaw, multiportIlluminatedSections[channel], multiportGains[channel], naxis1, naxis2, naxis1Raw, naxis2Raw);
+            pasteSubArea(dataCurrent, dataRaw, multiportIlluminatedSections[channel], multiportGains[channel], naxis1, naxis2, naxis1Raw);
             ++channel;
         }
     }
@@ -346,7 +346,7 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
             long offx = (chip % 4) * naxis1 / 4;
             long offy = 0;
             pasteSubArea(dataPasted, dataRaw, multiportIlluminatedSections[channel], multiportGains[channel],
-                         offx, offy, naxis1, naxis2, naxis1Raw, naxis2Raw);
+                         offx, offy, naxis1, naxis2, naxis1Raw);
             ++channel;
         }
         if (chip == 3 || chip == 7 || chip == 11) {
@@ -363,7 +363,7 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
 // paste a subarea 'sector' (xmin, xmax, ymin, ymax) from source image "dataS" to target image "dataT",
 // Offsets are calculated internally, assuming that data sections have equal sizes
 void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, const QVector<long> &section, const float corrFactor,
-                            const long nT, const long mT, const long nS, const long mS)
+                            const long nT, const long mT, const long nS)
 {
     long iminS = section[0];
     long imaxS = section[1];
@@ -392,7 +392,7 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
 // paste a subarea 'sector' (xmin, xmax, ymin, ymax) from source image "dataS" to target image "dataT",
 // offsets dx and dy are given explicitly
 void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, const QVector<long> &section, const float corrFactor,
-                            const long offx, const long offy, const long nT, const long mT, const long nS, const long mS)
+                            const long offx, const long offy, const long nT, const long mT, const long nS)
 {
     long iminS = section[0];
     long imaxS = section[1];

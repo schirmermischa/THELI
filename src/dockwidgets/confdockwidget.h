@@ -75,7 +75,7 @@ private:
     void populateDefaultMap();
     void populateAPIlists();
     void establish_connections();
-    void launchViewer(const QString &dirname, const QString &filter, const QString &mode);
+    void launchViewer(const QString &mode);
     void initConfDockWidget();
     void applyStyleSheets();
     void setupXtalkButtonGroups();

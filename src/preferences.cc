@@ -133,11 +133,6 @@ void Preferences::updateParallelization(bool running)
     else ui->parallelizationFrame->setEnabled(true);
 }
 
-void Preferences::closeEvent(QCloseEvent *event)
-{
-    // nothing
-}
-
 Preferences::~Preferences()
 {
     delete ui;

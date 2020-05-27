@@ -26,8 +26,8 @@ If not, see https://www.gnu.org/licenses/ .
 #include "instrumentdata.h"
 #include "../myimage/myimage.h"
 
-void binData(const QVector<float> &data, QVector<float> &dataBinned, const int n, const int m,
-              const int nb, const int mb, const int binX, const int binY);
+void binData(const QVector<float> &data, QVector<float> &dataBinned, const int n,
+             const int nb, const int mb, const int binX, const int binY);
 QVector<int> CDmatrixToTransformationMatrix(QVector<double> CD, QString instName);
 void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage *imageR);
 int direction(float N, float E, float W, float S);

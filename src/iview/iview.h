@@ -95,7 +95,8 @@ public:
     IvWCSDockWidget *wcsdw = new IvWCSDockWidget(this);
 
     MyGraphicsView *myGraphicsView;
-    MyGraphicsScene *scene = new MyGraphicsScene(this);
+//    MyGraphicsScene *scene = new MyGraphicsScene(this);
+    MyGraphicsScene *scene = new MyGraphicsScene();
     int numImages = 0;
     int zoomLevel = 0;
     float dynRangeMin;

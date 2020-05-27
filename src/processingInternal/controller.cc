@@ -380,7 +380,6 @@ void Controller::dataTreeEditedReceived()
     QStringList list = datadir2StringList(lineEdit);
 
     // Loop over the directories and check whether they exist
-    bool allDirsExist = true;
     for (int i=0; i<list.size(); ++i) {
         // check if path is absolute, if not, prepend main path
         QString dirname = list.at(i);
@@ -390,7 +389,6 @@ void Controller::dataTreeEditedReceived()
             dir = QDir(dirname);
         }
         if (!dir.exists()) {
-            allDirsExist = false;
             return;
         }
     }
@@ -668,7 +666,7 @@ void Controller::releaseMemory(float RAMneededThisThread, int numThreads, QStrin
         }
     }
 
-    float RAMstillneeded = RAMneededThisThread - RAMfreed;
+//    float RAMstillneeded = RAMneededThisThread - RAMfreed;
 
     if (RAMfreed < RAMneededThisThread
             && RAMwasReallyReleased

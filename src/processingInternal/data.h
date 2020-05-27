@@ -48,7 +48,7 @@ class Data : public QObject
     Q_OBJECT
 public:
     explicit Data(const instrumentDataType *instrumentData, Mask *detectorMask, QString maindirname,
-                  QString subdirname, int *verbose, QObject *parent = nullptr);
+                  QString subdirname, int *verbose);
 
     ~Data();
 
@@ -150,7 +150,7 @@ public:
                             const QString dirName, const QString subDirName, const QString dataType);
     void combineImages(const int chip, const QString nlowString, const QString nhighString, const QString currentImage, const QString mode,
                        const QString dirName, const QString subDirName, QVector<bool> &dataStaticModelDone);
-    void combineImages_newParallel(int chip, MyImage *masterCombined, QList<MyImage *> &backgroundList, QString nlow, QString nhigh, QString currentImage, QString mode, const QString subDirName);
+//    void combineImages_newParallel(int chip, MyImage *masterCombined, QList<MyImage *> &backgroundList, QString nlow, QString nhigh, QString currentImage, QString mode, const QString subDirName);
 //    void deleteMyImageList();
 //    void forceStatus(int chip, QString status);
     void loadCombinedImage(int chip);
@@ -220,8 +220,8 @@ public:
     void resetStaticModel();
     void writeBackgroundModel(const int &chip, const QString &mode, const QString &basename, bool &staticImageWritten);
 //    void getModeCombineImagesBackground(int chip, MyImage *image);
-    void writeBackgroundModel_newParallel(int chip, MyImage *combinedBackgroundImage, QString mode, QString basename,
-                                          int threadID, omp_lock_t &backLock, bool &staticImageWritten);
+//    void writeBackgroundModel_newParallel(int chip, MyImage *combinedBackgroundImage, QString mode, QString basename,
+//                                          int threadID, omp_lock_t &backLock, bool &staticImageWritten);
     void cleanBackgroundModelStatus();
     bool checkForRawData();
     void applyMask(int chip, QString filter);
@@ -232,7 +232,7 @@ public:
 public slots:
     void setMemoryLockReceived(bool locked);
     void setWCSLockReceived(bool locked);
-    void modelUpdateReceiver(QString basename, QString chipName);
+    void modelUpdateReceiver(QString chipName);
     void pushMessageAvailable(QString message, QString type);
     void pushWarning();
     void pushCritical();
@@ -263,7 +263,7 @@ private:
 private slots:
 
 signals:
-    void modelUpdateNeeded(QString basename, QString chipName);
+    void modelUpdateNeeded(QString chipName);
     // Passed through from MyImage:
     void messageAvailable(QString message, QString type);
     void showMessageBox(QString trigger, QString part1, QString part2);

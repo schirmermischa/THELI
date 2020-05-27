@@ -52,7 +52,7 @@ DataModel::DataModel(Data *someData, QString weight, QObject *parent)
 {
     myData = someData;
 
-    modelType = "weight";
+    modelType = weight;         // must be "weight"
 
     // Create the image list
     updateImageList();
@@ -401,7 +401,7 @@ bool DataModel::setData(const QModelIndex & index, const QVariant & value, int r
     return false;
 }
 
-void DataModel::modelUpdateReceiver(QString basename, QString chipName)
+void DataModel::modelUpdateReceiver(QString chipName)
 {
     // Find the index of the MyImage that has emitted the original signal
     QModelIndexList list = match(index(0,0), Qt::DisplayRole, chipName);
@@ -421,7 +421,7 @@ void DataModel::modelUpdateReceiver(QString basename, QString chipName)
     QModelIndex indexL1 = index(row, 4);
     QModelIndex indexL2 = index(row, 5);
     QModelIndex indexL3 = index(row, 6);
-    QModelIndex indexComment = index(row, 7);
+    // QModelIndex indexComment = index(row, 7);         // unused
 
     // Update the background colors
     setData(indexImage, getColorImage(imageList[row]->activeState), Qt::BackgroundRole);

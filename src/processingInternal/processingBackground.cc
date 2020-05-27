@@ -51,7 +51,6 @@ void Controller::taskInternalBackground()
     scienceData->resetProcessbackground();
     scienceData->resetObjectMasking();
 
-    bool fromSky = false;
     Data *skyData = nullptr;
     if (skyDir == "noskydir") skyData = scienceData;  // The background is calculated either from science or from sky images
     else {
@@ -61,7 +60,6 @@ void Controller::taskInternalBackground()
         if (!skyData->collectMJD()) return;
         skyData->resetProcessbackground();
         skyData->resetObjectMasking();
-        fromSky = true;
     }
     skyData->rescaleFlag = true;   // Background images must be rescaled before combination into the final model
 
@@ -155,7 +153,7 @@ void Controller::taskInternalBackground()
         scienceData->processingStatus->writeToDrive();
         scienceData->transferBackupInfo();
         scienceData->emitStatusChanged();
-        emit addBackupDirToMemoryviewer(scienceDir, backupDirName);
+        emit addBackupDirToMemoryviewer(scienceDir);
         emit progressUpdate(100);
     }
 }
@@ -198,7 +196,7 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
             }
 
             // PASS 1:
-            sendBackgroundMessage(chip, mode, dataStaticModelDone[chip], it->chipName, 1);
+            sendBackgroundMessage(mode, dataStaticModelDone[chip], it->chipName, 1);
             maskObjectsInSkyImagesPass1(chip, skyData, scienceData, twoPass, dt, dmin, convolution, expFactor);
             skyData->combineImages(chip, nlow1, nhigh1, it->chipName, mode, dataDirName, dataSubDirName, dataStaticModelDone);
             skyData->combinedImage[chip]->modeDetermined = false;   // must redetermine!
@@ -206,7 +204,7 @@ void Controller::processBackground(Data *scienceData, Data *skyData, const float
 
             // PASS 2:
             if (twoPass) {
-                sendBackgroundMessage(chip, mode, dataStaticModelDone[chip], it->chipName, 2);
+                sendBackgroundMessage(mode, dataStaticModelDone[chip], it->chipName, 2);
                 maskObjectsInSkyImagesPass2(chip, skyData, scienceData, twoPass, dt, dmin, convolution, expFactor, rescaleModel);
                 if (mode == "static" && !pass2staticDone) dataStaticModelDone[chip] = false;    // must recalculate static model (dynamic model will always be recalculated)
                 skyData->combineImages(chip, nlow2, nhigh2, it->chipName, mode, dataDirName, dataSubDirName, dataStaticModelDone);
@@ -300,7 +298,7 @@ void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const
         }
 
         // PASS 1:
-        sendBackgroundMessage(chip, "static", skyData->staticModelDone[chip], it->chipName, 1);
+        sendBackgroundMessage("static", skyData->staticModelDone[chip], it->chipName, 1);
         maskObjectsInSkyImagesPass1_newParallel(skyData, scienceData, backgroundList, twoPass, dt, dmin, convolution, expFactor, threadID);
 
         MyImage *masterCombined = new MyImage(dirName, "dummy.fits", "", chip+1, skyData->mask->globalMask[chip], skyData->mask->isChipMasked[chip], &verbosity);
@@ -319,7 +317,7 @@ void Controller::processBackgroundStatic(Data *scienceData, Data *skyData, const
 
         // PASS 2:
         if (twoPass) {
-            sendBackgroundMessage(chip, "static", skyData->staticModelDone[chip], it->chipName, 2);
+            sendBackgroundMessage("static", skyData->staticModelDone[chip], it->chipName, 2);
             maskObjectsInSkyImagesPass2_newParallel(skyData, scienceData, masterCombined, backgroundList, twoPass, dt, dmin,
                                                     convolution, expFactor, chip, rescaleModel, threadID, "static");
             // do this only once per chip
@@ -415,7 +413,7 @@ void Controller::processBackgroundDynamic(Data *scienceData, Data *skyData, cons
         }
 
         // PASS 1:
-        sendBackgroundMessage(chip, "dynamic", skyData, it->chipName, 1);
+        sendBackgroundMessage("dynamic", skyData, it->chipName, 1);
         maskObjectsInSkyImagesPass1_newParallel(skyData, scienceData, backgroundList, twoPass, dt, dmin, convolution, expFactor, threadID);
 
         MyImage *masterCombined = new MyImage(dirName, "dummy.fits", "", chip+1, skyData->mask->globalMask[chip], skyData->mask->isChipMasked[chip], &verbosity);
@@ -427,7 +425,7 @@ void Controller::processBackgroundDynamic(Data *scienceData, Data *skyData, cons
 
         // PASS 2:
         if (twoPass) {
-            sendBackgroundMessage(chip, "dynamic", skyData, it->chipName, 2);
+            sendBackgroundMessage("dynamic", skyData, it->chipName, 2);
             maskObjectsInSkyImagesPass2_newParallel(skyData, scienceData, masterCombined, backgroundList, twoPass, dt, dmin,
                                                     convolution, expFactor, chip, rescaleModel, threadID, "dynamic");
             skyData->combineImages_newParallel(chip, combinedBackgroundImages[threadID], backgroundList, nlow2, nhigh2, it->chipName, "dynamic", dataSubDirName);
@@ -589,6 +587,7 @@ bool Controller::filterBackgroundList(const int chip, Data *skyData, MyImage *it
     return true;
 }
 
+/*
 void Controller::maskObjectsInSkyImagesPass1_newParallel(Data *skyData, Data *scienceData, const QList<MyImage*> &backgroundList, const bool twoPass,
                                                          const QString dt, const QString dmin, const bool convolution, const QString expFactor,
                                                          const int threadID)
@@ -657,8 +656,9 @@ void Controller::maskObjectsInSkyImagesPass2_newParallel(Data *skyData, Data *sc
         }
     }
 }
+*/
 
-void Controller::sendBackgroundMessage(const int chip, const QString mode, const bool staticmodeldone, const QString basename, const int pass)
+void Controller::sendBackgroundMessage(const QString mode, const bool staticmodeldone, const QString basename, const int pass)
 {
     if (verbosity >= 0) {
         if ( (mode == "static" && !staticmodeldone)

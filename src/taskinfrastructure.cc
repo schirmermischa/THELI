@@ -75,10 +75,9 @@ QStringList MainWindow::matchCalibToScience(const QStringList scienceList, const
 
 void MainWindow::handleDataDirs(QStringList &goodDirList,
                                 QLineEdit *scienceLineEdit, QLineEdit *calib1LineEdit,
-                                QLineEdit *calib2LineEdit, QString flagString, bool success)
+                                QLineEdit *calib2LineEdit, QString flagString, bool &success)
 {
-    // This function assigns the correct calibration directories (if any)
-    // and status strings (if any) to the science directories.
+    // This function assigns the correct calibration directories (if any) to the science directories.
     // Note that "science" could be a flat, and "calib" could be a bias.
 
     if (scienceLineEdit->text().isEmpty()) return;
@@ -193,7 +192,6 @@ QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList
         bool test = QMetaObject::invokeMethod(this, ("check_task"+taskBasename).toStdString().c_str(),
                                               Qt::DirectConnection,
                                               Q_ARG(DataDir*, &datadir),
-                                              Q_ARG(QString, taskBasename),
                                               Q_ARG(bool &, stop),
                                               Q_ARG(bool &, skip),
                                               Q_ARG(const QString, mode));
@@ -907,12 +905,14 @@ QString MainWindow::manualCoordsUpdate(QString science, QString mode)
         QAbstractButton *pButtonUnchanged = msgBox.addButton(tr("Leave header unchanged"), QMessageBox::YesRole);
         QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
         msgBox.exec();
-        if (msgBox.clickedButton()==pButtonCrval) return "crval";
-        else if (msgBox.clickedButton()==pButtonCrvalCD) return "crval+cd";
-        else if (msgBox.clickedButton()==pButtonUnchanged) return "empty";
-        else return "Cancel";
+        if (msgBox.clickedButton() == pButtonCrval) return "crval";
+        else if (msgBox.clickedButton() == pButtonCrvalCD) return "crval+cd";
+        else if (msgBox.clickedButton() == pButtonUnchanged) return "empty";
+        else if (msgBox.clickedButton() == pButtonCancel) return "Cancel";
     }
     else return "empty";
+
+    return "empty";
 }
 
 bool MainWindow::checkCatalogUsability(QString mode)
@@ -936,6 +936,7 @@ bool MainWindow::checkCatalogUsability(QString mode)
                 msgBox.exec();
                 if (msgBox.clickedButton() == pButtonUCAC) cdw->ui->ARCcatalogComboBox->setCurrentText("UCAC5");
                 else if (msgBox.clickedButton() == pButtonCancel) return false;
+                else if (msgBox.clickedButton() == pButtonOrig) return true;
             }
         }
         else if (instData.pixscale > 10.0 && mode != "simulate") {
@@ -952,6 +953,7 @@ bool MainWindow::checkCatalogUsability(QString mode)
                 msgBox.exec();
                 if (msgBox.clickedButton() == pButtonUCAC) cdw->ui->ARCcatalogComboBox->setCurrentText("ASCC");
                 else if (msgBox.clickedButton() == pButtonCancel) return false;
+                else if (msgBox.clickedButton() == pButtonOrig) return true;
             }
         }
     }
@@ -971,7 +973,7 @@ QString MainWindow::sameRefCoords(QString coordsMode) {
         QAbstractButton* pButtonContinue = msgBox.addButton(tr("Continue as is"), QMessageBox::YesRole);
         QAbstractButton* pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
         msgBox.exec();
-        if (msgBox.clickedButton()==pButtonAuto) {
+        if (msgBox.clickedButton() == pButtonAuto) {
             QString alphaCenter = "";
             QString deltaCenter = "";
             if (controller->DT_SCIENCE.length() == 1) {
@@ -985,7 +987,8 @@ QString MainWindow::sameRefCoords(QString coordsMode) {
                 return "Cancel";
             }
         }
-        if (msgBox.clickedButton()==pButtonContinue) return "Continue";
+        else if (msgBox.clickedButton() == pButtonContinue) return "Continue";
+        else if (msgBox.clickedButton() == pButtonContinue) return "Cancel";
         else return "Cancel";
     }
     else return "";

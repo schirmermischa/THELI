@@ -126,19 +126,23 @@ void Instrument::applyStyleSheets()
     frameList.append(ui->inst1Frame);
     frameList.append(ui->inst2Frame);
     frameList.append(ui->inst6Frame);
+    /*
     for (auto &it : frameList) {
         //        it->setStyleSheet("background-color: #ebebee;");
         // nothing yet
     }
+    */
 
     QList<QToolButton*> buttonList;
     buttonList.append(ui->bayerBGGRToolButton);
     buttonList.append(ui->bayerRGGBToolButton);
     buttonList.append(ui->bayerGBRGToolButton);
     buttonList.append(ui->bayerGRBGToolButton);
+    /*
     for (auto &it : buttonList) {
         //
     }
+    */
 }
 
 void Instrument::toggleFormatPushButton()

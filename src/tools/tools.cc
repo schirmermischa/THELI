@@ -200,7 +200,7 @@ float posangle(const QVector<double> CD)
 }
 
 // Calculate binned image (using median filter)
-void binData(const QVector<float> &data, QVector<float> &dataBinned, const int n, const int m,
+void binData(const QVector<float> &data, QVector<float> &dataBinned, const int n,
              const int nb, const int mb, const int binX, const int binY)
 {
     long bsq = binX * binY;

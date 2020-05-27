@@ -98,7 +98,8 @@ void Mask::invert()
     }
 }
 
-void Mask::addRectangle(int chip, Mask &mask, QVector<long> rect, bool invert)
+/*
+void Mask::addRectangle(int chip, QVector<long> rect, bool invert)
 {
     long n = instData->sizex[chip]; // naxis1 after overscan trimming
     long m = instData->sizey[chip]; // naxis2 after overscan trimming
@@ -125,6 +126,7 @@ void Mask::addRectangle(int chip, Mask &mask, QVector<long> rect, bool invert)
         }
     }
 }
+*/
 
 void Mask::addImage(int chip, QVector<float> segmentationMap, bool invert)
 {

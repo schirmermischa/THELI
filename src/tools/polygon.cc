@@ -35,7 +35,7 @@ void polygon2vertices(QString polystring, QVector<float> &vertx, QVector<float> 
     QStringList list = polystring.split(',');
 
     // number of vertices
-    int nvert = (polystring.count(',') + 1) / 2;
+//    int nvert = (polystring.count(',') + 1) / 2;
 
     // populate
     for (int i=0; i<list.length(); i+=2) {

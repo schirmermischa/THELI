@@ -263,7 +263,7 @@ void Controller::coaddPrepare(QString filterArg)
                 image.link(coaddDirName+"/" + it->baseName + ".fits");
                 weight.link(coaddDirName+"/" + it->baseName + ".weight.fits");
                 if (!doPMupdate) header.copy(headerNewName);
-                else coaddPrepareProjectPM(header, headerNewName, refRA, refDE, mjdobsZero, it->mjdobs);
+                else coaddPrepareProjectPM(header, headerNewName, refDE, mjdobsZero, it->mjdobs);
                 coaddTexptime += it->exptime;
                 coaddSkyvalue += it->skyValue / it->exptime;
                 ++numexp;
@@ -274,7 +274,7 @@ void Controller::coaddPrepare(QString filterArg)
                     image.link(coaddDirName+"/" + it->baseName + ".fits");
                     weight.link(coaddDirName+"/" + it->baseName + ".weight.fits");
                     if (!doPMupdate) header.copy(coaddDirName+"/" + it->baseName + ".head");
-                    else coaddPrepareProjectPM(header, headerNewName, refRA, refDE, mjdobsZero, it->mjdobs);
+                    else coaddPrepareProjectPM(header, headerNewName, refDE, mjdobsZero, it->mjdobs);
                     if (!filterNames.contains(it->filter)) filterNames.append(it->filter);
                     coaddTexptime += it->exptime;
                     coaddSkyvalue += it->skyValue / it->exptime;
@@ -370,7 +370,7 @@ void Controller::finishedPreparationReceived()
     emit swarpStartResampling();
 }
 
-void Controller::coaddPrepareProjectPM(QFile &headerFileOld, QString newHeaderName, QString refRA, QString refDE, double mjdobsZero, double mjdobsNow)
+void Controller::coaddPrepareProjectPM(QFile &headerFileOld, QString newHeaderName, QString refDE, double mjdobsZero, double mjdobsNow)
 {
     if (!successProcessing) return;
 
@@ -384,7 +384,6 @@ void Controller::coaddPrepareProjectPM(QFile &headerFileOld, QString newHeaderNa
     else if (unitIndex == 3) timeConversion = 1440.;   // arcsec / day
 
     // Calculate speed in CRVAL1/2 per minute
-    double crval1 = refRA.toDouble();
     double crval2 = refDE.toDouble();
     double crval1Speed = pmRA / 3600. / timeConversion / cos(crval2*3.14159/180.);
     double crval2Speed = pmDE / 3600. / timeConversion;

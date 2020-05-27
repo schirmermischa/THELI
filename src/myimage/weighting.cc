@@ -139,7 +139,7 @@ void MyImage::roundEdgeOfWeight(float edge, bool roundEdge)
     }
 }
 
-void MyImage::applyPolygons(int chip)
+void MyImage::applyPolygons()
 {
     if (!successProcessing) return;
 

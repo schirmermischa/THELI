@@ -1004,7 +1004,7 @@ double Splitter::localSiderealTimeToAirmass()
     double LSTbegin = lstValue;
     double LSTmiddle = lstValue + 0.5 * exptimeValue;
     double LSTend = lstValue + exptimeValue;
-    double lst = lstValue * RAD;
+    // double lst = lstValue * RAD;
     double hourangle_begin = (LSTbegin/240.) * RAD - crval1 * RAD;
     double hourangle_middle = (LSTmiddle/240.) * RAD - crval1 * RAD;
     double hourangle_end = (LSTend/240.) * RAD - crval1 * RAD;

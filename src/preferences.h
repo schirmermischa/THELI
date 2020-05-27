@@ -62,9 +62,7 @@ private slots:
     void on_prefIntermediateDataComboBox_currentTextChanged(const QString &arg1);
     void on_prefVerbosityComboBox_currentIndexChanged(int index);
     void on_prefSwitchProcessMonitorCheckBox_clicked();
-
     void on_prefCancelButton_clicked();
-
     void on_prefCloseButton_clicked();
 
 public slots:
@@ -76,7 +74,6 @@ private:
     QFont defaultFont;
     float totalMemory;
     int maxMemoryUsed;
-    void closeEvent(QCloseEvent *event);
     void applyStyleSheets();
     void configureMemory();
     int readSettings();

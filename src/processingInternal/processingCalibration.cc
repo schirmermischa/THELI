@@ -713,7 +713,7 @@ void Controller::taskInternalProcessscience()
         scienceData->processingStatus->writeToDrive();
         scienceData->transferBackupInfo();
         scienceData->emitStatusChanged();
-        emit addBackupDirToMemoryviewer(scienceDir, backupDirName);
+        emit addBackupDirToMemoryviewer(scienceDir);
         emit progressUpdate(100);
         //        pushEndMessage(taskBasename, scienceDir);
     }

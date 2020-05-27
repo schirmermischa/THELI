@@ -50,7 +50,7 @@ private:
     QPoint wcsStart;
 
 public:
-    explicit MyGraphicsView(QWidget *parent = nullptr);
+    explicit MyGraphicsView();
     void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);

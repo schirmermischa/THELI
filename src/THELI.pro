@@ -254,7 +254,7 @@ macx: {
     LIBS += -L/usr/local/lib -lcfitsio -lcurl -lfftw3_omp -lfftw3 -lm -lgsl -lgslcblas -lwcs -ltiff -lraw -lomp
 }
 
-QMAKE_CXXFLAGS += -Wno-unused
+QMAKE_CXXFLAGS += -Wall -Wno-unused
 QMAKE_CXXFLAGS += -O3
 
 INCLUDEPATH += /usr/include/wcslib/

@@ -45,7 +45,7 @@ double gaussian(const double a, const double b, const double c, const double t)
 
 int func_f (const gsl_vector *x, void *params, gsl_vector *f)
 {
-    long n = ((struct fitData *)params)->n;
+//    long n = ((struct fitData *)params)->n;
     double *xdata = ((struct fitData *)params)->t;
     double *ydata = ((struct fitData *)params)->y;
 

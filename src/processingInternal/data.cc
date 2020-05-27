@@ -45,7 +45,7 @@ If not, see https://www.gnu.org/licenses/ .
 // It creates a list of all matching images in that directory, and also reads some
 // essential FITS header keywords.
 Data::Data(const instrumentDataType *instrumentData, Mask *detectorMask, QString maindirname,
-           QString subdirname, int *verbose, QObject *parent) : instData(instrumentData)
+           QString subdirname, int *verbose) : instData(instrumentData)
 {
 //    instData = instrumentData;
 
@@ -846,6 +846,7 @@ void Data::combineImages(const int chip, const QString nlowString, const QString
     successProcessing = true;
 }
 
+/*
 // Used for creating a background model
 void Data::combineImages_newParallel(int chip, MyImage *masterCombined, QList<MyImage*> &backgroundList, QString nlowString,
                                      QString nhighString, QString currentImage, QString mode, const QString subDirName)
@@ -943,18 +944,15 @@ void Data::combineImages_newParallel(int chip, MyImage *masterCombined, QList<My
         for (auto &gi : goodIndex) {
             // Not sure why I have included the requirement on dataBackupL1[i] != 0.
             // For flat-fielded data (not sky subtracted), the pixel values should always be positive. Commented out for the time being
-            /*
-             * if (backgroundList[gi]->objectMaskDone) {
-                if (!backgroundList[gi]->objectMask[i] && backgroundList[gi]->dataBackupL1[i] > 0.) {
-                    stack.append(backgroundList[gi]->dataBackupL1[i] * rescaleFactors[k]);
-                }
-            }
-            else {
-                if (backgroundList[gi]->dataBackupL1[i] > 0.) {
-                    stack.append(backgroundList[gi]->dataBackupL1[i] * rescaleFactors[k]);
-                }
-            }
-            */
+//            if (!backgroundList[gi]->objectMask[i] && backgroundList[gi]->dataBackupL1[i] > 0.) {
+//                    stack.append(backgroundList[gi]->dataBackupL1[i] * rescaleFactors[k]);
+//                }
+//            }
+//            else {
+//                if (backgroundList[gi]->dataBackupL1[i] > 0.) {
+//                    stack.append(backgroundList[gi]->dataBackupL1[i] * rescaleFactors[k]);
+//                }
+//            }
 
             // Crash caused by dataBackgroundL1. Stack, rescaleFactors, backgroundList[gi] MyImages are all fine.
             // It appears to be the actual data vectors, but the debugger shows that everything gets mixed up.
@@ -978,6 +976,7 @@ void Data::combineImages_newParallel(int chip, MyImage *masterCombined, QList<My
     successProcessing = true;
     masterCombined->setBackgroundLock(false);
 }
+*/
 
 void Data::getModeCombineImages(int chip)
 {
@@ -1621,6 +1620,7 @@ void Data::writeBackgroundModel(const int &chip, const QString &mode, const QStr
     successProcessing = combinedImage[chip]->successProcessing;
 }
 
+/*
 void Data::writeBackgroundModel_newParallel(int chip, MyImage *combinedBackgroundImage, QString mode, QString basename, int threadID,
                                             omp_lock_t &backLock, bool &staticImageWritten)
 {
@@ -1659,6 +1659,7 @@ void Data::writeBackgroundModel_newParallel(int chip, MyImage *combinedBackgroun
         omp_unset_lock(&backLock);
     }
 }
+*/
 
 void Data::resetUserAbort()
 {
@@ -1934,9 +1935,9 @@ QVector<double> Data::getKeyFromAllImages(const QString key)
     return data;
 }
 
-void Data::modelUpdateReceiver(QString basename, QString chipName)
+void Data::modelUpdateReceiver(QString chipName)
 {
-    emit modelUpdateNeeded(basename, chipName);
+    emit modelUpdateNeeded(chipName);
 }
 
 void Data::pushMessageAvailable(QString message, QString type)
@@ -2245,7 +2246,7 @@ bool Data::restoreFromBackupLevel(QString level, QString &newStatusRAM)
             else if (level == "L2") success *= it->makeL2Current();
             else if (level == "L3") success *= it->makeL3Current();
 
-            emit it->modelUpdateNeeded(it->baseName, it->chipName);
+            emit it->modelUpdateNeeded(it->chipName);
 
             if (i==0) newStatusRAM = it->processingStatus->statusString;
             QString statusTmp2 = it->processingStatus->statusString;

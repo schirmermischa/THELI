@@ -717,10 +717,11 @@ void ConfDockWidget::on_skyAreaPushButton_clicked()
         msgBox.exec();
         return;
     }
-    launchViewer(sciencedir, "*.fits", "SkyMode");
+    launchViewer("SkyMode");
 }
 
-void ConfDockWidget::launchViewer(const QString &dirname, const QString &filter, const QString &mode)
+//void ConfDockWidget::launchViewer(const QString &dirname, const QString &filter, const QString &mode)
+void ConfDockWidget::launchViewer(const QString &mode)
 {
     // Load the plot viewer
     //    IView *iView = new IView(dirname, filter, false);
@@ -1099,11 +1100,12 @@ void ConfDockWidget::updateAPIsolutions()
     }
 }
 
+// Not yet implemented
 void ConfDockWidget::showAPIsolution()
 {
-    QString standard = getNthWord(mainGUI->ui->setupStandardLineEdit->text(),1);
-    QPushButton* pushbutton = qobject_cast<QPushButton*>(sender());
-    QString solutionPlotPath = mainGUI->ui->setupMainLineEdit->text()+"/"+standard+"/calib/";
+    //    QString standard = getNthWord(mainGUI->ui->setupStandardLineEdit->text(),1);
+    //    QPushButton* pushbutton = qobject_cast<QPushButton*>(sender());
+    //    QString solutionPlotPath = mainGUI->ui->setupMainLineEdit->text()+"/"+standard+"/calib/";
     //    launchViewer(solutionPlotPath, pushbutton->text()+"_result.png", "");  // probably have to define a new IView mode for this
 }
 
@@ -1142,9 +1144,13 @@ bool ConfDockWidget::checkRightScampMode(const QString &coordsMode)
             scampreadme->show();
             return false;
         }
-        else return false;
+        else if (msgBox.clickedButton()==pButtonCancel) {
+            return false;
+        }
     }
     else return true;
+
+    return true;
 }
 
 void ConfDockWidget::on_nonlinearityCheckBox_clicked()

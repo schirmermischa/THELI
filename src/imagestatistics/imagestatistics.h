@@ -71,7 +71,7 @@ private slots:
     void uncheckIviewPushButton();
     void validate();
 
-    void currentlyDisplayedIndexReceived(int currentId);
+//    void currentlyDisplayedIndexReceived(int currentId);
     void on_fwhmunitsComboBox_currentIndexChanged(const QString &arg1);
 
 private:
@@ -132,7 +132,7 @@ private:
     void plot(QString init = "");
     void plotSelection(int index);
     void readStatisticsData();
-    void showNoData(QCPGraph *graph, float xpos, float ypos);
+//    void showNoData(QCPGraph *graph, float xpos, float ypos);
     void makeListOfBadImages();
 };
 

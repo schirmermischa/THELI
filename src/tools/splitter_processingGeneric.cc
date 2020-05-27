@@ -30,7 +30,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QFile>
 #include <QDir>
 
-void Splitter::correctOverscan(int chip)
+void Splitter::correctOverscan()
 {
     if (!cdw->ui->overscanCheckBox->isChecked()) return;
 
@@ -211,7 +211,6 @@ void Splitter::doOverscanHorizontal(float (*combineFunction_ptr) (const QVector<
 
     long i, j, k;
     long n = naxis1Raw;
-    long m = naxis2Raw;
 
     QVector<float> spectral(overscanArea[3]-overscanArea[2]+1,0);   // select (ymin, ymax) from [xmin:xmax, ymin:ymax]
     QVector<float> spatial(n,0);

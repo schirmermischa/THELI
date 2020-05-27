@@ -148,10 +148,8 @@ QString MainWindow::estimateStatusFromFilename(DataDir *datadir)
     return image;
 }
 
-void MainWindow::check_taskHDUreformat(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskHDUreformat(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
-    QString taskName = checkboxMap.key(taskBasename)->text();
-
     if (datadir->isEmpty()) {
         if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' contains no images. Skipping...", "note");
         skip = true;
@@ -166,9 +164,8 @@ void MainWindow::check_taskHDUreformat(DataDir *datadir, QString taskBasename, b
     }
 }
 
-void MainWindow::check_taskProcessbias(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskProcessbias(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
-    QString taskName = checkboxMap.key(taskBasename)->text();
     if (datadir->isEmpty()) {
         if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' contains no images. Skipping...", "note");
         skip = true;
@@ -186,9 +183,8 @@ void MainWindow::check_taskProcessbias(DataDir *datadir, QString taskBasename, b
     }
 }
 
-void MainWindow::check_taskProcessdark(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskProcessdark(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
-    QString taskName = checkboxMap.key(taskBasename)->text();
     if (datadir->isEmpty()) {
         if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' contains no images. Skipping...", "note");
         skip = true;
@@ -206,9 +202,8 @@ void MainWindow::check_taskProcessdark(DataDir *datadir, QString taskBasename, b
     }
 }
 
-void MainWindow::check_taskProcessflatoff(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskProcessflatoff(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
-    QString taskName = checkboxMap.key(taskBasename)->text();
     if (datadir->isEmpty()) {
         if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' contains no images. Skipping...", "note");
         skip = true;
@@ -226,9 +221,8 @@ void MainWindow::check_taskProcessflatoff(DataDir *datadir, QString taskBasename
     }
 }
 
-void MainWindow::check_taskProcessflat(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskProcessflat(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
-    QString taskName = checkboxMap.key(taskBasename)->text();
     if (datadir->isEmpty()) {
         if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' contains no images. Skipping...", "note");
         skip = true;
@@ -246,7 +240,7 @@ void MainWindow::check_taskProcessflat(DataDir *datadir, QString taskBasename, b
     }
 }
 
-void MainWindow::check_taskProcessscience(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskProcessscience(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
     if (datadir->isEmpty()) {
         if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' contains no images. Skipping...", "note");
@@ -260,37 +254,37 @@ void MainWindow::check_taskProcessscience(DataDir *datadir, QString taskBasename
     }
 }
 
-void MainWindow::check_taskChopnod(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskChopnod(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskBackground(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskBackground(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskCollapse(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskCollapse(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskBinnedpreview(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskBinnedpreview(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskGlobalweight(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskGlobalweight(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskIndividualweight(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskIndividualweight(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskAbsphotindirect(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskAbsphotindirect(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
     QString standardDir = ui->setupStandardLineEdit->text();
     if (standardDir.isEmpty()) {
@@ -299,38 +293,38 @@ void MainWindow::check_taskAbsphotindirect(DataDir *datadir, QString taskBasenam
     }
 }
 
-void MainWindow::check_taskSeparate(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskSeparate(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskCreatesourcecat(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskCreatesourcecat(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskAstromphotom(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskAstromphotom(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskGetCatalogFromWEB(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskGetCatalogFromWEB(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskGetCatalogFromIMAGE(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskGetCatalogFromIMAGE(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskRestoreHeader(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskRestoreHeader(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
     hasDirCurrentData(datadir, stop);
     // Check that original headers exist
 }
 
-void MainWindow::check_taskResolveTarget(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskResolveTarget(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
     QString target = cdw->ui->ARCtargetresolverLineEdit->text();
     if (target.isEmpty()) {
@@ -341,12 +335,12 @@ void MainWindow::check_taskResolveTarget(DataDir *datadir, QString taskBasename,
     }
 }
 
-void MainWindow::check_taskSkysub(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskSkysub(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
 
 }
 
-void MainWindow::check_taskCoaddition(DataDir *datadir, QString taskBasename, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskCoaddition(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
 
 }

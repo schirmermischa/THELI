@@ -62,7 +62,7 @@ public:
 
     void updateheaderLineExternal();
 private slots:
-    void modelUpdateReceiver(QString basename, QString chipName);
+    void modelUpdateReceiver(QString chipName);
     void updateHeaderLine(long row);
     void updateHeaderLineGlobal();
 

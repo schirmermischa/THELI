@@ -47,7 +47,7 @@ void MyImage::makeMemoryBackup()
     statusBackupL2 = statusBackupL1;
     statusBackupL1 = processingStatus->statusString;
 
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
 
     // implement:
     // processingStatus->statusString = statusCurrentNew;
@@ -80,7 +80,7 @@ void MyImage::makeBackgroundBackup()
     moveFile(baseNameBackupL1+".fits", path, pathBackupL1, true);
     backupL1OnDrive = true;
 
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
 }
 
 // Push data one step into the backup structure
@@ -99,7 +99,7 @@ void MyImage::pushDown(QString backupDir)
     moveFile(baseNameBackupL1+".fits", path, pathBackupL1, true);
     backupL1OnDrive = true;
 
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
 }
 
 // Push dataCurrent to backupL1
@@ -161,7 +161,7 @@ void MyImage::pullUp()
     pullUpFromL2();
     pullUpFromL3();
 
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
 }
 
 // Pull data up one step from the backup structure
@@ -190,7 +190,7 @@ bool MyImage::makeL1Current()
 
     wipeL3();
 
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
     return success;
 }
 
@@ -221,7 +221,7 @@ bool MyImage::makeL2Current()
     wipeL1();
     wipeL3();
 
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
     return success;
 }
 
@@ -249,7 +249,7 @@ bool MyImage::makeL3Current()
     wipeL1();
     wipeL2();
 
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
     return success;
 }
 
@@ -339,7 +339,7 @@ void MyImage::setupDataInMemorySimple(bool determineMode)
     // Load the image if not in yet memory
     readImage(determineMode);
 
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
 }
 
 // CHECK: Last argument probably not needed
@@ -378,7 +378,7 @@ void MyImage::setupData(bool isTaskRepeated, bool createBackup, bool determineMo
         }
     }
 
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
 }
 
 // If a task is repeated, replace dataCurrent with the backup copy.
@@ -419,7 +419,7 @@ void MyImage::setupBackgroundData(const bool &isTaskRepeated, const QString &bac
         }
     }
 
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
 }
 
 void MyImage::setupBackgroundData_newParallel(const bool &isTaskRepeated, const QString &backupDir)
@@ -461,7 +461,7 @@ void MyImage::setupBackgroundData_newParallel(const bool &isTaskRepeated, const 
         }
     }
 
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
 
     omp_unset_lock(&backgroundLock);
 }
@@ -496,7 +496,7 @@ void MyImage::setupCalibDataInMemory(bool createBackup, bool determineMode, bool
         }
     }
 
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
 }
 
 // unused
@@ -518,7 +518,7 @@ void MyImage::freeData(QVector<float> &data)
     else if (&data == &dataBackupL2) backupL2InMemory = false;
     else if (&data == &dataBackupL3) backupL3InMemory = false;
 
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
 }
 
 void MyImage::freeData()
@@ -526,7 +526,7 @@ void MyImage::freeData()
     dataCurrent.clear();
     dataCurrent.squeeze();
     imageInMemory = false;
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
 }
 
 // this happens only inside memoryLock set in the controller
@@ -615,7 +615,7 @@ float MyImage::freeData(QString type)
             imageInMemory = false;
         }
     }
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
 
     if (released) return naxis1*naxis2*sizeof(float) / 1024. / 1024.;
     else return 0.;
@@ -694,6 +694,6 @@ void MyImage::freeAll()
     freeData(dataBackupL3);
     freeData(dataCurrent);
     freeData(dataWeight);
-    emit modelUpdateNeeded(baseName, chipName);
+    emit modelUpdateNeeded(chipName);
     emit setMemoryLock(false);
 }

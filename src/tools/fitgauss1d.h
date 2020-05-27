@@ -74,7 +74,6 @@ QVector<float> fitGauss1D(const QVector<T1> dataY, double amp0, double mean0, do
     gsl_multifit_nlinear_fdf fdf;
     gsl_multifit_nlinear_parameters fdf_params = gsl_multifit_nlinear_default_parameters();
     gsl_rng *r;
-    size_t i;
 
     gsl_rng_env_setup();
     r = gsl_rng_alloc(T);
@@ -103,7 +102,7 @@ QVector<float> fitGauss1D(const QVector<T1> dataY, double amp0, double mean0, do
         double A = gsl_vector_get(x, 0);
         double B = gsl_vector_get(x, 1);
         double C = gsl_vector_get(x, 2);
-        for (i=0; i<n; ++i) {
+        for (size_t i=0; i<n; ++i) {
             double ti = fit_data.t[i];
             double yi = fit_data.y[i];
             double fi = gaussian(A, B, C, ti);

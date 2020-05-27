@@ -45,7 +45,7 @@ public:
 private:
     // See polygon.h for further functionality
     //    void addRegionFiles(int chip, QString regionFile);
-    void addRectangle(int chip, Mask &mask, QVector<long> rect, bool invert);
+//    void addRectangle(int chip, QVector<long> rect, bool invert);
 //    void addCircle(int chip, float x, float y, float r, QString senseMode);
 //    void addPolygon(int chip, QVector<float> &vertx, QVector<float> &verty, QString senseMode);
 //    void polygon2vertices(QString polystring, QVector<float> &vertx, QVector<float> &verty);

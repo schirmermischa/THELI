@@ -80,7 +80,7 @@ private slots:
     void on_zpClearPushButton_clicked();
     void on_zpExportPushButton_clicked();
     void on_zpFilterComboBox_currentTextChanged(const QString &arg1);
-    void showData(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event);
+    void showData(QCPAbstractPlottable *plottable, int dataIndex);
     void on_zpFitOrderSpinBox_valueChanged(int arg1);
     void displayMessage(QString message, QString type);
     void finishedCalculations();

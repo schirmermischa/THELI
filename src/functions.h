@@ -463,4 +463,56 @@ void matrix_mult_T(const T1 a11, const T1 a12, const T1 a21, const T1 a22,
     b22 = c22;
 }
 
+// The following is implemented, but not yet used anywhere
+/*
+Out      :   one element
+Job      :   find the kth smallest element in the array
+Notice   :   use the median() macro defined below to get the median.
+Reference:
+     Author: Wirth, Niklaus
+     Title: Algorithms + data structures = programs
+     Publisher: Englewood Cliffs: Prentice-Hall, 1976
+     Physical description: 366 p.
+     Series: Prentice-Hall Series in Automatic Computation
+*/
+
+template<class T>
+T kth_smallest(QVector<T> &data, int k)       // WARNING: modifies input vector
+{
+    long i;
+    long j;
+    T x;
+
+    long l = 0;
+    long n = data.length();
+    long m = n - 1;
+    while (l < m) {
+        x = data[k] ;
+        i = l;
+        j = m;
+        do {
+            while (data.at(i) < x) ++i;
+            while (x<data.at(j)) --j;
+            if (i <= j) {
+                T tmp = data[i];
+                data[j] = data[i];
+                data[i] = tmp;
+                ++i;
+                --j;
+            }
+        } while (i <= j);
+        if (j<k) l = i;
+        if (k<i) m = j;
+    }
+    return data[k];
+}
+
+// WARNING: this method is biased because kth_smallest() does not return the
+// average of two values in ase the data vector has even length. hence unused for the time being
+template<class T>
+T fastMedian(QVector<T> &data) {
+    long n = data.length();
+    kth_smallest(data,(((n)&1)?((n)/2):(((n)/2)-1)));
+}
+
 #endif // FUNCTIONS_H

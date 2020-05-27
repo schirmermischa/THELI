@@ -235,7 +235,7 @@ private:
     int getRowXtalkMethod();
     void correctXtalk();
     void correctNonlinearity(int chip);
-    void correctOverscan(int chip);
+    void correctOverscan();
 //    void doOverscan(float (*combineFunction_ptr)(const QVector<float> &, const QVector<bool> &, long),
 //                          const QVector<long> &overscanXArea, const QVector<long> &overscanYArea, const QVector<long> vertices);
     void cropDataSection(QVector<long> dataSection);
@@ -277,10 +277,10 @@ private:
                               const QVector<long> &overscanArea, const QVector<long> dataVertices);
     void pasteMultiportIlluminatedSections(int chip);
     void pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, const QVector<long> &secton,
-                      const float corrFactor, const long nT, const long mT, const long nS, const long mS);
+                      const float corrFactor, const long nT, const long mT, const long nS);
     void pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, const QVector<long> &section,
                       const float corrFactor, const long offx, const long offy, const long nT, const long mT,
-                      const long nS, const long mS);
+                      const long nS);
     void testGROND();
     QVector<long> extractVerticesFromKeyword(QString keyword1, QString keyword2, QString keyword3, QString keyword4);
     QVector<long> extractReducedOverscanFromKeyword(QString keyword1, QString keyword2, int value3, int value4);

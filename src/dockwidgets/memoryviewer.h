@@ -78,8 +78,8 @@ public slots:
     void populate();
     void clearMemoryViewReceived();
     void populateMemoryViewReceived();
-    void addBackupDirReceived(QString scienceDir, QString backupDirName);
-    void updateStatusCheckBoxesReceived(QString statusstring);
+    void addBackupDirReceived(QString scienceDir);
+    void updateStatusCheckBoxesReceived(QString statusString);
     void projectResetReceived();
 
 private slots:
