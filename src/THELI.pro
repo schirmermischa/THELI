@@ -254,8 +254,12 @@ macx: {
     LIBS += -L/usr/local/lib -lcfitsio -lcurl -lfftw3_omp -lfftw3 -lm -lgsl -lgslcblas -lwcs -ltiff -lraw -lomp
 }
 
-QMAKE_CXXFLAGS += -Wall -Wno-unused
+QMAKE_CXXFLAGS += -Wall
 QMAKE_CXXFLAGS += -O3
+
+# suppress a larger number of harmless warnings (because of QMetaObject use which requires identical arguments
+# in the functions it invokes, even though these functions don't need all arguments)
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
 
 INCLUDEPATH += /usr/include/wcslib/
 INCLUDEPATH += /usr/local/include/wcslib/

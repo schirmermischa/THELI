@@ -988,7 +988,7 @@ QString MainWindow::sameRefCoords(QString coordsMode) {
             }
         }
         else if (msgBox.clickedButton() == pButtonContinue) return "Continue";
-        else if (msgBox.clickedButton() == pButtonContinue) return "Cancel";
+        else if (msgBox.clickedButton() == pButtonCancel) return "Cancel";
         else return "Cancel";
     }
     else return "";
@@ -1051,11 +1051,11 @@ QStringList MainWindow::displayCoaddFilterChoice(QString dirname, QString &filte
                 QAbstractButton *button = msgBox.addButton(it, QMessageBox::YesRole);
                 button->setToolTip("Coadd this filter, only");
             }
-            QAbstractButton *pFend = msgBox.addButton(tr("Abort"), QMessageBox::NoRole);
+            msgBox.addButton(tr("Abort"), QMessageBox::NoRole);
             msgBox.exec();
-            // WARNING! This is broken in some KDE versions because KDE inserts the & char for the shortcut into the string returned by text().
-            // HUGE screwup. Should never mess with GUI at this level
-            filterChoice = msgBox.clickedButton()->text();
+            // WARNING! Some KDE versions / settings make KDE inserts the & char for the shortcut into
+            // the string returned by text(). HUGE screwup. KDE should never mess with GUI at this level
+            filterChoice = msgBox.clickedButton()->text().remove('&');
             if (filterChoice == "Together") filterChoice = "all";
         }
     }

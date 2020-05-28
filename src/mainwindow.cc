@@ -1482,11 +1482,11 @@ void MainWindow::load_dialog_imageStatistics()
                                   tr("The current SCIENCE data tree contains several entries. ") +
                                   tr("Select one for the statistics module:\n\n"));
         for (auto &data : controller->DT_SCIENCE) {
-            QAbstractButton *button = msgBox.addButton(data->subDirName, QMessageBox::YesRole);
+            msgBox.addButton(data->subDirName, QMessageBox::YesRole);
         }
         QAbstractButton *pCancel = msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
         msgBox.exec();
-        QString choice = msgBox.clickedButton()->text();
+        QString choice = msgBox.clickedButton()->text().remove('&');  // remove & is a KDE fix
         if (msgBox.clickedButton()== pCancel) return;
 
         for (auto &data : controller->DT_SCIENCE) {
@@ -1539,11 +1539,11 @@ void MainWindow::loadIView()
         msgBox.setInformativeText(tr("The current SCIENCE data tree contains several entries. ") +
                                   tr("Select one for which to display images:\n\n"));
         for (auto &name : scienceList) {
-            QAbstractButton *button = msgBox.addButton(name, QMessageBox::YesRole);
+            msgBox.addButton(name, QMessageBox::YesRole);
         }
         QAbstractButton *pCancel = msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
         msgBox.exec();
-        QString choice = msgBox.clickedButton()->text();
+        QString choice = msgBox.clickedButton()->text().remove('&');  // remove & is a KDE fix
         if (msgBox.clickedButton()== pCancel) return;
 
         for (auto &name : scienceList) {

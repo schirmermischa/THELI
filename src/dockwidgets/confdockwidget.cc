@@ -1169,7 +1169,6 @@ void ConfDockWidget::on_nonlinearityCheckBox_clicked()
     }
 }
 
-
 void ConfDockWidget::on_ASTviewCheckPlotsPushButton_clicked()
 {
     Data *scienceData = nullptr;
@@ -1198,11 +1197,11 @@ void ConfDockWidget::on_ASTviewCheckPlotsPushButton_clicked()
                                       tr("Display the plots for:\n\n"));
             for (auto &data : mainGUI->controller->DT_SCIENCE) {
                 QDir plotsDir = data->dirName+"/plots/";
-                if (plotsDir.exists()) QAbstractButton *button = msgBox.addButton(data->subDirName, QMessageBox::YesRole);
+                if (plotsDir.exists()) msgBox.addButton(data->subDirName, QMessageBox::YesRole);
             }
             QAbstractButton *pCancel = msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
             msgBox.exec();
-            QString choice = msgBox.clickedButton()->text();
+            QString choice = msgBox.clickedButton()->text().remove('&');  // remove & is a KDE fix
             if (msgBox.clickedButton()== pCancel) return;
 
             for (auto &data : mainGUI->controller->DT_SCIENCE) {
@@ -1219,7 +1218,7 @@ void ConfDockWidget::on_ASTviewCheckPlotsPushButton_clicked()
         QMessageBox msgBox;
         msgBox.setInformativeText(tr("Could not find astrometric check plots in any of the science directories.\n") +
                                   tr("You must run the astrometry first.\n"));
-        QAbstractButton *OK = msgBox.addButton(tr("OK"), QMessageBox::YesRole);
+        msgBox.addButton(tr("OK"), QMessageBox::YesRole);
         msgBox.exec();
     }
 }
