@@ -278,8 +278,7 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
 
     QString type = "note";
     if (matchedREFCAT.length() == 0) type = "warning";
-    emit messageAvailable(REFCAT->name + " : "+QString::number(matchedREFCAT.length()) + " of the "
-                          + QString::number(refDat.length()) + " G2 references were found in the image.", type);
+    emit messageAvailable(REFCAT->name + " : "+QString::number(matchedREFCAT.length()) + " of them were matched in the image.", type);
 }
 
 void ColorPicture::writeG2refcat(const QString refcatName, const QVector<QVector<double>> matchedREFCAT)

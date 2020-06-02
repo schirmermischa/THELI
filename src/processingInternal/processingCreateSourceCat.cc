@@ -534,8 +534,6 @@ bool Controller::manualCoordsUpdate(Data *scienceData, QString mode)
 
     successProcessing = true;
 
-    emit messageAvailable("<br>Now running source detection ...", "controller");
-
     //    emit appendOK();
     return true;
 }
