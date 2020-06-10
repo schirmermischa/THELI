@@ -10,4 +10,7 @@ Even though the current release includes all instruments that were supported in 
 
 Mid-infrared cameras are currently not supported, but will be implemented on particular request and as soon as THELI v3 has been running stable for a while. If you need mid-IR support, please contact the author with a test data set.
 
-THELI v3 is not yet documented; a set of video tutorials will be made available. Test users familiar with v2 have easily found their way around v3, aided by the much improved user interface.
+THELI v3 is not yet documented; a set of video tutorials is being made available at this URL:
+
+https://www.youtube.com/channel/UCg-9wvqQ5XpT1ph22feth9w/
+
