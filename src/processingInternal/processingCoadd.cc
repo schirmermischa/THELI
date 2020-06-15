@@ -228,15 +228,31 @@ void Controller::coaddPrepare(QString filterArg)
     //    emit progressUpdate(progress);
 
     // For proper motion correction we need the MJD-OBS of the first exposure, taken from the first chip
+    // We also want accurate start and end DATE-OBS keywords.
     QVector<double> mjdobsData;
+    minDateObs = coaddScienceData->myImageList[0][0]->dateobs;
+    maxDateObs = coaddScienceData->myImageList[0][0]->dateobs;
+    mjdStart = coaddScienceData->myImageList[0][0]->mjdobs;
+    mjdEnd = coaddScienceData->myImageList[0][0]->mjdobs;
+    float lastExpTime = 0.; // to be added to DATE-OBS of the last exposure
     for (auto &it : coaddScienceData->myImageList[0]) {
         if (!it->successProcessing) continue;
         it->loadHeader();
         mjdobsData.append(it->mjdobs);
+        if (it->mjdobs <= mjdStart) {
+            mjdStart = it->mjdobs;
+            minDateObs = it->dateobs;
+        }
+        if (it->mjdobs >= mjdEnd) {
+            mjdEnd = it->mjdobs;
+            maxDateObs = it->dateobs;
+            lastExpTime = it->exptime;
+        }
     }
     double mjdobsZero = minVec_T(mjdobsData);
-    mjdStart = mjdobsZero;
-    mjdEnd = maxVec_T(mjdobsData);
+//    mjdStart = mjdobsZero;
+//    mjdEnd = maxVec_T(mjdobsData) + lastExpTime / 86400.;
+    mjdEnd += lastExpTime / 86400.;
     mjdMedian = straightMedian_T(mjdobsData, 0, false);
     bool doPMupdate = false;
     if (!cdw->ui->COApmraLineEdit->text().isEmpty() && !cdw->ui->COApmdecLineEdit->text().isEmpty()) doPMupdate = true;
@@ -1066,9 +1082,11 @@ void Controller::coaddUpdate()
         fits_update_key_flt(fptr, "FWHM_I", seeing_image, 3, "FWHM (pixel)", &status);
         fits_update_key_flt(fptr, "FWHM_W", seeing_world, 3, "FWHM (arcsec)", &status);
     }
-    fits_update_key_dbl(fptr, "MJDSTART", mjdStart, 12, "Begin of first observation (MJD)", &status);
-    fits_update_key_dbl(fptr, "MJDEND", mjdEnd, 12, "Begin of last observation (MJD)", &status);
-    fits_update_key_dbl(fptr, "MJDMED", mjdMedian, 12, "Median MJD of all observations", &status);
+    fits_update_key_str(fptr, "DATEOBS1", minDateObs.toUtf8().data(), "Begin of the first observation (DATE-OBS)", &status);
+    fits_update_key_str(fptr, "DATEOBS2", maxDateObs.toUtf8().data(), "Begin of the last observation (DATE-OBS)", &status);
+    fits_update_key_dbl(fptr, "MJDSTART", mjdStart, 12, "Begin of the first observation (MJD-OBS)", &status);
+    fits_update_key_dbl(fptr, "MJDMED", mjdMedian, 12, "Median MJD-OBS of all observations", &status);
+    fits_update_key_dbl(fptr, "MJDEND", mjdEnd, 12, "End of the last observation (MJD-OBS + EXPTIME)", &status);
     fits_update_key_str(fptr, "THELIRUN", mainGUI->ui->setupProjectLineEdit->text().toUtf8().data(), "THELI project name", &status);
     fits_close_file(fptr, &status);
 

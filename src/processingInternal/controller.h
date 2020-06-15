@@ -167,6 +167,8 @@ private:
     double mjdStart = 0.;
     double mjdEnd = 0.;
     double mjdMedian = 0.;
+    QString minDateObs = "";   // for the coadded image
+    QString maxDateObs = "";   // for the coadded image
 
     // Astrometry
     bool manualCoordsUpdate(Data *scienceData, QString mode);
