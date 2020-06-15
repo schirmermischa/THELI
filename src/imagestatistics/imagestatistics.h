@@ -74,6 +74,8 @@ private slots:
 //    void currentlyDisplayedIndexReceived(int currentId);
     void on_fwhmunitsComboBox_currentIndexChanged(const QString &arg1);
 
+    void on_actionClose_triggered();
+
 private:
     QString mainDir;
     QString statusString;

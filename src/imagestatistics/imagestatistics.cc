@@ -462,3 +462,8 @@ void ImageStatistics::on_fwhmunitsComboBox_currentIndexChanged(const QString &ar
 {
     plot();
 }
+
+void ImageStatistics::on_actionClose_triggered()
+{
+    close();
+}

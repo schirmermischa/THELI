@@ -1066,9 +1066,9 @@ void Controller::coaddUpdate()
         fits_update_key_flt(fptr, "FWHM_I", seeing_image, 3, "FWHM (pixel)", &status);
         fits_update_key_flt(fptr, "FWHM_W", seeing_world, 3, "FWHM (arcsec)", &status);
     }
-    fits_update_key_dbl(fptr, "MJDSTART", mjdStart, 12, "Begin of observation (MJD)", &status);
-    fits_update_key_dbl(fptr, "MJDEND", mjdEnd, 12, "End of observation (MJD)", &status);
-    fits_update_key_dbl(fptr, "MJDMED", mjdMedian, 12, "Median MJD of observations", &status);
+    fits_update_key_dbl(fptr, "MJDSTART", mjdStart, 12, "Begin of first observation (MJD)", &status);
+    fits_update_key_dbl(fptr, "MJDEND", mjdEnd, 12, "Begin of last observation (MJD)", &status);
+    fits_update_key_dbl(fptr, "MJDMED", mjdMedian, 12, "Median MJD of all observations", &status);
     fits_update_key_str(fptr, "THELIRUN", mainGUI->ui->setupProjectLineEdit->text().toUtf8().data(), "THELI project name", &status);
     fits_close_file(fptr, &status);
 

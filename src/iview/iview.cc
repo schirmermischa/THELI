@@ -390,8 +390,8 @@ void IView::loadPNG(QString filename, int currentId)
 
     myGraphicsView->setMinimumSize(naxis1,naxis2);
     myGraphicsView->setMaximumSize(naxis1,naxis2);
-    myGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    myGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    myGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    myGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     myGraphicsView->resize(naxis1,naxis2);
 }
 
