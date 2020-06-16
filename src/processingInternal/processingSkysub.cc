@@ -595,7 +595,8 @@ void Controller::skysubModel(Data *scienceData, QString DT, QString DMIN, QStrin
         if (it->activeState != MyImage::ACTIVE) continue;
         //        emit messageAvailable(it->baseName + " : Modeling the sky ...", "controller");
         it->processingStatus->Skysub = false;
-        it->setupData(scienceData->isTaskRepeated, false, true, backupDirName);
+//        it->setupData(scienceData->isTaskRepeated, false, true, backupDirName);
+        it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
         if (!it->successProcessing) {
             abortProcess = true;
             continue;

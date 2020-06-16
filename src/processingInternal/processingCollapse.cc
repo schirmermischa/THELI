@@ -76,7 +76,7 @@ void Controller::taskInternalCollapse()
             it->baseName = it->chipName + statusNew;
             it->imageOnDrive = false;
             if (alwaysStoreData) it->writeImage();
-            incrementProgress();
+            incrementProgress();64
         }
 
         if (scienceData->successProcessing) {
