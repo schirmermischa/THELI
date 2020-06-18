@@ -1264,6 +1264,8 @@ bool MyImage::containsRaDec(QString alphaStr, QString deltaStr)
     if (deltaStr.contains(":")) deltaStr = dmsToDecimal(deltaStr);
 
     return pnpoly_T(raVec, decVec, alphaStr.toDouble(), deltaStr.toDouble());
+
+    // Alternative method: use sky2xy, and check if pixel coords are outside image geometry
 }
 
 bool MyImage::containsRaDec(double alpha, double delta)

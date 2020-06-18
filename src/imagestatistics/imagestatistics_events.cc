@@ -67,6 +67,7 @@ void ImageStatistics::keyReleaseEvent(QKeyEvent *event)
                     }
                     QFile badImage(scienceDirName+"/"+imgSelectedName+statusString+".fits");
                     allMyImages[i]->activeState = MyImage::BADSTATS;  // deactivate
+                    emit allMyImages[i]->modelUpdateNeeded(allMyImages[i]->chipName);
                     if (allMyImages[i]->imageOnDrive) {
                         if (!badImage.rename(badStatsDirName+imgSelectedName+statusString+".fits")) {
                             qDebug() << "QDEBUG: Could not execute the following operation:";
@@ -93,7 +94,10 @@ void ImageStatistics::keyReleaseEvent(QKeyEvent *event)
                         }
                     }
                     for (auto &myimg : allMyImages) {
-                        if (imgSelectedName.contains(myimg->rootName)) myimg->activeState = MyImage::BADSTATS;  // deactivate
+                        if (imgSelectedName.contains(myimg->rootName)) {
+                            myimg->activeState = MyImage::BADSTATS;  // deactivate
+                            emit myimg->modelUpdateNeeded(myimg->chipName);
+                        }
                     }
                 }
             }
@@ -171,8 +175,6 @@ void ImageStatistics::keyReleaseEvent(QKeyEvent *event)
         if (iViewOpen) {
             imgSelectedName = dataName[currentDataPoint];
             if (!selection.isEmpty()) {
-                QString filter = ui->filterLineEdit->text();
-                //                emit imageSelected(scienceDirName+'/'+imgSelectedName, filter);
                 emit imageSelected(lastDataPointClicked);
             }
             else {

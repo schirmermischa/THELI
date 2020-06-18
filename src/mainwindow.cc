@@ -1486,7 +1486,7 @@ void MainWindow::load_dialog_imageStatistics()
         }
         QAbstractButton *pCancel = msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
         msgBox.exec();
-        QString choice = msgBox.clickedButton()->text().remove('&');  // remove & is a KDE fix
+        QString choice = msgBox.clickedButton()->text().remove('&');  // remove & is a fix of unwanted KDE behaviour (KDE may insert '&' into button text)
         if (msgBox.clickedButton()== pCancel) return;
 
         for (auto &data : controller->DT_SCIENCE) {
@@ -1497,8 +1497,7 @@ void MainWindow::load_dialog_imageStatistics()
         }
     }
 
-    scienceData->populateExposureList();
-    ImageStatistics *imagestatistics = new ImageStatistics(scienceData->exposureList, mainDir, scienceData->subDirName, &instData, this);
+    ImageStatistics *imagestatistics = new ImageStatistics(controller->DT_SCIENCE, mainDir, scienceData->subDirName, &instData, this);
     imagestatistics->show();
 }
 

@@ -34,18 +34,51 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QStringList>
 #include <QRegExpValidator>
 
-ImageStatistics::ImageStatistics(QVector<QList<MyImage*>> &imlist, const QString main, const QString sciencedir,
+// ImageStatistics::ImageStatistics(QVector<QList<MyImage*>> &imlist, const QString main, const QString sciencedir,
+//                                 const instrumentDataType *instrumentData, QWidget *parent):
+ImageStatistics::ImageStatistics(QList<Data*> &datalist, const QString main, const QString sciencedirname,
                                  const instrumentDataType *instrumentData, QWidget *parent):
     QMainWindow(parent),
     mainDir(main),
     instData(instrumentData),
+    dataList(datalist),
     ui(new Ui::ImageStatistics)
 {
     ui->setupUi(this);
     initEnvironment(thelidir, userdir);
 
-    myImageList = imlist;
+    makeConnections();
 
+    QStringList dirnameList;
+    for (auto &it : dataList) {
+        dirnameList.append(it->subDirName);
+    }
+    ui->scienceComboBox->insertItems(0, dirnameList);
+
+    scienceDirName = mainDir + "/" + sciencedirname;
+    scienceDir.setPath(scienceDirName);
+
+    ui->scienceComboBox->setCurrentText(sciencedirname);
+
+    Data *scienceData = getData(dataList, sciencedirname);            // dataList corresponds to DT_SCIENCE in the Controller class
+    scienceData->populateExposureList();
+    myImageList = scienceData->exposureList;
+
+    //    if (!myImageList[0]->isEmpty()) statusString = myImageList[0].
+    //    else statusString = "";
+    //    ui->filterLineEdit->setText("*_1"+statusString+".fits");
+    ui->statPlot->setMultiSelectModifier(Qt::ControlModifier);
+
+    //    ui->statPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+    ui->statPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iMultiSelect);
+
+    setWindowIcon(QIcon(":/icons/sigma.png"));
+
+    init();
+}
+
+void ImageStatistics::init()
+{
     allMyImages.clear();
     for (int k=0; k<myImageList.length(); ++k) {
         for (int chip=0; chip<instData->numChips; ++chip) {
@@ -56,41 +89,14 @@ ImageStatistics::ImageStatistics(QVector<QList<MyImage*>> &imlist, const QString
         }
     }
 
-    ui->dirLineEdit->setText(mainDir+"/"+sciencedir);
-    paintPathLineEdit(ui->dirLineEdit, mainDir, "dir");
-    scienceDir = sciencedir;
-    scienceDirName = mainDir + "/" + sciencedir;
-    scienceDir.setPath(scienceDirName);
-
     processingStatus = new ProcessingStatus(scienceDirName);
     processingStatus->readFromDrive();
     statusString = processingStatus->statusString;
 
-    numericThresholdList << ui->skyMinLineEdit << ui->skyMaxLineEdit
-                         << ui->airmassMinLineEdit << ui->airmassMaxLineEdit
-                         << ui->seeingMinLineEdit << ui->seeingMaxLineEdit
-                         << ui->rzpMinLineEdit << ui->rzpMaxLineEdit
-                         << ui->ellMinLineEdit << ui->ellMaxLineEdit
-                         << ui->imageMinLineEdit << ui->imageMaxLineEdit;
-    makeConnections();
-
-    //    if (!myImageList[0]->isEmpty()) statusString = myImageList[0].
-    //    else statusString = "";
-    //    ui->filterLineEdit->setText("*_1"+statusString+".fits");
-    ui->statPlot->setMultiSelectModifier(Qt::ControlModifier);
-
-    //    ui->statPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
-    ui->statPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iMultiSelect);
     ui->statPlot->plotLayout()->clear();
-
-    setWindowIcon(QIcon(":/icons/sigma.png"));
 
     // Plot data right away
     on_statisticsPushButton_clicked();
-
-//    plot("initialize");
-
-    initFromList = true;
 }
 
 ImageStatistics::~ImageStatistics()
@@ -98,10 +104,34 @@ ImageStatistics::~ImageStatistics()
     delete ui;
 }
 
+// cloned from Controller class
+Data* ImageStatistics::getData(QList<Data *> DT_x, QString dirName)
+{
+    for (auto &it : DT_x) {
+        if (QDir::cleanPath(it->dirName) == QDir::cleanPath(mainDir + "/" + dirName)) {
+            // check if it contains mastercalib data
+            it->checkPresenceOfMasterCalibs();
+            return it;
+        }
+    }
+
+    return nullptr;
+}
+
 void ImageStatistics::makeConnections()
 {
+
+    numericThresholdList << ui->skyMinLineEdit << ui->skyMaxLineEdit
+                         << ui->airmassMinLineEdit << ui->airmassMaxLineEdit
+                         << ui->seeingMinLineEdit << ui->seeingMaxLineEdit
+                         << ui->rzpMinLineEdit << ui->rzpMaxLineEdit
+                         << ui->ellMinLineEdit << ui->ellMaxLineEdit
+                         << ui->imageMinLineEdit << ui->imageMaxLineEdit;
+
     // For a mouse-click in the plot
     connect(ui->statPlot, &QCustomPlot::plottableClick, this, &ImageStatistics::dataPointClicked);
+
+    connect(ui->chipsLineEdit, &QLineEdit::editingFinished, this, &ImageStatistics::plot);
 
     // Validators
     connect(ui->raLineEdit, &QLineEdit::textChanged, this, &ImageStatistics::validate);
@@ -114,25 +144,6 @@ void ImageStatistics::makeConnections()
     // Connections for iView can only be made when iView is instantiated further below.
 }
 
-void ImageStatistics::on_selectDirPushButton_clicked()
-{
-    QString filter = ui->filterLineEdit->text();
-    if (filter.isEmpty()) filter = "*.fits";
-    QStringList filterList(filter);
-
-    QFileDialog qfd(this);
-    qfd.setFileMode(QFileDialog::DirectoryOnly);
-    qfd.setDirectory(mainDir);
-    qfd.setWindowTitle(tr("Select directory"));
-
-    if (qfd.exec()) scienceDirName = qfd.selectedFiles().at(0);
-
-    scienceDir.setPath(scienceDirName);
-    ui->dirLineEdit->setText(scienceDirName);
-    paintPathLineEdit(ui->dirLineEdit, scienceDirName, "dir");
-    clearAll();
-}
-
 void ImageStatistics::clearAll()
 {
     //    if (numObj == 0) return;
@@ -142,7 +153,7 @@ void ImageStatistics::clearAll()
     ui->statPlot->clearItems();
     ui->statPlot->clearGraphs();
     ui->statPlot->plotLayout()->clear();
-    plot("initialize");
+    plot();
     ui->statPlot->replot();
     numObj = 0;
     statisticsDataDisplayed = false;
@@ -156,28 +167,26 @@ void ImageStatistics::on_statisticsPushButton_clicked()
         return;
     }
 
-    QString filter = ui->filterLineEdit->text();
-    if (filter.isEmpty()) filter = "*.fits";
+    QString chips = ui->chipsLineEdit->text();       // Could be any text, but we just make it a list of detector IDs
+    chips = chips.replace(',', ' ').simplified();
+    QStringList chipList = chips.split(' ');
+    QVector<int> chipID;
+    if (!chips.isEmpty()) {
+        for (auto &it : chipList) {
+            chipID.append(it.toInt());
+        }
+    }
 
-    coordImageList.clear();
+    filteredImageList.clear();
     // Filter for sky coordinates
     QString ra = ui->raLineEdit->text();
     QString dec = ui->decLineEdit->text();
 
-    if (!ra.isEmpty() && !dec.isEmpty()) {
-        for (int k=0; k<allMyImages.length(); ++k) {
-            auto &it = allMyImages[k];
-            if (it->containsRaDec(ra,dec)) coordImageList << it->chipName;
-        }
-    }
-    else {
-        for (int k=0; k<allMyImages.length(); ++k) {
-            auto &it = allMyImages[k];
-            coordImageList << it->chipName;
-        }
+    for (int k=0; k<allMyImages.length(); ++k) {
+        if (isImageSelected(allMyImages[k], ra, dec, chipID)) filteredImageList << allMyImages[k]->chipName;
     }
 
-    numObj = coordImageList.size();
+    numObj = filteredImageList.size();
     if (numObj == 0) {
         QMessageBox::warning( this, "No images found",
                               "No images found, check the directory path\n"
@@ -190,6 +199,26 @@ void ImageStatistics::on_statisticsPushButton_clicked()
     readStatisticsData();
 
     plot();
+}
+
+
+bool ImageStatistics::isImageSelected(MyImage *myImage, const QString &ra, const QString &dec, const QVector<int> &chipID)
+{
+    // RA / DEC filtering
+    if (!ra.isEmpty() && !dec.isEmpty()) {
+        if (!myImage->containsRaDec(ra,dec)) return false;
+    }
+
+    if (chipID.isEmpty()) return true;
+
+    // Chip filtering
+    bool correctChip = false;
+    for (auto &chip : chipID) {
+        if (chip == myImage->chipNumber) correctChip = true;
+    }
+
+    if (correctChip) return true;
+    else return false;
 }
 
 void ImageStatistics::makeListOfBadImages()
@@ -208,7 +237,7 @@ void ImageStatistics::makeListOfBadImages()
         if (it->activeState == MyImage::BADSTATS) badStatsList << it->chipName;
     }
 
-    coordImageList.removeDuplicates();
+    filteredImageList.removeDuplicates();
 }
 
 void ImageStatistics::readStatisticsData()
@@ -228,7 +257,7 @@ void ImageStatistics::readStatisticsData()
         if (badStatsList.contains(it->chipName)) continue;
         // only include images that match the sky coordinate filter
         // (always true if no sky coords given)
-        if (!coordImageList.contains(it->chipName)) continue;
+        if (!filteredImageList.contains(it->chipName)) continue;
 
         dataName.append(it->chipName);
         dataImageNr.append(numObj+1);
@@ -313,8 +342,13 @@ void ImageStatistics::on_exportPushButton_clicked()
     if (numObj == 0) return;
     if (!scienceDir.exists()) return;
 
-    QString name = "statistics_"+ui->filterLineEdit->text()+".png";
-    name = name.replace("*","all");
+    QString chips = ui->chipsLineEdit->text();       // Could be any text, but we just make it a list of detector IDs
+    chips = chips.replace(',', ' ').simplified();
+    chips = chips.replace(' ', '_');
+    QString chipString = "";
+    if (!chips.isEmpty()) chipString = "_chip_"+chips;
+
+    QString name = "statistics"+chipString+".png";
     QString saveFileName =
             QFileDialog::getSaveFileName(this, tr("Save .png Image"),
                                          scienceDirName+"/"+name,
@@ -343,10 +377,8 @@ void ImageStatistics::on_showPushButton_clicked()
     }
 
     if (ui->showPushButton->isChecked() && !iViewOpen) {
-        QString filter = ui->filterLineEdit->text();
-        if (filter.isEmpty()) filter = "*.fits";
         if (!imgSelected && !statisticsDataDisplayed) {
-            iView = new IView("FITSmonochrome", scienceDirName, filter, this);
+            iView = new IView("FITSmonochrome", scienceDirName, "*.fits", this);
             iView->show();
             //            iView->clearAll();
         }
@@ -402,12 +434,6 @@ void ImageStatistics::on_ClearPlotPushButton_clicked()
     clearAll();
 }
 
-void ImageStatistics::on_dirLineEdit_textChanged(const QString &arg1)
-{
-    paintPathLineEdit(ui->dirLineEdit, arg1, "dir");
-    clearAll();
-}
-
 void ImageStatistics::uncheckIviewPushButton()
 {
     if (ui->showPushButton->isChecked()) ui->showPushButton->setChecked(false);
@@ -430,7 +456,9 @@ void ImageStatistics::validate()
     QRegExp ripos( "^[0-9]+" );
     QRegExp rf( "^[-]{0,1}[0-9]*[.]{0,1}[0-9]+" );
     QRegExp rfpos( "^[0-9]*[.]{0,1}[0-9]+" );
+    QRegExp ricommablank( "^[0-9,\\s]+" );
 
+    QValidator* validator_int_pos_comma_blank = new QRegExpValidator( ricommablank, this );
     QValidator* validator_ra = new QRegExpValidator( RA, this );
     QValidator* validator_dec = new QRegExpValidator( DEC, this );
     QValidator* validator_float = new QRegExpValidator(rf, this );
@@ -450,6 +478,7 @@ void ImageStatistics::validate()
     ui->ellMaxLineEdit->setValidator(validator_float_pos);
     ui->imageMinLineEdit->setValidator(validator_int_pos);
     ui->imageMaxLineEdit->setValidator(validator_int_pos);
+    ui->chipsLineEdit->setValidator( validator_int_pos_comma_blank );
 }
 
 void ImageStatistics::on_readmePushButton_clicked()
@@ -466,4 +495,17 @@ void ImageStatistics::on_fwhmunitsComboBox_currentIndexChanged(const QString &ar
 void ImageStatistics::on_actionClose_triggered()
 {
     close();
+}
+
+void ImageStatistics::on_scienceComboBox_activated(const QString &arg1)
+{
+
+    scienceDirName = mainDir + "/" + arg1;
+    scienceDir.setPath(scienceDirName);
+
+    Data *scienceData = getData(dataList, arg1);            // dataList corresponds to DT_SCIENCE in the Controller class
+    scienceData->populateExposureList();
+    myImageList = scienceData->exposureList;
+
+    init();
 }

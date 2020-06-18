@@ -33,13 +33,11 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QStringList>
 #include <QRegExpValidator>
 
-void ImageStatistics::plot(QString init)
+void ImageStatistics::plot()
 {
-    if (numObj == 0 && init.isEmpty()) {
-        clearAll();
+    if (numObj == 0) {
         ui->statPlot->replot();
         ui->statPlot->update();
-        return;
     }
 
     ui->statPlot->clearItems();
@@ -98,7 +96,7 @@ void ImageStatistics::plot(QString init)
 
     // Leave here if we are just initializing the plot panels
 
-    if (init == "initialize") return;
+    if (numObj == 0) return;
 
     QCPSelectionDecorator *decoratorSky = new QCPSelectionDecorator();
     QCPSelectionDecorator *decoratorRZP = new QCPSelectionDecorator();
@@ -241,10 +239,7 @@ void ImageStatistics::dataPointClicked(QCPAbstractPlottable *plottable, int data
     selection.simplify();
     plotSelection(dataIndex);
     //    ui->statPlot->setStatusTip(imgSelectedName);
-    QString filter = ui->filterLineEdit->text();
-    if (filter.isEmpty()) filter = "*.fits";
     if (!selection.isEmpty()) {
-        //      emit imageSelected(scienceDirName+'/'+imgSelectedName, filter);
         emit imageSelected(lastDataPointClicked);
     }
     else {
@@ -307,6 +302,9 @@ void ImageStatistics::numericSelection()
         selection.operator +=(it);
     }
     plotSelection(0);
+
+    // Have the plot widget grab the focus immediately, such that key press events are processed
+    ui->statPlot->setFocus();
 }
 
 
@@ -332,7 +330,17 @@ void ImageStatistics::on_restoreDataPushButton_clicked()
     clearData();
     clearSelection();
     badStatsList.clear();
+    activateImages();
     moveFiles("*.fits", scienceDirName+"/inactive/badStatistics/", scienceDirName);
+    init();
     readStatisticsData();
     plot();
+}
+
+void ImageStatistics::activateImages()
+{
+    for (auto &it : allMyImages) {
+        it->activeState = MyImage::ACTIVE;
+        emit it->modelUpdateNeeded(it->chipName);
+    }
 }

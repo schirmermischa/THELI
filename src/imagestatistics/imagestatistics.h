@@ -28,6 +28,7 @@ If not, see https://www.gnu.org/licenses/ .
 
 #include <QMainWindow>
 #include <myimage/myimage.h>
+#include "../processingInternal/data.h"
 
 #include <QVector>
 
@@ -41,8 +42,10 @@ class ImageStatistics : public QMainWindow
 
 public:
     // Constructor passing a list of MyImages
-    explicit ImageStatistics(QVector<QList<MyImage *> > &imlist, const QString main, const QString sciencedir,
-                             const instrumentDataType *instrumentData, QWidget *parent);
+//    explicit ImageStatistics(QVector<QList<MyImage *> > &imlist, const QString main, const QString sciencedir,
+//                             const instrumentDataType *instrumentData, QWidget *parent);
+explicit ImageStatistics(QList<Data *> &datalist, const QString main, const QString sciencedir,
+                         const instrumentDataType *instrumentData, QWidget *parent);
     ~ImageStatistics();
 
     void keyReleaseEvent(QKeyEvent *event);
@@ -57,30 +60,28 @@ public slots:
 private slots:
     void dataPointClicked(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event);
     void numericSelection();
-    void on_selectDirPushButton_clicked();
     void on_statisticsPushButton_clicked();
     void on_exportPushButton_clicked();
     void on_showPushButton_clicked();
     void on_ClearPlotPushButton_clicked();
     void on_restoreDataPushButton_clicked();
-    void on_dirLineEdit_textChanged(const QString &arg1);
     void on_clearSelectionPushButton_clicked();
     void on_invertSelectionPushButton_clicked();
     void on_readmePushButton_clicked();
     void on_connectDataPointsCheckBox_clicked();
     void uncheckIviewPushButton();
     void validate();
-
-//    void currentlyDisplayedIndexReceived(int currentId);
+//  void currentlyDisplayedIndexReceived(int currentId);
     void on_fwhmunitsComboBox_currentIndexChanged(const QString &arg1);
-
     void on_actionClose_triggered();
+    void on_scienceComboBox_activated(const QString &arg1);
 
 private:
     QString mainDir;
     QString statusString;
     ProcessingStatus *processingStatus;
     const instrumentDataType *instData;
+    QList<Data*> dataList;
     Ui::ImageStatistics *ui;
     QString thelidir;
     QString userdir;
@@ -111,6 +112,7 @@ private:
     enum Qt::Key lastKeyPressed = Qt::Key_Left;
     bool initKeySelection = false;
     QString directionSwitched = "noSwitch";
+
     IView *iView;
     QCPGraph *skyGraph;
     QCPGraph *seeingGraph;
@@ -120,22 +122,24 @@ private:
     QCPDataSelection selection;    // data points selected by mouse clicks or key presses
     QCPDataSelection numSelection; // data points selected by manually entered numeric thresholds
     QList<QCPGraph*> graphList;
-    QStringList coordImageList;
+    QStringList filteredImageList;
     QList<QLineEdit*> numericThresholdList;
     ImstatsReadme *imstatsReadme;
     QCPGraph::LineStyle myLineStyle;
-
-    bool initFromList = false;   // whether the constructor directly passed a QList<MyImage*> or not
 
     void clearAll();
     void clearData();
     void clearSelection();
     void makeConnections();
-    void plot(QString init = "");
+    void plot();
     void plotSelection(int index);
     void readStatisticsData();
 //    void showNoData(QCPGraph *graph, float xpos, float ypos);
     void makeListOfBadImages();
+    Data *getData(QList<Data *> DT_x, QString dirName);
+    void init();
+    bool isImageSelected(MyImage *myImage, const QString &ra, const QString &dec, const QVector<int> &chipID);
+    void activateImages();
 };
 
 #endif // IMAGESTATISTICS_H
