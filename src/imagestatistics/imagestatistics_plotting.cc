@@ -331,7 +331,7 @@ void ImageStatistics::on_restoreDataPushButton_clicked()
     clearSelection();
     badStatsList.clear();
     activateImages();
-    moveFiles("*.fits", scienceDirName+"/inactive/badStatistics/", scienceDirName);
+//    moveFiles("*.fits", scienceDirName+"/inactive/badStatistics/", scienceDirName);
     init();
     readStatisticsData();
     plot();
@@ -340,7 +340,8 @@ void ImageStatistics::on_restoreDataPushButton_clicked()
 void ImageStatistics::activateImages()
 {
     for (auto &it : allMyImages) {
-        it->activeState = MyImage::ACTIVE;
+//        it->activeState = MyImage::ACTIVE;
+        it->setActiveState(MyImage::ACTIVE);
         emit it->modelUpdateNeeded(it->chipName);
     }
 }

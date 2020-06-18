@@ -173,6 +173,7 @@ void ImageStatistics::on_statisticsPushButton_clicked()
     QVector<int> chipID;
     if (!chips.isEmpty()) {
         for (auto &it : chipList) {
+            //    instData = instrumentData;
             chipID.append(it.toInt());
         }
     }

@@ -66,6 +66,8 @@ void ImageStatistics::keyReleaseEvent(QKeyEvent *event)
                         badStatsList << imgSelectedName;
                     }
                     QFile badImage(scienceDirName+"/"+imgSelectedName+statusString+".fits");
+
+                    /*
                     allMyImages[i]->activeState = MyImage::BADSTATS;  // deactivate
                     emit allMyImages[i]->modelUpdateNeeded(allMyImages[i]->chipName);
                     if (allMyImages[i]->imageOnDrive) {
@@ -74,6 +76,10 @@ void ImageStatistics::keyReleaseEvent(QKeyEvent *event)
                             qDebug() << "mv " << scienceDirName+"/"+imgSelectedName+statusString+".fits" << badStatsDirName+imgSelectedName+statusString+".fits";
                         }
                     }
+                    */
+
+                    allMyImages[i]->setActiveState(MyImage::BADSTATS);  // deactivate
+                    emit allMyImages[i]->modelUpdateNeeded(allMyImages[i]->chipName);
                 }
 
                 // 'A' key pressed
@@ -95,7 +101,8 @@ void ImageStatistics::keyReleaseEvent(QKeyEvent *event)
                     }
                     for (auto &myimg : allMyImages) {
                         if (imgSelectedName.contains(myimg->rootName)) {
-                            myimg->activeState = MyImage::BADSTATS;  // deactivate
+//                            myimg->activeState = MyImage::BADSTATS;  // deactivate
+                            myimg->setActiveState(MyImage::BADSTATS);  // deactivate
                             emit myimg->modelUpdateNeeded(myimg->chipName);
                         }
                     }

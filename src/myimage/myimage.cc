@@ -1435,15 +1435,16 @@ void MyImage::emitModelUpdateNeeded()
 // For use from within the memory viewer
 void MyImage::setActiveState(active_type state)
 {
+    // Do nothing if the requested state equals the current state (otherwise, image might get deleted before moving it onto itself)
+    if (activeState == state) return;
+
     // Always us this function when setting the active status
     activeState = state;
 
-    // TODO: DOES NOT WORK if restoring images. CurrentPath is already the full path including the "inactive" part.
-    // file is moved on top of itself (and deleted beforehand).
     // Move the image accordingly
     QString currentPath = path + pathExtension;      // The path where the image is currently located (if on disk)
     updateInactivePath();                            // Update pathextension according to the set state
-    QString newPath = path + pathExtension;   // The path where the image should go
+    QString newPath = path + pathExtension;          // The path where the image should go
     if (!imageOnDrive) return;
     moveFile(baseName+".fits", currentPath, newPath);
     // TODO: must do a modelUpdate

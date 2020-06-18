@@ -47,8 +47,6 @@ If not, see https://www.gnu.org/licenses/ .
 Data::Data(const instrumentDataType *instrumentData, Mask *detectorMask, QString maindirname,
            QString subdirname, int *verbose) : instData(instrumentData)
 {
-//    instData = instrumentData;
-
     emit messageAvailable("DATA: Setting up "+subdirname, "data");
 
     initEnvironment(thelidir, userdir);
@@ -136,7 +134,7 @@ Data::Data(const instrumentDataType *instrumentData, Mask *detectorMask, QString
     QStringList allFitsFiles = dir.entryList(filter);
     numImages = allFitsFiles.length();
     numMasterCalibs = 0;
-    // The master calibration FITS files (if any).
+    // The master calibration FITS files (if any).          (i.e. if we are reading a calibration directory)
     for (int chip=0; chip<instData->numChips; ++chip) {
         QStringList filter;
         filter << subDirName+"_"+QString::number(chip+1)+".fits";
@@ -164,7 +162,7 @@ Data::Data(const instrumentDataType *instrumentData, Mask *detectorMask, QString
         emit messageAvailable("DATA: " + QString::number(numMasterCalibs) + " found, expected "+QString::number(instData->numChips), "warning");
     }
 
-    // The other images (minus master calibs etc)
+    // The other images (minus master calibs etc), i.e. the science exposures
 
     numImages = 0;
     for (int chip=0; chip<instData->numChips; ++chip) {
