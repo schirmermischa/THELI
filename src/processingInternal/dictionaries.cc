@@ -46,11 +46,13 @@ void Controller::populateHeaderDictionary()
     headerDictionary.insert("DATE-OBS", {"DATE-OBS", "DATEOBS", "DATE", "UTSHUT", "TIME"});
     headerDictionary.insert("MJD-OBS", {"MJD-OBS"});
     headerDictionary.insert("NAMPS", {"NAMPS"});
-    headerDictionary.insert("GAIN", {"EGAIN", "GAIN", "HIERARCH ESO DET CHIP GAIN", "HIERARCH ESO DET OUT1 CONAD"});  // careful with gain and inverse gain!
+    headerDictionary.insert("GAIN", {"EGAIN", "GAIN", "HIERARCH ESO DET CHIP GAIN", "HIERARCH ESO DET OUT1 CONAD",
+                                     "HIERARCH ESO DET OUT-1 ADU"});  // careful with gain and inverse gain!
     headerDictionary.insert("FILTER", {"FILTER", "FILTER1", "FILTER2", "FILTER3", "FILTER01", "FILTER02", "FILTER03", "FILTERID",
                                        "FILT1", "FILT2", "FILTERS", "FILTNAME", "SUBSET",
                                        "HIERARCH ESO INS FILT1 NAME", "HIERARCH ESO INS FILT2 NAME",
                                        "HIERARCH ESO INS FILT3 NAME", "HIERARCH ESO INS FILT4 NAME",
+                                       "HIERARCH ESO INS OPTI-2 NAME",
                                        "AFT", "ALFLTNM", "FAFLTNM", "FBFLTNM", "FILTRE", "FLTRNAME", "PFMFNAME", "WFFBAND",
                                        "ACAMFSLI", "ACAMWH1", "ACAMWH2", "INGF1NAM", "INGF2NAM", "LIRF1NAM", "LIRF2NAM"});
 

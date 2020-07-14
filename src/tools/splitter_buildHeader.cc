@@ -291,7 +291,7 @@ bool Splitter::individualFixCRVAL()
     QString crval2 = "";
 
     // List of instruments that we have to consider
-    QStringList list = {"WFC@INT"};
+    QStringList list = {"WFC@INT", "SUSI1@NTT"};
 
     // Leave if no individual fix is required.
     if (!list.contains(instData.name)) return false;
@@ -317,6 +317,13 @@ bool Splitter::individualFixCRVAL()
         delta = delta - 0.02907;
         crval1_card = "CRVAL1  = "+QString::number(alpha, 'f', 6);
         crval2_card = "CRVAL2  = "+QString::number(delta, 'f', 6);
+        individualFixDone = true;
+    }
+    if (instData.name == "SUSI1@NTT") {
+        searchKeyValue(QStringList() << "RA", crval1);
+        searchKeyValue(QStringList() << "DEC", crval2);
+        crval1_card = "CRVAL1  = "+crval1;
+        crval2_card = "CRVAL2  = "+crval2;
         individualFixDone = true;
     }
 
@@ -469,6 +476,19 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
         individualFixDone = true;
     }
+    if (instData.name == "SUSI1@NTT") {
+        double cd11 = -3.611e-5;
+        double cd12 = 0.;
+        double cd21 = 0.;
+        double cd22 = 3.611e-5;
+        cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
+        cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
+        cd21_card = "CD2_1   =  "+QString::number(cd21, 'g', 6);
+        cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
+        individualFixDone = true;
+    }
+
+
     if (instNameFromData == "GROND_OPT@MPGESO") {                 // GROND optical data has both the NIR and OPT CD matrices in the header.
         double cd11 = 0.;                                         // With the current scheme, the NIR matrix in the HDU gets picked over
         double cd12 = 0.;                                         // OPT matrix in the extension

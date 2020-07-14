@@ -202,7 +202,7 @@ private:
     void splitScampHeaders();
     void scampCalcFluxscale();
     int getMaxPhotInst();
-//    void provideHeaderInfo(Data *scienceData);
+//    void provideHeaderInfo(Data *scpublic QMainWindowienceData);
     void buildSourceExtractorCommandOptions();
     void detectionInternal(Data *scienceData, QString minFWHM, QString maxFlag);
     void detectionSourceExtractor(Data *scienceData, QString minFWHM, QString maxFlag);
