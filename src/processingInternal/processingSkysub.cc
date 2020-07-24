@@ -140,7 +140,10 @@ void Controller::skysubPolynomialFit(Data *scienceData)
         }
         // Fit a polynomial to the nodes, subtract the model from the images
         Fitting skyFit;
+        connect(&skyFit, &Fitting::messageAvailable, this, &Controller::messageAvailableReceived);
         skyFit.makePolynomialFit2D(order, skyPolyfitNodes);
+        if (!skyFit.FITSUCCESS) continue;
+
         // TODO: large multi-chip cameras would profit from an internal parallelization
         // I THINK a simple '#pragma omp for' would take care of this automatically
         for (auto &it : scienceData->exposureList[i]) {

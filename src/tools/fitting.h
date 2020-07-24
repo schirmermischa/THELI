@@ -30,9 +30,11 @@ If not, see https://www.gnu.org/licenses/ .
 #include <gsl/gsl_vector.h>
 
 #include <QVector>
+#include <QObject>
 
-class Fitting
+class Fitting : public QObject
 {
+    Q_OBJECT
 public:
     Fitting();
     ~Fitting();
@@ -45,7 +47,10 @@ public:
     gsl_vector *c;      // e.g. for polynomial coefficients (fit result)
     gsl_matrix *cov;
 
-
+signals:
+    void messageAvailable(QString message, QString type);
+    void critical();
+    void warning();
 };
 
 #endif // FITTING_H
