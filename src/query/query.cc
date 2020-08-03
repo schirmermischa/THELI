@@ -1124,6 +1124,7 @@ void Query::runCommand(QString command)
 
     if (*verbosity > 1) {
         if (command.contains("vizquery")) emit messageAvailable("vizquery command: <br>"+queryCommand, "ignore");
+        if (command.contains("resolvetargets")) emit messageAvailable("resolve targets command: <br>"+queryCommand, "ignore");
     }
 
     byteArray.clear();
