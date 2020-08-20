@@ -698,7 +698,7 @@ void Splitter::buildTheliHeaderGAIN(int chip)
     }
 
     QString card1 = "GAINORIG= "+QString::number(chipGain, 'f', 6) + " / Original gain in the raw data for this image";
-    QString card2 = "GAIN    = 1.0     / ADUs were converted to e- in this image using GAINEFF";
+    QString card2 = "GAIN    = 1.0     / ADUs were converted to e- in this image using GAINORIG";
     card1.resize(80, ' ');
     card2.resize(80, ' ');
     headerTHELI.append(card1);
@@ -783,7 +783,7 @@ bool Splitter::individualFixGAIN(int chip)
 
     if (individualFixDone) {
         QString card1 = "GAINORIG= "+QString::number(chipGain, 'f', 6) + " / Original gain in the raw data for this image";
-        QString card2 = "GAIN    = 1.0     / ADUs were converted to e- in this image using GAINEFF";
+        QString card2 = "GAIN    = 1.0     / ADUs were converted to e- in this image using GAINORIG";
         card1.resize(80, ' ');
         card2.resize(80, ' ');
         headerTHELI.append(card1);

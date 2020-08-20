@@ -327,13 +327,19 @@ void Splitter::extractImagesFITS()
             buildTheliHeaderDATEOBS();  // must be done before MJD-OBS
             buildTheliHeaderMJDOBS();
             buildTheliHeaderAIRMASS();
-            buildTheliHeaderGAIN(chipMapped);
-            buildTheliHeader();
+
+//            buildTheliHeaderGAIN(chipMapped);
+//            buildTheliHeader();
 
             // 2D image
             if (naxis == 2) {
                 getCurrentExtensionData();              // sets naxis1/2Raw, needed by everything below
                 getMultiportInformation(chipMapped);    // sets naxis1/2. Updates overscan and data sections for nonstandard multiport readouts
+
+                // gains must be built after mupl;tiport chips are assembled
+                buildTheliHeaderGAIN(chipMapped);
+                buildTheliHeader();
+
                 if (instData.name.contains("LIRIS")) descrambleLiris();
                 correctOverscan();
                 // correctOverscan(combineOverscan_ptr, overscanX[chipMapped], overscanY[chipMapped]);
@@ -351,6 +357,10 @@ void Splitter::extractImagesFITS()
             if (naxis == 3) {
                 getDataInCube();
                 getMultiportInformation(chipMapped);    // Update overscan and data sections for nonstandard multiport readouts
+
+                buildTheliHeaderGAIN(chipMapped);
+                buildTheliHeader();
+
                 // Test for invalid cube. Not sure such a FIS file can exist?
                 if (naxis3Raw == 0) continue;    // Invalid cube. Not sure such a thing can exist?
 

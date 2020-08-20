@@ -1058,8 +1058,8 @@ QVector<float> Data::getNormalizedRescaleFactors(int chip, QVector<long> &goodIn
                 goodIndex.append(j);
             }
             else {
-                if (*verbosity > 0) emit messageAvailable(it->chipName + " : Not used because mode is outside user limits : "
-                                                          + QString::number(it->skyValue), "data");
+                if (*verbosity > 0) emit messageAvailable(it->chipName + " : Not used, mode outside user limits : "
+                                                          + QString::number(it->skyValue), "warning");
             }
             ++j;
         }
@@ -1075,8 +1075,8 @@ QVector<float> Data::getNormalizedRescaleFactors(int chip, QVector<long> &goodIn
                 goodIndex.append(j);
             }
             else {
-                if (*verbosity > 0) emit messageAvailable(it->chipName + " : Not used because mode is outside user limits : "
-                                                          + QString::number(it->skyValue), "data");
+                if (*verbosity > 0) emit messageAvailable(it->chipName + " : Not used, mode outside user limits : "
+                                                          + QString::number(it->skyValue), "warning");
             }
             ++j;
         }
