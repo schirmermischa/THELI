@@ -140,6 +140,13 @@ void Splitter::buildTheliHeaderMJDOBS()
     }
 }
 
+void Splitter::buildTheliHeaderSATURATION()
+{
+    QString card = "SATURATE= " + QString::number(saturationValue, 'f', 6) + " / Saturation level for this image";
+    card.resize(80, ' ');
+    headerTHELI.append(card);
+}
+
 void Splitter::buildTheliHeaderWCS(int chip)
 {
     if (!successProcessing) return;
@@ -680,7 +687,7 @@ void Splitter::buildTheliHeaderGAIN(int chip)
     if (individualFixGAIN(chip)) return;
 
     // normal cases
-    float chipGain = 1.0;
+    chipGain = 1.0;
     if (!searchKeyValue(headerDictionary.value("GAIN"), chipGain)) {
         //        if (instData.name != "GROND_NIR@MPGESO") {    // GROND: gain determined in writeImageIndividual()
         if (instNameFromData != "GROND_NIR@MPGESO") {    // GROND: gain determined in writeImageIndividual()
@@ -711,7 +718,7 @@ bool Splitter::individualFixGAIN(int chip)
 {
     bool individualFixDone = false;
 
-    float chipGain = 1.0;
+    chipGain = 1.0;
     if (instData.name == "HAWKI@VLT") {           // https://www.eso.org/sci/facilities/paranal/instruments/hawki/inst.html
         if (chip == 0) chipGain = 1.705;
         if (chip == 1) chipGain = 1.870;

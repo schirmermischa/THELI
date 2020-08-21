@@ -667,6 +667,8 @@ void MyImage::subtractBias(const MyImage *biasImage, QString dataType)
         ++i;
     }
 
+    saturationValue -= biasImage->skyValue;
+
     QString mode = "";
     if (dataType == "BIAS") mode = "bias subtracted";
     else if (dataType == "DARK") mode = "dark subtracted";
@@ -738,6 +740,8 @@ void MyImage::divideFlat(const MyImage *flatImage)
         ++i;
     }
 
+    saturationValue /= flatImage->gainNormalization;
+
     if (*verbosity > 1) emit messageAvailable(chipName + " : Flat fielded", "image");
     successProcessing = true;
 }
@@ -759,6 +763,9 @@ void MyImage::applyBackgroundModel(const MyImage *backgroundImage, QString mode,
             }
             ++i;
         }
+
+        saturationValue -= backgroundImage->skyValue * rescale;
+
         QString img = " IMG = "+QString::number(skyValue, 'f', 3) + ";";
         QString back = " BACK = "+QString::number(backgroundImage->skyValue, 'f', 3) + ";";
         QString fac = " rescale = "+QString::number(rescale, 'f', 3);
@@ -775,6 +782,9 @@ void MyImage::applyBackgroundModel(const MyImage *backgroundImage, QString mode,
             }
             ++i;
         }
+
+        saturationValue /= backgroundImage->skyValue;
+
         QString img = " IMG = "+QString::number(skyValue, 'f', 3) + ";";
         QString back = " BACK = "+QString::number(backgroundImage->skyValue, 'f', 3) + ";";
         if (*verbosity > 1) emit messageAvailable(chipName + " : Divided by normalized background model;"+img+back, "image");

@@ -382,6 +382,7 @@ void Controller::taskInternalProcessflat()
                 it->subtractBias(biasData->combinedImage[chip], biasDataType);
 //                  it->subtractBias(biasData->combinedImage[chip]->dataCurrent, biasDataType);
                 it->skyValue -= biasData->combinedImage[chip]->skyValue;
+                it->saturationValue -= biasData->combinedImage[chip]->skyValue;
             }
 //            it->getMode(true);
 //            it->setModeFlag(min, max);

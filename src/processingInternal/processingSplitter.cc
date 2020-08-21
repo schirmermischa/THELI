@@ -55,6 +55,12 @@ void Controller::taskInternalHDUreformat()
     progressStepSize = 100./(float(numActiveImages) * instData->numChips);
     progress = 0.;
 
+    // Saturation value
+    float satValue = 1.e9;
+    if (!cdw->ui->saturationLineEdit->text().isEmpty()) {
+        satValue = cdw->ui->saturationLineEdit->text().toFloat();
+    }
+
     // Retrieve nonlinearity information (checks internally if available, otherwise returns empty list)
     QList<QVector<float>> nonlinearityCoefficients;
     if (cdw->ui->nonlinearityCheckBox->isChecked()) {
@@ -109,6 +115,7 @@ void Controller::taskInternalHDUreformat()
         splitter->genericLock = &genericLock;
         splitter->progress = &progress;
         splitter->dateObsIncrementor = &dateObsIncrementor;
+        splitter->saturationValue = satValue;
         splitter->compileNumericKeys();
         connect(splitter, &Splitter::messageAvailable, this, &Controller::messageAvailableReceived);
         connect(splitter, &Splitter::critical, this, &Controller::criticalReceived);

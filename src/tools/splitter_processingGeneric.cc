@@ -40,27 +40,39 @@ void Splitter::correctOverscan()
     int numDataSections = multiportChannelSections.length();     // the number of data sections per detector. A data section might have a horizontal and a vertical overscan
 
     // One overscan per data section
+
+    // We keep track of the estimate of the overscan value per detector
+    float overscanEffectiveVertical = 0.;
+    float overscanEffectiveHorizontal = 0.;
+    float overscanEffective = 0.;
     if (numOverscans == numDataSections) {
         for (int i=0; i<numOverscans; ++i) {
             if (multiportOverscanDirections[i] == "vertical") {
-                doOverscanVertical(combineOverscan_ptr, multiportOverscanSections[i], multiportChannelSections[i]);
+                doOverscanVertical(combineOverscan_ptr, multiportOverscanSections[i], multiportChannelSections[i], overscanEffectiveVertical);
             }
             if (multiportOverscanDirections[i] == "horizontal") {
-                doOverscanHorizontal(combineOverscan_ptr, multiportOverscanSections[i], multiportChannelSections[i]);
+                doOverscanHorizontal(combineOverscan_ptr, multiportOverscanSections[i], multiportChannelSections[i], overscanEffectiveHorizontal);
             }
+            overscanEffective += overscanEffectiveVertical + overscanEffectiveHorizontal;
         }
+        overscanEffective /= numOverscans;
     }
     // Two overscans per data section, e.g. vertical and horizontal
     else {
         for (int i=0; i<numOverscans; ++i) {
             if (multiportOverscanDirections[i] == "vertical") {
-                doOverscanVertical(combineOverscan_ptr, multiportOverscanSections[i], multiportChannelSections[i/2]);
+                doOverscanVertical(combineOverscan_ptr, multiportOverscanSections[i], multiportChannelSections[i/2], overscanEffectiveVertical);
             }
             if (multiportOverscanDirections[i] == "horizontal") {
-                doOverscanHorizontal(combineOverscan_ptr, multiportOverscanSections[i], multiportChannelSections[i/2]);
+                doOverscanHorizontal(combineOverscan_ptr, multiportOverscanSections[i], multiportChannelSections[i/2], overscanEffectiveHorizontal);
             }
+            overscanEffective += overscanEffectiveVertical + overscanEffectiveHorizontal;
         }
+        overscanEffective /= numOverscans;
     }
+
+    // Update the saturation value
+    saturationValue -= overscanEffective;
 }
 
 /*
@@ -147,7 +159,7 @@ void Splitter::doOverscan(float (*combineFunction_ptr) (const QVector<float> &, 
 
 // Correct vertical overscan
 void Splitter::doOverscanVertical(float (*combineFunction_ptr) (const QVector<float> &, const QVector<bool> &, long),
-                                  const QVector<long> &overscanArea, const QVector<long> dataVertices)
+                                  const QVector<long> &overscanArea, const QVector<long> dataVertices, float &overscanEstimate)
 {
     if (!successProcessing) return;
     if (overscanArea.isEmpty()) return;
@@ -155,6 +167,8 @@ void Splitter::doOverscanVertical(float (*combineFunction_ptr) (const QVector<fl
     long i, j, k;
     long n = naxis1Raw;
     long m = naxis2Raw;
+
+    overscanEstimate = 0.;
 
     QVector<float> spectral(overscanArea[1]-overscanArea[0]+1,0);   // select (xmin, xmax) from [xmin:xmax, ymin:ymax]
     QVector<float> spatial(m,0);
@@ -171,7 +185,8 @@ void Splitter::doOverscanVertical(float (*combineFunction_ptr) (const QVector<fl
             spatial[j] = combineFunction_ptr(spectral, QVector<bool>(), 0);
             //            spatialv[j] = straightMedianInline(spectralv);
         }
-        if (*verbosity > 1) emit messageAvailable(baseName + " : Mean vertical overscan = " + QString::number(meanMask(spatial), 'f', 3), "image");
+        overscanEstimate = meanMask(spatial);
+        if (*verbosity > 1) emit messageAvailable(baseName + " : Mean vertical overscan = " + QString::number(overscanEstimate, 'f', 3), "image");
     }
     // Global correction with constant value
     else {
@@ -183,6 +198,7 @@ void Splitter::doOverscanVertical(float (*combineFunction_ptr) (const QVector<fl
             }
         }
         float constOverscan = straightMedianInline(tmp);
+        overscanEstimate = constOverscan;
         if (*verbosity > 1) emit messageAvailable(baseName + " : Global median overscan = " + QString::number(constOverscan, 'f', 1), "image");
         for (j=0; j<m; ++j) {
             spatial[j] = constOverscan;
@@ -204,13 +220,15 @@ void Splitter::doOverscanVertical(float (*combineFunction_ptr) (const QVector<fl
 
 // Correct horizontal overscan
 void Splitter::doOverscanHorizontal(float (*combineFunction_ptr) (const QVector<float> &, const QVector<bool> &, long),
-                                    const QVector<long> &overscanArea, const QVector<long> dataVertices)
+                                    const QVector<long> &overscanArea, const QVector<long> dataVertices, float &overscanEstimate)
 {
     if (!successProcessing) return;
     if (overscanArea.isEmpty()) return;
 
     long i, j, k;
     long n = naxis1Raw;
+
+    overscanEstimate = 0.;
 
     QVector<float> spectral(overscanArea[3]-overscanArea[2]+1,0);   // select (ymin, ymax) from [xmin:xmax, ymin:ymax]
     QVector<float> spatial(n,0);
@@ -226,6 +244,7 @@ void Splitter::doOverscanHorizontal(float (*combineFunction_ptr) (const QVector<
             }
             spatial[i] = combineFunction_ptr(spectral, QVector<bool>(), 0);
         }
+        overscanEstimate = meanMask(spatial);
         if (*verbosity > 1) emit messageAvailable(baseName + " : Mean horizontal overscan = " + QString::number(meanMask(spatial), 'f', 3), "image");
     }
     // Global correction with constant value
@@ -238,6 +257,7 @@ void Splitter::doOverscanHorizontal(float (*combineFunction_ptr) (const QVector<
             }
         }
         float constOverscan = straightMedianInline(tmp);
+        overscanEstimate = constOverscan;
         if (*verbosity > 1) emit messageAvailable(baseName + " : Global median overscan = " + QString::number(constOverscan, 'f', 1), "image");
         for (i=0; i<n; ++i) {
             spatial[i] = constOverscan;
@@ -370,6 +390,9 @@ void Splitter::correctNonlinearity(int chip)
     for (auto &pixel : dataCurrent) {
         pixel = polynomialSum(pixel, coeffs);
     }
+
+    // Update saturation value
+    saturationValue = polynomialSum(saturationValue, coeffs);
 }
 
 void Splitter::convertToElectrons(int chip)
@@ -377,6 +400,10 @@ void Splitter::convertToElectrons(int chip)
     if (!successProcessing) return;
 
     if (!MEFpastingFinished) return;
+
+
+    // Update saturation value
+    saturationValue *= gain[chip];
 
     // cameras with multiple readout channels AND different gain per channel (but no overscan pasted into the data section)
     // WARNING: ASSUMPTIONS: applies to the size defined in camera.ini

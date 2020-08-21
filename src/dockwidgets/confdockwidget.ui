@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>618</width>
-    <height>668</height>
+    <height>670</height>
    </rect>
   </property>
   <property name="floating">
@@ -472,7 +472,7 @@
        <number>1</number>
       </property>
       <property name="currentIndex">
-       <number>8</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="HDUpage">
        <layout class="QGridLayout" name="gridLayout_31">
@@ -500,7 +500,7 @@
 </string>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;HDU reformatting &amp;amp; detector-level corrections&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;HDU / Detector corrections&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
@@ -519,7 +519,7 @@
              <enum>QFrame::NoFrame</enum>
             </property>
             <property name="text">
-             <string>(1) Renaming and reformatting</string>
+             <string>(1) Renaming</string>
             </property>
            </widget>
           </item>
@@ -1443,7 +1443,7 @@
              <enum>QFrame::NoFrame</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_3">
-             <item row="0" column="0" colspan="4">
+             <item row="1" column="0" colspan="4">
               <widget class="QCheckBox" name="overscanCheckBox">
                <property name="font">
                 <font>
@@ -1465,7 +1465,7 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="0">
+             <item row="2" column="0">
               <spacer name="horizontalSpacer_15">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -1478,7 +1478,7 @@
                </property>
               </spacer>
              </item>
-             <item row="2" column="0" colspan="4">
+             <item row="3" column="0" colspan="4">
               <widget class="QCheckBox" name="nonlinearityCheckBox">
                <property name="font">
                 <font>
@@ -1497,7 +1497,7 @@
                </property>
               </widget>
              </item>
-             <item row="3" column="0" colspan="4">
+             <item row="4" column="0" colspan="4">
               <widget class="QCheckBox" name="normalxtalkCheckBox">
                <property name="font">
                 <font>
@@ -1516,7 +1516,7 @@
                </property>
               </widget>
              </item>
-             <item row="4" column="0">
+             <item row="5" column="0">
               <spacer name="horizontalSpacer_11">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -1529,7 +1529,78 @@
                </property>
               </spacer>
              </item>
-             <item row="4" column="1" colspan="3">
+             <item row="9" column="1" colspan="2">
+              <widget class="QLabel" name="xtalkRowLabel">
+               <property name="text">
+                <string>Amplitude</string>
+               </property>
+               <property name="buddy">
+                <cstring>rowxtalkAmplitudeLineEdit</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="1">
+              <widget class="QLabel" name="xtalkNorLabel">
+               <property name="text">
+                <string>Amplitude</string>
+               </property>
+               <property name="buddy">
+                <cstring>normalxtalkAmplitudeLineEdit</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="3">
+              <widget class="QLineEdit" name="normalxtalkAmplitudeLineEdit">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="statusTip">
+                <string>The crosstalk amplitude factor (can be negative)</string>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="0" colspan="4">
+              <widget class="QCheckBox" name="rowxtalkCheckBox">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::ClickFocus</enum>
+               </property>
+               <property name="statusTip">
+                <string>Check if you want to correct row crosstalk (ghost lines)</string>
+               </property>
+               <property name="text">
+                <string>Row crosstalk correction</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="0">
+              <spacer name="horizontalSpacer_9">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>8</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="5" column="1" colspan="3">
               <layout class="QHBoxLayout" name="horizontalLayout_3">
                <item>
                 <widget class="QToolButton" name="xtalk_nor_2x2ToolButton">
@@ -1623,68 +1694,7 @@
                </item>
               </layout>
              </item>
-             <item row="5" column="1">
-              <widget class="QLabel" name="xtalkNorLabel">
-               <property name="text">
-                <string>Amplitude</string>
-               </property>
-               <property name="buddy">
-                <cstring>normalxtalkAmplitudeLineEdit</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="3">
-              <widget class="QLineEdit" name="normalxtalkAmplitudeLineEdit">
-               <property name="minimumSize">
-                <size>
-                 <width>80</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="statusTip">
-                <string>The crosstalk amplitude factor (can be negative)</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0" colspan="4">
-              <widget class="QCheckBox" name="rowxtalkCheckBox">
-               <property name="font">
-                <font>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="focusPolicy">
-                <enum>Qt::ClickFocus</enum>
-               </property>
-               <property name="statusTip">
-                <string>Check if you want to correct row crosstalk (ghost lines)</string>
-               </property>
-               <property name="text">
-                <string>Row crosstalk correction</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="0">
-              <spacer name="horizontalSpacer_9">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>8</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="7" column="1" colspan="3">
+             <item row="8" column="1" colspan="3">
               <layout class="QGridLayout" name="gridLayout_2">
                <item row="0" column="0">
                 <widget class="QToolButton" name="xtalk_row_2x2ToolButton">
@@ -1868,17 +1878,7 @@
                </item>
               </layout>
              </item>
-             <item row="8" column="1" colspan="2">
-              <widget class="QLabel" name="xtalkRowLabel">
-               <property name="text">
-                <string>Amplitude</string>
-               </property>
-               <property name="buddy">
-                <cstring>rowxtalkAmplitudeLineEdit</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="3">
+             <item row="9" column="3">
               <widget class="QLineEdit" name="rowxtalkAmplitudeLineEdit">
                <property name="minimumSize">
                 <size>
@@ -1897,7 +1897,7 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="1" colspan="3">
+             <item row="2" column="1" colspan="3">
               <widget class="QComboBox" name="overscanMethodComboBox">
                <property name="focusPolicy">
                 <enum>Qt::NoFocus</enum>
@@ -1920,6 +1920,20 @@
                  <string>Global median</string>
                 </property>
                </item>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QLineEdit" name="saturationLineEdit">
+               <property name="statusTip">
+                <string>Saturation level in the raw data (in ADU)</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLabel" name="label_21">
+               <property name="text">
+                <string>Saturation [ ADU ]</string>
+               </property>
               </widget>
              </item>
             </layout>
@@ -12921,37 +12935,24 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <enum>QFrame::Plain</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_6">
-             <item row="4" column="1">
-              <widget class="QLabel" name="confIndWBloomMarginLabel">
+             <item row="8" column="1" colspan="2">
+              <widget class="QLabel" name="confIndWBloomMarginLabel_3">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
-                <string>Range [e-]</string>
+                <string>Trigger level [e-]</string>
                </property>
                <property name="buddy">
                 <cstring>CIWbloomRangeLineEdit</cstring>
                </property>
               </widget>
              </item>
-             <item row="4" column="0">
-              <spacer name="horizontalSpacer_20">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>35</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="6" column="3">
-              <widget class="QLineEdit" name="CIWpersistenceTimescaleLineEdit">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
+             <item row="5" column="2" colspan="2">
+              <widget class="QLineEdit" name="CIWbloomRangeLineEdit">
                <property name="minimumSize">
                 <size>
-                 <width>40</width>
+                 <width>80</width>
                  <height>0</height>
                 </size>
                </property>
@@ -12962,14 +12963,14 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                 </size>
                </property>
                <property name="statusTip">
-                <string>Images taken this many minutes before the current image will be considered.</string>
+                <string>The saturation value of blooming spikes may vary by this much across the CCD</string>
                </property>
                <property name="text">
                 <string/>
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
+             <item row="4" column="0">
               <spacer name="horizontalSpacer_17">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -12982,7 +12983,78 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                </property>
               </spacer>
              </item>
-             <item row="3" column="2" colspan="2">
+             <item row="5" column="1">
+              <widget class="QLabel" name="confIndWBloomMarginLabel">
+               <property name="text">
+                <string>Range [e-]</string>
+               </property>
+               <property name="buddy">
+                <cstring>CIWbloomRangeLineEdit</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QLabel" name="confIndWBloomMinLabel">
+               <property name="text">
+                <string>Min value [e-]</string>
+               </property>
+               <property name="buddy">
+                <cstring>CIWbloomMinaduLineEdit</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="0">
+              <spacer name="horizontalSpacer_22">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>35</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="1" column="2" colspan="2">
+              <widget class="QLineEdit" name="CIWaggressivenessLineEdit">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>80</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string/>
+               </property>
+               <property name="statusTip">
+                <string>Values larger / smaller than 1.0 will mask more / less cosmics (SLOW). If zero or empty, no cosmics will be detected.</string>
+               </property>
+               <property name="text">
+                <string>1.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <spacer name="horizontalSpacer_20">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>35</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="4" column="2" colspan="2">
               <widget class="QLineEdit" name="CIWbloomMinaduLineEdit">
                <property name="minimumSize">
                 <size>
@@ -13004,17 +13076,43 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                </property>
               </widget>
              </item>
-             <item row="0" column="0" colspan="4">
-              <widget class="QLabel" name="confIndWBloomMinLabel_2">
+             <item row="7" column="1" colspan="2">
+              <widget class="QLabel" name="confIndWBloomMarginLabel_2">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
-                <string>Cosmics and spurious pixels:</string>
+                <string>Time scale [ min]</string>
                </property>
                <property name="buddy">
-                <cstring>CIWbloomMinaduLineEdit</cstring>
+                <cstring>CIWbloomRangeLineEdit</cstring>
                </property>
               </widget>
              </item>
-             <item row="2" column="0" colspan="4">
+             <item row="7" column="0">
+              <spacer name="horizontalSpacer_21">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>35</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="1" column="0" colspan="2">
+              <widget class="QLabel" name="confIndWThresholdLabel">
+               <property name="text">
+                <string>Aggressiveness</string>
+               </property>
+               <property name="buddy">
+                <cstring>CIWaggressivenessLineEdit</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0" colspan="4">
               <widget class="QCheckBox" name="CIWmaskbloomingCheckBox">
                <property name="palette">
                 <palette>
@@ -13448,17 +13546,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                </property>
               </widget>
              </item>
-             <item row="1" column="0" colspan="2">
-              <widget class="QLabel" name="confIndWThresholdLabel">
-               <property name="text">
-                <string>Aggressiveness</string>
-               </property>
-               <property name="buddy">
-                <cstring>CIWaggressivenessLineEdit</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="3">
+             <item row="8" column="3">
               <widget class="QLineEdit" name="CIWpersistenceMinaduLineEdit">
                <property name="enabled">
                 <bool>false</bool>
@@ -13483,33 +13571,42 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                </property>
               </widget>
              </item>
-             <item row="6" column="1" colspan="2">
-              <widget class="QLabel" name="confIndWBloomMarginLabel_2">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
+             <item row="0" column="0" colspan="4">
+              <widget class="QLabel" name="confIndWBloomMinLabel_2">
                <property name="text">
-                <string>Time scale [ min]</string>
+                <string>Cosmics and spurious pixels:</string>
                </property>
                <property name="buddy">
-                <cstring>CIWbloomRangeLineEdit</cstring>
+                <cstring>CIWbloomMinaduLineEdit</cstring>
                </property>
               </widget>
              </item>
-             <item row="6" column="0">
-              <spacer name="horizontalSpacer_21">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+             <item row="7" column="3">
+              <widget class="QLineEdit" name="CIWpersistenceTimescaleLineEdit">
+               <property name="enabled">
+                <bool>false</bool>
                </property>
-               <property name="sizeHint" stdset="0">
+               <property name="minimumSize">
                 <size>
-                 <width>35</width>
-                 <height>20</height>
+                 <width>40</width>
+                 <height>0</height>
                 </size>
                </property>
-              </spacer>
+               <property name="maximumSize">
+                <size>
+                 <width>80</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="statusTip">
+                <string>Images taken this many minutes before the current image will be considered.</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
              </item>
-             <item row="5" column="0" colspan="4">
+             <item row="6" column="0" colspan="4">
               <widget class="QCheckBox" name="CIWpersistenceCheckBox">
                <property name="enabled">
                 <bool>false</bool>
@@ -13946,44 +14043,18 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                </property>
               </widget>
              </item>
-             <item row="7" column="1" colspan="2">
-              <widget class="QLabel" name="confIndWBloomMarginLabel_3">
-               <property name="enabled">
-                <bool>false</bool>
+             <item row="2" column="0" colspan="2">
+              <widget class="QCheckBox" name="CIWmasksaturationCheckBox">
+               <property name="statusTip">
+                <string>Masks saturated pixels.</string>
                </property>
                <property name="text">
-                <string>Trigger level [e-]</string>
-               </property>
-               <property name="buddy">
-                <cstring>CIWbloomRangeLineEdit</cstring>
+                <string>Mask saturated pixels</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="1">
-              <widget class="QLabel" name="confIndWBloomMinLabel">
-               <property name="text">
-                <string>Min value [e-]</string>
-               </property>
-               <property name="buddy">
-                <cstring>CIWbloomMinaduLineEdit</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="0">
-              <spacer name="horizontalSpacer_22">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>35</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="4" column="2" colspan="2">
-              <widget class="QLineEdit" name="CIWbloomRangeLineEdit">
+             <item row="2" column="2" colspan="2">
+              <widget class="QLineEdit" name="CIWsaturationLineEdit">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -13997,35 +14068,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                 </size>
                </property>
                <property name="statusTip">
-                <string>The saturation value of blooming spikes may vary by this much across the CCD</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2" colspan="2">
-              <widget class="QLineEdit" name="CIWaggressivenessLineEdit">
-               <property name="minimumSize">
-                <size>
-                 <width>80</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>80</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string/>
-               </property>
-               <property name="statusTip">
-                <string>Values larger / smaller than 1.0 will mask more / less cosmics (SLOW). If zero or empty, no cosmics will be detected.</string>
-               </property>
-               <property name="text">
-                <string>1.0</string>
+                <string>Tolerance. A vakue of 0.9 would mask pixels with values 0.9 or more of the saturation estimate.</string>
                </property>
               </widget>
              </item>

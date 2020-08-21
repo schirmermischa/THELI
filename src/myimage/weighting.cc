@@ -116,6 +116,21 @@ void MyImage::thresholdWeight(QString imageMin, QString imageMax)
     }
 }
 
+void MyImage::maskSaturatedPixels(QString tolerance, bool requested)
+{
+    if (!successProcessing) return;
+    if (!requested) return;
+
+    float toleranceFloat = 1.0;
+    if (!tolerance.isEmpty()) toleranceFloat = tolerance.toFloat();
+
+    long i=0;
+    for (auto &pixel : dataWeight) {
+        if (dataCurrent.at(i) >= saturationValue*toleranceFloat) pixel = 0.;
+        ++i;
+    }
+}
+
 void MyImage::roundEdgeOfWeight(float edge, bool roundEdge)
 {
     dataWeightSmooth = dataWeight;

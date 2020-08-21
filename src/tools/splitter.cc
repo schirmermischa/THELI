@@ -336,7 +336,7 @@ void Splitter::extractImagesFITS()
                 getCurrentExtensionData();              // sets naxis1/2Raw, needed by everything below
                 getMultiportInformation(chipMapped);    // sets naxis1/2. Updates overscan and data sections for nonstandard multiport readouts
 
-                // gains must be built after mupl;tiport chips are assembled
+                // gains must be built after multiport chips are assembled
                 buildTheliHeaderGAIN(chipMapped);
                 buildTheliHeader();
 
@@ -781,7 +781,7 @@ void Splitter::writeImage(int chipMapped)
 
     int chipID = chipMapped + 1;
 
-    // adjust chipID for datra where multiple channels are in separate extensions
+    // adjust chipID for data where multiple channels are in separate extensions
     if (multiChannelMultiExt.contains(instData.name)) {
         if (instData.name.contains("GMOS")) {
             if (chipMapped == 3) chipID = 1;
@@ -817,6 +817,8 @@ void Splitter::writeImage(int chipMapped)
     for (int i=0; i<headerTHELI.length(); ++i) {
         fits_write_record(fptr, headerTHELI[i].toUtf8().constData(), &status);
     }
+    // Update the SATURATE keyword
+    fits_update_key_flt(fptr, "SATURATE", saturationValue, 6, nullptr, &status);
     fits_close_file(fptr, &status);
 
     delete [] array;

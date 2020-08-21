@@ -110,6 +110,7 @@ void ConfDockWidget::validate()
     ui->CGWflatminLineEdit->setValidator( validator_float_pos );
     ui->CGWflatrowtolLineEdit->setValidator( validator_float_pos );
     ui->CGWflatsmoothLineEdit->setValidator( validator_float_pos );
+    ui->CIWsaturationLineEdit->setValidator( validator_float_pos );
     ui->CIWbloomRangeLineEdit->setValidator( validator_int_pos );
     ui->CIWbloomMinaduLineEdit->setValidator( validator_int_pos );
     ui->CIWaggressivenessLineEdit->setValidator( validator_float_pos );
@@ -167,6 +168,7 @@ void ConfDockWidget::validate()
     ui->flatNlowLineEdit->setValidator( validator_int_pos );
     ui->normalxtalkAmplitudeLineEdit->setValidator( validator_float );
     ui->rowxtalkAmplitudeLineEdit->setValidator( validator_float );
+    ui->saturationLineEdit->setValidator( validator_int_pos );
     ui->separateTargetLineEdit->setValidator( validator_float_pos );
     ui->skyDMINLineEdit->setValidator( validator_int_pos );
     ui->skyDTLineEdit->setValidator( validator_float_pos );
@@ -234,6 +236,7 @@ void ConfDockWidget::connect_validators()
     connect(ui->CGWflatrowtolLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->CGWflatsmoothLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->CIWbloomRangeLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
+    connect(ui->CIWsaturationLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->CIWbloomMinaduLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->CIWaggressivenessLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->CIWmaxaduLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
@@ -290,6 +293,7 @@ void ConfDockWidget::connect_validators()
     connect(ui->flatNlowLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->normalxtalkAmplitudeLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->rowxtalkAmplitudeLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
+    connect(ui->saturationLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->separateTargetLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->skyDMINLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->skyDTLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);

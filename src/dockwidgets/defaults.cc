@@ -148,6 +148,7 @@ void ConfDockWidget::populateDefaultMap()
     defaultMap.insert("overscanNhighLineEdit", "");
     defaultMap.insert("overscanNlowLineEdit", "");
     defaultMap.insert("rowxtalkAmplitudeLineEdit", "0.0");
+    defaultMap.insert("saturationLineEdit", "");
     defaultMap.insert("separateTargetLineEdit", "");
     defaultMap.insert("skyDMINLineEdit", "10");
     defaultMap.insert("skyDTLineEdit", "1.5");
@@ -213,6 +214,7 @@ void ConfDockWidget::loadDefaults()
         ui->flatoffMaxLineEdit->clear();
         ui->flatMinLineEdit->clear();
         ui->flatMaxLineEdit->clear();
+        ui->saturationLineEdit->clear();
     }
 
     if (sender() == mainGUI->ui->setupProjectResetToolButton || sender() == 0 ||

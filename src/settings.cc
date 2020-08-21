@@ -196,10 +196,12 @@ int MainWindow::writeGUISettings()
     settings.setValue("CGWflatrowtolLineEdit", cdw->ui->CGWflatrowtolLineEdit->text());
     settings.setValue("CGWflatsmoothLineEdit", cdw->ui->CGWflatsmoothLineEdit->text());
     settings.setValue("CGWsameweightCheckBox", cdw->ui->CGWsameweightCheckBox->isChecked());
+    settings.setValue("CIWsaturationLineEdit", cdw->ui->CIWsaturationLineEdit->text());
     settings.setValue("CIWbloomRangeLineEdit", cdw->ui->CIWbloomRangeLineEdit->text());
     settings.setValue("CIWbloomMinaduLineEdit", cdw->ui->CIWbloomMinaduLineEdit->text());
     settings.setValue("CIWaggressivenessLineEdit", cdw->ui->CIWaggressivenessLineEdit->text());
     settings.setValue("CIWmaskbloomingCheckBox", cdw->ui->CIWmaskbloomingCheckBox->isChecked());
+    settings.setValue("CIWmasksaturationCheckBox", cdw->ui->CIWmasksaturationCheckBox->isChecked());
     settings.setValue("CIWmaxaduLineEdit", cdw->ui->CIWmaxaduLineEdit->text());
     settings.setValue("CIWminaduLineEdit", cdw->ui->CIWminaduLineEdit->text());
     settings.setValue("COAcelestialtypeComboBox", cdw->ui->COAcelestialtypeComboBox->currentIndex());
@@ -278,6 +280,7 @@ int MainWindow::writeGUISettings()
     settings.setValue("overscanMethodComboBox", cdw->ui->overscanMethodComboBox->currentIndex());
     settings.setValue("rowxtalkAmplitudeLineEdit", cdw->ui->rowxtalkAmplitudeLineEdit->text());
     settings.setValue("rowxtalkCheckBox", cdw->ui->rowxtalkCheckBox->isChecked());
+    settings.setValue("saturationLineEdit", cdw->ui->saturationLineEdit->text());
     settings.setValue("separateTargetLineEdit", cdw->ui->separateTargetLineEdit->text());
     settings.setValue("skyAreaComboBox", cdw->ui->skyAreaComboBox->currentIndex());
     settings.setValue("skyConstsubRadioButton", cdw->ui->skyConstsubRadioButton->isChecked());
@@ -453,10 +456,12 @@ int MainWindow::readGUISettings(QString projectname)
     cdw->ui->CGWflatrowtolLineEdit->setText(settings.value("CGWflatrowtolLineEdit").toString());
     cdw->ui->CGWflatsmoothLineEdit->setText(settings.value("CGWflatsmoothLineEdit").toString());
     cdw->ui->CGWsameweightCheckBox->setChecked(settings.value("CGWsameweightCheckBox").toBool());
+    cdw->ui->CIWsaturationLineEdit->setText(settings.value("CIWsaturationLineEdit").toString());
     cdw->ui->CIWbloomRangeLineEdit->setText(settings.value("CIWbloomRangeLineEdit").toString());
     cdw->ui->CIWbloomMinaduLineEdit->setText(settings.value("CIWbloomMinaduLineEdit").toString());
     cdw->ui->CIWaggressivenessLineEdit->setText(settings.value("CIWaggressivenessLineEdit").toString());
     cdw->ui->CIWmaskbloomingCheckBox->setChecked(settings.value("CIWmaskbloomingCheckBox").toBool());
+    cdw->ui->CIWmasksaturationCheckBox->setChecked(settings.value("CIWmasksaturationCheckBox").toBool());
     cdw->ui->CIWmaxaduLineEdit->setText(settings.value("CIWmaxaduLineEdit").toString());
     cdw->ui->CIWminaduLineEdit->setText(settings.value("CIWminaduLineEdit").toString());
     cdw->ui->COAcelestialtypeComboBox->setCurrentIndex(settings.value("COAcelestialtypeComboBox").toInt());
@@ -555,6 +560,7 @@ int MainWindow::readGUISettings(QString projectname)
     cdw->ui->confStackedWidget->setCurrentIndex(settings.value("confStackedWidget").toInt());
     cdw->ui->rowxtalkAmplitudeLineEdit->setText(settings.value("rowxtalkAmplitudeLineEdit").toString());
     cdw->ui->rowxtalkCheckBox->setChecked(settings.value("rowxtalkCheckBox").toBool());
+    cdw->ui->saturationLineEdit->setText(settings.value("saturationLineEdit").toString());
     cdw->ui->separateTargetLineEdit->setText(settings.value("separateTargetLineEdit").toString());
 
     // MAIN WINDOW

@@ -479,6 +479,7 @@ public:
     void addExludedRegionToMask(long imin, long imax, long jmin, long jmax);
     void subtractBias();
     void subtractBias(QVector<float> const &dataCurrent, QString dataType);
+    void maskSaturatedPixels(QString tolerance, bool requested);
 signals:
     void modelUpdateNeeded(QString chipName);
     void messageAvailable(QString message, QString type);

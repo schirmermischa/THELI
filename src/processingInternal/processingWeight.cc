@@ -262,6 +262,7 @@ void Controller::taskInternalIndividualweight()
         }
         it->thresholdWeight(imageMin, imageMax);
         it->applyPolygons();
+        it->maskSaturatedPixels(cdw->ui->CIWsaturationLineEdit->text(), cdw->ui->CIWmasksaturationCheckBox->isChecked());
         it->maskBloomingSpike(instType, range, minVal, cdw->ui->CIWmaskbloomingCheckBox->isChecked());
 #pragma omp atomic
         progress += progressHalfStepSize;

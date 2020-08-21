@@ -82,6 +82,8 @@ public:
 
     QStringList headerTHELI;
 
+    float saturationValue = 1.e9;
+
     QStringList multiChannelMultiExt;              // Contains all instruments having multiple readout channels, stored in separate FITS extensions
 
     bool successProcessing = true;
@@ -151,6 +153,9 @@ private:
     QString dateObsValue = "";
     double crval1 = 0.0;
     double crval2 = 0.0;
+
+    float chipGain = 1.0;       // effective gain for this detector (could be computed for multi-amp detectors)
+
     double positionAngle = 0.0;
     float exptimeValue = 0.0;   // header keyword value to calculate other keywords
     float lstValue = 0.0;       // header keyword value to calculate other keywords
@@ -204,6 +209,7 @@ private:
     void buildTheliHeaderAIRMASS();
     void buildTheliHeaderDATEOBS();
     void buildTheliHeaderGAIN(int chip);
+    void buildTheliHeaderSATURATION();
 
     bool searchKey(const QString &searchKeyName, const QStringList &possibleKeyNames, QStringList &outputHeader);
     bool searchKeyInHeader(const QString &searchKey, const QStringList &possibleKeyNames, const QStringList &inputHeader, QStringList &outputHeader);
@@ -272,9 +278,9 @@ private:
 //    void pasteMultiPortDataSections(QVector<long> dataSection);
     void getMultiportInformation(int chip);
     void doOverscanVertical(float (*combineFunction_ptr)(const QVector<float> &, const QVector<bool> &, long),
-                            const QVector<long> &overscanArea, const QVector<long> dataVertices);
+                            const QVector<long> &overscanArea, const QVector<long> dataVertices, float &overscanEstimate);
     void doOverscanHorizontal(float (*combineFunction_ptr)(const QVector<float> &, const QVector<bool> &, long),
-                              const QVector<long> &overscanArea, const QVector<long> dataVertices);
+                              const QVector<long> &overscanArea, const QVector<long> dataVertices, float &overscanEstimate);
     void pasteMultiportIlluminatedSections(int chip);
     void pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, const QVector<long> &secton,
                       const float corrFactor, const long nT, const long mT, const long nS);

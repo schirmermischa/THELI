@@ -173,6 +173,7 @@ bool MyImage::write(QString fileName, const QVector<float> &data, const float ex
     fits_write_img(fptr, TFLOAT, fpixel, nelements, array, &status);
 
     // header stuff
+    updateHeaderValue("SATURATE", saturationValue, 'e');      // Could be done explicitly every time saturation is changed
     if (!header.isEmpty()) propagateHeader(fptr, header);
 
     if (exptime >= 0.) {

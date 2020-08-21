@@ -320,6 +320,7 @@ void MyImage::initTHELIheader(int *status)
         extractKeywordFloat(it, "ELLIP", ellipticity);
         extractKeywordFloat(it, "ELLIPEST", ellipticity_est);
         extractKeywordFloat(it, "RZP", RZP);
+        extractKeywordFloat(it, "SATURATE", saturationValue);
     }
     if (mjdobs != 0.0) hasMJDread = true;
     else hasMJDread = false;
