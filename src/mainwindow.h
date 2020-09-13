@@ -73,7 +73,7 @@ public:
     QString instrument_dir;
     QString instrument_userDir;
 
-    QString GUIVERSION = "3.0.3";
+    QString GUIVERSION = "3.0.4";
 
     QString editorPreference;
     QString downloadServer;
