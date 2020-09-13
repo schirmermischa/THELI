@@ -791,8 +791,13 @@ void Splitter::writeImage(int chipMapped)
         MEFpastingFinished = false;
     }
 
-    // Replace blanks in file names
+    // Replace blanks and other unwanted chars in file names
     baseName.replace(' ','_');
+    baseName.replace('[','_');
+    baseName.replace(']','_');
+    baseName.remove('$');
+    baseName.remove('&');
+    baseName.remove('#');
 
     // Output file name
     splitFileName = "!"+path+"/"+baseName+"_"+QString::number(chipID)+"P.fits";
