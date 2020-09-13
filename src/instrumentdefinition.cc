@@ -62,6 +62,7 @@ Instrument::Instrument(QWidget *parent) :
     connect(ui->latitudeLineEdit, &QLineEdit::textChanged, this, &Instrument::validate);
     connect(ui->longitudeLineEdit, &QLineEdit::textChanged, this, &Instrument::validate);
     connect(ui->plateScaleLineEdit, &QLineEdit::textChanged, this, &Instrument::validate);
+    connect(ui->instrumentNameLineEdit, &QLineEdit::textChanged, this, &Instrument::validate);
     connect(ui->bayerRGGBToolButton, &QToolButton::clicked, this, &Instrument::toggle_bayer_ToolButtons);
     connect(ui->bayerGBRGToolButton, &QToolButton::clicked, this, &Instrument::toggle_bayer_ToolButtons);
     connect(ui->bayerBGGRToolButton, &QToolButton::clicked, this, &Instrument::toggle_bayer_ToolButtons);
@@ -256,7 +257,8 @@ void Instrument::validate(QString arg1)
     ui->crpix2LineEdit->setValidator( validator_intblank );
 
     // instrument name must not accept blank characters
-    QRegExp rx2( "^\\S+$" );
+ //   QRegExp rx2( "^\\S+$" );
+    QRegExp rx2( "[A-Za-z0-9@_-+]+" );
     QValidator* validator_string2 = new QRegExpValidator( rx2, this );
     ui->instrumentNameLineEdit->setValidator( validator_string2 );
 }
