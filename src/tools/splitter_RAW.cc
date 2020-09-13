@@ -67,6 +67,7 @@ void Splitter::importRAW()
     // Extract metadata
 #define P1 rawProcessor.imgdata.idata
 #define P2 rawProcessor.imgdata.other
+#define P3 rawProcessor.imgdata.makernotes.common
 
     QString timeStamp = ctime(&(P2.timestamp));
     timeStamp = timeStamp.simplified();
@@ -98,8 +99,8 @@ void Splitter::importRAW()
 
     mjdobsValue = dateobsToMJD();
     exptimeValue = P2.shutter;
-    sensorTemp = P2.SensorTemperature;
-    cameraTemp = P2.CameraTemperature;
+    sensorTemp = P3.SensorTemperature;
+    cameraTemp = P3.CameraTemperature;
     isoSpeed = QString::number(int(P2.iso_speed));
 
     // From RAW data (unreliable, because of potential trimming)
