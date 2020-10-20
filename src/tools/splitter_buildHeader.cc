@@ -494,8 +494,6 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
         individualFixDone = true;
     }
-
-
     if (instNameFromData == "GROND_OPT@MPGESO") {                 // GROND optical data has both the NIR and OPT CD matrices in the header.
         double cd11 = 0.;                                         // With the current scheme, the NIR matrix in the HDU gets picked over
         double cd12 = 0.;                                         // OPT matrix in the extension
@@ -520,6 +518,17 @@ bool Splitter::individualFixCDmatrix(int chip)
         searchKeyValue(QStringList() << "J_CD1_2", cd12);
         searchKeyValue(QStringList() << "J_CD2_1", cd21);
         searchKeyValue(QStringList() << "J_CD2_2", cd22);
+        cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
+        cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
+        cd21_card = "CD2_1   =  "+QString::number(cd21, 'g', 6);
+        cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
+        individualFixDone = true;
+    }
+    if (instData.name == "PFC_old@WHT") {
+        double cd11 = 6.55e-5;
+        double cd12 = 5.0e-7;
+        double cd21 = 5.0e-7;
+        double cd22 = -6.55e-5;
         cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
         cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
         cd21_card = "CD2_1   =  "+QString::number(cd21, 'g', 6);
