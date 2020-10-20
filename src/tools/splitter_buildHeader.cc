@@ -76,7 +76,7 @@ void Splitter::buildTheliHeader()
     if (!instSpecificKey.isEmpty()) keyFoundOptional = searchKey(instSpecificKey, {instSpecificKey}, headerTHELI);
     if (!keyFoundOptional) emit messageAvailable(fileName + " : Could not determine instrument-specific keyword: "+instSpecificKey, "warning");
 
-    // Propagate bayer matrix ID for color CCD chips
+    // Propagate Bayer matrix ID for color CCD chips
     if (!instData.bayer.isEmpty()) {
         QString card = "BAYER   = '"+instData.bayer+"'";
         card.resize(80, ' ');
