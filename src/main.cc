@@ -118,7 +118,7 @@ void dependencyCheck()
     }
 
     if (scamp.isEmpty()) {
-        scampDep = "'Scamp' v2.0.4 or later required (working binary names: 'scamp' or 'Scamp').\nhttps://github.com/astromatic/scamp\n";
+        scampDep = "'Scamp' v2.0.4 or later required (working binary names: 'scamp' or 'Scamp').\n\nhttps://github.com/astromatic/scamp\n";
         ++missingDep;
     }
     else {
@@ -134,14 +134,15 @@ void dependencyCheck()
             // Minimum scamp version required: 2.0.4
             int version = list[2].remove('.').toInt();
             if (version < 204) {
-                scampDep = "'Scamp' v2.0.4 or later required.\nhttps://github.com/astromatic/scamp\nInstalled:  " + result + "\n";
+                scampDep = "'Scamp' v2.0.4 or later required.\n\nhttps://github.com/astromatic/scamp\nInstalled:  " + result + "\n";
                 ++missingDep;
             }
         }
     }
 
     if (swarp.isEmpty()) {
-        swarpDep = "'Swarp' v2.38.0 or later required (working binary names: 'swarp, Swarp or SWarp').\nhttps://github.com/astromatic/swarp\n";
+        swarpDep = "'Swarp' v2.38.0 or later required (working binary names: 'swarp', 'Swarp' or 'SWarp').\n\nhttps://github.com/astromatic/swarp\n";
+        ++missingDep;
     }
     else {
         // Check if swarp has the right version
@@ -156,14 +157,15 @@ void dependencyCheck()
             // Minimum swarp version required: 2.38.0
             int version = list[2].remove('.').toInt();
             if (version < 2380) {
-                swarpDep = "'swarp' v2.38.0 or later required.\nhttps://github.com/astromatic/swarp\nInstalled:  " + result + "\n";
+                swarpDep = "'swarp' v2.38.0 or later required.\n\nhttps://github.com/astromatic/swarp\nInstalled:  " + result + "\n";
                 ++missingDep;
             }
         }
     }
 
     if (sourceExtractor.isEmpty()) {
-        sourceExtractorDep = "'Source Extractor' v2.19.5 or later required (working binary names: 'source-extractor, sextractor, SExtractor, or sex').\nhttps://github.com/astromatic/sextractor\n";
+        sourceExtractorDep = "'Source Extractor' v2.19.5 or later required (working binary names: 'source-extractor', 'sextractor', 'SExtractor', or 'sex'), available from\nhttps://github.com/astromatic/sextractor\n";
+        ++missingDep;
     }
     else {
         // Check if Source Extractor has the right version
@@ -188,7 +190,7 @@ void dependencyCheck()
             // Minimum Source Extractor version required: 2.19.5
             int version = list[0].remove('.').toInt();
             if (version < 2195) {
-                sourceExtractorDep = "'Source Extractor' v2.19.5 or later required.\nhttps://github.com/astromatic/sextractor\nInstalled:  " + result + "\n";
+                sourceExtractorDep = "'Source Extractor' v2.19.5 or later required.\n\nhttps://github.com/astromatic/sextractor\nInstalled:  " + result + "\n";
                 ++missingDep;
             }
         }
