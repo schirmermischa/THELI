@@ -23,6 +23,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../functions.h"
 
 #include "libraw/libraw.h"
+#include "libraw/libraw_version.h"
 
 #include <QString>
 #include <QStringList>
@@ -67,7 +68,10 @@ void Splitter::importRAW()
     // Extract metadata
 #define P1 rawProcessor.imgdata.idata
 #define P2 rawProcessor.imgdata.other
+
+#if defined(LIBRAW_MAJOR_VERSION) && LIBRAW_MAJOR_VERSION == 0 && defined(LIBRAW_MINOR_VERSION) && LIBRAW_MINOR_VERSION >= 20
 #define P3 rawProcessor.imgdata.makernotes.common
+#endif
 
     QString timeStamp = ctime(&(P2.timestamp));
     timeStamp = timeStamp.simplified();
@@ -99,8 +103,13 @@ void Splitter::importRAW()
 
     mjdobsValue = dateobsToMJD();
     exptimeValue = P2.shutter;
+#if defined(LIBRAW_MAJOR_VERSION) && LIBRAW_MAJOR_VERSION == 0 && defined(LIBRAW_MINOR_VERSION) && LIBRAW_MINOR_VERSION >= 20
     sensorTemp = P3.SensorTemperature;
     cameraTemp = P3.CameraTemperature;
+#else
+    sensorTemp = P2.SensorTemperature;
+    cameraTemp = P2.CameraTemperature;
+#endif
     isoSpeed = QString::number(int(P2.iso_speed));
 
     // From RAW data (unreliable, because of potential trimming)

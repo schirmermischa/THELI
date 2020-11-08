@@ -316,6 +316,13 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
 
     // Loop over all exposures (consisting of n chips)
     int kernel = kernelWidth.toInt();
+    if (!kernel) {
+        // a kernel width of zero will cause a floating-point-exception
+        // in the calculation of grid points for background modelling
+        emit messageAvailable("Controller::skysubModel(): Kernel width is zero", "error");
+        criticalReceived();
+        return;
+    }
 
     // Create object masks (does not change pixels)
     progressStepSize = 50. / float(scienceData->exposureList.length());
@@ -417,6 +424,13 @@ void Controller::skysubConstantEachChip(Data *scienceData, QString DT, QString D
 
     // Loop over all exposures (consisting of n chips)
     int kernel = kernelWidth.toInt();
+    if (!kernel) {
+        // a kernel width of zero will cause a floating-point-exception
+        // in the calculation of grid points for background modelling
+        emit messageAvailable("Controller::skysubModel(): Kernel width is zero", "error");
+        criticalReceived();
+        return;
+    }
 
     pushBeginMessage("SkysubConst", scienceData->subDirName);
     pushConfigSkysubConst();
@@ -532,6 +546,13 @@ void Controller::skysubModel(Data *scienceData, QString DT, QString DMIN, QStrin
     pushConfigSkysubModel();
 
     int kernel = kernelWidth.toInt();
+    if (!kernel) {
+        // a kernel width of zero will cause a floating-point-exception
+        // in the calculation of grid points for background modelling
+        emit messageAvailable("Controller::skysubModel(): Kernel width is zero", "error");
+        criticalReceived();
+        return;
+    }
 
     /*
 #pragma omp parallel for num_threads(maxExternalThreads)
