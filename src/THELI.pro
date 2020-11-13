@@ -241,7 +241,7 @@ INSTALLS += python
 
 CONFIG += c++11
 
-#QMAKE_CXXFLAGS += -g
+# QMAKE_CXXFLAGS += -g
 unix:!macx {
     QMAKE_CXXFLAGS += -fopenmp
     QMAKE_LFLAGS  +=  -fopenmp

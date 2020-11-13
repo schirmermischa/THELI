@@ -212,6 +212,8 @@ private:
     int naxis1;
     int naxis2;
 
+    double rad = 3.1415926535 / 180.;
+
     bool fromMemory = false;
 
     struct wcsprm *wcs;

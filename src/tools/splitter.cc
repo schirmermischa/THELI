@@ -438,7 +438,7 @@ bool Splitter::isImageUsable(int &chipMapped)
 {
     if (instData.name == "NIRI@GEMINI") {
         QString value = "";
-        searchKeyValue(QStringList() << "DATALAB", value);       // FORS2_IMG141.43.CHIP1.fits or FORS2_IMG141.43.CHIP2.fits
+        searchKeyValue(QStringList() << "DATALAB", value);
         QStringList list = value.split('-');
         QString id = list.last();
         if (id == "001") {
@@ -461,7 +461,7 @@ int Splitter::inferChipID(int chip)
             || instData.name.contains("FORS2_E2V")
             || instData.name.contains("FORS2_MIT")) {
         QString value = "";
-        searchKeyValue(QStringList() << "ORIGFILE", value);       // FORS2_IMG141.43.CHIP1.fits or FORS2_IMG141.43.CHIP2.fits
+        searchKeyValue(QStringList() << "ORIGFILE", value);       // e.g. FORS2_IMG141.43.CHIP1.fits or FORS2_IMG141.43.CHIP2.fits
         QStringList valueList = value.split("CHIP");
         if (valueList.length() == 2) {
             value = valueList.at(1);

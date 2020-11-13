@@ -122,6 +122,8 @@ private:
     QString alpha_string = "";
     QString delta_string = "";
 
+    double rad = 3.1415926535 / 180.;
+
     int *verbosity;
 
     bool successProcessing = true;

@@ -1427,7 +1427,7 @@ double getPosAnglefromCD(double cd11, double cd12, double cd21, double cd22, boo
     // but at the moment i don't see how to identify the additional 2*PI easily
 
     double pa = 0.;
-    double PI = 3.15159265;
+    double PI = 3.1415926535;
 
     // normal
     if      (cd11 <  0 && cd12 <= 0 && cd21 <= 0 && cd22 >  0) pa = acos(-cd11);       //   0 <= phi <  90
@@ -1468,14 +1468,14 @@ double getPosAnglefromCD(double cd11, double cd12, double cd21, double cd22, boo
         }
     }
 
-    double rad = 3.14159265 / 180.;
+    double rad = PI / 180.;
     return (pa / rad);      // return in degrees
 }
 
 // Angles are always passed / returned in degrees
 void rotateCDmatrix(double &cd11, double &cd12, double &cd21, double &cd22, double PAnew)
 {
-    double rad = 3.14159265 / 180.;
+    double rad = 3.1415926535 / 180.;
 
     // the current position angle of the CD matrix
     double PAold = getPosAnglefromCD(cd11, cd12, cd21, cd22);
@@ -1494,8 +1494,8 @@ void rotateCDmatrix(double &cd11, double &cd12, double &cd21, double &cd22, doub
     matrix_mult_T(f11, f12, f21, f22, cd11, cd12, cd21, cd22);
 
     // rotate the matrix to the new position angle
-    double dPA = PAnew - PAold;
-    matrix_mult_T(cos(rad*dPA), -sin(rad*dPA), sin(rad*dPA), cos(rad*dPA), cd11, cd12, cd21, cd22);
+    double dPA = rad * (PAnew - PAold);
+    matrix_mult_T(cos(dPA), -sin(dPA), sin(dPA), cos(dPA), cd11, cd12, cd21, cd22);
 
     // flip the matrix
     matrix_mult_T(f11, f12, f21, f22, cd11, cd12, cd21, cd22);
@@ -1508,7 +1508,7 @@ void get_rotimsize(long naxis1, long naxis2, double PAold, double PAnew, long &N
     double m = naxis2;
     double r = 0.5 * sqrt(n*n+m*m) + 1.;
 
-    double rad = 3.14159265 / 180.;
+    double rad = 3.1415926535 / 180.;
     double phi = atan(m/n) / rad;
 
     QVector<double> xarr(4);

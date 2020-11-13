@@ -155,7 +155,7 @@ void Query::getCatalogSearchRadiusAstrom()
         crval1_min = minVec_T(corners_crval1);
         crval1_max = maxVec_T(corners_crval1);
     }
-    double crval1_radius = 60.*(crval1_max - crval1_min)*0.5*cos(delta*3.14159/180.);
+    double crval1_radius = 60. * (crval1_max - crval1_min) * 0.5 * cos(delta*rad); // in [arcmin]
 
     if (!radius_manual.isEmpty()) radius_string = radius_manual;
     else {
@@ -968,8 +968,8 @@ QString Query::extractRaDecMagAstrom(QString &line)
         float pm = sqrt(pmRA*pmRA+pmDE*pmDE);
         if (!maxProperMotion_string.isEmpty()) maxProperMotion = maxProperMotion_string.toFloat();
         // Correct coordinates for proper motion.
-        double pmRA_rescaled = pmRA/1000./3600./cos(dec_obj*3.14159265/180.);
-        double pmDE_rescaled = pmDE/1000./3600.;
+        double pmRA_rescaled = pmRA / 1000. / 3600. / cos(dec_obj*rad);
+        double pmDE_rescaled = pmDE / 1000. / 3600.;
         ra_obj = ra_obj + pmRA_rescaled * (epoch - epochReference);
         dec_obj = dec_obj + pmDE_rescaled * (epoch - epochReference);
         ra = QString::number(ra_obj, 'f', 9);
@@ -1027,8 +1027,8 @@ QString Query::extractRaDecGaia(QString &line)
     if (sn < 2.) return "";
 
     // Correct coordinates for proper motion.
-    double pmRA_rescaled = pmRA/1000./3600./cos(dec_obj*3.14159265/180.);
-    double pmDE_rescaled = pmDE/1000./3600.;
+    double pmRA_rescaled = pmRA / 1000. / 3600. / cos(dec_obj*rad);
+    double pmDE_rescaled = pmDE / 1000. / 3600.;
     ra_obj = ra_obj + pmRA_rescaled * (epoch - epochReference);
     dec_obj = dec_obj + pmDE_rescaled * (epoch - epochReference);
     ra = QString::number(ra_obj, 'f', 9);

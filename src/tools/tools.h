@@ -50,4 +50,6 @@ QVector<float> collapse_quad(QVector<float> &data, const QVector<bool> &globalMa
 void match2D(const QVector<QVector<double> > vec1, const QVector<QVector<double> > vec2, QVector<QVector<double>> &matched,
              double tolerance, int &multiple1, int &multiple2, int nthreads);
 
+double haversine(double ra1, double ra2, double dec1, double dec2);
+
 #endif // TOOLS_H

@@ -749,12 +749,14 @@ void DetectedObject::calcMagAuto()
     FLUXERR_AUTO = 0;
     float numMasked = 0.;
     float numTot = 0.;
+    bool badpixels = false;
     for (long j=jmin; j<=jmax; ++j) {
         float dy = Y - j;
         for (long i=imin; i<=imax; ++i) {
             float dx = X - i;
             // Work on pixels within auto_radius
             if (dx*dx + dy*dy < auto_radius*auto_radius) {
+                if (dataWeight.at(i+naxis1*j) == 0.) badpixels = true;
                 // With global mask
                 if (globalMaskAvailable) {
                     if (!mask.at(i+naxis1*j)) {
@@ -781,6 +783,8 @@ void DetectedObject::calcMagAuto()
     if (FLUX_AUTO > 0) MAGERR_AUTO = 2.5*log10(1.+FLUXERR_AUTO/FLUX_AUTO);
 
     if (numMasked / numTot > 0.1) FLAGS += 1;
+    if (badpixels) FLAGS += 16;
+
 }
 
 void DetectedObject::filterSpuriousDetections()

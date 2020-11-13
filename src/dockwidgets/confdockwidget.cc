@@ -657,7 +657,7 @@ void ConfDockWidget::on_COAskypaPushButton_clicked()
             && !cd12.isEmpty()
             && !cd21.isEmpty()
             && !cd22.isEmpty()) {
-        double skyPA = getPosAnglefromCD(cd11.toDouble(), cd12.toDouble(), cd21.toDouble(), cd22.toDouble());
+        double skyPA = getPosAnglefromCD(cd11.toDouble(), cd12.toDouble(), cd21.toDouble(), cd22.toDouble());   // in [deg]
         // Truncate the result to one digit
         QString skyPAstring = QString::number(skyPA, 'f', 1);
         ui->COAskypaLineEdit->setText(skyPAstring);

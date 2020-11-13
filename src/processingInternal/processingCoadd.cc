@@ -401,7 +401,7 @@ void Controller::coaddPrepareProjectPM(QFile &headerFileOld, QString newHeaderNa
 
     // Calculate speed in CRVAL1/2 per minute
     double crval2 = refDE.toDouble();
-    double crval1Speed = pmRA / 3600. / timeConversion / cos(crval2*3.14159/180.);
+    double crval1Speed = pmRA / 3600. / timeConversion / cos(crval2*rad);
     double crval2Speed = pmDE / 3600. / timeConversion;
 
     // How many minutes passed since the first image was taken
@@ -498,8 +498,8 @@ void Controller::coaddPrepareProjectRotation()
     double cd12 = coaddScienceData->myImageList[0][0]->wcs->cd[1];
     double cd21 = coaddScienceData->myImageList[0][0]->wcs->cd[2];
     double cd22 = coaddScienceData->myImageList[0][0]->wcs->cd[3];
-    double PAold = -1. * getPosAnglefromCD(cd11, cd12, cd21, cd22);
-    double PAnew = cdw->ui->COAskypaLineEdit->text().toDouble();
+    double PAold = -1. * getPosAnglefromCD(cd11, cd12, cd21, cd22);      // in [deg]
+    double PAnew = cdw->ui->COAskypaLineEdit->text().toDouble();         // in [deg]
 
     rotateCDmatrix(cd11_coadd, cd12_coadd, cd21_coadd, cd22_coadd, PAnew);
     long naxis1New = 0;

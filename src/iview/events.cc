@@ -179,8 +179,6 @@ double IView::haversine(double x1, double y1, double x2, double y2)
     double pixcrd[2];
     int  	stat[1];
 
-    double rad = 3.1415926535 / 180.;
-
     // Get alpha / delta for the first point
     pixcrd[0] = x1;
     pixcrd[1] = y1;

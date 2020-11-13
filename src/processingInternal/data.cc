@@ -1849,7 +1849,7 @@ bool Data::getPointingCharacteristics()
         crval1Min = minVec_T(crval1Vertex);
         crval1Max = maxVec_T(crval1Vertex);
     }
-    double crval1Radius = 60.*(crval1Max - crval1Min) / 2. * cos(DECcenter*3.14159/180.);
+    double crval1Radius = 60.*(crval1Max - crval1Min) / 2. * cos(DECcenter*rad);
 
     // Maximum search radius, plus 10% safety margin
     searchRadius = 1.1*sqrt(crval1Radius*crval1Radius + crval2Radius*crval2Radius);
@@ -2008,7 +2008,6 @@ void Data::doImagesOverlap(const MyImage &imgRef, MyImage &imgTest, const float 
 {
     if (!successProcessing) return;
 
-    double rad = 3.1415926535 / 180.;
     double alpha1 = rad * imgRef.wcs->crval[0];
     double delta1 = rad * imgRef.wcs->crval[1];
     double alpha2 = rad * imgTest.wcs->crval[0];

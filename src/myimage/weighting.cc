@@ -148,7 +148,7 @@ void MyImage::roundEdgeOfWeight(float edge, bool roundEdge)
                 }
             }
             if (d <= edge) {
-                dataWeightSmooth[i+naxis1*j] = 0.5*(-cos(d/edge*3.14159) +1.) * dataWeight.at(i+naxis1*j);
+                dataWeightSmooth[i+naxis1*j] = 0.5*(1.-cos(d/edge*3.14159)) * dataWeight.at(i+naxis1*j);
             }
         }
     }

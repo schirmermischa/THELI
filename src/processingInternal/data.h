@@ -85,6 +85,8 @@ public:
     bool userStop = false;
     bool userKill = false;
 
+    double rad = 3.1415926535 / 180.;
+
     omp_lock_t progressLock;
 
     float *progress;

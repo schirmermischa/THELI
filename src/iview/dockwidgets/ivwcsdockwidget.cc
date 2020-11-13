@@ -128,8 +128,8 @@ void IvWCSDockWidget::on_plateScaleSlider_sliderMoved(int position)
 void IvWCSDockWidget::on_posAngleSlider_sliderMoved(int position)
 {
     QSlider *slider = qobject_cast<QSlider*>(sender());
-    double oldPA = getPosAnglefromCD(cd11_orig, cd12_orig, cd21_orig, cd22_orig, false);
-    double newPA = oldPA + translatePosAngleSlider(position, slider->maximum());
+    double oldPA = getPosAnglefromCD(cd11_orig, cd12_orig, cd21_orig, cd22_orig, false);  // in [deg]
+    double newPA = oldPA + translatePosAngleSlider(position, slider->maximum());          // in [deg]
     cd11 = cd11_orig;
     cd12 = cd12_orig;
     cd21 = cd21_orig;
@@ -162,7 +162,7 @@ void IvWCSDockWidget::updateLineEdits()
     QString pscale = QString::number(0.5*(pscale1+pscale2)*3600., 'f', 6);
     ui->plateScaleLineEdit->setText(pscale);
 
-    QString PA = QString::number(getPosAnglefromCD(cd11, cd12, cd21, cd22), 'f', 2);
+    QString PA = QString::number(getPosAnglefromCD(cd11, cd12, cd21, cd22), 'f', 2); // in [deg]
     ui->posAngleLineEdit->setText(PA);
 }
 

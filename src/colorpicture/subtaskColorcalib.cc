@@ -144,12 +144,22 @@ void ColorPicture::colorCalibMatchCatalogs()
     double tolerance;
     tolerance = (imageR->matchingTolerance + imageG->matchingTolerance) / 2.;
     QVector<QVector<double>> matchedRG;
-    match2D(objDatR, objDatG, matchedRG, tolerance, multipleR, multipleG, maxCPU);
+
+//    for (int i=0; i<objDatB.length(); ++i) qDebug() << qSetRealNumberPrecision(12) << "B" << objDatB.at(i)[1] << objDatB.at(i)[0];
+//    for (int i=0; i<objDatG.length(); ++i) qDebug() << qSetRealNumberPrecision(12) << "G" << objDatG.at(i)[1] << objDatG.at(i)[0];
+//    for (int i=0; i<objDatR.length(); ++i) qDebug() << qSetRealNumberPrecision(12) << "R" << objDatR.at(i)[1] << objDatR.at(i)[0];
+
+//    match2D(objDatR, objDatG, matchedRG, tolerance, multipleR, multipleG, maxCPU);
+    match2D(objDatR, objDatG, matchedRG, tolerance, multipleR, multipleG, 0);
+
+    emit messageAvailable("Total of RG  " + QString::number(matchedRG.length()) + " " + QString::number(tolerance*3600/1.8), "ignore");
 
     // Match R+G with B
     tolerance = (imageR->matchingTolerance + imageB->matchingTolerance) / 2.;
     QVector<QVector<double>> matchedRGB;
     match2D(matchedRG, objDatB, matchedRGB, tolerance, multipleR, multipleB, maxCPU);
+
+    emit messageAvailable("Total of RGB " + QString::number(matchedRGB.length()) + " " + QString::number(tolerance*3600/1.8), "ignore");
 
     // Extract AVGWHITE color correction factors
     QVector<double> rCorr;   // red correction factors wrt. green channel

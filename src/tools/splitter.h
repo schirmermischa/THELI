@@ -114,6 +114,8 @@ private:
     long naxis2 = 0;
     long naxis3 = 0;
 
+    double rad = 3.1415926535 / 180.;
+
     long numAmpPerChip = 1;            // The number of amplifiers per detector
     bool ampInSeparateExt = false;     // Whether the data from an amplifier is in a separate FITS extension (e.g., GMOS Hamamatsu, but not for SuprimeCam-2008)
 
@@ -156,7 +158,7 @@ private:
 
     float chipGain = 1.0;       // effective gain for this detector (could be computed for multi-amp detectors)
 
-    double positionAngle = 0.0;
+    double positionAngle = 0.0; // in [deg]
     float exptimeValue = 0.0;   // header keyword value to calculate other keywords
     float lstValue = 0.0;       // header keyword value to calculate other keywords
     double mjdobsValue = 0.0;   // header keyword value to calculate other keywords

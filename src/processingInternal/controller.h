@@ -111,6 +111,8 @@ private:
 
     long splitterMemoryUsed = 0;
 
+    double rad = 3.1415926535 / 180.;
+
     QString statusAtDistribute = "";
 
     instrumentDataType altInstData;   // For instruments with e.g. simultaneous optical and NIR detectors requiring different masks during HDU reformatting

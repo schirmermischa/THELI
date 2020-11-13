@@ -365,17 +365,17 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
 void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, const QVector<long> &section, const float corrFactor,
                             const long nT, const long mT, const long nS)
 {
-    long iminS = section[0];
-    long imaxS = section[1];
-    long jminS = section[2];
-    long jmaxS = section[3];
+    long iminS = section.at(0);
+    long imaxS = section.at(1);
+    long jminS = section.at(2);
+    long jmaxS = section.at(3);
 
     // The x- and y-offsets for the illuminated sections. Calculated by taking the lower x (or y) value,
     // and checking how many equally sized sections can fit (safe, as we have usually not more than 4 sections, and the overscan areas are comparatively small)
-    long sizex = section[1] - section[0] + 1;     // section x-size
-    long sizey = section[3] - section[2] + 1;     // section y-size
-    long nsecx = section[0] / sizex;              // number of sections found to the left, using integer division
-    long nsecy = section[2] / sizey;              // number of sections found below the botton, using integer division
+    long sizex = section.at(1) - section.at(0) + 1;     // section x-size
+    long sizey = section.at(3) - section.at(2) + 1;     // section y-size
+    long nsecx = section.at(0) / sizex;              // number of sections found to the left, using integer division
+    long nsecy = section.at(2) / sizey;              // number of sections found below the botton, using integer division
     long offx = nsecx * sizex;                    // The offset for the current section in the pasted output geometry
     long offy = nsecy * sizey;                    // The offset for the current section in the pasted output geometry
 

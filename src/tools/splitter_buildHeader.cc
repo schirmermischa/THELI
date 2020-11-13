@@ -318,7 +318,7 @@ bool Splitter::individualFixCRVAL()
         double alpha = crval1.toDouble();
         double delta = crval2.toDouble();
         // reset the coordinates such that scamp does not get confused (optical axis != crpix by ~4 arcminutes)
-        alpha = alpha - 0.0733/cos(delta*3.14159/180.);
+        alpha = alpha - 0.0733 / cos(delta*rad);
         if (alpha > 360.) alpha -= 360.;
         if (alpha < 0.) alpha += 360.;
         delta = delta - 0.02907;
@@ -1036,14 +1036,13 @@ double Splitter::dateobsToLST()
 
 double Splitter::localSiderealTimeToAirmass()
 {
-    const double RAD = 3.14159265/180.;
     double LSTbegin = lstValue;
     double LSTmiddle = lstValue + 0.5 * exptimeValue;
     double LSTend = lstValue + exptimeValue;
     // double lst = lstValue * RAD;
-    double hourangle_begin = (LSTbegin/240.) * RAD - crval1 * RAD;
-    double hourangle_middle = (LSTmiddle/240.) * RAD - crval1 * RAD;
-    double hourangle_end = (LSTend/240.) * RAD - crval1 * RAD;
+    double hourangle_begin = (LSTbegin/240. - crval1) * rad;
+    double hourangle_middle = (LSTmiddle/240. - crval1) * rad;
+    double hourangle_end = (LSTend/240. - crval1) * rad;
 
     // The effective airmass is estimated using the 'mean airmass' estimator in
     // "Some Factors Affecting the Accuracy of Stellar Photometry with CCDs" (P. Stetson, DAO preprint, September 1988)
@@ -1056,16 +1055,15 @@ double Splitter::localSiderealTimeToAirmass()
     return airmass;
 }
 
+// ahourangle is already in [rad]
 double Splitter::calcAirmass(double ahourangle)
 {
-    const double RAD = 3.14159265/180.;
-
     double sh = sin(ahourangle);
     double ch = cos(ahourangle);
-    double sd = sin(crval2 * RAD);
-    double cd = cos(crval2 * RAD);
-    double sp = sin(instData.obslat * RAD);
-    double cp = cos(instData.obslat * RAD);
+    double sd = sin(crval2 * rad);
+    double cd = cos(crval2 * rad);
+    double sp = sin(instData.obslat * rad);
+    double cp = cos(instData.obslat * rad);
     double x = ch*cd*sp - sd*cp;
     double y = sh*cd;
     double z = ch*cd*cp + sd*sp;

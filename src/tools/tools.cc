@@ -87,12 +87,15 @@ QVector<int> CDmatrixToTransformationMatrix(QVector<double> CD, QString instName
 }
 
 // Rotate a CD matrix to a new position angle
+// input angle in [deg]
 void rotateCDmatrix(QVector<double> &CD, float pa_new)
 {
     double cd11 = CD[0];
     double cd12 = CD[1];
     double cd21 = CD[2];
     double cd22 = CD[3];
+
+    double rad = 3.1415926535 / 180.;
 
     // is the matrix flipped (det(CD) > 0 if flipped)
     double det = cd11*cd22 - cd12*cd21;
@@ -108,9 +111,9 @@ void rotateCDmatrix(QVector<double> &CD, float pa_new)
 
     // rotate the matrix to the new position angle
     // the current position angle of the CD matrix
-    double pa_old = posangle(CD);
-    matrixMult_T(cos(pa_new-pa_old), -sin(pa_new-pa_old), sin(pa_new-pa_old), cos(pa_new-pa_old),
-                 cd11, cd12, cd21, cd22);
+    double pa_old = posangle(CD);  // in [deg]
+    double pa_diff = rad * (pa_new - pa_old);
+    matrixMult_T(cos(pa_diff), -sin(pa_diff), sin(pa_diff), cos(pa_diff), cd11, cd12, cd21, cd22);
 
     // flip the matrix
     matrixMult_T(f11, f12, f21, f22, cd11, cd12, cd21, cd22);
@@ -121,7 +124,7 @@ void rotateCDmatrix(QVector<double> &CD, float pa_new)
     CD[3] = cd22;
 }
 
-// Get the position angle of a CD matrix
+// Get the position angle of a CD matrix [deg]
 float posangle(const QVector<double> CD)
 {
     double cd11 = CD[0];
@@ -155,8 +158,8 @@ float posangle(const QVector<double> CD)
 
     // possibly, the following could be simplified with det(CD),
     // but at the moment I don't see how to identify the additional 2*PI easily
-    float pa;
-    float PI = 3.14159;
+    double pa;
+    double PI = 3.1415926535;
 
     // normal
     if      (cd11 <  0 && cd12 <= 0 && cd21 <= 0 && cd22 >  0) pa = acos(-cd11);       //   0 <= phi <  90
@@ -196,7 +199,8 @@ float posangle(const QVector<double> CD)
         }
     }
 
-    return pa;
+    double rad = PI / 180.;
+    return pa / rad;
 }
 
 // Calculate binned image (using median filter)
@@ -486,8 +490,23 @@ void sort2DVector(QVector<QVector<double>> data)
     );
 }
 
+// returns distance between two points on the sky [deg]
+double haversine(double ra1, double ra2, double dec1, double dec2)
+{
+    double rad = 3.1415926535 / 180.;
+    ra1 *= rad;
+    ra2 *= rad;
+    dec1 *= rad;
+    dec2 *= rad;
+    double ddec = dec2 - dec1;
+    double dra = ra2 - ra1;
+    return 2. * asin( sqrt( pow(sin(ddec/2.),2) + cos(dec1) * cos(dec2) * pow(sin(dra/2.),2) ) ) / rad;
+}
+
+
 // Copy magnitudes and mag errors from a {DEC, RA, <MAG>, <MAGERR>} vector to another {DEC, RA, <MAG>, <MAGERR>} vector (matching)
 // <MAG> can be one or more numbers, e.g. 2 ref mags, or several aperture mags
+// tolerance is in [deg]
 void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>> vec2, QVector<QVector<double>> &matched,
              double tolerance, int &multiple1, int &multiple2, int nthreads)
 {
@@ -499,7 +518,100 @@ void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>>
     long dim1 = vec1.length();  // Objects
     long dim2 = vec2.length();  // Reference sources
 
-    double tolsq = tolerance*tolerance;
+    matched.reserve(dim1);
+
+    QVector<int> numMatched1;
+    QVector<int> numMatched2;
+    numMatched1.fill(0, dim1);  // How many times an object got matched with different reference sources
+    numMatched2.fill(0, dim2);  // How many times a reference source got matched with different objects
+
+    omp_lock_t lock;
+    omp_init_lock(&lock);
+
+    /*
+    // First pass: identify ambiguous sources and references
+    //#pragma omp parallel for num_threads(nthreads)
+    for (long i=0; i<dim1; ++i) {
+        bool inside_previous = false;
+        bool inside_current = false;
+        for (long j=0; j<dim2; ++j) {
+            // calc DEC offset and see if we are "within reach" (list is sorted with respect to DEC)
+            double ddec = fabs(vec2.at(j)[0] - vec1.at(i)[0]);
+            if (ddec < tolerance) inside_current = true;
+            else inside_current = false;
+
+            // Leave if we passed the plausible matching zone ("zone" refers to the range in the sorted list that could match)
+            //           if (inside_previous && !inside_current) break;
+
+            if (inside_current) {
+                // distance between the two points (in [deg])
+                double distance = haversine(vec2.at(j)[1], vec1.at(i)[1], vec2.at(j)[0], vec1.at(i)[0]);
+                if (distance < tolerance) {
+                    ++numMatched1[i];
+                    ++numMatched2[j];
+                }
+            }
+            inside_previous = inside_current;
+        }
+    }
+
+    multiple1 = 0;
+    multiple2 = 0;
+    for (auto &mult : numMatched1) {
+        if (mult>1) ++multiple1;
+    }
+    for (auto &mult : numMatched2) {
+        if (mult>1) ++multiple2;
+    }
+    */
+
+    // Second pass, match unambiguous sources, only
+#pragma omp parallel for num_threads(nthreads)
+    for (long i=0; i<dim1; ++i) {
+        //        if (numMatched1[i] > 1) continue;
+        bool inside_previous = false;
+        bool inside_current = false;
+        QVector<double> dummy;
+        for (long j=0; j<dim2; ++j) {
+            // distance between the two points (in [deg])
+            double distance = haversine(vec2.at(j)[1], vec1.at(i)[1], vec2.at(j)[0], vec1.at(i)[0]);
+//            if (nthreads == 0) qDebug() << qSetRealNumberPrecision(10) << vec2.at(j)[1] << vec1.at(i)[1] << vec2.at(j)[0] << vec1.at(i)[0] << distance << tolerance;
+            if (distance < tolerance) {
+                dummy << vec1.at(i)[0]; // RA OBJ
+                dummy << vec1.at(i)[1]; // DEC OBJ
+                for (int k=2; k<vec2.at(j).length(); ++k) {
+                    dummy << vec2.at(j)[k]; // MAG and MAGERR for reference sources
+                }
+                for (int k=2; k<vec1.at(i).length(); ++k) {
+                    dummy << vec1.at(i)[k]; // MAG and MAGERR for objects
+                }
+#pragma omp critical
+                {
+                    matched.append(dummy);
+                }
+            }
+            inside_previous = inside_current;
+        }
+    }
+
+    omp_destroy_lock(&lock);
+}
+
+/*
+// Copy magnitudes and mag errors from a {DEC, RA, <MAG>, <MAGERR>} vector to another {DEC, RA, <MAG>, <MAGERR>} vector (matching)
+// <MAG> can be one or more numbers, e.g. 2 ref mags, or several aperture mags
+// tolerance is in [deg]
+void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>> vec2, QVector<QVector<double>> &matched,
+             double tolerance, int &multiple1, int &multiple2, int nthreads)
+{
+    if (vec1.isEmpty() || vec2.isEmpty()) return;
+
+    // Only the reference vector needs to be sorted, using the first column (DEC)
+    sort2DVector(vec2);
+
+    long dim1 = vec1.length();  // Objects
+    long dim2 = vec2.length();  // Reference sources
+
     matched.reserve(dim1);
 
     QVector<int> numMatched1;
@@ -516,22 +628,20 @@ void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>>
         bool inside_previous = false;
         bool inside_current = false;
         for (long j=0; j<dim2; ++j) {
-            // calc DEC offset and see if we are "within reach"
+            // calc DEC offset and see if we are "within reach" (list is sorted with respect to DEC)
             double ddec = fabs(vec2.at(j)[0] - vec1.at(i)[0]);
-            //            if (i<5 && j<5) qDebug() << vec2.at(j)[0] << vec1.at(i)[0] << ddec;
             if (ddec < tolerance) inside_current = true;
             else inside_current = false;
 
-            // Leave if we passed the plausible matching zone
+            // Leave if we passed the plausible matching zone ("zone" refers to the range in the sorted list that could match)
             if (inside_previous && !inside_current) break;
 
             if (inside_current) {
-                double dra = fabs(vec2.at(j)[1] - vec1.at(i)[1]) * cos(vec2.at(j)[0]);
-                if (dra < tolerance) {
-                    if (dra*dra + ddec*ddec < tolsq) {
-                        ++numMatched1[i];
-                        ++numMatched2[j];
-                    }
+                // distance between the two points (in [deg])
+                double distance = haversine(vec2.at(j)[1], vec1.at(i)[1], vec2.at(j)[0], vec1.at(i)[0]);
+                if (distance < tolerance) {
+                    ++numMatched1[i];
+                    ++numMatched2[j];
                 }
             }
             inside_previous = inside_current;
@@ -565,21 +675,20 @@ void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>>
             if (inside_previous && !inside_current) break;
 
             if (inside_current) {
-                double dra = fabs(vec2.at(j)[1] - vec1.at(i)[1]) * cos(vec2.at(j)[0]);
-                if (dra < tolerance) {
-                    if (dra*dra + ddec*ddec < tolsq) {
-                        dummy << vec1.at(i)[0]; // RA OBJ
-                        dummy << vec1.at(i)[1]; // DEC OBJ
-                        for (int k=2; k<vec2.at(j).length(); ++k) {
-                            dummy << vec2.at(j)[k]; // MAG and MAGERR for reference sources
-                        }
-                        for (int k=2; k<vec1.at(i).length(); ++k) {
-                            dummy << vec1.at(i)[k]; // MAG and MAGERR for objects
-                        }
+                // distance between the two points (in [deg])
+                double distance = haversine(vec2.at(j)[1], vec1.at(i)[1], vec2.at(j)[0], vec1.at(i)[0]);
+                if (distance < tolerance) {
+                    dummy << vec1.at(i)[0]; // RA OBJ
+                    dummy << vec1.at(i)[1]; // DEC OBJ
+                    for (int k=2; k<vec2.at(j).length(); ++k) {
+                        dummy << vec2.at(j)[k]; // MAG and MAGERR for reference sources
+                    }
+                    for (int k=2; k<vec1.at(i).length(); ++k) {
+                        dummy << vec1.at(i)[k]; // MAG and MAGERR for objects
+                    }
 #pragma omp critical
-                        {
-                            matched.append(dummy);
-                        }
+                    {
+                        matched.append(dummy);
                     }
                 }
             }
@@ -589,3 +698,4 @@ void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>>
 
     omp_destroy_lock(&lock);
 }
+*/
