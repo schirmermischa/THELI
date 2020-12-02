@@ -283,13 +283,13 @@ void Splitter::applyMask(int chip)
 
     if (!MEFpastingFinished) return;
     else {
-        // Must reset 'chip' such that it counts true CCDs, not the etxnesions with the individual amplifiers (e.g., for GMOS)
+        // Must reset 'chip' such that it counts true CCDs, not the extensions with the individual amplifiers (e.g., for GMOS and SOI)
         chip = chip / numAmpPerChip;
     }
 
-    if (instData.name == "LIRIS_POL@WHT") return;     // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
+    if (instData.name == "LIRIS_POL@WHT") return;           // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
     //    if (instData.name == "GROND_NIR@MPGESO") return;  // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
-    if (instNameFromData == "GROND_NIR@MPGESO") return;  // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
+    if (instNameFromData == "GROND_NIR@MPGESO") return;     // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
 
     if (*verbosity > 1) emit messageAvailable(baseName + " : Applying mask ...", "image");
 
@@ -431,7 +431,7 @@ void Splitter::convertToElectrons(int chip)
         return;
     }
     if (multiChannelMultiExt.contains(instData.name)) {
-        // GMOS
+        // GMOS, SOI
         return;
     }
 

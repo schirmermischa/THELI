@@ -359,7 +359,6 @@ bool Splitter::individualFixCRPIX(int chip)
     if (!multiChannelMultiExt.contains(instData.name)) return false;
 
     // Prepare fix.
-    // First, read coords and fix format (sometimes we have 'HH MM SS' instead of 'HH:MM:SS')
     // Convert to decimal format if necessary
     searchKeyValue(headerDictionary.value("CRPIX1"), crpix1);
     searchKeyValue(headerDictionary.value("CRPIX2"), crpix2);
@@ -382,6 +381,13 @@ bool Splitter::individualFixCRPIX(int chip)
         if (chip == 7) crpix1_card = "CRPIX1  = 544";
         if (chip == 11) crpix1_card = "CRPIX1  = -502";
         crpix2_card = "CRPIX2  = 1152";
+        individualFixDone = true;
+    }
+
+    if (instData.name == "SOI@SOAR") {
+        if (chip == 1) crpix1_card = "CRPIX1  = 1051";
+        if (chip == 3) crpix1_card = "CRPIX1  = -26";
+        crpix2_card = "CRPIX2  = 1024";
         individualFixDone = true;
     }
 
@@ -768,6 +774,10 @@ bool Splitter::individualFixGAIN(int chip)
         individualFixDone = true;
     }
     else if (instData.name.contains("GMOS-N-HAM") || instData.name.contains("GMOS-S-HAM")) {
+        chipGain = harmonicGain(multiportGains);
+        individualFixDone = true;
+    }
+    else if (instData.name.contains("SOI@SOAR")) {
         chipGain = harmonicGain(multiportGains);
         individualFixDone = true;
     }

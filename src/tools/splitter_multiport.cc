@@ -287,6 +287,35 @@ void Splitter::getMultiportInformation(int chip)
         individualFixDone = true;
     }
 
+    if ( instData.name == "SOI@SOAR") {
+        naxis1 = 1024;
+        naxis2 = 2048;
+
+        int naxis1channel = 0;
+        int naxis2channel = 0;
+        searchKeyValue(QStringList() << "NAXIS1", naxis1channel);
+        searchKeyValue(QStringList() << "NAXIS2", naxis2channel);
+        multiportOverscanDirections << "vertical";
+        multiportOverscanSections << extractVerticesFromKeyword("BIASSEC");      // given in binned units in the header
+        multiportIlluminatedSections << extractVerticesFromKeyword("DATASEC");   // given in binned units in the header
+        QVector<long> channelSection;
+        channelSection << 0 << naxis1channel - 1 << 0 << naxis2channel - 1;
+        multiportChannelSections << channelSection;                              // "DETSEC" has the illuminated section in CCD coordinates
+        if (chip == 0 || chip == 2) dataPasted.resize(naxis1 * naxis2);
+
+        float gainValue = 2.0;
+        // Accurate amplifier gains are not available in the FITS headers
+        if (chip == 0)       gainValue = 2.0;
+        else if (chip == 1)  gainValue = 2.0;
+        else if (chip == 2)  gainValue = 2.0;
+        else if (chip == 3)  gainValue = 2.0;
+
+        multiportGains << gainValue;
+        channelGains.clear();
+        channelGains << 1.0;   // dummy;
+        individualFixDone = true;
+    }
+
     // If any instrument-specific stuff happened above, then we do a consistency check
     if (individualFixDone) {
         //        if (multiportGains.length() != multiportOverscanSections.length()              // crashes GROND-NIR data
@@ -338,24 +367,45 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
             ++channel;
         }
     }
-    // Individual exceptions (currently: GMOS only)
+    // Individual exceptions (currently: GMOS, SOI only)
     else {
         int channel = 0;
-        for (auto &section : multiportIlluminatedSections) {
-            if (section.length() != 4) continue; // skip wrong vertices, for whatever reason they might be here
-            long offx = (chip % 4) * naxis1 / 4;
-            long offy = 0;
-            pasteSubArea(dataPasted, dataRaw, multiportIlluminatedSections[channel], multiportGains[channel],
-                         offx, offy, naxis1, naxis2, naxis1Raw);
-            ++channel;
+
+        if (numAmpPerChip == 2) {     // SOI@SOAR
+            for (auto &section : multiportIlluminatedSections) {
+                if (section.length() != 4) continue; // skip wrong vertices, for whatever reason they might be here
+                long offx = (chip % 2) * naxis1 / 2;
+                long offy = 0;
+                pasteSubArea(dataPasted, dataRaw, multiportIlluminatedSections[channel], multiportGains[channel],
+                             offx, offy, naxis1, naxis2, naxis1Raw);
+                ++channel;
+            }
+            if (chip == 1 || chip == 3) {
+                // all channels have been pasted. Transfer the data to dataCurrent.
+                MEFpastingFinished = true;
+                dataCurrent.swap(dataPasted);
+                dataPasted.clear();
+                dataPasted.squeeze();
+                dataCurrent.squeeze();
+            }
         }
-        if (chip == 3 || chip == 7 || chip == 11) {
-            // all channels have been pasted. Transfer the data to dataCurrent.
-            MEFpastingFinished = true;
-            dataCurrent.swap(dataPasted);
-            dataPasted.clear();
-            dataPasted.squeeze();
-            dataCurrent.squeeze();
+        else if (numAmpPerChip == 4) {     // GMOS
+            for (auto &section : multiportIlluminatedSections) {
+                if (section.length() != 4) continue; // skip wrong vertices, for whatever reason they might be here
+                long offx = (chip % 4) * naxis1 / 4;
+                long offy = 0;
+                pasteSubArea(dataPasted, dataRaw, multiportIlluminatedSections[channel], multiportGains[channel],
+                             offx, offy, naxis1, naxis2, naxis1Raw);
+                ++channel;
+            }
+            if (chip == 3 || chip == 7 || chip == 11) {
+                // all channels have been pasted. Transfer the data to dataCurrent.
+                MEFpastingFinished = true;
+                dataCurrent.swap(dataPasted);
+                dataPasted.clear();
+                dataPasted.squeeze();
+                dataCurrent.squeeze();
+            }
         }
     }
 }
@@ -493,4 +543,8 @@ void Splitter::updateMEFpastingStatus(int chip)
     if (instData.name.contains("GMOS")) {
         if (chip == 3 || chip == 7 || chip == 11) MEFpastingFinished = true;
     }
+    if (instData.name == "SOI@SOAR") {
+        if (chip == 1 || chip == 3) MEFpastingFinished = true;
+    }
+
 }

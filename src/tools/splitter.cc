@@ -237,13 +237,16 @@ void Splitter::extractImages()
     emit messageAvailable(fileName + " : HDU reformatting, low-level pixel processing ...", "image");
 
     // adjust progress step size for multi-chip cameras whose detectors are stored in single extension FITS files
+    // (i.e. raw data does not come as a MEF but as separate FITS files)
     QStringList instruments = {"FORS1_E2V_2x2@VLT", "FORS2_E2V_2x2@VLT", "FORS2_MIT_1x1@VLT", "FORS2_MIT_2x2@VLT", "FourStar@LCO",
                                "MOIRCS_200406-201006@SUBARU", "MOIRCS_201007-201505@SUBARU", "MOIRCS_201512-today@SUBARU",
                                "SPARTAN@SOAR", "SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808-201705@SUBARU",
                                "SuprimeCam_200808-201705_SDFRED@SUBARU", "VIMOS@VLT"};
 
     // multiple readout channels in different FITS extensions
-    multiChannelMultiExt << "GMOS-N-HAM@GEMINI" <<  "GMOS-N-HAM_1x1@GEMINI" << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI";
+    multiChannelMultiExt << "GMOS-N-HAM@GEMINI" << "GMOS-N-HAM_1x1@GEMINI"
+                         << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI"
+                         << "SOI@SOAR";
     if (multiChannelMultiExt.contains(instData.name)) ampInSeparateExt = true;
 
     if (instruments.contains(instData.name)) {
@@ -722,6 +725,7 @@ void Splitter::getNumberOfAmplifiers()
     if (!successProcessing) return;
 
     numAmpPerChip = 1;     // The number of amplifiers forming data for a single detector. Always 1, unless stored in separate FITS extensions
+
     if (instData.name.contains("GMOS-N-HAM") || instData.name.contains("GMOS-S-HAM")) {
         // update numAmpPerChip with NAMPS keyword
         fits_read_key_lng(rawFptr, "NAMPS", &numAmpPerChip, nullptr, &rawStatus);
@@ -731,10 +735,15 @@ void Splitter::getNumberOfAmplifiers()
             rawStatus = 0;
         }
     }
+    if (instData.name == "SOI@SOAR") {
+        numAmpPerChip = 2;
+        rawStatus = 0;
+    }
 
     // multiple readout channels in different FITS extensions
     multiChannelMultiExt << "GMOS-N-HAM@GEMINI" <<  "GMOS-N-HAM_1x1@GEMINI"
-                         << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI";
+                         << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI"
+                         << "SOI@SOAR";
     if (multiChannelMultiExt.contains(instData.name)) ampInSeparateExt = true;
 
     if (numAmpPerChip > 1 && ampInSeparateExt) {
@@ -787,6 +796,10 @@ void Splitter::writeImage(int chipMapped)
             if (chipMapped == 3) chipID = 1;
             if (chipMapped == 7) chipID = 2;
             if (chipMapped == 11) chipID = 3;
+        }
+        if (instData.name == "SOI@SOAR") {
+            if (chipMapped == 1) chipID = 1;
+            if (chipMapped == 3) chipID = 2;
         }
         MEFpastingFinished = false;
     }
