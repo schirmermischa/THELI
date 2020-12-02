@@ -123,5 +123,16 @@ void Controller::populateFilterDictionary()
     filterDictionary.insert("grond_r", "r");
     filterDictionary.insert("grond_i", "i");
     filterDictionary.insert("grond_z", "z");
+    // MOSCA@NOT
+    filterDictionary.insert("U_Bes361_62", "U");
+    filterDictionary.insert("B_Bes428_108", "B");
+    filterDictionary.insert("V_Bes536_89", "V");
+    filterDictionary.insert("R_Bes646_124", "R");
+    filterDictionary.insert("I_int817_163", "I");
+    filterDictionary.insert("u_SDSS353_55", "u");
+    filterDictionary.insert("g_SDSS480_145", "g");
+    filterDictionary.insert("r_SDSS618_148", "r");
+    filterDictionary.insert("i_SDSS771_171", "i");
+    filterDictionary.insert("z_SDSS832_LP", "z");
 //    filterDictionary.insert(, );
 }

@@ -872,7 +872,7 @@ void Splitter::buildTheliHeaderFILTER()
                 // Loop over list of possible key names to find match
                 if (keyName == possibleKey) {
                     QString filterName = card.split("=")[1];
-                    if (filterName.contains("'")) {
+                    if (filterName.contains("'")) {           // FILTER keyword is a string starting with a single quote
                         filterName = filterName.split("'").at(1);
                     }
                     else {
