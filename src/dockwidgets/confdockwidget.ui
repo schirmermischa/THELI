@@ -472,7 +472,7 @@
        <number>1</number>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="HDUpage">
        <layout class="QGridLayout" name="gridLayout_31">
@@ -22330,7 +22330,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                    </property>
                    <item>
                     <property name="text">
-                     <string>GAIA-DR2</string>
+                     <string>GAIA-EDR3</string>
                     </property>
                    </item>
                    <item>

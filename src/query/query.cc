@@ -301,7 +301,7 @@ void Query::buildQuerySyntaxAstrom()
     else if (refcatName.contains("TYC"))  queryCommand.append("-out=_RAJ -out=_DEJ -source=TYC/tyc_main -out=Vmag Vmag=0.."+magLimit_string);
     else if (refcatName.contains("2MASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=2MASS-PSC -out='Jmag,Hmag,Kmag' Hmag=0.."+magLimit_string);
     else if (refcatName.contains("UCAC")) queryCommand.append("-out=RAgaia -out=DEgaia -source=I/340 -out='Gmag,RMag' -out=pmRA -out=pmDE Rmag=0.."+magLimit_string);
-    else if (refcatName.contains("GAIA")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=I/345/gaia2 -out=Gmag -out=pmRA -out=pmDE Gmag=0.."+magLimit_string);
+    else if (refcatName.contains("GAIA")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=I/350/gaiaedr3 -out=Gmag -out=pmRA -out=pmDE Gmag=0.."+magLimit_string);
     else if (refcatName.contains("SDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=V/147 -out=gmag,rmag,imag rmag=0.."+magLimit_string);
     else if (refcatName.contains("PANSTARRS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=II/349/ps1 -out=gmag,rmag,imag rmag=0.."+magLimit_string);
 }
@@ -315,7 +315,7 @@ void Query::buildQuerySyntaxGaia()
     queryCommand.append("-mime=tsv -out.max=1000000 ");
     queryCommand.append("-c.rm="+radius_string+" ");
     queryCommand.append("-c='"+alpha_string+delta_string+"' ");
-    queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=I/345/gaia2 -out=Gmag -out=pmRA -out=pmDE -out=e_pmRA -out=e_pmDE");
+    queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=I/350/gaiaedr3 -out=Gmag -out=pmRA -out=pmDE -out=e_pmRA -out=e_pmDE");
 }
 
 void Query::buildQuerySyntaxPhotom()
@@ -1192,7 +1192,7 @@ void Query::writeAstromScamp()
     //    short fieldpos[numSources];
 
     float dateobs = 2000.0; // dummy, for most catalogs
-    if (refcatName.contains("GAIA")) dateobs = 2015.5;
+    if (refcatName.contains("GAIA")) dateobs = epochReference;
 
     for (long i=0; i<numSources; ++i) {
         ra_arr[i] = ra_out[i];

@@ -137,7 +137,7 @@ private:
     double raErrBulkMotion = 0.;
     double deErrBulkMotion = 0.;
     double epoch = 0;
-    double epochReference = 2015.5;      // Reference epoch for GAIA-DR2. WARNING: might change with newer GAIA releases!
+    double epochReference = 2016.0;      // Reference epoch for GAIA-EDR3. WARNING: might change with newer GAIA releases!
 
 //    QString downloadServer = "";
     QString queryCommand = "";
