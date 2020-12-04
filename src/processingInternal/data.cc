@@ -281,8 +281,8 @@ bool Data::checkForRawData()
         processingStatus->reset();
         // TODO: this does not show!
         emit showMessageBox("DATA::RAW_AND_PROCESSED_FOUND", dirName, "");
-//        qDebug() << "Data::checkForRawData(): " << subDirName << numProcessedFiles << numRawFiles;
-//        qDebug() << "Both processed and RAW files were found. This status is not allowed";
+        //        qDebug() << "Data::checkForRawData(): " << subDirName << numProcessedFiles << numRawFiles;
+        //        qDebug() << "Both processed and RAW files were found. This status is not allowed";
         // (numProcessedFiles > 0 && numRawFiles > 0) {
         // TODO: this does not show!
         emit messageAvailable(dirName + " : Both processed and RAW files were found. This status is not allowed. You must clean the directory manually.", "error");
@@ -560,10 +560,18 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
 
     int nlow = nlowString.toInt();    // returns 0 for empty string (desired)
     int nhigh = nhighString.toInt();  // returns 0 for empty string (desired)
+    int numImages = myImageList.at(chip).length();
 
     // Delete an old master calibration frame if it exists
     if (!deleteFile(subDirName+"_"+QString::number(chip+1)+".fits", dirName)) {
         emit messageAvailable(subDirName + " : Data::combineImgesCalib(): Could not delete old master calibration file!", "error");
+        emit critical();
+        successProcessing = false;
+        return;
+    }
+
+    if (nhigh+nlow >= numImages) {
+        emit messageAvailable("Number of low and high pixels rejected is equal or larger than the number of available images.", "error");
         emit critical();
         successProcessing = false;
         return;
@@ -581,7 +589,6 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
     long dim = n*m;
 
     // Container for the temporary pixel stack
-    int numImages = myImageList.at(chip).length();
     // Instantiate a MyImage object for the combined set of images.
     // It does not create a FITS object yet.
     // Delete the instance if it exists already from a previous run of this task to not (re)create it
@@ -614,6 +621,12 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
         return;
     }
     long ngood = goodIndex.length();
+
+    if (nhigh+nlow >= ngood) {
+        emit messageAvailable("The number of nlow and nhigh rejected pixels is equal to or larger than the number of input exposures. Using zero instead", "warning");
+        nlow = 0;
+        nhigh = 0;
+    }
 
     QString goodImages;
     int k = 0;
@@ -683,6 +696,7 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
         }
         //        auto &stackedPixel = combinedImage[chip]->dataCurrent[pix];
         combinedImage[chip]->dataCurrent[i] = straightMedian_MinMax(stack, nlow, nhigh);
+
         // stackedPixel = combineFunction_ptr(stack, QVector<bool>(), ngood);
 
         // Increment the progressBar every 10 %
@@ -736,7 +750,17 @@ void Data::combineImages(const int chip, const QString nlowString, const QString
     }
     long dim = n*m;
 
+    int nlow = nlowString.toInt();    // returns 0 for empty string
+    int nhigh = nhighString.toInt();  // returns 0 for empty string
+
     int numImages = myImageList.at(chip).length();
+
+    if (nhigh+nlow >= numImages) {
+        emit messageAvailable("Number of low and high pixels rejected is equal or larger than the number of available images.", "error");
+        emit critical();
+        successProcessing = false;
+        return;
+    }
 
     // Instantiate a MyImage object for the combined set of images. It does not create a FITS object yet.
     // if (combinedImage[chip] != nullptr) delete combinedImage[chip];
@@ -783,8 +807,13 @@ void Data::combineImages(const int chip, const QString nlowString, const QString
 
     // works on dataBackupLx (?)
 
-    int nlow = nlowString.toInt();    // returns 0 for empty string
-    int nhigh = nhighString.toInt();  // returns 0 for empty string
+    long ngood = goodIndex.length();
+
+    if (nhigh+nlow >= ngood) {
+        emit messageAvailable("The number of nlow and nhigh rejected pixels is equal to or larger than the number of input exposures. Using zero instead", "warning");
+        nlow = 0;
+        nhigh = 0;
+    }
 
     //    int localMaxThreads = maxCPU/instData->numChips;
     //    if (instData->numChips > maxCPU) localMaxThreads = 1;
@@ -1779,12 +1808,12 @@ bool Data::collectMJD()
         mjdData.reserve(myImageList[chip].length());
         if (duplicateFound) continue;
         for (auto &it : myImageList[chip]) {
-//            if (!it->hasMJDread) {
-//                it->imageFITS->getMJD();
-                it->getMJD();
-//                it->mjdobs = it->imageFITS->mjdobs;
-//                it->hasMJDread = true;
-//            }
+            //            if (!it->hasMJDread) {
+            //                it->imageFITS->getMJD();
+            it->getMJD();
+            //                it->mjdobs = it->imageFITS->mjdobs;
+            //                it->hasMJDread = true;
+            //            }
             if (*verbosity == 3) emit messageAvailable(it->chipName + " : MJD-OBS = " +QString::number(it->mjdobs, 'f', 12), "image");
             mjdData.append(it->mjdobs);
         }
