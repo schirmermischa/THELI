@@ -134,5 +134,14 @@ void Controller::populateFilterDictionary()
     filterDictionary.insert("r_SDSS618_148", "r");
     filterDictionary.insert("i_SDSS771_171", "i");
     filterDictionary.insert("z_SDSS832_LP", "z");
+    // WFI@MPGESO
+    filterDictionary.insert("BBB99_ESO842", "B");
+    filterDictionary.insert("BBV89_ESO843", "V");
+    filterDictionary.insert("BBRc162_ESO844", "Rc");
+    filterDictionary.insert("BBB/123_ESO878", "Bnew");
+    filterDictionary.insert("BBI/203_ESO879", "I");
+    filterDictionary.insert("BBIclwp_ESO845", "Ic");
+    filterDictionary.insert("BBU38_ESO841", "U38");
+    filterDictionary.insert("BBU50_ESO877", "U50");
 //    filterDictionary.insert(, );
 }

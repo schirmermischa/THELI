@@ -3774,7 +3774,7 @@ p, li { white-space: pre-wrap; }
             <bool>false</bool>
            </property>
            <property name="text">
-            <string>0.0</string>
+            <string>0.000</string>
            </property>
            <property name="readOnly">
             <bool>true</bool>
@@ -4450,7 +4450,7 @@ p, li { white-space: pre-wrap; }
             <string>The green factor is fixed</string>
            </property>
            <property name="text">
-            <string>1.0</string>
+            <string>1.000</string>
            </property>
            <property name="readOnly">
             <bool>true</bool>
