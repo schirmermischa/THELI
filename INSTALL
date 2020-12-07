@@ -5,7 +5,7 @@ You need the 'devel' versions of the following packages (either these version nu
 Older versions might work but have not been tested:
 
 Qt5.9.6         https://www.qt.io/
-cfitsio         https://heasarc.gsfc.nasa.gov/fitsio/   (MUST BE configured with --enable-reentrant !)
+cfitsio         https://heasarc.gsfc.nasa.gov/fitsio/   (MUST BE configured with --enable-reentrant, otherwise you can use only one CPU !)
 fftw3           http://fftw.org/
 GSL v2.5        https://www.gnu.org/software/gsl/
 wcslib v7.2     https://www.atnf.csiro.au/people/mcalabre/WCS/
