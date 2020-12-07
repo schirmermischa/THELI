@@ -309,6 +309,7 @@ void AbsZeroPoint::taskInternalAbszeropoint()
     }
     else {
         emit messageAvailable(QString::number(matched.length()) + " clean matches found.", "ignore");
+        for (auto &it : matched) qDebug() << qSetRealNumberPrecision(10) << it[0] << it[1];
     }
     if (multiple1 > 1) emit messageAvailable("Multiply matched objects (ignored): " + QString::number(multiple1), "ignore");
     if (multiple2 > 1) emit messageAvailable("Multiply matched reference sources (ignored): " + QString::number(multiple2), "ignore");

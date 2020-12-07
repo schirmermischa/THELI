@@ -194,7 +194,7 @@ void MyImage::segmentImage(const QString DTstring, const QString DMINstring, con
     if (writeSegImage) writeSegmentation(path + "/" + baseName+".seg.fits");
 }
 
-// getting a rough first estimate ion image quality; refined after astrometric solution
+// getting a rough first estimate on image quality; refined after astrometric solution
 void MyImage::calcMedianSeeingEllipticity()
 {
     QVector<double> fwhmVec;

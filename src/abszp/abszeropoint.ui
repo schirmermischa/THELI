@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>879</width>
-    <height>784</height>
+    <height>750</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1743,6 +1743,19 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>zpImageLineEdit</tabstop>
+  <tabstop>zpRefcatComboBox</tabstop>
+  <tabstop>zpFilterComboBox</tabstop>
+  <tabstop>zpColorComboBox</tabstop>
+  <tabstop>zpFitOrderSpinBox</tabstop>
+  <tabstop>zpSaturationLineEdit</tabstop>
+  <tabstop>zpPhoterrorLineEdit</tabstop>
+  <tabstop>zpDTLineEdit</tabstop>
+  <tabstop>zpDMINLineEdit</tabstop>
+  <tabstop>zpApertureLineEdit</tabstop>
+  <tabstop>closePushButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

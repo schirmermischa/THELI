@@ -50,6 +50,19 @@ DetectedObject::DetectedObject(const QList<long> &objectIndices, const QVector<f
     pixels_weight.reserve(area);
     naxis1 = nax1;
     naxis2 = nax2;
+    bitflags.resize(16);
+
+    /* bit flags
+    0: at least 10% of object area is masked
+    1: object has been deblended (not implemented)
+    2: at least one pixel is saturated
+    3: the isophotal footprint of the detected object is truncated (too close to an image boundary)
+    4: the windowed footprint of the detected object is truncated (too close to an image boundary)
+    5: at least one photometric aperture has masked pixels or is truncated by the image boundary or has zero weight pixels
+    6: at least one pixel has zero weight
+    7: spurious or corrupted detection. Could be e.g. a bad column
+    8:
+    */
 
     // copy the pixel position and pixel value for all pixels comprising this object
     for (auto &index : objectIndices) {
@@ -137,73 +150,57 @@ void DetectedObject::calcFlux()
 
     FLUX_ISO = std::accumulate(pixels_flux.begin(), pixels_flux.end(), .0);
     if (FLUX_ISO < 0.) {
+        bitflags.setBit(7,true);
         badDetection = true;
         return;
     }
     MAG_ISO = -2.5*log10(FLUX_ISO) + ZP;
 }
 
-void DetectedObject::getAperturePixels(float aperture)
-{
-    if (badDetection) return;
-
-    double xminAper = X-0.5*aperture;
-    double xmaxAper = X+0.5*aperture;
-    double yminAper = Y-0.5*aperture;
-    double ymaxAper = Y+0.5*aperture;
-    xminAper = xminAper < 0 ? 0 : xminAper;
-    xmaxAper = xmaxAper >=naxis1 ? naxis1-1 : xmaxAper;
-    yminAper = yminAper < 0 ? 0 : yminAper;
-    ymaxAper = ymaxAper >=naxis2 ? naxis2-1 : ymaxAper;
-
-    long npixAper = (xmaxAper-xminAper+1) * (ymaxAper-yminAper+1);
-    pixelsAper_flux.reserve(npixAper);
-    pixelsAper_back.reserve(npixAper);
-    pixelsAper_weight.reserve(npixAper);
-    pixelsAper_x.reserve(npixAper);
-    pixelsAper_y.reserve(npixAper);
-    for (long j=yminAper; j<=ymaxAper; ++j) {
-        double jj = double(j);
-        for (long i=xminAper; i<=xmaxAper; ++i) {
-            double ii = double(i);
-            double rsq = (X-ii)*(X-ii) + (Y-jj)*(Y-jj);
-            if (rsq <= 0.25*aperture*aperture) {
-                pixelsAper_flux.append(dataMeasure.at(i+naxis1*j));
-                pixelsAper_back.append(dataBackground.at(i+naxis1*j));
-                pixelsAper_weight.append(dataWeight.at(i+naxis1*j));
-                pixelsAper_x.append(i);
-                pixelsAper_y.append(j);
-            }
-        }
-    }
-}
-
 QVector<double> DetectedObject::calcFluxAper(float aperture)
 {
-    getAperturePixels(aperture);
-
-    // We use a 5 times sub-sampled grid for finer resolution
-    // for compact objects smaller than 10 pixels, and 3 times sub-sampled if smaller than 20 pixels
-    int s = 0;
-    if (XMAX-XMIN <= 10 && YMAX - YMIN <= 10) s = 5;
-    else s = 1;
-
-    double xminAper = X-0.5*aperture;
-    double xmaxAper = X+0.5*aperture;
-    double yminAper = Y-0.5*aperture;
-    double ymaxAper = Y+0.5*aperture;
+    // get aperture pixels
+    long xminAper = floor(X-0.5*aperture);
+    long xmaxAper = ceil(X+0.5*aperture);
+    long yminAper = floor(Y-0.5*aperture);
+    long ymaxAper = ceil(Y+0.5*aperture);
     xminAper = xminAper < 0 ? 0 : xminAper;
     xmaxAper = xmaxAper >=naxis1 ? naxis1-1 : xmaxAper;
     yminAper = yminAper < 0 ? 0 : yminAper;
     ymaxAper = ymaxAper >=naxis2 ? naxis2-1 : ymaxAper;
+
+    if (isTruncated(xminAper, xmaxAper, yminAper, ymaxAper)) bitflags.setBit(5,true);
+
+    long npixAper = (xmaxAper-xminAper+1) * (ymaxAper-yminAper+1);
+    pixelsAper_flux.resize(npixAper);
+    pixelsAper_back.resize(npixAper);
+    pixelsAper_weight.resize(npixAper);
+    pixelsAper_x.resize(npixAper);
+    pixelsAper_y.resize(npixAper);
+    long k = 0;
+    for (long j=yminAper; j<=ymaxAper; ++j) {
+        for (long i=xminAper; i<=xmaxAper; ++i) {
+            pixelsAper_flux[k] = dataMeasure.at(i+naxis1*j);
+            pixelsAper_back[k] = dataBackground.at(i+naxis1*j);
+            pixelsAper_weight[k] = dataWeight.at(i+naxis1*j);
+            pixelsAper_x[k] = i;
+            pixelsAper_y[k] = j;
+            ++k;
+        }
+    }
+
+    // We use a 4 times sub-sampled grid for finer resolution for compact objects smaller than 10 pixels
+    int s = 0;
+    if (XMAX-XMIN <= 10 && YMAX - YMIN <= 10) s = 4;
+    else s = 1;
 
     // The measurement window is defined by the aperture
     long nn = (xmaxAper-xminAper+1) * s;
     long mm = (ymaxAper-yminAper+1) * s;
-
     QVector<double> dataSub(nn*mm, 0);
     QVector<double> backSub(nn*mm, 0);
     QVector<double> weightSub(nn*mm, 0);
+
     // Subsample the original pixel data. The window is the minimum rectangular envelope
     long dim = pixelsAper_flux.length();
     for (long k=0; k<dim; ++k) {
@@ -229,7 +226,6 @@ QVector<double> DetectedObject::calcFluxAper(float aperture)
 
     double fluxAper = 0.;
     double fluxErrAper = 0.;
-    bool weightFlag = false;
     for (long j=0; j<=ycen*2; ++j) {
         double jj = double(j);
         for (long i=0; i<=xcen*2; ++i) {
@@ -239,17 +235,11 @@ QVector<double> DetectedObject::calcFluxAper(float aperture)
             if (rsq <= 0.25*aperture*aperture*s*s) {
                 fluxAper += dataSub[ii+nn*jj];
                 fluxErrAper += backSub[ii+nn*jj]/gain + dataSub[ii+nn*jj]/gain;
-                if (weightSub[ii+nn*jj] == 0.) weightFlag = true;
+                if (weightSub[ii+nn*jj] == 0.) bitflags.setBit(5,true);
+                if (dataSub[ii+nn*jj] > saturationValue) bitflags.setBit(2,true);
                 dataSub[ii+nn*jj] = 0.;     // just making sure we don't count a pixel twice
             }
         }
-    }
-
-    // Do this only once for the various apertures.
-    // The flag is set if one out of all the apertures has zero weight pixels
-    if (weightFlag && !aperFlagSetAlready) {
-        //        FLAGS += 2;            // TODO: If I set that, then it appears that all sources get non-zero flags; needs to be verified
-        aperFlagSetAlready = true;
     }
 
     // correct for subsampling of aperture
@@ -259,10 +249,14 @@ QVector<double> DetectedObject::calcFluxAper(float aperture)
     fluxErrAper = sqrt(fluxErrAper);
     double magAper = -2.5*log10(fluxAper) + ZP;
     double magErrAper = 99.;
-    if (fluxAper > 0) magErrAper = 2.5*log10(1.+fluxErrAper/fluxAper);
+    if (fluxAper > 0.) magErrAper = 2.5*log10(1.+fluxErrAper/fluxAper);
     QVector<double> result;
     result << fluxAper << fluxErrAper << magAper << magErrAper;
-    if (magErrAper == 99. || std::isnan(magErrAper)) FLAGS += 2;
+    if ((fluxAper < 0. || std::isnan(magErrAper))) {
+        bitflags.setBit(7,true);
+        badDetection = true;
+    }
+
     return result;
 }
 
@@ -296,17 +290,19 @@ void DetectedObject::calcMoments()
     double xxsum = 0.;
     double yysum = 0.;
     double xysum = 0.;
-    bool saturated = false;
+    double xysumsq = 0.;
     for (long i=0; i<area; ++i) {
         double pi = pixels_flux.at(i);
         double px = pixels_x.at(i);
         double py = pixels_y.at(i);
-        if (pixels_flux.at(i) >= saturationValue) saturated = true;
+        if (pi >= saturationValue) bitflags.setBit(2,true);
+        if (pixels_weight.at(i) == 0.) bitflags.setBit(6,true);
         xsum += px*pi;
         ysum += py*pi;
         xxsum += px*px*pi;
         yysum += py*py*pi;
         xysum += px*py*pi;
+        xysumsq += px*px*py*py*pi;
     }
     X = xsum / FLUX_ISO;
     Y = ysum / FLUX_ISO;
@@ -315,6 +311,7 @@ void DetectedObject::calcMoments()
             || X > naxis1
             || Y < 0.
             || Y > naxis2) {
+        bitflags.setBit(7,true);
         badDetection = true;
         return;
     }
@@ -322,12 +319,14 @@ void DetectedObject::calcMoments()
     X2 = xxsum / FLUX_ISO - X*X;
     Y2 = yysum / FLUX_ISO - Y*Y;
     XY = xysum / FLUX_ISO - X*Y;
+    X2Y2 = xysumsq / FLUX_ISO - X*X*Y*Y;
 
-    // Handling of infinitely thin objects (pathological cases)
+    // Handling of infinitely thin objects (pathological cases, such as bad columns)
     double rho = 1/12.;
     if (X2*Y2 - XY*XY < rho*rho) {
-        X2 += rho;
-        Y2 += rho;
+        bitflags.setBit(7,true);
+        badDetection = true;
+        return;
     }
 
     XMIN = minVec_T(pixels_x);
@@ -335,7 +334,11 @@ void DetectedObject::calcMoments()
     YMIN = minVec_T(pixels_y);
     YMAX = maxVec_T(pixels_y);
 
-    if (saturated) FLAGS += 4;
+    double s1 = (X2+Y2) / 2.;
+    double s2 = sqrt((X2-Y2) * (X2-Y2) / 4. + XY*XY);
+
+    if (s1<s2) qDebug() << "error" << s1 << s2 << X2 << Y2 << X << Y << FLUX_ISO << area << pixels_x << pixels_y << pixels_flux;
+
 }
 
 void DetectedObject::calcWindowedMoments()
@@ -373,8 +376,8 @@ void DetectedObject::calcWindowedMoments()
             }
             ++i;
         }
-        XWIN = XWIN0 + xwsum/wsum;
-        YWIN = YWIN0 + xwsum/wsum;
+        XWIN = XWIN0 + 2.*xwsum/wsum;      // didn't have the prefactor 2, but doesn't seem to make a difference; probably faster conversion like this
+        YWIN = YWIN0 + 2.*xwsum/wsum;
         diff = sqrt( pow(XWIN-XWIN0,2) + pow(YWIN-YWIN0,2));
         ++iter;
     }
@@ -383,6 +386,7 @@ void DetectedObject::calcWindowedMoments()
             || XWIN > naxis1
             || YWIN < 0.
             || YWIN > naxis2) {
+        bitflags.setBit(7,true);
         badDetection = true;
         return;
     }
@@ -491,6 +495,8 @@ void DetectedObject::calcWindowedMomentsErrors()
         ERRAWIN = 0.;
         ERRBWIN = 0.;
         ERRTHETAWIN = 0.;
+        bitflags.setBit(7,true);
+        badDetection = true;
     }
 
     // noise floor
@@ -534,9 +540,17 @@ void DetectedObject::calcEllipticity()
     XERR = sqrt( pow(A*cos(THETA*rad), 2) + pow(B*sin(THETA*rad), 2));
     YERR = sqrt( pow(A*sin(THETA*rad), 2) + pow(B*cos(THETA*rad), 2));
 
+    // wrong
     CXX = Y2 / s2;
     CYY = X2 / s2;
     CXY = -2. * XY / s2;
+    // correct
+    double CXXnew = Y2 / (X2Y2-XY*XY);
+    double CYYnew = X2 / (X2Y2-XY*XY);
+    double CXYnew = -2. * XY / (X2Y2-XY*XY);
+
+    //    if (s1<s2) qDebug() << "error" << s1 << s2 << X2 << Y2 << pixels_x << pixels_y << pixels_flux;
+    //    qDebug() << CXX << CXXnew << cos(THETA*rad)*cos(THETA*rad)/(A*A) + sin(THETA*rad)*sin(THETA*rad)/(B*B);
 
     ELLIPTICITY = 1. - B/A;
 }
@@ -676,6 +690,8 @@ void DetectedObject::getWindowedPixels()
     yminWin = yminWin < 0 ? 0 : yminWin;
     ymaxWin = ymaxWin >=naxis2 ? naxis2-1 : ymaxWin;
 
+    if (isTruncated(long(xminWin), long(xmaxWin), long(yminWin), long(ymaxWin))) bitflags.setBit(4,true);
+
     long npixWin = (xmaxWin-xminWin+1) * (ymaxWin-yminWin+1);
     pixelsWin_flux.reserve(npixWin);
     pixelsWin_x.reserve(npixWin);
@@ -686,12 +702,38 @@ void DetectedObject::getWindowedPixels()
             double ii = double(i);
             double rsq = (X-ii)*(X-ii) + (Y-jj)*(Y-jj);
             if (rsq <= 4.*FLUX_RADIUS*FLUX_RADIUS) {
+                if (dataWeight.at(i+naxis1*j) == 0.) {
+                    bitflags.setBit(6,true);
+                    continue;
+                }
                 pixelsWin_flux.append(dataMeasure.at(i+naxis1*j));
                 pixelsWin_x.append(i);
                 pixelsWin_y.append(j);
             }
         }
     }
+}
+
+bool DetectedObject::isTruncated(long xmin, long xmax, long ymin, long ymax)
+{
+    bool truncation = false;
+    if (xmin < 0) {
+        xmin = 0;
+        truncation = true;
+    }
+    if (ymin < 0) {
+        ymin = 0;
+        truncation = true;
+    }
+    if (xmax >= naxis1) {
+        xmax = naxis1 - 1;
+        truncation = true;
+    }
+    if (ymax >= naxis2) {
+        ymax = naxis2 - 1;
+        truncation = true;
+    }
+    return truncation;
 }
 
 void DetectedObject::calcMagAuto()
@@ -745,18 +787,19 @@ void DetectedObject::calcMagAuto()
     jmin = jmin < 0 ? 0 : int(jmin);
     jmax = jmax >=naxis2 ? naxis2-1 : int(jmax);
 
+    if (isTruncated(imin, imax, jmin, jmax)) bitflags.setBit(3,true);
+
     FLUX_AUTO = 0;
     FLUXERR_AUTO = 0;
     float numMasked = 0.;
     float numTot = 0.;
-    bool badpixels = false;
     for (long j=jmin; j<=jmax; ++j) {
         float dy = Y - j;
         for (long i=imin; i<=imax; ++i) {
             float dx = X - i;
             // Work on pixels within auto_radius
             if (dx*dx + dy*dy < auto_radius*auto_radius) {
-                if (dataWeight.at(i+naxis1*j) == 0.) badpixels = true;
+                if (dataWeight.at(i+naxis1*j) == 0.) bitflags.setBit(6,true);
                 // With global mask
                 if (globalMaskAvailable) {
                     if (!mask.at(i+naxis1*j)) {
@@ -780,11 +823,13 @@ void DetectedObject::calcMagAuto()
     FLUXERR_AUTO = sqrt(FLUXERR_AUTO);
     MAG_AUTO = -2.5*log10(FLUX_AUTO) + ZP;
     MAGERR_AUTO = 99.;
-    if (FLUX_AUTO > 0) MAGERR_AUTO = 2.5*log10(1.+FLUXERR_AUTO/FLUX_AUTO);
+    if (FLUX_AUTO > 0.) MAGERR_AUTO = 2.5*log10(1.+FLUXERR_AUTO/FLUX_AUTO);
 
-    if (numMasked / numTot > 0.1) FLAGS += 1;
-    if (badpixels) FLAGS += 16;
-
+    if (numMasked / numTot > 0.1) bitflags.setBit(1,true);
+    if (FLUX_AUTO < 0.) {
+        bitflags.setBit(7,true);
+        badDetection = true;
+    }
 }
 
 void DetectedObject::filterSpuriousDetections()
@@ -801,11 +846,17 @@ void DetectedObject::filterSpuriousDetections()
             || YWIN < 1.
             || XWIN > naxis1-1
             || YWIN > naxis2-1
-            || (AWIN==0 && BWIN==0)
-            || badDetection)
-        FLAGS = 1000;
+            || (AWIN==0 && BWIN==0)) {
+        bitflags.setBit(7,true);
+        badDetection = true;
+    }
 
-//        qDebug() << XWIN << YWIN << AWIN << BWIN << ERRAWIN << ERRBWIN << ERRTHETAWIN << FLUX_RADIUS << ERRX2WIN << ERRY2WIN << ERRXYWIN << badDetection;
+    FLAGS = 0;
+    for (int i=0; i<bitflags.size(); ++i) {
+        if (bitflags.testBit(i)) FLAGS += pow(2,i);
+    }
+
+    //        qDebug() << X << XWIN << Y << YWIN << AWIN << BWIN << ERRAWIN << ERRBWIN << ERRTHETAWIN << FLUX_RADIUS << ERRX2WIN << ERRY2WIN << ERRXYWIN << badDetection;
 
 }
 

@@ -504,6 +504,7 @@ double haversine(double ra1, double ra2, double dec1, double dec2)
 }
 
 
+/*
 // Copy magnitudes and mag errors from a {DEC, RA, <MAG>, <MAGERR>} vector to another {DEC, RA, <MAG>, <MAGERR>} vector (matching)
 // <MAG> can be one or more numbers, e.g. 2 ref mags, or several aperture mags
 // tolerance is in [deg]
@@ -528,7 +529,6 @@ void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>>
     omp_lock_t lock;
     omp_init_lock(&lock);
 
-    /*
     // First pass: identify ambiguous sources and references
     //#pragma omp parallel for num_threads(nthreads)
     for (long i=0; i<dim1; ++i) {
@@ -563,7 +563,6 @@ void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>>
     for (auto &mult : numMatched2) {
         if (mult>1) ++multiple2;
     }
-    */
 
     // Second pass, match unambiguous sources, only
 #pragma omp parallel for num_threads(nthreads)
@@ -596,8 +595,8 @@ void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>>
 
     omp_destroy_lock(&lock);
 }
+*/
 
-/*
 // Copy magnitudes and mag errors from a {DEC, RA, <MAG>, <MAGERR>} vector to another {DEC, RA, <MAG>, <MAGERR>} vector (matching)
 // <MAG> can be one or more numbers, e.g. 2 ref mags, or several aperture mags
 // tolerance is in [deg]
@@ -698,4 +697,3 @@ void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>>
 
     omp_destroy_lock(&lock);
 }
-*/

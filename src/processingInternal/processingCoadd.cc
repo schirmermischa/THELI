@@ -981,6 +981,9 @@ void Controller::coaddUpdate()
         coadd->globalMaskAvailable = false;
         coadd->objectMaskDone = false;
         coadd->weightInMemory = false;
+        coadd->weightPath = coaddDirName;
+        coadd->weightName = "coadd";
+        coadd->readWeight();
         coadd->gain = 1.0;
         maxVal = maxVec_T(coadd->dataCurrent);
         float radius = sqrt(coadd->naxis1*coadd->naxis1 + coadd->naxis2*coadd->naxis2) / 2. * coadd->plateScale / 60.;   // in arcmin

@@ -22,6 +22,7 @@ If not, see https://www.gnu.org/licenses/ .
 
 #include <QObject>
 #include <QVector>
+#include<QBitArray>
 
 #include "wcs.h"
 
@@ -37,15 +38,15 @@ class DetectedObject : public QObject
     void calcWindowedMomentsErrors();
     void calcMagAuto();
     void getWindowedPixels();
-    void getAperturePixels(float aperture);
     void calcSkyCoords();
     void calcWindowedEllipticity();
     void filterSpuriousDetections();
     QVector<double> calcFluxAper(float aperture);
     void calcApertureMagnitudes();
-
     void correctOriginOffset();
     void calcFWHM();
+    bool isTruncated(long xmin, long xmax, long ymin, long ymax);
+
 public:
     explicit DetectedObject(const QList<long> &objectIndices, const QVector<float> &data, const QVector<float> &background,
                             const QVector<float> &weight, const QVector<bool> &mask, bool weightinmemory,
@@ -77,6 +78,7 @@ public:
     double X2 = 0.;     // 2nd moment
     double Y2 = 0.;     // 2nd moment
     double XY = 0.;     // 2nd moment
+    double X2Y2 = 0.;   // helper variable
     double A = 0;       // major axis
     double B = 0;       // minor axis
     double THETA = 0.;  // position angle
@@ -143,6 +145,7 @@ public:
     long area = 0;
     int FLAGS = 0;
     bool aperFlagSetAlready = false;
+    QBitArray bitflags;
 
     QVector<long> pixels_x;
     QVector<long> pixels_y;
