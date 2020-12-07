@@ -31,7 +31,10 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QStandardPaths>
 #include <omp.h>
 
+#include "fitsio.h"
+
 void dependencyCheck();
+void compatibilityCheck();
 
 int main(int argc, char *argv[])
 {
@@ -60,6 +63,9 @@ int main(int argc, char *argv[])
 
     // Dependency checks
     dependencyCheck();
+
+    // Compatibility checks
+    compatibilityCheck();
 
     // Required when starting the first time
     QString dotTheliName = QDir::homePath()+"/.theli/";
@@ -104,9 +110,9 @@ void dependencyCheck()
         anetDep = "astrometry.net 'solve-field' not found.\n";
     }
 
-//    if (anet3.isEmpty()) {
-//        anetDep += "astrometry.net 'astrometry-engine' not found.\n";
-//    }
+    //    if (anet3.isEmpty()) {
+    //        anetDep += "astrometry.net 'astrometry-engine' not found.\n";
+    //    }
 
     if (python.isEmpty()) {
         pythonDep = "python required (working binary names: 'python3' or 'python').\n";
@@ -208,4 +214,28 @@ void dependencyCheck()
                           +sourceExtractorDep,
                           QMessageBox::Ok);
     exit (1);
+}
+
+void compatibilityCheck()
+{
+    if (!fits_is_reentrant()) {
+        QMessageBox msgBox;
+        msgBox.setText("CFITSIO library not reentrant!");
+        msgBox.setInformativeText("Your cfitsio library does not support parallelization. The maximum number of usable CPUs has been limited to 1.\n\n"
+                                  "To use parallelization, recompile the cfitsio library using\n\n"
+                                  "./configure --enable-reentrant");
+        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Abort);
+        msgBox.setDefaultButton(QMessageBox::Ok);
+        int ret = msgBox.exec();
+
+        switch (ret) {
+        case QMessageBox::Abort:
+            exit (1);
+        case QMessageBox::Ok:
+            break;
+        default:
+            // should never be reached
+            break;
+        }
+    }
 }

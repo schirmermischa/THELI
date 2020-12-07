@@ -31,6 +31,8 @@ If not, see https://www.gnu.org/licenses/ .
 #include <unistd.h>
 #include <string.h>
 
+#include "fitsio.h"
+
 #ifdef __MACH__
 #include <mach/mach.h>
 #define MACOS
@@ -48,6 +50,8 @@ CPU::CPU(QObject *parent) : QObject(parent)
     instream.setDevice(&file);
 
     maxCPU = QThread::idealThreadCount();
+
+    if (!fits_is_reentrant()) maxCPU = 1;
 
     // new method
     init();

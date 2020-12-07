@@ -27,6 +27,8 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QFontDialog>
 #include <QThread>
 
+#include "fitsio.h"
+
 Preferences::Preferences(bool running, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Preferences)
@@ -39,6 +41,9 @@ Preferences::Preferences(bool running, QWidget *parent) :
         emit warning();
         maxCPU = 1;
     }
+
+    if (!fits_is_reentrant()) maxCPU = 1;
+
     ui->prefCPUSpinBox->setMaximum(maxCPU);
     ui->prefIOthreadsSpinBox->setMaximum(maxCPU);
 
