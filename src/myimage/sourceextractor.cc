@@ -247,11 +247,11 @@ void MyImage::sourceExtractorCatToIview()
         successProcessing = false;
     }
 
-    delete xwin;
-    delete ywin;
-    delete awin;
-    delete bwin;
-    delete thetawin;
+    delete [] xwin;
+    delete [] ywin;
+    delete [] awin;
+    delete [] bwin;
+    delete [] thetawin;
 }
 
 void MyImage::appendToScampCatalogSourceExtractor(fitsfile *fptr)

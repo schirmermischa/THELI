@@ -283,13 +283,6 @@ void MyImage::readImageBackupL1()
         return;
     }
     else {
-        int status = 0;
-        long nelements = naxis1*naxis2;
-        float *buffer = new float[nelements];
-        float nullval = 0.;
-        int anynull;
-        long fpixel = 1;
-        fitsfile *fptr = nullptr;
         QString backupName = pathBackupL1 + "/" + baseNameBackupL1 + ".fits";
         QFile backupFile(backupName);
         if (!backupFile.exists()) {
@@ -298,6 +291,14 @@ void MyImage::readImageBackupL1()
             successProcessing = false;
             return;
         }
+
+        int status = 0;
+        long nelements = naxis1*naxis2;
+        float *buffer = new float[nelements];
+        float nullval = 0.;
+        int anynull;
+        long fpixel = 1;
+        fitsfile *fptr = nullptr;
         fits_open_file(&fptr, backupName.toUtf8().data(), READONLY, &status);
         fits_read_img(fptr, TFLOAT, fpixel, nelements, &nullval, buffer, &anynull, &status);
         fits_close_file(fptr, &status);
@@ -663,7 +664,7 @@ void MyImage::subtractBias(const MyImage *biasImage, QString dataType)
     long i = 0;
     for (auto &pixel : dataCurrent) {
         pixel -= biasImage->dataCurrent.at(i);
-//        pixel -= 0.;     // testing memory accumulation
+        //        pixel -= 0.;     // testing memory accumulation
         ++i;
     }
 
