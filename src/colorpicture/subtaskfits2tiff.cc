@@ -151,11 +151,9 @@ void ColorPicture::writeRGBTIFF(QVector<float> &R, QVector<float> &G, QVector<fl
     TIFFSetField(outtiff, TIFFTAG_SOFTWARE, "THELI");
     TIFFSetField(outtiff, TIFFTAG_IMAGEDESCRIPTION, "Created by THELI");
 
-    uint16 *outbuf;
-    uint16 *outb;
-    outbuf = (uint16 *)_TIFFmalloc(TIFFScanlineSize(outtiff));
+    uint16 *outbuf = (uint16 *)_TIFFmalloc(TIFFScanlineSize(outtiff));
     for (long row=0; row<m; ++row) {
-        outb = outbuf;
+        uint16 *outb = outbuf;
         for (long column=0; column<n; ++column) {
             *outb++ = (uint16) (imtiff[column][row]);
         }

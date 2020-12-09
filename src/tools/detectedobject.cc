@@ -164,12 +164,15 @@ QVector<double> DetectedObject::calcFluxAper(float aperture)
     long xmaxAper = ceil(X+0.5*aperture);
     long yminAper = floor(Y-0.5*aperture);
     long ymaxAper = ceil(Y+0.5*aperture);
+
+    // Check truncation by image frame
+    if (isTruncated(xminAper, xmaxAper, yminAper, ymaxAper)) bitflags.setBit(5,true);
+
+    // Truncate if necessary
     xminAper = xminAper < 0 ? 0 : xminAper;
     xmaxAper = xmaxAper >=naxis1 ? naxis1-1 : xmaxAper;
     yminAper = yminAper < 0 ? 0 : yminAper;
     ymaxAper = ymaxAper >=naxis2 ? naxis2-1 : ymaxAper;
-
-    if (isTruncated(xminAper, xmaxAper, yminAper, ymaxAper)) bitflags.setBit(5,true);
 
     long npixAper = (xmaxAper-xminAper+1) * (ymaxAper-yminAper+1);
     pixelsAper_flux.resize(npixAper);
@@ -337,8 +340,10 @@ void DetectedObject::calcMoments()
     double s1 = (X2+Y2) / 2.;
     double s2 = sqrt((X2-Y2) * (X2-Y2) / 4. + XY*XY);
 
-    if (s1<s2) qDebug() << "error" << s1 << s2 << X2 << Y2 << X << Y << FLUX_ISO << area << pixels_x << pixels_y << pixels_flux;
-
+    if (s1<s2) {
+        bitflags.setBit(7,true);
+        badDetection = true;
+    }
 }
 
 void DetectedObject::calcWindowedMoments()
@@ -522,7 +527,7 @@ void DetectedObject::calcSkyCoords()
 
 void DetectedObject::calcEllipticity()
 {
-    if (badDetection) return;
+  //  if (badDetection) return;
 
     if (XY == 0. || X2 == Y2) THETA = 0.;
     else {
@@ -534,23 +539,34 @@ void DetectedObject::calcEllipticity()
 
     double s1 = (X2+Y2) / 2.;
     double s2 = sqrt((X2-Y2) * (X2-Y2) / 4. + XY*XY);
+    if (s1<s2) {
+        bitflags.setBit(7,true);
+        badDetection = true;
+//        return;
+    }
+
     A = sqrt(s1+s2);
     B = sqrt(s1-s2);
 
     XERR = sqrt( pow(A*cos(THETA*rad), 2) + pow(B*sin(THETA*rad), 2));
     YERR = sqrt( pow(A*sin(THETA*rad), 2) + pow(B*cos(THETA*rad), 2));
 
-    // wrong
+    // This is not what the source extractor documentation says, but this is what matches the data
     CXX = Y2 / s2;
     CYY = X2 / s2;
-    CXY = -2. * XY / s2;
-    // correct
-    double CXXnew = Y2 / (X2Y2-XY*XY);
-    double CYYnew = X2 / (X2Y2-XY*XY);
-    double CXYnew = -2. * XY / (X2Y2-XY*XY);
+    CXY = -XY / s2;
 
-    //    if (s1<s2) qDebug() << "error" << s1 << s2 << X2 << Y2 << pixels_x << pixels_y << pixels_flux;
-    //    qDebug() << CXX << CXXnew << cos(THETA*rad)*cos(THETA*rad)/(A*A) + sin(THETA*rad)*sin(THETA*rad)/(B*B);
+//    CXX = Y2 / (X2Y2-XY*XY);
+//    CYY = X2 / (X2Y2-XY*XY);
+//    CXY = -2. * XY / (X2Y2-XY*XY);
+
+    /*
+    CXX = pow(cos(THETA*rad)/A, 2) + pow(sin(THETA*rad)/B, 2);
+    CYY = pow(sin(THETA*rad)/A, 2) + pow(cos(THETA*rad)/B, 2);
+    CXY = 2. * cos(THETA*rad) * sin(THETA*rad) * (1./(A*A) - 1./(B*B));
+    */
+
+    // qDebug() << CXX << CXXnew << CYY << CYYnew << CXY << CXYnew;
 
     ELLIPTICITY = 1. - B/A;
 }
@@ -569,6 +585,12 @@ void DetectedObject::calcWindowedEllipticity()
 
     double s1 = (X2WIN+Y2WIN) / 2.;
     double s2 = sqrt((X2WIN-Y2WIN) * (X2WIN-Y2WIN) / 4. + XYWIN*XYWIN);
+    if (s1<s2) {
+        bitflags.setBit(7,true);
+        badDetection = true;
+        return;
+    }
+
     AWIN = sqrt(s1+s2);
     BWIN = sqrt(s1-s2);
 
@@ -577,7 +599,7 @@ void DetectedObject::calcWindowedEllipticity()
 
     CXXWIN = Y2WIN / s2;
     CYYWIN = X2WIN / s2;
-    CXYWIN = -2. * XYWIN / s2;
+    CXYWIN = -XYWIN / s2;
 }
 
 void DetectedObject::calcFluxRadius()
@@ -681,16 +703,19 @@ void DetectedObject::getWindowedPixels()
 {
     if (badDetection) return;
 
-    double xminWin = X-2.*FLUX_RADIUS;
-    double xmaxWin = X+2.*FLUX_RADIUS;
-    double yminWin = Y-2.*FLUX_RADIUS;
-    double ymaxWin = Y+2.*FLUX_RADIUS;
+    long xminWin = floor(X-2.*FLUX_RADIUS);
+    long xmaxWin = ceil(X+2.*FLUX_RADIUS);
+    long yminWin = floor(Y-2.*FLUX_RADIUS);
+    long ymaxWin = ceil(Y+2.*FLUX_RADIUS);
+
+    // Check truncation by image frame
+    if (isTruncated(xminWin, xmaxWin, yminWin, ymaxWin)) bitflags.setBit(4,true);
+
+    // Truncate if necessary
     xminWin = xminWin < 0 ? 0 : xminWin;
     xmaxWin = xmaxWin >=naxis1 ? naxis1-1 : xmaxWin;
     yminWin = yminWin < 0 ? 0 : yminWin;
     ymaxWin = ymaxWin >=naxis2 ? naxis2-1 : ymaxWin;
-
-    if (isTruncated(long(xminWin), long(xmaxWin), long(yminWin), long(ymaxWin))) bitflags.setBit(4,true);
 
     long npixWin = (xmaxWin-xminWin+1) * (ymaxWin-yminWin+1);
     pixelsWin_flux.reserve(npixWin);
@@ -714,25 +739,14 @@ void DetectedObject::getWindowedPixels()
     }
 }
 
-bool DetectedObject::isTruncated(long xmin, long xmax, long ymin, long ymax)
+bool DetectedObject::isTruncated(const long xmin, const long xmax, const long ymin, const long ymax)
 {
     bool truncation = false;
-    if (xmin < 0) {
-        xmin = 0;
-        truncation = true;
-    }
-    if (ymin < 0) {
-        ymin = 0;
-        truncation = true;
-    }
-    if (xmax >= naxis1) {
-        xmax = naxis1 - 1;
-        truncation = true;
-    }
-    if (ymax >= naxis2) {
-        ymax = naxis2 - 1;
-        truncation = true;
-    }
+    if (xmin < 0) truncation = true;
+    if (ymin < 0) truncation = true;
+    if (xmax >= naxis1) truncation = true;
+    if (ymax >= naxis2) truncation = true;
+
     return truncation;
 }
 
@@ -741,10 +755,11 @@ void DetectedObject::calcMagAuto()
     if (badDetection) return;
 
     // TODO: check that this parameterisation actually encompasses 6 times the best fit isophote
-    long imin = X - 6.*A;
-    long imax = X + 6.*A;
-    long jmin = Y - 6.*A;
-    long jmax = Y + 6.*A;
+    long imin = floor(X - 6.*A);
+    long imax = ceil(X + 6.*A);
+    long jmin = floor(Y - 6.*A);
+    long jmax = ceil(Y + 6.*A);
+
     imin = imin < 0 ? 0 : imin;
     imax = imax >=naxis1 ? naxis1-1 : imax;
     jmin = jmin < 0 ? 0 : jmin;
@@ -778,16 +793,16 @@ void DetectedObject::calcMagAuto()
         FLAGS += 8;
     }
 
-    imin = X - auto_radius;
-    imax = X + auto_radius;
-    jmin = Y - auto_radius;
-    jmax = Y + auto_radius;
+    imin = floor(X - auto_radius);
+    imax = ceil(X + auto_radius);
+    jmin = floor(Y - auto_radius);
+    jmax = ceil(Y + auto_radius);
+    if (isTruncated(imin, imax, jmin, jmax)) bitflags.setBit(3,true);
+
     imin = imin < 0 ? 0 : int(imin);
     imax = imax >=naxis1 ? naxis1-1 : int(imax);
     jmin = jmin < 0 ? 0 : int(jmin);
     jmax = jmax >=naxis2 ? naxis2-1 : int(jmax);
-
-    if (isTruncated(imin, imax, jmin, jmax)) bitflags.setBit(3,true);
 
     FLUX_AUTO = 0;
     FLUXERR_AUTO = 0;

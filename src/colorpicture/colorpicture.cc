@@ -526,10 +526,6 @@ void ColorPicture::measureStatistics(long x, long y)
     ui->statisticsTableWidget->setHorizontalHeaderLabels(header);
 
     // Get the min and max values first
-    QTableWidgetItem *item0 = 0;
-    QTableWidgetItem *item1 = 0;
-    QTableWidgetItem *item2 = 0;
-
     QVector<float> minValues;
     QVector<float> maxValues;
 
@@ -548,9 +544,9 @@ void ColorPicture::measureStatistics(long x, long y)
                 float maxVal = medVal + 250.*rmsVal;    // an estimate for the white point
                 minValues.append(minVal);
                 maxValues.append(maxVal);
-                item0 = new QTableWidgetItem(name);
-                item1 = new QTableWidgetItem(QString::number(medVal, 'f', 3));
-                item2 = new QTableWidgetItem(QString::number(rmsVal, 'f', 2));
+                QTableWidgetItem *item0 = new QTableWidgetItem(name);
+                QTableWidgetItem *item1 = new QTableWidgetItem(QString::number(medVal, 'f', 3));
+                QTableWidgetItem *item2 = new QTableWidgetItem(QString::number(rmsVal, 'f', 2));
                 item0->setFlags(item0->flags() ^ Qt::ItemIsEditable);
                 item1->setFlags(item1->flags() ^ Qt::ItemIsEditable);
                 item2->setFlags(item2->flags() ^ Qt::ItemIsEditable);
@@ -561,15 +557,12 @@ void ColorPicture::measureStatistics(long x, long y)
         }
     }
 
-    QTableWidgetItem *item3 = 0;
-    QTableWidgetItem *item4 = 0;
-
-    // Black and white points should be the same for all imagesto preserve colors
+    // Black and white points should be the same for all images to preserve colors
     float commonMin = minVec_T(minValues);
     float commonMax = maxVec_T(maxValues);
     for (int i=0; i<nrows; ++i) {
-        item3 = new QTableWidgetItem(QString::number(commonMin, 'f', 3));
-        item4 = new QTableWidgetItem(QString::number(commonMax, 'f', 2));
+        QTableWidgetItem *item3 = new QTableWidgetItem(QString::number(commonMin, 'f', 3));
+        QTableWidgetItem *item4 = new QTableWidgetItem(QString::number(commonMax, 'f', 2));
         ui->statisticsTableWidget->setItem(i, 3, item3);
         ui->statisticsTableWidget->setItem(i, 4, item4);
     }

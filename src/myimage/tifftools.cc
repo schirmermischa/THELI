@@ -104,11 +104,9 @@ void MyImage::toTIFF(int bit, float minthresh, float maxthresh, bool zscaleing, 
     TIFFSetField(outtiff, TIFFTAG_IMAGEDESCRIPTION, "Created by THELI");
 
     if (bit == 8) {
-        uint8 *outbuf;  // further TIFF pointers
-        uint8 *outb;
-        outbuf = (uint8 *)_TIFFmalloc(TIFFScanlineSize(outtiff));
+        uint8 *outbuf = (uint8 *)_TIFFmalloc(TIFFScanlineSize(outtiff));
         for (long row=0; row<m; ++row) {
-            outb = outbuf;
+            uint8 *outb = outbuf;
             for (long column=0; column<n; ++column) {
                 *outb++ = (uint8) (imtiff[column][row]);
             }
@@ -119,11 +117,9 @@ void MyImage::toTIFF(int bit, float minthresh, float maxthresh, bool zscaleing, 
     }
     else {
         // bit == 16
-        uint16 *outbuf;
-        uint16 *outb;
-        outbuf = (uint16 *)_TIFFmalloc(TIFFScanlineSize(outtiff));
+        uint16 *outbuf = (uint16 *)_TIFFmalloc(TIFFScanlineSize(outtiff));
         for (long row=0; row<m; ++row) {
-            outb = outbuf;
+            uint16 *outb = outbuf;
             for (long column=0; column<n; ++column) {
                 *outb++ = (uint16) (imtiff[column][row]);
             }

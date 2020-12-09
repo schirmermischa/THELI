@@ -644,7 +644,7 @@ void Controller::skysubModel(Data *scienceData, QString DT, QString DMIN, QStrin
         it->resetObjectMasking();
         it->segmentImage(DT, DMIN, true, false);
         it->transferObjectsToMask();           // overwrites previous mask
-        it->maskExpand(expFactor, false);       // false -> true to write the mask FITS files
+        it->maskExpand(expFactor, true);       // false -> true to write the mask FITS files
 
         // Model background once more, including object masks, and subtract it from the image
         it->backgroundModelDone = false;

@@ -68,7 +68,7 @@ public:
     QList<QVector<float>> nonlinearityCoefficients;
     // Overscan
     // Function pointer (updated externally by the controller)
-    float (*combineOverscan_ptr) (const QVector<float> &, const QVector<bool> &, long);
+    float (*combineOverscan_ptr) (const QVector<float> &, const QVector<bool> &, long) = nullptr;
 
 
     const Mask *mask;
@@ -136,7 +136,7 @@ private:
     QStringList multiportOverscanDirections;             // Whether the overscan strips are vertical or horizontal
 
     instrumentDataType instData;                         // No pointer, because it is accessed from multiple threads and is not thread safe (QVectors, QStrings)
-    instrumentDataType altInstData;                      // For GROND, where we have two very different detector types
+//    instrumentDataType altInstData;                      // For GROND, where we have two very different detector types
     const ConfDockWidget *cdw;
     QString name;
     QString fileName;
