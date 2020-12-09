@@ -1604,6 +1604,11 @@
           </item>
           <item>
            <property name="text">
+            <string>SKYMAPPER-DR1</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
             <string>APASS-DR9</string>
            </property>
           </item>
@@ -1614,7 +1619,7 @@
           </item>
           <item>
            <property name="text">
-            <string>VHS</string>
+            <string>VHS-DR4</string>
            </property>
           </item>
           <item>

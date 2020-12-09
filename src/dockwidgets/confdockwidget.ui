@@ -22345,6 +22345,11 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                    </item>
                    <item>
                     <property name="text">
+                     <string>SKYMAPPER-DR1</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
                      <string>2MASS</string>
                     </property>
                    </item>

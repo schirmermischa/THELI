@@ -100,7 +100,7 @@ void AbsZeroPoint::initGUI()
     // Deactivate UKIDSS for the time being
     // very inhomogeneous sky coverage in various epochs
     const QStandardItemModel* model = dynamic_cast< QStandardItemModel * >( ui->zpRefcatComboBox->model() );
-    model->item(4,0)->setEnabled(false);
+    model->item(6,0)->setEnabled(false);
 
     // Provide a roughly log range of apertures
     ui->zpApertureLineEdit->setText("10,15,20,25,30,40,50,75,100");
@@ -338,6 +338,8 @@ void AbsZeroPoint::queryRefCat()
     mag2errRefCat.swap(query->mag2err_out);
     numRefSources = query->numSources;
 
+    // Conversion to AB mag if not yet done
+
     // Convert APASS VEGA mags to AB mags
     // http://www.astronomy.ohio-state.edu/~martini/usefuldata.html
     if (query->refcatName.contains("APASS")) {
@@ -353,7 +355,7 @@ void AbsZeroPoint::queryRefCat()
     }
     // Convert 2MASS VEGA mags to AB mags
     // http://www.astronomy.ohio-state.edu/~martini/usefuldata.html
-    if (query->refcatName == "2MASS") {
+    if (query->refcatName.contains("2MASS")) {
         float corr1 = 0.;
         float corr2 = 0.;
         if (filter1 == "J") corr1 = 0.91;
@@ -366,9 +368,27 @@ void AbsZeroPoint::queryRefCat()
         for (auto &mag : mag1RefCat) mag += corr1;
         for (auto &mag : mag2RefCat) mag += corr2;
     }
+    // Convert VHS VEGA mags to AB mags
+    // Pons et al. 2019, MNRAS, 484, 5142: https://academic.oup.com/mnras/article/484/4/5142/5303744
+    // http://www.astronomy.ohio-state.edu/~martini/usefuldata.html (for Y-band)
+    if (query->refcatName.contains("VHS")) {
+        float corr1 = 0.;
+        float corr2 = 0.;
+        if (filter1 == "Y") corr1 = 0.634;
+        else if (filter1 == "J") corr1 = 0.937;
+        else if (filter1 == "H") corr1 = 1.384;
+        else if (filter1 == "Ks") corr1 = 1.839;
+        if (filter2 == "Y") corr2 = 0.634;
+        else if (filter2 == "J") corr2 = 0.937;
+        else if (filter2 == "H") corr2 = 1.384;
+        else if (filter2 == "Ks") corr2 = 1.839;
+
+        for (auto &mag : mag1RefCat) mag += corr1;
+        for (auto &mag : mag2RefCat) mag += corr2;
+    }
     // Convert UKIDSS VEGA mags to AB mags
     // Hewett et al. 2006, MNRAS, 367, 454
-    if (query->refcatName == "UKIDSS") {
+    if (query->refcatName.contains("UKIDSS")) {
         float corr1 = 0.;
         float corr2 = 0.;
         if (filter1 == "J") corr1 = 0.938;
@@ -496,16 +516,24 @@ void AbsZeroPoint::on_zpRefcatComboBox_currentTextChanged(const QString &arg1)
         fill_combobox(ui->zpFilterComboBox, "u g r i z");
         fill_combobox(ui->zpColorComboBox, "u-g g-r g-i r-i i-z");
     }
+    else if (arg1.contains("SKYMAPPER")) {
+        fill_combobox(ui->zpFilterComboBox, "u v g r i z");
+        fill_combobox(ui->zpColorComboBox, "u-g u-v g-r v-r g-i v-i r-i i-z");
+    }
     else if (arg1.contains("APASS")) {
         fill_combobox(ui->zpFilterComboBox, "B V g r i");
         fill_combobox(ui->zpColorComboBox, "B-V g-r g-i r-i");
     }
-    else if (arg1 == "2MASS") {
+    else if (arg1.contains("2MASS")) {
         fill_combobox(ui->zpFilterComboBox, "J H Ks");
         fill_combobox(ui->zpColorComboBox, "J-H J-Ks H-Ks");
     }
+    else if (arg1.contains("VHS")) {
+        fill_combobox(ui->zpFilterComboBox, "Y J H Ks");
+        fill_combobox(ui->zpColorComboBox, "Y-J J-H J-Ks H-Ks");
+    }
     // currently not implemented because of very patchy photometric coverage
-    else if (arg1 == "UKIDSS") {
+    else if (arg1.contains("UKIDSS")) {
         fill_combobox(ui->zpFilterComboBox, "Y J H K");
         fill_combobox(ui->zpFilterComboBox, "Y-J J-H J-K H-K");
     }
@@ -974,10 +1002,10 @@ void AbsZeroPoint::updateCoaddHeader()
     fits_update_key_flt(fptr, "ZPD_CER2", absPhot->ColorErr2Selected.toFloat(), 6, "Error quadratic color term in ZPD_SURV", &status);
     fits_update_key_flt(fptr, "ZPD_CER3", absPhot->ColorErr3Selected.toFloat(), 6, "Error cubic color term in ZPD_SURV", &status);
     fits_update_key_str(fptr, "ZPD_INDX", ui->zpColorComboBox->currentText().toUtf8().data(), "Color index in ZPD_SURV", &status);
-    if (ui->zpRefcatComboBox->currentText() == "2MASS") {
+    if (ui->zpRefcatComboBox->currentText().contains("2MASS")) {
         fits_update_key_str(fptr, "ZPD_SYST", "ABmag", "Mag. system (converted from 2MASS VEGA mags)", &status);
     }
-    else if (ui->zpRefcatComboBox->currentText() == "UKIDSS") {
+    else if (ui->zpRefcatComboBox->currentText().contains("UKIDSS")) {
         fits_update_key_str(fptr, "ZPD_SYST", "ABmag", "Mag. system (converted from 2MASS UKIDSS mags)", &status);
     }
     else if (ui->zpRefcatComboBox->currentText().contains("APASS")) {
@@ -1012,14 +1040,19 @@ void AbsZeroPoint::updateCoaddHeader()
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_CER2= "+absPhot->ColorErr2Selected+"</tt>");
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_CER3= "+absPhot->ColorErr3Selected+"</tt>");
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_INDX= '"+ui->zpColorComboBox->currentText()+"'</tt>");
-    if (ui->zpRefcatComboBox->currentText() == "2MASS") {
+
+    // CHECK: everytime we add new reference catalogs
+    if (ui->zpRefcatComboBox->currentText().contains("2MASS")) {
         ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag' (converted from 2MASS VEGA mags)</tt>");
     }
-    else if (ui->zpRefcatComboBox->currentText() == "2MASS") {
+    else if (ui->zpRefcatComboBox->currentText().contains("UKIDSS")) {
         ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag' (converted from UKIDSS VEGA mags)</tt>");
     }
     else if (ui->zpRefcatComboBox->currentText().contains("APASS")) {
         ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag' (B and V VEGA mags converted to AB mag)</tt>");
+    }
+    else if (ui->zpRefcatComboBox->currentText().contains("VHS")) {
+        ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag' (converted from VEGA mags)</tt>");
     }
     else {
         ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag'</tt>");

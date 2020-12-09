@@ -304,6 +304,8 @@ void Query::buildQuerySyntaxAstrom()
     else if (refcatName.contains("GAIA")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=I/350/gaiaedr3 -out=Gmag -out=pmRA -out=pmDE Gmag=0.."+magLimit_string);
     else if (refcatName.contains("SDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=V/147 -out=gmag,rmag,imag rmag=0.."+magLimit_string);
     else if (refcatName.contains("PANSTARRS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=II/349/ps1 -out=gmag,rmag,imag rmag=0.."+magLimit_string);
+    else if (refcatName.contains("VHS")) queryCommand.append("-out=RAJ2000 -out=DEJ2000 -source=II/359/vhs_dr4 -out=Jap4,Hap4,Ksap4 Hap4=0.."+magLimit_string);
+    else if (refcatName.contains("SKYMAPPER")) queryCommand.append("-out=RAICRS -out=DEICRS -source=II/358/smss -out=gPSF,rPSF,iPSF rPSF=0.."+magLimit_string);
 }
 
 void Query::buildQuerySyntaxGaia()
@@ -334,10 +336,12 @@ void Query::buildQuerySyntaxPhotom()
     QString filter2 = filterStringToVizierName(refcatFilter2);
 
     if (refcatName.contains("2MASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=2MASS-PSC ");
+    else if (refcatName.contains("VHS")) queryCommand.append("-out=RAJ2000 -out=DEJ2000 -source=II/359/vhs_dr4 ");
     else if (refcatName.contains("APASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=II/336 ");
     else if (refcatName.contains("UKIDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=II/319 ");
     else if (refcatName.contains("SDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=V/147 ");
     else if (refcatName.contains("PANSTARRS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=II/349/ps1 ");
+    else if (refcatName.contains("SKYMAPPER")) queryCommand.append("-out=RAICRS -out=DEICRS -source=II/358/smss ");
 
     queryCommand.append("-out=" + filter1 + " -out=" + filter2 + " -out=e_" + filter1 + " -out=e_" + filter2);    //  mags and their errors
 }
@@ -353,27 +357,35 @@ void Query::buildQuerySyntaxColorCalib()
     queryCommand.append("-c.rm="+radius_string+" ");
     queryCommand.append("-c='"+alpha_string+delta_string+"' ");
 
+    // Using max 5 filters to identify G2 type stars
     QString filter1;
     QString filter2;
     QString filter3;
     QString filter4;
     QString filter5;
 
-    if (refcatName == "SDSS") {
+    if (refcatName.contains("SDSS")) {
         filter1 = filterStringToVizierName("u");
         filter2 = filterStringToVizierName("g");
         filter3 = filterStringToVizierName("r");
         filter4 = filterStringToVizierName("i");
         filter5 = filterStringToVizierName("z");
     }
-    if (refcatName == "APASS") {
+    if (refcatName.contains("SKYMAPPER")) {         // ignoring v-band filter
+        filter1 = filterStringToVizierName("u");
+        filter2 = filterStringToVizierName("g");
+        filter3 = filterStringToVizierName("r");
+        filter4 = filterStringToVizierName("i");
+        filter5 = filterStringToVizierName("z");
+    }
+    if (refcatName.contains("APASS")) {
         filter1 = filterStringToVizierName("B");
         filter2 = filterStringToVizierName("V");
         filter3 = filterStringToVizierName("g");
         filter4 = filterStringToVizierName("r");
         filter5 = filterStringToVizierName("i");
     }
-    if (refcatName == "PANSTARRS") {
+    if (refcatName.contains("PANSTARRS")) {
         filter1 = filterStringToVizierName("g");
         filter2 = filterStringToVizierName("r");
         filter3 = filterStringToVizierName("i");
@@ -384,6 +396,7 @@ void Query::buildQuerySyntaxColorCalib()
     if (refcatName.contains("APASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=II/336 ");
     else if (refcatName.contains("SDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=V/147 ");
     else if (refcatName.contains("PANSTARRS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=II/349/ps1 ");
+    else if (refcatName.contains("SKYMAPPER")) queryCommand.append("-out=RAICRS -out=DEICRS -source=II/358/smss ");
 
     queryCommand.append("-out=" + filter1
                         + " -out=" + filter2
@@ -408,6 +421,13 @@ QString Query::filterStringToVizierName(QString filter)
     if (refcatName.contains("SDSS") && filter == "i") return "imag";
     if (refcatName.contains("SDSS") && filter == "z") return "zmag";
 
+    if (refcatName.contains("SKYMAPPER") && filter == "u") return "uPSF";
+    if (refcatName.contains("SKYMAPPER") && filter == "v") return "vPSF";
+    if (refcatName.contains("SKYMAPPER") && filter == "g") return "gPSF";
+    if (refcatName.contains("SKYMAPPER") && filter == "r") return "rPSF";
+    if (refcatName.contains("SKYMAPPER") && filter == "i") return "iPSF";
+    if (refcatName.contains("SKYMAPPER") && filter == "z") return "zPSF";
+
     if (refcatName.contains("PANSTARRS") && filter == "g") return "gmag";
     if (refcatName.contains("PANSTARRS") && filter == "r") return "rmag";
     if (refcatName.contains("PANSTARRS") && filter == "i") return "imag";
@@ -418,10 +438,10 @@ QString Query::filterStringToVizierName(QString filter)
     if (refcatName.contains("2MASS") && filter == "H") return "Hmag";
     if (refcatName.contains("2MASS") && filter == "Ks") return "Kmag";
 
-    if (refcatName.contains("VHS") && filter == "Y") return "Ymag4";
-    if (refcatName.contains("VHS") && filter == "J") return "Jmag4";
-    if (refcatName.contains("VHS") && filter == "H") return "Hmag4";
-    if (refcatName.contains("VHS") && filter == "Ks") return "Ksmag4";
+    if (refcatName.contains("VHS") && filter == "Y") return "Yap4";  // using 2.8 " aperture magnitudes
+    if (refcatName.contains("VHS") && filter == "J") return "Jap4";
+    if (refcatName.contains("VHS") && filter == "H") return "Hap4";
+    if (refcatName.contains("VHS") && filter == "Ks") return "Ksap4";
 
     if (refcatName.contains("UKIDSS") && filter == "") return "Ymag";
     if (refcatName.contains("UKIDSS") && filter == "") return "Jmag1";
@@ -813,7 +833,7 @@ void Query::identifySolarTypeStars()
 {
     if (!successProcessing) return;
 
-    if (refcatName == "SDSS") {
+    if (refcatName.contains("SDSS")) {
         c1min = sunUG;
         c1max = sunUG;
         c2min = sunGR;
@@ -824,7 +844,18 @@ void Query::identifySolarTypeStars()
         c2tol = sunGRtol;
         c3tol = sunRItol;
     }
-    if (refcatName == "APASS") {
+    if (refcatName.contains("SKYMAPPER")) {
+        c1min = sunUG;
+        c1max = sunUG;
+        c2min = sunGR;
+        c2max = sunGR;
+        c3min = sunRI;
+        c3max = sunRI;
+        c1tol = sunUGtol;
+        c2tol = sunGRtol;
+        c3tol = sunRItol;
+    }
+    if (refcatName.contains("APASS")) {
         c1min = sunBV;
         c1max = sunBV;
         c2min = sunGR;
@@ -835,7 +866,7 @@ void Query::identifySolarTypeStars()
         c2tol = sunGRtol;
         c3tol = sunRItol;
     }
-    if (refcatName == "PANSTARRS") {
+    if (refcatName.contains("PANSTARRS")) {
         c1min = sunGR;
         c1max = sunGR;
         c2min = sunRI;
@@ -851,6 +882,7 @@ void Query::identifySolarTypeStars()
 
     // We use the first three colors, only
     // SDSS: u-g, g-r, r-i
+    // SKYMAPPER: u-g, g-r, r-i
     // APASS: B-V, g-r, r-i
     // PANSTARRS: g-r, r-i, i-z
     for (auto &tol : tolerances) {
@@ -867,12 +899,12 @@ void Query::identifySolarTypeStars()
             float col1 = 0.;
             float col2 = 0.;
             float col3 = 0.;
-            if (refcatName == "PANSTARRS" || refcatName == "SDSS") {
+            if (refcatName.contains("PANSTARRS") || refcatName.contains("SDSS") || refcatName .contains("SKYMAPPER")) {
                 col1 = mag1_out[k] - mag2_out[k];
                 col2 = mag2_out[k] - mag3_out[k];
                 col3 = mag3_out[k] - mag4_out[k];
             }
-            else if (refcatName == "APASS") {
+            else if (refcatName.contains("APASS")) {
                 col1 = mag1_out[k] - mag2_out[k];    // "B-V"
                 col2 = mag3_out[k] - mag4_out[k];    // "g-r"
                 col3 = mag4_out[k] - mag5_out[k];    // "r-i"
@@ -1092,7 +1124,7 @@ QString Query::extractRaDecMagColorCalib(QString &line)
     QString mag3 = list[4].simplified();
     QString mag4 = list[5].simplified();
     QString mag5;
-    if (refcatName == "PANSTARRS") mag5 = mag1;
+    if (refcatName.contains("PANSTARRS")) mag5 = mag1;
     else {
         if (list.length() == 7) mag5 = list[6].simplified();
         else {
