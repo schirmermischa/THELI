@@ -129,9 +129,6 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
     }
 */
 
-    long numExpRejected = 0;
-    long numImgRejected = 0;
-
     QList<MyImage*> allMyImages;
     long numMyImages = makeListofAllImages(allMyImages, scienceData);
 
@@ -199,6 +196,8 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
 
     // Deactivate exposures with low detections
     if (!cdw->ui->CSCrejectExposureLineEdit->text().isEmpty()) {
+        long numExpRejected = 0;
+        long numImgRejected = 0;
         flagLowDetectionImages(scienceData, numExpRejected, numImgRejected);
         if (numImgRejected > 0) {
             QString addedString = "";
@@ -231,11 +230,6 @@ void Controller::detectionSourceExtractor(Data *scienceData, QString minFWHM, QS
         }
     }
 */
-
-    QString warningLevel = "";
-    QString stopLevel = "";
-    long numExpRejected = 0;
-    long numImgRejected = 0;
 
     QList<MyImage*> allMyImages;
     long numMyImages = makeListofAllImages(allMyImages, scienceData);
@@ -296,7 +290,9 @@ void Controller::detectionSourceExtractor(Data *scienceData, QString minFWHM, QS
     }
 
     // Deactivate exposures with low detections
-    if (!cdw->ui->CSCrejectExposureLineEdit->text().isEmpty()) {
+    if (!cdw->ui->CSCrejectExposureLineEdit->text().isEmpty()) {        
+        long numExpRejected = 0;
+        long numImgRejected = 0;
         flagLowDetectionImages(scienceData, numExpRejected, numImgRejected);
         if (numImgRejected > 0) {
             QString addedString = "";

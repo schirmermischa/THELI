@@ -442,7 +442,6 @@ void SwarpFilter::identify_bad_pixels(const QVector<float> &gooddata, const QVec
     float mean = 0.;
     float rms = 0.;
     float thresh = 0.;
-    float sum = 0.;
 
     // we could determine ngoodweight from gooddata itself, but the length is already known
     // and thus it is cheaper to just take it as an argument
@@ -454,7 +453,7 @@ void SwarpFilter::identify_bad_pixels(const QVector<float> &gooddata, const QVec
 
     // 2 pixels in the stack: use poisson rms estimated from sky noise
     if (ngoodweight == 2) {
-        sum = gooddata[0] + gooddata[1];
+        float sum = gooddata[0] + gooddata[1];
         mean = 0.5 * sum;
         rms = sum + (sky[gooddataind[0]] + sky[gooddataind[1]]);
         if (rms > 0.) {
@@ -563,9 +562,6 @@ void SwarpFilter::writeWeight()
 #pragma omp parallel for num_threads(nthreads)
     for (long i=0; i<num_images; ++i) {
 
-        long masklinemin, masklinemax;
-        long maskcolmin, maskcolmax;
-        long clustercount;
         long n = naxis1[i];
         long m = naxis2[i];
         QVector<char> weight_out(n*m, 1);   // 1 = pixel is good, 0 = pixel is bad
@@ -600,7 +596,7 @@ void SwarpFilter::writeWeight()
             for (long j=1; j<m-1; ++j) {
                 for (long k=1; k<n-1; ++k) {
                     if (weight_out[k+n*j] == 0) {
-                        clustercount = 1;
+                        long clustercount = 1;
                         for (long l=j-1; l<=j+1; ++l) {
                             for (long o=k-1; o<=k+1; ++o) {
                                 clustercount += (weight_out[o+(l*n)] ^ 1);
@@ -630,10 +626,10 @@ void SwarpFilter::writeWeight()
                         long kmW0 = k - maskWidth;
                         long jmW1 = j + maskWidth;
                         long kmW1 = k + maskWidth;
-                        masklinemin = jmW0 < 0 ? 0 : jmW0;
-                        maskcolmin  = kmW0 < 0 ? 0 : kmW0;
-                        masklinemax = jmW1 > (m - 1) ? (m - 1) : jmW1;
-                        maskcolmax  = kmW1 > (n - 1) ? (n - 1) : kmW1;
+                        long masklinemin = jmW0 < 0 ? 0 : jmW0;
+                        long maskcolmin  = kmW0 < 0 ? 0 : kmW0;
+                        long masklinemax = jmW1 > (m - 1) ? (m - 1) : jmW1;
+                        long maskcolmax  = kmW1 > (n - 1) ? (n - 1) : kmW1;
                         for (long l=masklinemin; l <= masklinemax; ++l) {
                             for (long o=maskcolmin; o <= maskcolmax; ++o) {
                                 weight_out[o+(l*n)] = 0;

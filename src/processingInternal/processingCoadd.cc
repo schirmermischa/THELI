@@ -1010,7 +1010,7 @@ void Controller::coaddUpdate()
             // pass the source data (dec, ra, fwhm, ell on one hand, and mag separately)
             coadd->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag, 0);
             // match
-            bool gaia = imageQuality->getSeeingFromGaia();
+            static_cast<void> (imageQuality->getSeeingFromGaia());
             //        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: not yet implemented
             seeing_world = imageQuality->fwhm;                           // in arcsec
             seeing_image = imageQuality->fwhm / coadd->plateScale;       // in pixel

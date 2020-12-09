@@ -32,9 +32,8 @@ If not, see https://www.gnu.org/licenses/ .
 // Retrieve the key and update the output header
 bool Splitter::searchKey(const QString &searchKeyName, const QStringList &possibleKeyNames, QStringList &outputHeader)
 {
-    bool inPrimaryHeader = false;
     bool inExtHeader = false;
-    inPrimaryHeader = searchKeyInHeader(searchKeyName, possibleKeyNames, primaryHeader, outputHeader);
+    bool inPrimaryHeader = searchKeyInHeader(searchKeyName, possibleKeyNames, primaryHeader, outputHeader);
     if (!inPrimaryHeader) inExtHeader = searchKeyInHeader(searchKeyName, possibleKeyNames, extHeader, outputHeader);
 
     if (!inExtHeader && !inPrimaryHeader) return false;
@@ -44,9 +43,8 @@ bool Splitter::searchKey(const QString &searchKeyName, const QStringList &possib
 // Retrieve the floating point value of a key, don't update output header
 void Splitter::searchKeyCRVAL(const QString searchKey, const QStringList &possibleKeyNames, QStringList &outputHeader)
 {
-    bool inPrimaryHeader = false;
     bool inExtHeader = false;
-    inPrimaryHeader = searchKeyInHeaderCRVAL(searchKey, possibleKeyNames, primaryHeader, outputHeader);
+    bool inPrimaryHeader = searchKeyInHeaderCRVAL(searchKey, possibleKeyNames, primaryHeader, outputHeader);
     if (!inPrimaryHeader) inExtHeader = searchKeyInHeaderCRVAL(searchKey, possibleKeyNames, extHeader, outputHeader);
 
     // Fallback:
@@ -62,9 +60,8 @@ void Splitter::searchKeyCRVAL(const QString searchKey, const QStringList &possib
 // Retrieve the floating point value of a key, don't update output header
 bool Splitter::searchKeyLST(const QStringList &possibleKeyNames)
 {
-    bool inPrimaryHeader = false;
     bool inExtHeader = false;
-    inPrimaryHeader = searchKeyInHeaderLST(possibleKeyNames, primaryHeader);
+    bool inPrimaryHeader = searchKeyInHeaderLST(possibleKeyNames, primaryHeader);
     if (!inPrimaryHeader) inExtHeader = searchKeyInHeaderLST(possibleKeyNames, extHeader);
 
     if (!inExtHeader && !inPrimaryHeader) return false;
@@ -74,9 +71,8 @@ bool Splitter::searchKeyLST(const QStringList &possibleKeyNames)
 // Retrieve the int value of a key, don't update output header
 bool Splitter::searchKeyValue(const QStringList &possibleKeyNames, int &value)
 {
-    bool inPrimaryHeader = false;
     bool inExtHeader = false;
-    inPrimaryHeader = searchKeyInHeaderValue(possibleKeyNames, primaryHeader, value);
+    bool inPrimaryHeader = searchKeyInHeaderValue(possibleKeyNames, primaryHeader, value);
     if (possibleKeyNames.contains("NAMPS")) qDebug() << fileName << possibleKeyNames << primaryHeader.length() << inPrimaryHeader << value;
     if (!inPrimaryHeader) inExtHeader = searchKeyInHeaderValue(possibleKeyNames, extHeader, value);
 
@@ -87,9 +83,8 @@ bool Splitter::searchKeyValue(const QStringList &possibleKeyNames, int &value)
 // Retrieve the floating point value of a key, don't update output header
 bool Splitter::searchKeyValue(const QStringList &possibleKeyNames, float &value)
 {
-    bool inPrimaryHeader = false;
     bool inExtHeader = false;
-    inPrimaryHeader = searchKeyInHeaderValue(possibleKeyNames, primaryHeader, value);
+    bool inPrimaryHeader = searchKeyInHeaderValue(possibleKeyNames, primaryHeader, value);
     if (!inPrimaryHeader) inExtHeader = searchKeyInHeaderValue(possibleKeyNames, extHeader, value);
 
     if (!inExtHeader && !inPrimaryHeader) return false;
@@ -99,9 +94,8 @@ bool Splitter::searchKeyValue(const QStringList &possibleKeyNames, float &value)
 // Retrieve the double value of a key, don't update output header
 bool Splitter::searchKeyValue(const QStringList &possibleKeyNames, double &value)
 {
-    bool inPrimaryHeader = false;
     bool inExtHeader = false;
-    inPrimaryHeader = searchKeyInHeaderValue(possibleKeyNames, primaryHeader, value);
+    bool inPrimaryHeader = searchKeyInHeaderValue(possibleKeyNames, primaryHeader, value);
     if (!inPrimaryHeader) inExtHeader = searchKeyInHeaderValue(possibleKeyNames, extHeader, value);
 
     if (!inExtHeader && !inPrimaryHeader) return false;
@@ -111,9 +105,8 @@ bool Splitter::searchKeyValue(const QStringList &possibleKeyNames, double &value
 // Retrieve the QString value of a key, don't update output header
 bool Splitter::searchKeyValue(const QStringList &possibleKeyNames, QString &value)
 {
-    bool inPrimaryHeader = false;
     bool inExtHeader = false;
-    inPrimaryHeader = searchKeyInHeaderValue(possibleKeyNames, primaryHeader, value);
+    bool inPrimaryHeader = searchKeyInHeaderValue(possibleKeyNames, primaryHeader, value);
     if (!inPrimaryHeader) inExtHeader = searchKeyInHeaderValue(possibleKeyNames, extHeader, value);
 
     if (!inExtHeader && !inPrimaryHeader) return false;

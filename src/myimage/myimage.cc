@@ -247,10 +247,9 @@ void MyImage::readImageBackupL1Launch()
     dataWeight_deletable = false;
     dataBackupL1_deletable = false;
 
-    bool determineMode = true;
-
     QString loadFileName = pathBackupL1 + "/" + baseNameBackupL1 + ".fits";
     if (loadData(loadFileName)) {
+        bool determineMode = true;
         getMode(determineMode);
         dataBackupL1 = dataCurrent;
         imageInMemory = true;
@@ -1316,8 +1315,11 @@ void MyImage::cornersToRaDec()
     xy2sky(naxis1/2, naxis2/2, alpha_ctr, delta_ctr);
 }
 
+// UNUSED
+/*
 QVector<float> MyImage::retainUnmaskedDataThresholded(float minVal, float maxVal, int sampleDensity)
 {
+    if (sampleDensity == 0) sampleDensity = 1;
     QVector<float> dataThresholded;
     long n = dataCurrent.length();
     dataThresholded.reserve(n/sampleDensity);
@@ -1343,6 +1345,7 @@ QVector<float> MyImage::retainUnmaskedDataThresholded(float minVal, float maxVal
 
 QVector<float> MyImage::retainUnmaskedData(int sampleDensity)
 {
+    if (sampleDensity == 0) sampleDensity = 1;
     QVector<float> dataThresholded;
     long n = dataCurrent.length();
     dataThresholded.reserve(n/sampleDensity);
@@ -1362,6 +1365,7 @@ QVector<float> MyImage::retainUnmaskedData(int sampleDensity)
 
     return dataThresholded;
 }
+*/
 
 void MyImage::mergeObjectWithGlobalMask()
 {

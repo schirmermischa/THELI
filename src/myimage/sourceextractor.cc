@@ -172,8 +172,8 @@ void MyImage::calcMedianSeeingEllipticitySex()
     updateHeaderValueInFITS("FWHMEST", QString::number(fwhm_est, 'f', 2));
     updateHeaderValueInFITS("ELLIPEST", QString::number(ellipticity_est, 'f', 3));
 
-    delete fwhm;
-    delete ell;
+    delete [] fwhm;
+    delete [] ell;
 }
 
 void MyImage::sourceExtractorCatToIview()

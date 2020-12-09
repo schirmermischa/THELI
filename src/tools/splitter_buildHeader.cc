@@ -593,13 +593,11 @@ void Splitter::buildTheliHeaderEXPTIME()
     // In THELI, EXPTIME always represents the total effective integration time. If images are averaged from several coadds,
     // they also need to be rescaled.
 
-    bool foundDIT = false;
-    bool foundNDIT = false;
     float dit = -1.0;
     float ndit = -1.0;
 
-    foundDIT = searchKeyValue(headerDictionary.value("DIT"), dit);
-    foundNDIT = searchKeyValue(headerDictionary.value("NDIT"), ndit);
+    bool foundDIT = searchKeyValue(headerDictionary.value("DIT"), dit);
+    bool foundNDIT = searchKeyValue(headerDictionary.value("NDIT"), ndit);
 
     // default values if failed
     if (!foundDIT) {
@@ -673,7 +671,7 @@ void Splitter::buildTheliHeaderDATEOBS()
                 dateObsValue = dateValue+"T"+timeValue;
             }
             else {
-                // Construct a unique dummy DATE-OBS keyword, by incrementing by 0.1 seconds.
+                // Construct a unique dummy DATE-OBS keyword, incremented by 0.1 seconds.
 #pragma omp critical
                 {
                     *dateObsIncrementor += 0.1;

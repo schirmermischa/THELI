@@ -45,7 +45,7 @@ class DetectedObject : public QObject
     void calcApertureMagnitudes();
     void correctOriginOffset();
     void calcFWHM();
-    bool isTruncated(long xmin, long xmax, long ymin, long ymax);
+    bool isTruncated(const long xmin, const long xmax, const long ymin, const long ymax);
 
 public:
     explicit DetectedObject(const QList<long> &objectIndices, const QVector<float> &data, const QVector<float> &background,
@@ -134,8 +134,8 @@ public:
     double sigmai = 0.;
     double sigmab = 0.;
     double ZP = 0;
-    double ALPHA_J2000;
-    double DELTA_J2000;
+    double ALPHA_J2000 = 0.;
+    double DELTA_J2000 = 0.;
     double gain = 1.0;
     double sigma_back = 0.;
 

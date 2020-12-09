@@ -1354,8 +1354,8 @@ void Data::applyMask(int chip, QString filter)
 {
     for (auto &it: myImageList[chip]) {
         // Only process global weights that match the current science filter
-        long i = 0;
         if (filter == it->filter) {
+            long i = 0;
             for (auto &jt: it->dataCurrent) {
                 if (mask->globalMask.at(chip).at(i)) {
                     jt = 0.;

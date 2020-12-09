@@ -44,8 +44,8 @@ public:
     void makePolynomialFit2D(const int order, const QVector<double> x_in, const QVector<double> y_in,
                              const QVector<double> z_in, QVector<double> w_in = QVector<double>());
 
-    gsl_vector *c;      // e.g. for polynomial coefficients (fit result)
-    gsl_matrix *cov;
+    gsl_vector *c = nullptr;      // e.g. for polynomial coefficients (fit result)
+    gsl_matrix *cov = nullptr;
 
 signals:
     void messageAvailable(QString message, QString type);

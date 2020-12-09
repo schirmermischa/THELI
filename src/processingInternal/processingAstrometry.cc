@@ -630,7 +630,7 @@ void Controller::doImageQualityAnalysis()
         // pass the source data (dec, ra, fwhm, ell on one hand, and mag separately)
         it->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag, instData->chipMap.value(chip));
         // match
-        bool gaia = imageQuality->getSeeingFromGaia();
+        static_cast<void> (imageQuality->getSeeingFromGaia());
         it->fwhm = imageQuality->fwhm;                                                     // Updating MyImage fwhm parameter
         it->updateHeaderValue("FWHM", imageQuality->fwhm);                                 // Updating MyImage header string
         it->updateHeaderValue("ELLIP", imageQuality->ellipticity);

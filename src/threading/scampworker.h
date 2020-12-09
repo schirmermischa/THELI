@@ -35,7 +35,7 @@ public:
     QString scampCommand;
     QString scampDirName;
     QString shortName;
-    QProcess *extProcess;
+    QProcess *extProcess = nullptr;
 
     void abort();
 

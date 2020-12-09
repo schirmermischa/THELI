@@ -36,10 +36,10 @@ public:
     QDir dir;
     QString dirName;
     QStringList filterList;
-    int numTotImages;
-    QTimer *timer;
+    int numTotImages = 0;
+    QTimer *timer = nullptr;
     QFileInfo fi;
-    long finalSize;
+    long finalSize = 0;
     float *progress;
 
 signals:

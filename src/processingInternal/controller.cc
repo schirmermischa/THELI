@@ -48,7 +48,7 @@ Controller::Controller(const instrumentDataType *instrumentData, QString statuso
 {
     mainGUI = parent;
     //    cdw = confDockWidget;
-//    instData = instrumentData;
+    //    instData = instrumentData;
     statusOld = statusold;
     monitor = processMonitor;
 
@@ -666,7 +666,7 @@ void Controller::releaseMemory(float RAMneededThisThread, int numThreads, QStrin
         }
     }
 
-//    float RAMstillneeded = RAMneededThisThread - RAMfreed;
+    //    float RAMstillneeded = RAMneededThisThread - RAMfreed;
 
     if (RAMfreed < RAMneededThisThread
             && RAMwasReallyReleased
@@ -738,13 +738,10 @@ void Controller::checkSuccessProcessing(const Data *data)
         return;
     }
 
-    bool messageShown = false;
     if (!data->successProcessing) {
         successProcessing = false;
-        if (!messageShown) {
-            emit messageAvailable("Data processing in " + data->dirName + " unsuccessful.", "error");
-            criticalReceived();
-        }
+        emit messageAvailable("Data processing in " + data->dirName + " unsuccessful.", "error");
+        criticalReceived();
     }
 }
 
@@ -859,7 +856,7 @@ QVector<QString> Controller::getBackgroundThresholds(const int loop, const bool 
         return thresholds;
     }
     // Thresholds specified: detection depends on whether we are in twopass mode or not
-    else if (!twoPass || (twoPass && loop == 1)) {
+    else if (!twoPass || loop == 1) {        // loop == 1 implies twoPass = true
         doSourceDetection = true;
         thresholds << DT << DMIN;
         return thresholds;

@@ -96,17 +96,15 @@ void addPolygon_bool(const long n, const long m, const QVector<float> &vertx, co
 
 void addPolygon_bool(const long n, const long m, const QVector<float> &vertx, const QVector<float> &verty, const QString senseMode, QVector<bool> &mask)
 {
-    float x, y;
-
     // apply the polygon mask
     // NOT THREADSAFE!
     // #pragma omp parallel for firstprivate(vertx, verty, senseMode)
     for (long j=0; j<m; ++j) {
         // we have to add +1 to compensate for arrays in C starting with 0
         // because the polygon system starts with 1, not 0
-        y = (float) j + 1;
+        float y = (float) j + 1;
         for (long i=0; i<n; ++i) {
-            x = (float) i + 1;
+            float x = (float) i + 1;
             // if a pixel is masked already (value = true) then it must remain masked no matter what.
             // that is, we only check whether still unmasked pixels need to be masked
 //            if (!mask.at(i+n*j)) {
@@ -133,17 +131,15 @@ void addPolygon_bool(const long n, const long m, const QVector<float> &vertx, co
 
 void addPolygon_float(const long n, const long m, const QVector<float> &vertx, const QVector<float> &verty, QString senseMode, QVector<float> &weight)
 {
-    float x, y;
-
     // apply the polygon mask
     // NOT THREADSAFE
     //#pragma omp parallel for
     for (long j=0; j<m; ++j) {
         // we have to add +1 to compensate for arrays in C starting with 0
         // because the polygon system starts with 1, not 0
-        y = (float) j + 1;
+        float y = (float) j + 1;
         for (long i=0; i<n; ++i) {
-            x = (float) i + 1;
+            float x = (float) i + 1;
             // if a pixel has weight zero already then it must retain that weight no matter what.
             // that is, we check only pixels with weight > 0
             if (weight[i+n*j] > 0.) {
@@ -165,19 +161,18 @@ void addPolygon_float(const long n, const long m, const QVector<float> &vertx, c
 
 void addCircle_bool(const long n, const long m, float x, float y, float r, QString senseMode, QVector<bool> &mask)
 {
-    float ii, jj, d;
 
     // NOT THREADSAFE
 // #pragma omp parallel for
     for (long j=0; j<m; ++j) {
-        jj = (float) j;
+        float jj = (float) j;
         for (long i=0; i<n; ++i) {
-            ii = (float) i;
+            float ii = (float) i;
             // if a pixel is masked already (value = true) then it must remain masked no matter what.
             // that is, we only check whether still unmasked pixels need to be masked
             if (!mask[i+n*j]) {
                 // Mask pixels inside or outside the circle
-                d = (ii-x) * (ii-x) + (jj-y) * (jj-y);
+                float d = (ii-x) * (ii-x) + (jj-y) * (jj-y);
                 if (senseMode == "in") {
                     // mask pixels outside the circle
                     if (d >= r*r) mask[i+n*j] = true;
@@ -193,18 +188,17 @@ void addCircle_bool(const long n, const long m, float x, float y, float r, QStri
 
 void addCircle_float(const long n, const long m, float x, float y, float r, QString senseMode, QVector<float> &weight)
 {
-    float ii, jj, d;
 // NOT THREADSAFE
 // #pragma omp parallel for
     for (long j=0; j<m; ++j) {
-        jj = (float) j;
+        float jj = (float) j;
         for (long i=0; i<n; ++i) {
-            ii = (float) i;
+            float ii = (float) i;
             // if a pixel has weight zero already then it must retain that weight no matter what.
             // that is, we check only pixels with weight > 0
             if (weight[i+n*j] > 0.) {
                 // Mask pixels inside or outside the circle
-                d = (ii-x) * (ii-x) + (jj-y) * (jj-y);
+                float d = (ii-x) * (ii-x) + (jj-y) * (jj-y);
                 if (senseMode == "in") {
                     // mask pixels inside the circle
                     if (d <= r*r) weight[i+n*j] = 0.;

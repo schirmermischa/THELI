@@ -39,14 +39,14 @@ class Query : public QObject
     Q_OBJECT
 
 public:
-    Query(int *verbose);
+    explicit Query(int *verbose);
     ~Query();
 
-    Data *scienceData;
+    Data *scienceData = nullptr;
 
-    MyImage *photomImage;
-    QString photomDir;
-    QString photomImageName;
+    MyImage *photomImage = nullptr;
+    QString photomDir = "";
+    QString photomImageName = "";
 
     bool suppressCatalogWarning = false;
 

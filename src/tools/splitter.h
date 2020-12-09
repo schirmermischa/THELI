@@ -60,7 +60,7 @@ public:
     bool alreadyProcessed = false;
     bool MEFpastingFinished = true;
 
-    float *dateObsIncrementor;
+    float *dateObsIncrementor = nullptr;  // External variable, initialized before constructing the first Splitter object
 
     long memoryUsed = 0;
 
@@ -72,7 +72,7 @@ public:
 
 
     const Mask *mask;
-    const Mask *altMask;     // alternative mask, in case of e.g. GRONG where we have two very different detector types
+    const Mask *altMask;                           // alternative mask, in case of e.g. GROND where we have two very different detector types
 
     Data *data;
 
@@ -89,9 +89,9 @@ public:
     bool successProcessing = true;
 
     float progressStepSize = 0.;
-    float *progress;
-    omp_lock_t *progressLock;
-    omp_lock_t *genericLock;
+    float *progress = nullptr;
+    omp_lock_t *progressLock = nullptr;
+    omp_lock_t *genericLock = nullptr;
 
     bool commaDetected = false;
 

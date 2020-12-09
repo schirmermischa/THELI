@@ -560,20 +560,20 @@ void Instrument::altStream(QTextStream &stream, QString keyword, QString altValu
     stream << "  fi\n\n";
 }
 
-void Instrument::getKey(QTextStream &stream, QString bashKey, QString fitsKey, QString mode)
+void Instrument::getKey(QTextStream &stream, QString bashkey, QString fitsKey, QString mode)
 {
     if (mode.isEmpty()) {
-        stream << "  "+bashKey+"=`get_key ${FILE} \""+fitsKey+"\"`\n";
+        stream << "  "+bashkey+"=`get_key ${FILE} \""+fitsKey+"\"`\n";
     }
     else if (mode == "cleanstring") {
-        stream << "  "+bashKey+"=`get_key ${FILE} \""+fitsKey+"\" | ${P_CLEANSTRING}`\n";
+        stream << "  "+bashkey+"=`get_key ${FILE} \""+fitsKey+"\" | ${P_CLEANSTRING}`\n";
     }
     else if (mode == "cleancolon") {
-        stream << "  "+bashKey+"=`get_key ${FILE} \""+fitsKey+"\" cleancolon`\n";
+        stream << "  "+bashkey+"=`get_key ${FILE} \""+fitsKey+"\" cleancolon`\n";
     }
     else if (mode == "equinox") {
         // Remove first char if not numeric
-        stream << "  "+bashKey+"=`get_key ${FILE} \""+fitsKey+"\" | sed 's/[^0-9.]//g'`\n";
+        stream << "  "+bashkey+"=`get_key ${FILE} \""+fitsKey+"\" | sed 's/[^0-9.]//g'`\n";
     }
 }
 

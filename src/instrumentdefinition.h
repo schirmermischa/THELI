@@ -69,7 +69,7 @@ private:
     void altStream(QTextStream &stream, QString keyword, QString altValue);
     QButtonGroup *bayerButtonGroup = new QButtonGroup(this);
     bool compareChipNumbers();
-    void getKey(QTextStream &stream, QString key, QString bashKey, QString mode = "");
+    void getKey(QTextStream &stream, QString bashkey, QString fitsKey, QString mode = "");
     void truncateFITSkey(QString &key);
     void applyStyleSheets();
 };

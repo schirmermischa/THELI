@@ -262,6 +262,11 @@ void MyImage::maskBloomingSpike(QString instType, QString range, QString minVal,
         long max_int = bloommaxindex;
         long i = 0;  // was i=1; dont understand why; fails if the highest value is at the last position in hist, hence i=0
         long maxindex_int = 0;
+        if (max_int >= hist.length()) {
+            emit messageAvailable("BUG: MyImage::maskBloomingSpike: attempted to read out of bounds", "error");
+            emit critical();
+            return;
+        }
         while (hist[max_int] > 0.1 * maxhist && max_int < nhist) {
             max_int = bloommaxindex + i;
             if (max_int > nhist-1) {

@@ -37,7 +37,7 @@ public:
                 QString borderwidthString, int maxCPU, int *verbose);
     ~SwarpFilter();
 
-    float *progress;
+    float *progress = nullptr;
 
     void runCosmicFilter();
     void init();
@@ -55,10 +55,10 @@ private:
     QVector<MyImage*> images;
     QVector<MyImage*> weights;
 
-    long coadd_naxis1;
-    long coadd_naxis2;
-    float coadd_crpix1;
-    float coadd_crpix2;
+    long coadd_naxis1 = 0;
+    long coadd_naxis2 = 0;
+    float coadd_crpix1 = 0;
+    float coadd_crpix2 = 0;
 
     long num_images = 0;       // Number of resampled images
     float kappa = 4.0;         // Detection threshold (outliers in units of sigma)

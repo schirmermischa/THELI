@@ -529,8 +529,6 @@ void ColorPicture::measureStatistics(long x, long y)
     QTableWidgetItem *item0 = 0;
     QTableWidgetItem *item1 = 0;
     QTableWidgetItem *item2 = 0;
-    QTableWidgetItem *item3 = 0;
-    QTableWidgetItem *item4 = 0;
 
     QVector<float> minValues;
     QVector<float> maxValues;
@@ -562,6 +560,9 @@ void ColorPicture::measureStatistics(long x, long y)
             }
         }
     }
+
+    QTableWidgetItem *item3 = 0;
+    QTableWidgetItem *item4 = 0;
 
     // Black and white points should be the same for all imagesto preserve colors
     float commonMin = minVec_T(minValues);

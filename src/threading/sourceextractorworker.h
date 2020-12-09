@@ -34,7 +34,7 @@ public:
 
     QString sourceExtractorCommand;
     QString sourceExtractorDirName;
-    QProcess *extProcess;
+    QProcess *extProcess = nullptr;
 
     void abort();  // Currently not used anywhere
 

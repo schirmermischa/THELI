@@ -152,10 +152,6 @@ long AbsPhot::setupFitMask()
 // Iterative regression
 void AbsPhot::regressionLinfit()
 {
-    double sum_col_ZP = 0.;
-    double sum_col_col = 0.;
-    double meanColor = 0.;
-    double meanZP = 0.;
     int iter_count = 0;
     int iter_max = 10;
 
@@ -164,10 +160,10 @@ void AbsPhot::regressionLinfit()
 
     // Iterative straight line fit
     while (iter_count <= iter_max) {
-        sum_col_ZP = 0.;
-        sum_col_col = 0.;
-        meanColor = meanMask_T(qv_colorIndividual, qv_fitMask);
-        meanZP = meanMask_T(qv_ZPIndividual, qv_fitMask);
+        double sum_col_ZP = 0.;
+        double sum_col_col = 0.;
+        double meanColor = meanMask_T(qv_colorIndividual, qv_fitMask);
+        double meanZP = meanMask_T(qv_ZPIndividual, qv_fitMask);
         // Calculate the regression coefficients
         for (long i=0; i<numObj; ++i) {
             if (!qv_fitMask[i]) {
@@ -179,14 +175,12 @@ void AbsPhot::regressionLinfit()
         cutoff = meanZP - slope * meanColor;
 
         // Check for 2.5 sigma outliers
-        double diff = 0.;
-        double fitval = 0.;
         double kappa = 2.5;
         // Residuals
         QVector<double> residuals = QVector<double>();
         for (long i=0; i<numObj; ++i) {
-            fitval = slope * qv_colorIndividual[i] + cutoff;
-            diff = qv_ZPIndividual[i] - fitval;
+            double fitval = slope * qv_colorIndividual[i] + cutoff;
+            double diff = qv_ZPIndividual[i] - fitval;
             residuals.append(diff);
         }
         // Outlier? Set flag if yes

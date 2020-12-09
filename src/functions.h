@@ -200,7 +200,7 @@ T meanQuantile_T(const QVector<float> &data, const long start, const long end)
     else mean = 0.;
 
     if (naned > (end-start) / 2)
-        mean = sqrt(-1); // return NaN
+        mean = nan("0x12345"); // return NaN
 
     return (mean);
 }
@@ -222,7 +222,7 @@ T straightMedian_T(const QVector<T> &vector_in, long maxLength = 0, bool center 
     T med;
     if (center) {
         // Calculate average of central two elements if number is even
-        med = vector.size() % 2
+        med = (vector.size() % 2)
                 ? vector[vector.size() / 2.]
                 : ((T)vector[vector.size() / 2. - 1] + vector[vector.size() / 2.]) * .5;
     }
@@ -242,9 +242,7 @@ T straightMedianInline(QVector<T> &data)
 
     std::sort(data.begin(), data.end());
     T med;
-    med = dim % 2
-            ? data[dim/2]
-            : ((T)data[dim/2-1] + data[dim/2]) * .5;
+    med = (dim % 2) ? data[dim/2] : ((T)data[dim/2-1] + data[dim/2]) * .5;
 
     return med;
 }
@@ -289,7 +287,6 @@ T meanMask_T(const QVector<T> &vector_in, QVector<bool> mask = QVector<bool>())
     if (maxDim == 0) return 0.;
 
     // fast-track
-    if (maxDim == 0) return 0.;
     if (mask.isEmpty()) {
         return std::accumulate(vector_in.begin(), vector_in.end(), .0) / vector_in.size();
     }
@@ -346,8 +343,8 @@ T madMask_T(const QVector<T> vector_in, const QVector<bool> mask = QVector<bool>
 
     QVector<T> vector;
     vector.reserve(maxDim);
-    long i = 0;
     if (!mask.isEmpty()) {
+        long i = 0;
         for (auto &it: vector_in) {
             if (!mask.at(i) && ignoreZeroes == "") vector.append(it);
             if (!mask.at(i) && ignoreZeroes != "" && it != 0.) vector.append(it);
@@ -358,7 +355,6 @@ T madMask_T(const QVector<T> vector_in, const QVector<bool> mask = QVector<bool>
         for (auto &it: vector_in) {
             if (ignoreZeroes == "") vector.append(it);
             if (ignoreZeroes != "" && it != 0.) vector.append(it);
-            ++i;
         }
     }
 
@@ -367,7 +363,7 @@ T madMask_T(const QVector<T> vector_in, const QVector<bool> mask = QVector<bool>
     if (vector.size() == 0) return 0.;
     else {
         T med = straightMedian_T(vector);
-        for (int i=0; i<vector.size(); ++i) {
+        for (long i=0; i<vector.size(); ++i) {
             diff.append(fabs(vector.at(i)-med));
         }
         return straightMedian_T(diff);
@@ -479,8 +475,6 @@ Reference:
 template<class T>
 T kth_smallest(QVector<T> &data, int k)       // WARNING: modifies input vector
 {
-    long i;
-    long j;
     T x;
 
     long l = 0;
@@ -488,8 +482,8 @@ T kth_smallest(QVector<T> &data, int k)       // WARNING: modifies input vector
     long m = n - 1;
     while (l < m) {
         x = data[k] ;
-        i = l;
-        j = m;
+        long i = l;
+        long j = m;
         do {
             while (data.at(i) < x) ++i;
             while (x<data.at(j)) --j;

@@ -33,10 +33,10 @@ class MemoryWorker : public Worker
 public:
     explicit MemoryWorker(MemoryViewer *memViewer, QObject *parent = 0);
     explicit MemoryWorker(Data *datadir, QObject *parent = 0);
-    MyImage *myImage;
+    MyImage *myImage = nullptr;
     QString path = "";
 
-    Data *data;
+    Data *data = nullptr;
 
 public slots:
     void MemoryViewerDumpImagesToDrive();
@@ -45,7 +45,7 @@ public slots:
 //    void processActiveStatusChanged();
 
 private:
-    MemoryViewer *memoryViewer;
+    MemoryViewer *memoryViewer = nullptr;
 //    Data *data;
 
     omp_lock_t progressLock;

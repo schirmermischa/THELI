@@ -34,7 +34,7 @@ public:
     QString swarpCommand;
     QString coaddDirName;
     QString swarpType;
-    int threadID;
+    int threadID = 0;
     QProcess *extProcess = nullptr;
 
     void abort();

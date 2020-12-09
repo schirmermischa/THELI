@@ -55,8 +55,8 @@ public:
     QString filter = "";
     QString colorfilter = "";
     QString color = "";
-    double slope;
-    double cutoff;
+    double slope = 0.;
+    double cutoff = 0.;
 
     int numAper = 0;
     int numObj = 0;
@@ -66,8 +66,8 @@ public:
     QVector<float> fitParamsErr = QVector<float>(4,0.);
     bool initialized = false;
 
-    double ZPauto;
-    double ZPautoerr;
+    double ZPauto = 0.;
+    double ZPautoerr = 0.;
 
     QString ZPSelected;
     QString ZPerrSelected;

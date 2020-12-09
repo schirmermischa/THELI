@@ -750,8 +750,8 @@ double medianerrMask(const QVector<double> &vector_in, const QVector<bool> &mask
 
     QVector<double> vector;
     vector.reserve(maxDim);
-    int i = 0;
     if (!mask.isEmpty()) {
+        long i = 0;
         for (auto &it: vector_in) {
             if (!mask[i]) vector.append(it);
             ++i;
@@ -760,7 +760,6 @@ double medianerrMask(const QVector<double> &vector_in, const QVector<bool> &mask
     else {
         for (auto &it: vector_in) {
             vector.append(it);
-            ++i;
         }
     }
 
@@ -1260,7 +1259,7 @@ float straightMedian_MinMax(QVector<float> &data, const int nlow, const int nhig
 
     // Calculate average of central two elements if number is even
     long dsize = data.size();
-    med = (dsize) % 2
+    med = (dsize % 2)
             ? data[dsize / 2.]
             : ((float)data[dsize / 2. - 1] + data[dsize / 2.]) * .5;
 
@@ -1285,7 +1284,7 @@ float straightMedian_MinMax(QList<float> &data, const int nlow, const int nhigh)
 
     // Calculate average of central two elements if number is even
     long dsize = data.size();
-    med = (dsize) % 2
+    med = (dsize % 2)
             ? data[dsize / 2.]
             : ((float)data[dsize / 2. - 1] + data[dsize / 2.]) * .5;
 

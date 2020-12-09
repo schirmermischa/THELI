@@ -581,10 +581,8 @@ void MainWindow::on_startPushButton_clicked()
     // If we are not in simulator mode then do the real thing
     if (mode != "simulate") {
         bool anythingChecked = false;
-        int numTasksChecked = 0;
         for (auto &it : status.listCheckBox) {
             if (it->isChecked()) {
-                ++numTasksChecked;
                 anythingChecked = true;
             }
         }
@@ -923,6 +921,8 @@ bool MainWindow::checkCatalogUsability(QString mode)
             QString refcatName = cdw->ui->ARCcatalogComboBox->currentText();
             if (refcatName.contains("GAIA") ||
                     refcatName.contains("PANSTARRS") ||
+                    refcatName.contains("SKYMAPPER") ||
+                    refcatName.contains("VHS") ||
                     refcatName.contains("SDSS") ||
                     refcatName.contains("2MASS")) {
                 QMessageBox msgBox;

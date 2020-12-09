@@ -164,7 +164,6 @@ void Splitter::doOverscanVertical(float (*combineFunction_ptr) (const QVector<fl
     if (!successProcessing) return;
     if (overscanArea.isEmpty()) return;
 
-    long i, j, k;
     long n = naxis1Raw;
     long m = naxis2Raw;
 
@@ -176,9 +175,9 @@ void Splitter::doOverscanVertical(float (*combineFunction_ptr) (const QVector<fl
     // Line by line correction
     if (combineFunction_ptr != nullptr) {
         // extract representative line
-        for (j=0; j<m; ++j) {
-            k = 0;
-            for (i=overscanArea[0]; i<=overscanArea[1]; ++i) {
+        for (long j=0; j<m; ++j) {
+            long k = 0;
+            for (long i=overscanArea[0]; i<=overscanArea[1]; ++i) {
                 spectral[k] = dataRaw[i+n*j];
                 ++k;
             }
@@ -192,15 +191,15 @@ void Splitter::doOverscanVertical(float (*combineFunction_ptr) (const QVector<fl
     else {
         QVector<float> tmp;
         tmp.reserve((overscanArea[1]-overscanArea[0]+1)*m);
-        for (j=0; j<m; ++j) {
-            for (i=overscanArea[0]; i<=overscanArea[1]; ++i) {
+        for (long j=0; j<m; ++j) {
+            for (long i=overscanArea[0]; i<=overscanArea[1]; ++i) {
                 tmp << dataRaw[i+n*j];
             }
         }
         float constOverscan = straightMedianInline(tmp);
         overscanEstimate = constOverscan;
         if (*verbosity > 1) emit messageAvailable(baseName + " : Global median overscan = " + QString::number(constOverscan, 'f', 1), "image");
-        for (j=0; j<m; ++j) {
+        for (long j=0; j<m; ++j) {
             spatial[j] = constOverscan;
         }
     }
@@ -211,8 +210,8 @@ void Splitter::doOverscanVertical(float (*combineFunction_ptr) (const QVector<fl
     long imax = dataVertices[1];
     long jmin = dataVertices[2];
     long jmax = dataVertices[3];
-    for (i=imin; i<=imax; ++i) {
-        for (j=jmin; j<=jmax; ++j) {
+    for (long i=imin; i<=imax; ++i) {
+        for (long j=jmin; j<=jmax; ++j) {
             dataRaw[i+n*j] -= spatial[j];
         }
     }
@@ -225,7 +224,6 @@ void Splitter::doOverscanHorizontal(float (*combineFunction_ptr) (const QVector<
     if (!successProcessing) return;
     if (overscanArea.isEmpty()) return;
 
-    long i, j, k;
     long n = naxis1Raw;
 
     overscanEstimate = 0.;
@@ -236,9 +234,9 @@ void Splitter::doOverscanHorizontal(float (*combineFunction_ptr) (const QVector<
     // Line by line correction
     if (combineFunction_ptr != nullptr) {
         // extract representative line
-        for (i=0; i<n; ++i) {
-            k = 0;
-            for (j=overscanArea[2]; j<=overscanArea[3]; ++j) {
+        for (long i=0; i<n; ++i) {
+            long k = 0;
+            for (long j=overscanArea[2]; j<=overscanArea[3]; ++j) {
                 spectral[k] = dataRaw[i+n*j];
                 ++k;
             }
@@ -251,15 +249,15 @@ void Splitter::doOverscanHorizontal(float (*combineFunction_ptr) (const QVector<
     else {
         QVector<float> tmp;
         tmp.reserve((overscanArea[3]-overscanArea[2]+1)*n);
-        for (i=0; i<n; ++i) {
-            for (j=overscanArea[2]; j<=overscanArea[3]; ++j) {
+        for (long i=0; i<n; ++i) {
+            for (long j=overscanArea[2]; j<=overscanArea[3]; ++j) {
                 tmp << dataRaw[i+n*j];
             }
         }
         float constOverscan = straightMedianInline(tmp);
         overscanEstimate = constOverscan;
         if (*verbosity > 1) emit messageAvailable(baseName + " : Global median overscan = " + QString::number(constOverscan, 'f', 1), "image");
-        for (i=0; i<n; ++i) {
+        for (long i=0; i<n; ++i) {
             spatial[i] = constOverscan;
         }
     }
@@ -270,8 +268,8 @@ void Splitter::doOverscanHorizontal(float (*combineFunction_ptr) (const QVector<
     long imax = dataVertices[1];
     long jmin = dataVertices[2];
     long jmax = dataVertices[3];
-    for (j=jmin; j<=jmax; ++j) {
-        for (i=imin; i<=imax; ++i) {
+    for (long j=jmin; j<=jmax; ++j) {
+        for (long i=imin; i<=imax; ++i) {
             dataRaw[i+n*j] -= spatial[i];
         }
     }
@@ -507,7 +505,7 @@ void Splitter::correctXtalk()
     // Xtalk Amplitudes
     xtalkNorAmpString = cdw->ui->normalxtalkAmplitudeLineEdit->text();
     xtalkRowAmpString = cdw->ui->rowxtalkAmplitudeLineEdit->text();
-    if (xtalkNorAmpString.isEmpty() && xtalkNorAmpString.isEmpty()) return;
+    if (xtalkNorAmpString.isEmpty() && xtalkRowAmpString.isEmpty()) return;
 
     if ( (doXtalkNor && xtalkNorAmpString.isEmpty())
          || ((doXtalkRow && xtalkRowAmpString.isEmpty()))) {

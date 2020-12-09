@@ -45,7 +45,8 @@ private:
     QPoint previousMousePoint;
 
     bool _pan = false;
-    int _panStartX, _panStartY;
+    int _panStartX = 0;
+    int _panStartY = 0;
     bool _wcs = false;
     QPoint wcsStart;
 
@@ -54,12 +55,12 @@ public:
     void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
-    QScrollBar *sxbar;
-    QScrollBar *sybar;
+    QScrollBar *sxbar = nullptr;
+    QScrollBar *sybar = nullptr;
     QString middleMouseMode = "DragMode";
 
-    int x;
-    int y;
+    int x = 0;
+    int y = 0;
 
 signals:
     void currentMousePos(QPointF);

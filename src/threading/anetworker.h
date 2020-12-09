@@ -34,7 +34,7 @@ public:
 
     QString anetCommand;
     QString anetDirName;
-    QProcess *extProcess;
+    QProcess *extProcess = nullptr;
 
     void abort();  // Currently not used anywhere
 

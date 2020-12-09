@@ -43,9 +43,9 @@ Splitter::Splitter(const instrumentDataType &instrumentData, const Mask *detecto
     QObject(parent),
     mask(detectorMask),
     altMask(altDetectorMask),
+    instData(instrumentData),       // instData is modified locally during splitting, in the Splitter class only
     cdw(confDockWidget)
 {
-    instData = instrumentData;   // instData is modified locally during splitting, in the Splitter class only
     fileName = filename;
     cdw = confDockWidget;
     mainDirName = maindirname;

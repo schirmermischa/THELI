@@ -690,12 +690,11 @@ void IView::compressDynrange(const QVector<float> &fitsdata, unsigned char *intd
 {
     float rescale = 255. / (dynRangeMax - dynRangeMin);
     float tmpdata;
-    float fitsdataCorrected;
     // NOT THREADSAFE!
     //#pragma omp parallel for
     for (long i=0; i<naxis1*naxis2; ++i) {
         // Truncate dynamic range
-        fitsdataCorrected = fitsdata.at(i) * colorCorrectionFactor;
+        float fitsdataCorrected = fitsdata.at(i) * colorCorrectionFactor;
         if (fitsdataCorrected > dynRangeMax) tmpdata = dynRangeMax;
         else if (fitsdataCorrected < dynRangeMin) tmpdata = dynRangeMin;
         else tmpdata = fitsdataCorrected;
@@ -814,7 +813,6 @@ void IView::showReferenceCat()
     // Leave if no image is displayed
     if (scene->items().isEmpty()) return;
 
-    int symbolSize = 15;
     QColor color = QColor("#ff3300");
     int width = 2. / icdw->zoom2scale(zoomLevel);
     width = width < 1 ? 1 : width;
@@ -827,6 +825,7 @@ void IView::showReferenceCat()
     if (ui->actionRefCat->isChecked()) {
         refCatItems.clear();
         // Try and read the reference catalog in the standard relative position
+        int symbolSize = 15;
         if (!readRaDecCatalog(dirName+"/cat/refcat/theli_mystd.iview", refCatItems, symbolSize, width, color)) {
             // Perhaps we are looking at a coadded image. Then go one directory up first
             if (!readRaDecCatalog(dirName+"/../cat/refcat/theli_mystd.iview", refCatItems, symbolSize, width, color)) {
@@ -890,10 +889,6 @@ bool IView::readRaDecCatalog(QString fileName, QList<QGraphicsRectItem*> &items,
 {
     QString line;
     QStringList lineList;
-    double ra;
-    double dec;
-    double x;
-    double y;
     QPen pen(color);
     pen.setWidth(width);
     QPoint point;
@@ -907,8 +902,10 @@ bool IView::readRaDecCatalog(QString fileName, QList<QGraphicsRectItem*> &items,
             // skip header lines
             if (line.contains("#")) continue;
             lineList = line.split(" ");
-            ra = lineList.at(0).toDouble();
-            dec = lineList.at(1).toDouble();
+            double ra = lineList.at(0).toDouble();
+            double dec = lineList.at(1).toDouble();
+            double x = 0.;
+            double y = 0.;
             sky2xy(ra, dec, x, y);
             // correct for an offset introduced by where the scene draws the ellipses (or rectangles)
             point.setX(x-0.5*size);

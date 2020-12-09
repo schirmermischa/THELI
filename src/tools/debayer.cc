@@ -198,9 +198,9 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
 
     // Subtract offset;
     // Color balance with sensor multipliers R,G,B,g
-    long k1;
-    long i;
-    long j;
+    long k1 = 0;
+    long i = 0;
+    long j = 0;
 
     // TODO: test if we can simplify the code below by using references to vectors (less writing);
     // QVector<float> &I = image->dataCurrent;

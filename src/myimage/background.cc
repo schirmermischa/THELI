@@ -116,7 +116,7 @@ void MyImage::fitBackgroundGSL()
     for (long j=pad_b; j<m_pad-pad_t; ++j) {
         double y = double(j);
         for (long i=pad_l; i<n_pad-pad_r; ++i) {
-            if (i-pad_l < 0 || i-pad_l >= naxis1 || j-pad_b < 0 || j-pad_b >= naxis2) qDebug() << "error";
+            if (i-pad_l < 0 || i-pad_l >= naxis1 || j-pad_b < 0 || j-pad_b >= naxis2) qDebug() << "MyImage::background: GSLFIT: padding error";
             double x = double(i);
             dataBackground[i-pad_l+naxis1*(j-pad_b)] = gsl_spline2d_eval(spline, x, y, xacc, yacc);
         }
@@ -162,15 +162,13 @@ void MyImage::getGridStatistics()
                     long ii = i-pad_l+naxis1*(j-pad_b);
                     if (globalMaskAvailable && !globalMask[ii]) {
                         if (!weightInMemory) {
-                            if (!objectMaskDone
-                                    || (objectMaskDone && !objectMask[ii])) {
+                            if (!objectMaskDone || !objectMask[ii]) {   // !objectMask[ii] implies objectMaskDone = true
                                 backgroundSample.append(dataCurrent[ii]);
                             }
                         }
                         else {
                             if (dataWeight[ii] > 0.
-                                    && (!objectMaskDone
-                                        || (objectMaskDone && !objectMask[ii]))) {
+                                    && (!objectMaskDone || !objectMask[ii])) {
                                 backgroundSample.append(dataCurrent[ii]);
                             }
                         }
@@ -178,15 +176,13 @@ void MyImage::getGridStatistics()
                     // without global mask: external image, e.g. for absZP
                     else {
                         if (!weightInMemory) {
-                            if (!objectMaskDone
-                                    || (objectMaskDone && !objectMask[ii])) {
+                            if (!objectMaskDone || !objectMask[ii]) {
                                 backgroundSample.append(dataCurrent[ii]);
                             }
                         }
                         else {
                             if (dataWeight[ii] > 0.
-                                    && (!objectMaskDone
-                                        || (objectMaskDone && !objectMask[ii]))) {
+                                    && (!objectMaskDone || !objectMask[ii])) {
                                 backgroundSample.append(dataCurrent[ii]);
                             }
                         }

@@ -159,9 +159,9 @@ public:
 
     QVector<float> apertures;
 
-    QThread *workerThread;
-    SourceExtractorWorker *sourceExtractorWorker;
-    AnetWorker *anetWorker;
+    QThread *workerThread = nullptr;
+    SourceExtractorWorker *sourceExtractorWorker = nullptr;
+    AnetWorker *anetWorker = nullptr;
 
 //    bool lockForInitWCSneeded = true;
 
@@ -214,7 +214,7 @@ public:
 
     float matchingTolerance = 2./3600.;   // default matching tolerance = 2 arcsec;
 
-    long dim;
+    long dim = 0;
     // Status flags
     bool imageInMemory = false;
     bool backupL1InMemory = false;
@@ -389,8 +389,8 @@ public:
     void readImage(bool determineMode = true);
     void readWeight();
     void resetObjectMasking();
-    QVector<float> retainUnmaskedData(int sampleDensity = 1);
-    QVector<float> retainUnmaskedDataThresholded(float minVal, float maxVal, int sampleDensity = 1);
+//    QVector<float> retainUnmaskedData(int sampleDensity = 1);
+//    QVector<float> retainUnmaskedDataThresholded(float minVal, float maxVal, int sampleDensity = 1);
     void roundEdgeOfWeight(float edge, bool roundEdge);
     bool scanAstromHeader(int chip, QString mode);
     void setModeFlag(QString min, QString max);
