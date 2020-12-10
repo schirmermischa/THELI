@@ -551,22 +551,10 @@ void DetectedObject::calcEllipticity()
     XERR = sqrt( pow(A*cos(THETA*rad), 2) + pow(B*sin(THETA*rad), 2));
     YERR = sqrt( pow(A*sin(THETA*rad), 2) + pow(B*cos(THETA*rad), 2));
 
-    // This is not what the source extractor documentation says, but this is what matches the data
+    // This is what the printed source extractor documentation says (v. 2.13), but not the online doc https://sextractor.readthedocs.io/ (The latter seems wrong)
     CXX = Y2 / s2;
     CYY = X2 / s2;
-    CXY = -XY / s2;
-
-//    CXX = Y2 / (X2Y2-XY*XY);
-//    CYY = X2 / (X2Y2-XY*XY);
-//    CXY = -2. * XY / (X2Y2-XY*XY);
-
-    /*
-    CXX = pow(cos(THETA*rad)/A, 2) + pow(sin(THETA*rad)/B, 2);
-    CYY = pow(sin(THETA*rad)/A, 2) + pow(cos(THETA*rad)/B, 2);
-    CXY = 2. * cos(THETA*rad) * sin(THETA*rad) * (1./(A*A) - 1./(B*B));
-    */
-
-    // qDebug() << CXX << CXXnew << CYY << CYYnew << CXY << CXYnew;
+    CXY = -2. * XY / s2;
 
     ELLIPTICITY = 1. - B/A;
 }
@@ -599,7 +587,7 @@ void DetectedObject::calcWindowedEllipticity()
 
     CXXWIN = Y2WIN / s2;
     CYYWIN = X2WIN / s2;
-    CXYWIN = -XYWIN / s2;
+    CXYWIN = -2.*XYWIN / s2;
 }
 
 void DetectedObject::calcFluxRadius()

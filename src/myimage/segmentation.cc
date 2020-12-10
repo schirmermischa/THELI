@@ -553,10 +553,12 @@ void MyImage::maskExpand(QString expFactor, bool writeObjectmaskImage)
         float oX = object->X;
         float oY = object->Y;
         float oAf = object->A * factor;
-        long imin = (oX - 2.*oAf > 0) ? int(oX - 2.*oAf) : 0;
-        long imax = (oX + 2.*oAf < n) ? int(oX + 2.*oAf) : n-1;
-        long jmin = (oY - 2.*oAf > 0) ? int(oY - 2.*oAf) : 0;
-        long jmax = (oY + 2.*oAf < m) ? int(oY + 2.*oAf) : m-1;
+        float xextent = 3. * pow(object->A*factor, 2);                   // max ellipse extent in x direction
+        float yextent = 3. * object->A * object->B * factor * factor;    // max ellipse extent in y direction
+        long imin = (oX - xextent > 0) ? int(oX - xextent) : 0;
+        long imax = (oX + xextent < n) ? int(oX + xextent) : n-1;
+        long jmin = (oY - yextent > 0) ? int(oY - yextent) : 0;
+        long jmax = (oY + yextent < m) ? int(oY + yextent) : m-1;
         // Loop over the rectangular subset of pixels that encompass the object
         for (long j=jmin; j<=jmax; ++j) {
             float dy = oY - j;
