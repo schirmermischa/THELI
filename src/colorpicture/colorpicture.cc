@@ -66,6 +66,7 @@ ColorPicture::ColorPicture(QString main, QWidget *parent) :
 
     connect(ui->resultSDSSPushButton, &QPushButton::clicked, this, &ColorPicture::toggleCalibResult );
     connect(ui->resultPANSTARRSPushButton, &QPushButton::clicked, this, &ColorPicture::toggleCalibResult );
+    connect(ui->resultSKYMAPPERPushButton, &QPushButton::clicked, this, &ColorPicture::toggleCalibResult );
     connect(ui->resultAPASSPushButton, &QPushButton::clicked, this, &ColorPicture::toggleCalibResult );
     connect(ui->resultAVGWHITEPushButton, &QPushButton::clicked, this, &ColorPicture::toggleCalibResult );
 
@@ -73,6 +74,7 @@ ColorPicture::ColorPicture(QString main, QWidget *parent) :
     connect(ui->blueFactorLineEdit, &QLineEdit::textEdited, this, &ColorPicture::sendColorFactors);
     connect(ui->resultSDSSPushButton, &QPushButton::clicked, this, &ColorPicture::sendColorFactors);
     connect(ui->resultPANSTARRSPushButton, &QPushButton::clicked, this, &ColorPicture::sendColorFactors);
+    connect(ui->resultSKYMAPPERPushButton, &QPushButton::clicked, this, &ColorPicture::sendColorFactors);
     connect(ui->resultAPASSPushButton, &QPushButton::clicked, this, &ColorPicture::sendColorFactors);
     connect(ui->resultAVGWHITEPushButton, &QPushButton::clicked, this, &ColorPicture::sendColorFactors);
     connect(ui->getStatisticsPushButton, &QPushButton::clicked, this, &ColorPicture::on_previewCalibPushButton_clicked);
@@ -86,6 +88,7 @@ ColorPicture::ColorPicture(QString main, QWidget *parent) :
     resultButtonGroup->setExclusive(true);
     resultButtonGroup->addButton(ui->resultPANSTARRSPushButton);
     resultButtonGroup->addButton(ui->resultSDSSPushButton);
+    resultButtonGroup->addButton(ui->resultSKYMAPPERPushButton);
     resultButtonGroup->addButton(ui->resultAPASSPushButton);
     resultButtonGroup->addButton(ui->resultAVGWHITEPushButton);
 
@@ -100,9 +103,11 @@ ColorPicture::ColorPicture(QString main, QWidget *parent) :
     // Init queries
     PANSTARRSquery->refcatName = "PANSTARRS";
     SDSSquery->refcatName = "SDSS";
+    SKYMAPPERquery->refcatName = "SKYMAPPER";
     APASSquery->refcatName = "APASS";
     connect(PANSTARRSquery, &Query::messageAvailable, this, &ColorPicture::displayMessage);
     connect(SDSSquery, &Query::messageAvailable, this, &ColorPicture::displayMessage);
+    connect(SKYMAPPERquery, &Query::messageAvailable, this, &ColorPicture::displayMessage);
     connect(APASSquery, &Query::messageAvailable, this, &ColorPicture::displayMessage);
 }
 
@@ -110,6 +115,7 @@ ColorPicture::~ColorPicture()
 {
     delete PANSTARRSquery;
     delete SDSSquery;
+    delete SKYMAPPERquery;
     delete APASSquery;
 
     delete ui;
@@ -298,10 +304,11 @@ void ColorPicture::showDone(QPushButton *pushButton, QString text)
 
 void ColorPicture::updateCalibFactors()
 {
+    int nrefcat = 4;
     // Select the best result (the ones with the most matches, other than AVGWHITE
     int maxStars = 0;
     int maxIndex = -1;
-    for (int i=0; i<3; ++i) {
+    for (int i=0; i<nrefcat; ++i) {
         if (photcatresult[i].nstars.toInt() > maxStars) {
             maxStars = photcatresult[i].nstars.toInt();
             maxIndex = i;
@@ -309,10 +316,11 @@ void ColorPicture::updateCalibFactors()
     }
     if (maxIndex == 0) ui->resultPANSTARRSPushButton->setChecked(true);
     else if (maxIndex == 1) ui->resultSDSSPushButton->setChecked(true);
-    else if (maxIndex == 2) ui->resultAPASSPushButton->setChecked(true);
+    else if (maxIndex == 2) ui->resultSKYMAPPERPushButton->setChecked(true);
+    else if (maxIndex == 3) ui->resultAPASSPushButton->setChecked(true);
     else {
         // Fallback onto AVGWHITE solution
-        maxIndex = 3;
+        maxIndex = nrefcat;
         ui->resultAVGWHITEPushButton->setChecked(true);
     }
 
@@ -332,7 +340,7 @@ void ColorPicture::updateCalibFactors()
     sendColorFactors();
 
     // If no reference stars were retrieved
-    if (photcatresult[maxIndex].nstars.toInt() == 0 || maxIndex == 3) {
+    if (photcatresult[maxIndex].nstars.toInt() == 0 || maxIndex == nrefcat) {
         emit messageAvailable("No G2-type references could be matched for this field. Falling back on 'average white'.", "warning");
     }
 }
@@ -401,13 +409,15 @@ void ColorPicture::updateBBNBcombine()
 void ColorPicture::toggleCalibResult()
 {
     int i;
+    int nrefcat = 4;
     if (ui->resultPANSTARRSPushButton->isChecked()) i = 0;
     else if (ui->resultSDSSPushButton->isChecked()) i = 1;
-    else if (ui->resultAPASSPushButton->isChecked()) i = 2;
-    else if (ui->resultAVGWHITEPushButton->isChecked()) i = 3;
-    else i = 4;
+    else if (ui->resultSKYMAPPERPushButton->isChecked()) i = 2;
+    else if (ui->resultAPASSPushButton->isChecked()) i = 3;
+    else if (ui->resultAVGWHITEPushButton->isChecked()) i = 4;
+    else i = nrefcat;
 
-    if (i<4) {
+    if (i<nrefcat) {
         ui->redFactorLineEdit->setText(photcatresult[i].rfac);
         ui->redErrorLineEdit->setText(photcatresult[i].rfacerr);
         ui->greenFactorLineEdit->setText("1.000");
@@ -575,6 +585,7 @@ void ColorPicture::resetResultButtonGroup(QString resetLabels)
 {
     resultButtonGroup->setExclusive(false);
     ui->resultSDSSPushButton->setChecked(false);
+    ui->resultSKYMAPPERPushButton->setChecked(false);
     ui->resultPANSTARRSPushButton->setChecked(false);
     ui->resultAPASSPushButton->setChecked(false);
     ui->resultAVGWHITEPushButton->setChecked(false);
@@ -583,6 +594,7 @@ void ColorPicture::resetResultButtonGroup(QString resetLabels)
     if (!resetLabels.isEmpty()) {
         ui->numPANSTARRSLabel->setText("? stars");
         ui->numSDSSLabel->setText("? stars");
+        ui->numSKYMAPPERLabel->setText("? stars");
         ui->numAPASSLabel->setText("? stars");
         ui->numAVGWHITELabel->setText("? stars");
     }

@@ -37,8 +37,9 @@ void ColorPicture::on_calibratePushButton_clicked()
 {
     photcatresult[0].catname = "PANSTARRS";
     photcatresult[1].catname = "SDSS";
-    photcatresult[2].catname = "APASS";
-    photcatresult[3].catname = "AVGWHITE";
+    photcatresult[2].catname = "SKYMAPPER";
+    photcatresult[3].catname = "APASS";
+    photcatresult[4].catname = "AVGWHITE";
 
     ui->redFactorLineEdit->setText("");
     ui->greenFactorLineEdit->setText("1.000");
@@ -90,21 +91,27 @@ void ColorPicture::taskInternalColorCalib()
         queryList = {APASSquery};
         ui->resultPANSTARRSPushButton->setDisabled(true);
         ui->resultSDSSPushButton->setDisabled(true);
+        ui->resultSKYMAPPERPushButton->setDisabled(true);
         ui->numPANSTARRSLabel->setText("0 stars");
         ui->numSDSSLabel->setText("0 stars");
-        emit messageAvailable("PANSTARRS and SDSS queries deactivated, field of view is too large.", "warning");
+        ui->numSKYMAPPERLabel->setText("0 stars");
+        emit messageAvailable("PANSTARRS, SDSS and SKYMAPPER queries deactivated, field of view is too large.", "warning");
     }
     else {
-        queryList = {PANSTARRSquery, SDSSquery, APASSquery};
+        queryList = {PANSTARRSquery, SDSSquery, SKYMAPPERquery, APASSquery};
     }
 
     // Retrieve the photometric reference catalogs and identify solar type analogs
 
-    // nexted paralellism within colorCalibSegmentImages();
+    // nested parallelism within colorCalibSegmentImages();
     //#pragma omp parallel sections
     //    {
     //#pragma omp section
     //        {
+    // Detect sources in all images
+    colorCalibSegmentImages();
+    //        }
+    // retrieve catalogs
     colorCalibRetrieveCatalogs(queryList);
 
     // Extract solar analogs
@@ -112,8 +119,6 @@ void ColorPicture::taskInternalColorCalib()
     //        }
     //#pragma omp section
     //        {
-    // Detect sources in all images
-    colorCalibSegmentImages();
     //        }
     //    }
 
@@ -145,21 +150,22 @@ void ColorPicture::colorCalibMatchCatalogs()
     tolerance = (imageR->matchingTolerance + imageG->matchingTolerance) / 2.;
     QVector<QVector<double>> matchedRG;
 
-//    for (int i=0; i<objDatB.length(); ++i) qDebug() << qSetRealNumberPrecision(12) << "B" << objDatB.at(i)[1] << objDatB.at(i)[0];
-//    for (int i=0; i<objDatG.length(); ++i) qDebug() << qSetRealNumberPrecision(12) << "G" << objDatG.at(i)[1] << objDatG.at(i)[0];
-//    for (int i=0; i<objDatR.length(); ++i) qDebug() << qSetRealNumberPrecision(12) << "R" << objDatR.at(i)[1] << objDatR.at(i)[0];
+    //    for (int i=0; i<objDatB.length(); ++i) qDebug() << qSetRealNumberPrecision(12) << "B" << objDatB.at(i)[1] << objDatB.at(i)[0];
+    //    for (int i=0; i<objDatG.length(); ++i) qDebug() << qSetRealNumberPrecision(12) << "G" << objDatG.at(i)[1] << objDatG.at(i)[0];
+    //    for (int i=0; i<objDatR.length(); ++i) qDebug() << qSetRealNumberPrecision(12) << "R" << objDatR.at(i)[1] << objDatR.at(i)[0];
 
-//    match2D(objDatR, objDatG, matchedRG, tolerance, multipleR, multipleG, maxCPU);
     match2D(objDatR, objDatG, matchedRG, tolerance, multipleR, multipleG, 0);
-
-    emit messageAvailable("Total of RG  " + QString::number(matchedRG.length()) + " " + QString::number(tolerance*3600/1.8), "ignore");
 
     // Match R+G with B
     tolerance = (imageR->matchingTolerance + imageB->matchingTolerance) / 2.;
     QVector<QVector<double>> matchedRGB;
     match2D(matchedRG, objDatB, matchedRGB, tolerance, multipleR, multipleB, maxCPU);
 
-    emit messageAvailable("Total of RGB " + QString::number(matchedRGB.length()) + " " + QString::number(tolerance*3600/1.8), "ignore");
+    QString tolB = QString::number(imageB->matchingTolerance*3600,'f',1) + "\" (" + QString::number(imageB->matchingTolerance*3600/imageB->plateScale,'f',1) + " pix)";
+    QString tolG = QString::number(imageG->matchingTolerance*3600,'f',1) + "\" (" + QString::number(imageG->matchingTolerance*3600/imageG->plateScale,'f',1) + " pix)";
+    QString tolR = QString::number(imageR->matchingTolerance*3600,'f',1) + "\" (" + QString::number(imageR->matchingTolerance*3600/imageR->plateScale,'f',1) + " pix)";
+    emit messageAvailable("RGB matching tolerances:  " + tolB + " --- " + tolG + " --- " +tolR, "ignore");
+    emit messageAvailable("RGB # of matched sources: " + QString::number(matchedRGB.length()), "ignore");
 
     // Extract AVGWHITE color correction factors
     QVector<double> rCorr;   // red correction factors wrt. green channel
@@ -174,13 +180,15 @@ void ColorPicture::colorCalibMatchCatalogs()
         bCorr.append(obj[3] / obj[4]);
     }
     double num = rCorr.length();
-    photcatresult[3].rfac    = QString::number(medianMask_T(rCorr),'f',3);
-    photcatresult[3].rfacerr = QString::number(medianerrMask(rCorr) / sqrt(num),'f',3);
-    photcatresult[3].gfac    = "1.000";
-    photcatresult[3].gfacerr = "0.000";
-    photcatresult[3].bfac    = QString::number(medianMask_T(bCorr),'f',3);
-    photcatresult[3].bfacerr = QString::number(medianerrMask(bCorr) / sqrt(num),'f',3);
-    photcatresult[3].nstars = QString::number(num);
+
+    int nrefcat = 4;
+    photcatresult[nrefcat].rfac    = QString::number(medianMask_T(rCorr),'f',3);
+    photcatresult[nrefcat].rfacerr = QString::number(medianerrMask(rCorr) / sqrt(num),'f',3);
+    photcatresult[nrefcat].gfac    = "1.000";
+    photcatresult[nrefcat].gfacerr = "0.000";
+    photcatresult[nrefcat].bfac    = QString::number(medianMask_T(bCorr),'f',3);
+    photcatresult[nrefcat].bfacerr = QString::number(medianerrMask(bCorr) / sqrt(num),'f',3);
+    photcatresult[nrefcat].nstars = QString::number(num);
     emit updateNrefStars("AVGWHITE", rCorr.length());
 
     // Match with reference catalogs
@@ -191,6 +199,9 @@ void ColorPicture::colorCalibMatchCatalogs()
 
     filterReferenceCatalog(SDSS, imageG);
     colorCalibMatchReferenceCatalog(matchedRGB, SDSS, tolerance);
+
+    filterReferenceCatalog(SKYMAPPER, imageG);
+    colorCalibMatchReferenceCatalog(matchedRGB, SKYMAPPER, tolerance);
 
     filterReferenceCatalog(APASS, imageG);
     colorCalibMatchReferenceCatalog(matchedRGB, APASS, tolerance);
@@ -222,7 +233,8 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
     int index = 0;
     if (REFCAT->name == "PANSTARRS") index = 0;
     else if (REFCAT->name == "SDSS") index = 1;
-    else if (REFCAT->name == "APASS") index = 2;
+    else if (REFCAT->name == "SKYMAPPER") index = 2;
+    else if (REFCAT->name == "APASS") index = 3;
 
     if (matchedRGB.isEmpty() || REFCAT->ra.isEmpty()) {
         photcatresult[index].rfac    = "1.000";
@@ -232,6 +244,14 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
         photcatresult[index].bfac    = "1.000";
         photcatresult[index].bfacerr = "0.000";
         photcatresult[index].nstars = "0";
+
+        QString nstars = "0 stars";
+        if (REFCAT->ra.isEmpty()) {
+            if (REFCAT->name == "PANSTARRS") ui->numPANSTARRSLabel->setText(nstars);
+            else if (REFCAT->name == "SDSS") ui->numSDSSLabel->setText(nstars);
+            else if (REFCAT->name == "SKYMAPPER") ui->numSKYMAPPERLabel->setText(nstars);
+            else if (REFCAT->name == "APASS") ui->numAPASSLabel->setText(nstars);
+        }
         return;
     }
 
@@ -283,12 +303,13 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
     QString nstars = QString::number(matchedREFCAT.length()) + " stars";
     if (REFCAT->name == "PANSTARRS") ui->numPANSTARRSLabel->setText(nstars);
     else if (REFCAT->name == "SDSS") ui->numSDSSLabel->setText(nstars);
+    else if (REFCAT->name == "SKYMAPPER") ui->numSKYMAPPERLabel->setText(nstars);
     else if (REFCAT->name == "APASS") ui->numAPASSLabel->setText(nstars);
     else if (REFCAT->name == "AVGWHITE") ui->numAVGWHITELabel->setText(nstars);
 
     QString type = "note";
     if (matchedREFCAT.length() == 0) type = "warning";
-    emit messageAvailable(REFCAT->name + " : "+QString::number(matchedREFCAT.length()) + " of them were matched in the image.", type);
+    emit messageAvailable(REFCAT->name + " : "+QString::number(matchedREFCAT.length()) + " of them were detected in the image.", type);
 }
 
 void ColorPicture::writeG2refcat(const QString refcatName, const QVector<QVector<double>> matchedREFCAT)
@@ -308,7 +329,7 @@ void ColorPicture::writeG2refcat(const QString refcatName, const QVector<QVector
     // Write iView catalog
     for (auto &source : matchedREFCAT) {
         // RA first, then DEC!  (matching is done with DEC in first column)
-         stream_iview << QString::number(source[1], 'f', 9) << " " << QString::number(source[0], 'f', 9) << "\n";
+        stream_iview << QString::number(source[1], 'f', 9) << " " << QString::number(source[0], 'f', 9) << "\n";
     }
     outcat_iview.close();
     outcat_iview.setPermissions(QFile::ReadUser | QFile::WriteUser);
@@ -316,20 +337,25 @@ void ColorPicture::writeG2refcat(const QString refcatName, const QVector<QVector
 
 void ColorPicture::colorCalibRetrieveCatalogs(QList<Query*> queryList)
 {
+    emit messageAvailable("Querying reference sources: ", "ignore");
+
+    // Collector for meta data from the queries
+    QStringList queryResult;
+    for (int i=0; i<queryList.length(); ++i) queryResult << "";
+
     // It appears that the parallel query is not threadsafe.
     // Results in not reproducible errors, at least when run through Qt5 debugger (but when run through valgrind)
     //#pragma omp parallel for num_threads(maxCPU)
     for (int i=0; i<queryList.length(); ++i) {
         auto &query = queryList[i];
-        emit messageAvailable("Querying "+query->refcatName + " ...", "ignore");
         query->photomDir = ui->dirLineEdit->text() + "/color_theli/";
         query->photomImage = croppedList[0];
         query->doColorCalibQueryFromWeb();
         query->identifySolarTypeStars();
-        QString info = QString::number(query->numSources) + " sources found, "
-                + QString::number(query->numG2sources) + " of which have G2-like colors";
+        QString info = "G2 sources " + query->refcatName + " : " + QString::number(query->numG2sources) + " (out of : " + QString::number(query->numSources) + ")";
+        queryResult[i] = info;
         emit messageAvailable(info, "append");
-//        emit updateNrefStars(query->refcatName, query->numG2sources);
+        //        emit updateNrefStars(query->refcatName, query->numG2sources);
     }
 }
 
@@ -337,6 +363,7 @@ void ColorPicture::filterSolarTypeStars(QList<Query*> queryList)
 {
     PANSTARRS->clear();
     SDSS->clear();
+    SKYMAPPER->clear();
     APASS->clear();
 
     for (auto &query : queryList) {
@@ -351,6 +378,10 @@ void ColorPicture::filterSolarTypeStars(QList<Query*> queryList)
                 SDSS->ra.append(query->ra_out[k]);
                 SDSS->de.append(query->de_out[k]);
             }
+            if (query->refcatName == "SKYMAPPER") {
+                SKYMAPPER->ra.append(query->ra_out[k]);
+                SKYMAPPER->de.append(query->de_out[k]);
+            }
             if (query->refcatName == "APASS") {
                 APASS->ra.append(query->ra_out[k]);
                 APASS->de.append(query->de_out[k]);
@@ -361,16 +392,24 @@ void ColorPicture::filterSolarTypeStars(QList<Query*> queryList)
 
 void ColorPicture::colorCalibSegmentImages()
 {
+    emit messageAvailable("Detecting sources ...", "ignore");
+
     // Create object catalogs, get matching tolerance
     QString DT = ui->DTLineEdit->text();
     QString DMIN = ui->DMINLineEdit->text();
 #pragma omp parallel for num_threads(maxCPU)
     for (int i=0; i<croppedList.length(); ++i) {
         auto &it = croppedList[i];
+        // only do source detection if the image is also present in one of the RGB channels:
+        if (it->name != ui->redComboBox->currentText() &&
+                it->name != ui->greenComboBox->currentText() &&
+                it->name != ui->blueComboBox->currentText()) {
+            continue;
+        }
         // Do nothing if we have the catalog already
         if (it->segmentationDone) continue;
         // Obtain catalog
-        emit messageAvailable("Detecting sources in " + it->baseName +" ...", "ignore");
+        //        emit messageAvailable("Detecting sources in " + it->baseName +" ...", "ignore");
         it->maxCPU = maxCPU / croppedList.length();
         it->resetObjectMasking();
         it->readImage(it->path + "/" +it->name);
@@ -382,7 +421,11 @@ void ColorPicture::colorCalibSegmentImages()
         it->releaseBackgroundMemory();
         it->releaseDetectionPixelMemory();
 
-        emit messageAvailable(it->baseName +" : " + QString::number(it->objectList.length()) + " sources found", "ignore");
+        QString channelName = "";
+        if (it->name == ui->redComboBox->currentText()) channelName = "R";
+        if (it->name == ui->greenComboBox->currentText()) channelName = "G";
+        if (it->name == ui->blueComboBox->currentText()) channelName = "B";
+        emit messageAvailable(channelName + " : " + QString::number(it->objectList.length()) + " sources", "ignore");
     }
 }
 
@@ -391,6 +434,7 @@ void ColorPicture::updateNrefStarsReceived(QString name, long number)
     QString nstars = QString::number(number) + " stars";
     if (name == "PANSTARRS") ui->numPANSTARRSLabel->setText(nstars);
     else if (name == "SDSS") ui->numSDSSLabel->setText(nstars);
+    else if (name == "SKYMAPPER") ui->numSKYMAPPERLabel->setText(nstars);
     else if (name == "APASS") ui->numAPASSLabel->setText(nstars);
     else if (name == "AVGWHITE") ui->numAVGWHITELabel->setText(nstars);
 }

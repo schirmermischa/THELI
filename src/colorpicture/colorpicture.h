@@ -125,14 +125,16 @@ private:
     QList<MyImage*> coaddList;     // all coadds, including weights
     QList<MyImage*> croppedList;   // only the cropped coadded images, without the weights
 
-    QStringList refCatList = {"SDSS", "APASS", "PANSTARRS"};
+    QStringList refCatList = {"SDSS", "APASS", "SKYMAPPER", "PANSTARRS"};
 
     Query *SDSSquery = new Query(&verbosity);
     Query *APASSquery = new Query(&verbosity);
     Query *PANSTARRSquery = new Query(&verbosity);
+    Query *SKYMAPPERquery = new Query(&verbosity);
 
     RefCatData *SDSS = new RefCatData("SDSS", this);
     RefCatData *APASS = new RefCatData("APASS", this);
+    RefCatData *SKYMAPPER = new RefCatData("SKYMAPPER", this);
     RefCatData *PANSTARRS = new RefCatData("PANSTARRS", this);
 
     typedef struct {
@@ -146,7 +148,7 @@ private:
       QString rfacerr;
     } _photcatresult_;
 
-    _photcatresult_ photcatresult[4];
+    _photcatresult_ photcatresult[5];
 
     void addDirectories();
     void checkCalibrationFactor(QLineEdit *le);
