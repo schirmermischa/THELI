@@ -30,6 +30,15 @@ Source Extractor v2.19   https://github.com/astromatic/sextractor
 python/astropy v4.0      https://www.astropy.org/
 astrometry.net v0.79     https://github.com/dstndstn/astrometry.net/releases   (OPTIONAL)
 
+Anaconda / AstroConda users BEWARE
+==================================
+
+THELI will likely crash if compiled and linked against libraries provided by Anaconda / AstroConda, because the linker mixed native system libraries with those provided by Anaconda / AstroConda (which were probably built on a different system).
+
+To avoid this, deactivate your Anaconda environment. Solve the THELI dependencies using your native system's repository and / or compile the libraries from their sources. Then follow the installation instructions below. 
+
+Whether the THELI executable will then run with Anaconda activated will depend on your local machine.
+
 Compilation
 ===========
 
