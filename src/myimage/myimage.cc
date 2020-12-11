@@ -1256,6 +1256,21 @@ void MyImage::checkBrightStars(const QList<QVector<double>> &brightStarList, flo
 
 bool MyImage::containsRaDec(QString alphaStr, QString deltaStr)
 {
+    loadHeader();  // if not yet provided, e.g. UI was just started and we are doing a coadd
+
+    // Convert to decimal if required
+    if (alphaStr.contains(":")) alphaStr = hmsToDecimal(alphaStr);
+    if (deltaStr.contains(":")) deltaStr = dmsToDecimal(deltaStr);
+
+    double x = 0.;
+    double y = 0.;
+    sky2xy(alphaStr.toDouble(), deltaStr.toDouble(), x, y);
+    if (x > 0. && x < naxis1-1 && y > 0. && y < naxis2-1) return true;
+    else return false;
+
+    /*
+     * pnpoly() does not work if the image crosses the RA=0|360 boundary. Must use wcslib (see code above)
+
     double alpha_ul;
     double alpha_ur;
     double alpha_ll;
@@ -1265,9 +1280,7 @@ bool MyImage::containsRaDec(QString alphaStr, QString deltaStr)
     double delta_ll;
     double delta_lr;
 
-    // Convert the cartesian image vertices to RA/DEC
-    loadHeader();  // if not yet provided, e.g. UI was just started and we are doing a coadd
-    xy2sky(1, 1, alpha_ll, delta_ll);
+xy2sky(1, 1, alpha_ll, delta_ll);
     xy2sky(naxis1, 1, alpha_lr, delta_lr);
     xy2sky(1, naxis2, alpha_ul, delta_ul);
     xy2sky(naxis1, naxis2, alpha_ur, delta_ur);
@@ -1284,12 +1297,20 @@ bool MyImage::containsRaDec(QString alphaStr, QString deltaStr)
     if (deltaStr.contains(":")) deltaStr = dmsToDecimal(deltaStr);
 
     return pnpoly_T(raVec, decVec, alphaStr.toDouble(), deltaStr.toDouble());
-
-    // Alternative method: use sky2xy, and check if pixel coords are outside image geometry
+    */
 }
 
 bool MyImage::containsRaDec(double alpha, double delta)
 {
+    loadHeader();  // if not yet provided, e.g. UI was just started and we are doing a coadd
+
+    double x = 0.;
+    double y = 0.;
+    sky2xy(alpha, delta, x, y);
+    if (x > 0. && x < naxis1-1 && y > 0. && y < naxis2-1) return true;
+    else return false;
+
+    /*
     double alpha_ul;
     double alpha_ur;
     double alpha_ll;
@@ -1314,6 +1335,7 @@ bool MyImage::containsRaDec(double alpha, double delta)
     decVec << delta_ll << delta_lr << delta_ur << delta_ul;
 
     return pnpoly_T(raVec, decVec, alpha, delta);
+    */
 }
 
 void MyImage::cornersToRaDec()

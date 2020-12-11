@@ -2443,7 +2443,7 @@ bool Data::doesCoaddContainRaDec(const QString &refRA, const QString &refDEC)
 {
     if (refRA.isEmpty() && refDEC.isEmpty()) return true;
 
-    // Start assuming that no chip of a multi-chip camera contains this coordinate. if a single chip does contain it, we can break and exit
+    // Start assuming that no chip of a multi-chip camera contains this coordinate. If a single chip does contain it, we can break and exit
     bool containsRADEC = false;
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : myImageList.at(chip)) {
