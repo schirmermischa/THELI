@@ -419,9 +419,8 @@ void ColorPicture::toggleCalibResult()
     else if (ui->resultSKYMAPPERPushButton->isChecked()) i = 2;
     else if (ui->resultAPASSPushButton->isChecked()) i = 3;
     else if (ui->resultAVGWHITEPushButton->isChecked()) i = 4;
-    else i = nrefcat;
 
-    if (i<nrefcat) {
+    if (i<=nrefcat) {
         ui->redFactorLineEdit->setText(photcatresult[i].rfac);
         ui->redErrorLineEdit->setText(photcatresult[i].rfacerr);
         ui->greenFactorLineEdit->setText("1.000");

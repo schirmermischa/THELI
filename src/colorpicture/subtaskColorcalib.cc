@@ -150,10 +150,7 @@ void ColorPicture::colorCalibMatchCatalogs()
     tolerance = (imageR->matchingTolerance + imageG->matchingTolerance) / 2.;
     QVector<QVector<double>> matchedRG;
 
-    //    for (int i=0; i<objDatB.length(); ++i) qDebug() << qSetRealNumberPrecision(12) << "B" << objDatB.at(i)[1] << objDatB.at(i)[0];
-    //    for (int i=0; i<objDatG.length(); ++i) qDebug() << qSetRealNumberPrecision(12) << "G" << objDatG.at(i)[1] << objDatG.at(i)[0];
-    //    for (int i=0; i<objDatR.length(); ++i) qDebug() << qSetRealNumberPrecision(12) << "R" << objDatR.at(i)[1] << objDatR.at(i)[0];
-
+    // if filter order is changed, must update rCorr and bCorr below!
     match2D(objDatR, objDatG, matchedRG, tolerance, multipleR, multipleG, 0);
 
     // Match R+G with B
@@ -175,12 +172,14 @@ void ColorPicture::colorCalibMatchCatalogs()
     rCorr.reserve(matchedRGB.length());
     bCorr.reserve(matchedRGB.length());
     for (auto &obj : matchedRGB) {
-        // 'obj' contains RA, DEC, flux_r, flux_g, flux_b
-        rCorr.append(obj[3] / obj[2]);
-        bCorr.append(obj[3] / obj[4]);
+        // 'obj' contains RA, DEC, flux_b, flux_g, flux_r
+        // CAREFUL: mag order depends on which filter is loaded into match2D as source and which one as reference
+        rCorr.append(obj[3] / obj[4]);
+        bCorr.append(obj[3] / obj[2]);
     }
     double num = rCorr.length();
 
+    // copy result for AVGWHITE into photcatresult
     int nrefcat = 4;
     photcatresult[nrefcat].rfac    = QString::number(medianMask_T(rCorr),'f',3);
     photcatresult[nrefcat].rfacerr = QString::number(medianerrMask(rCorr) / sqrt(num),'f',3);
@@ -281,14 +280,15 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
         return;
     }
     // Calculate the color correction factors
+    // matchRGB contains magnitudes in the order BGR, i.e. matchREFCAT contains: magref-B-G-R
     QVector<float> rCorr;   // red correction factors wrt. green channel
     QVector<float> bCorr;   // cblue orrection factors wrt. green channel
     rCorr.reserve(matchedREFCAT.length());
     bCorr.reserve(matchedREFCAT.length());
     for (auto &obj : matchedREFCAT) {
-        // 'obj' contains RA, DEC, 0.0, flux_r, flux_g, flux_b          // 0.0 is the dummy magnitude
-        rCorr.append(obj[4] / obj[3]);
-        bCorr.append(obj[4] / obj[5]);
+        // 'obj' contains RA, DEC, 0.0, flux_b, flux_g, flux_r          // 0.0 is the dummy magnitude
+        rCorr.append(obj[4] / obj[5]);
+        bCorr.append(obj[4] / obj[3]);
     }
     photcatresult[index].rfac    = QString::number(meanMask_T(rCorr),'f',3);
     photcatresult[index].rfacerr = QString::number(rmsMask_T(rCorr),'f',3);
