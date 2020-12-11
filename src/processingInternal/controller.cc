@@ -132,20 +132,15 @@ void Controller::getNumberOfActiveImages(Data *&data)
 
 Controller::~Controller()
 {
-
-    for (auto &it : DT_BIAS) {
-        delete it;
-        it = nullptr;
+    for (auto &DT_x : masterListDT) {
+        for (auto &it : DT_x) {
+            delete it;
+            it = nullptr;
+        }
     }
-    /*
-    for (auto &it : DT_DARK) delete it;
-    for (auto &it : DT_FLATOFF) delete it;
-    for (auto &it : DT_FLAT) delete it;
-    for (auto &it : DT_SCIENCE) delete it;
-    for (auto &it : DT_SKY) delete it;
-    for (auto &it : DT_STANDARD) delete it;
+
     delete GLOBALWEIGHTS;
-    */
+    GLOBALWEIGHTS = nullptr;
 
     //    mask->reset();
     delete mask;
@@ -223,6 +218,7 @@ void Controller::mapDataTree()
 void Controller::parseDataDir(QLineEdit *le, QList<Data *> &DT_x)
 {
     DT_x.clear();
+
     if (!QDir(mainDirName).exists()
             || mainDirName.isEmpty()
             || le->text().isEmpty()) return;

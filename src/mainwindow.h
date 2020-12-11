@@ -331,7 +331,6 @@ private:
     void updateInstrumentComboBoxBackgroundColor();
     void updateProcessList(QStringList &commandList, QString taskBasename, QString arg1);
     void updateProcessList(QStringList &commandList, QString taskBasename, QString arg1, QString arg2);
-    void deleteDummyLineEdits(QLineEdit *le1, QLineEdit *le2);
     void addDockWidgets();
     void resetProcessingErrorFlags();
     bool sufficientSpaceAvailable(long spaceNeeded);
