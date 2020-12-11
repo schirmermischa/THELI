@@ -68,6 +68,8 @@ void AbsZeroPoint::closeEvent(QCloseEvent *event)
 AbsZeroPoint::~AbsZeroPoint()
 {
     delete absPhot;
+    absPhot = nullptr;
+
     delete ui;
 }
 
@@ -403,6 +405,8 @@ void AbsZeroPoint::queryRefCat()
     }
 
     delete query;
+    query = nullptr;
+
     emit messageAvailable(QString::number(numRefSources) + " photometric reference sources found.", "ignore");
     emit messageAvailable("Please wait for object detection to finish ...", "ignore");
 }

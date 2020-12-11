@@ -153,7 +153,7 @@ public:
     void combineImages(const int chip, const QString nlowString, const QString nhighString, const QString currentImage, const QString mode,
                        const QString dirName, const QString subDirName, QVector<bool> &dataStaticModelDone);
 //    void combineImages_newParallel(int chip, MyImage *masterCombined, QList<MyImage *> &backgroundList, QString nlow, QString nhigh, QString currentImage, QString mode, const QString subDirName);
-//    void deleteMyImageList();
+    void deleteMyImageList();
 //    void forceStatus(int chip, QString status);
     void loadCombinedImage(int chip);
     void populate(QString statusString);

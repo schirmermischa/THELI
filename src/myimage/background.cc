@@ -129,6 +129,9 @@ void MyImage::fitBackgroundGSL()
     delete [] xa;
     delete [] ya;
     delete [] za;
+    xa = nullptr;
+    ya = nullptr;
+    za = nullptr;
 }
 
 void MyImage::getGridStatistics()

@@ -143,6 +143,7 @@ void CPU::init()
     }
 
     delete sysInfo;
+    sysInfo = nullptr;
 }
 
 float CPU::getCurrentValue()

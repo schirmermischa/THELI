@@ -174,6 +174,8 @@ void MyImage::calcMedianSeeingEllipticitySex()
 
     delete [] fwhm;
     delete [] ell;
+    fwhm = nullptr;
+    ell = nullptr;
 }
 
 void MyImage::sourceExtractorCatToIview()
@@ -252,6 +254,11 @@ void MyImage::sourceExtractorCatToIview()
     delete [] awin;
     delete [] bwin;
     delete [] thetawin;
+    xwin = nullptr;
+    ywin = nullptr;
+    awin = nullptr;
+    bwin = nullptr;
+    thetawin = nullptr;
 }
 
 void MyImage::appendToScampCatalogSourceExtractor(fitsfile *fptr)

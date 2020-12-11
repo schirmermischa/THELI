@@ -426,6 +426,7 @@ bool SwarpFilter::get_coaddblock(const int index, const long block, QVector<floa
     }
 
     delete [] data_in;
+    data_in = nullptr;
 
     return true;
 }

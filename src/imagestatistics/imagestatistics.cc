@@ -101,6 +101,9 @@ void ImageStatistics::init()
 
 ImageStatistics::~ImageStatistics()
 {
+    delete processingStatus;
+    processingStatus = nullptr;
+
     delete ui;
 }
 

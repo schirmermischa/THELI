@@ -50,6 +50,7 @@ RAM::RAM(QObject *parent) : QObject(parent)
     QSysInfo *sysInfo = new QSysInfo;
     kernelType = sysInfo->kernelType();
     delete sysInfo;
+    sysInfo = nullptr;
 }
 
 RAM::~RAM()

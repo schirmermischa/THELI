@@ -143,13 +143,20 @@ MyImage::~MyImage()
 {
     for (auto &object : objectList) {
         delete object;
+        object = nullptr;
     }
 
     if (wcsInit) wcsfree(wcs);
-    if (wcsInit) delete wcs;  // valgrind does not like that
+    if (wcsInit) {
+        delete wcs;  // valgrind does not like that
+        wcs = nullptr;
+    }
 
     int status = 0;
     if (fullheaderAllocated) fits_free_memory(fullheader, &status);
+
+    delete processingStatus;
+    processingStatus = nullptr;
 
     omp_destroy_lock(&backgroundLock);
     omp_destroy_lock(&objectLock);
@@ -308,6 +315,7 @@ void MyImage::readImageBackupL1()
             dataBackupL1[i] = buffer[i];
         }
         delete [] buffer;
+        buffer = nullptr;
         backupL1InMemory = true;
         dataCurrent = dataBackupL1;     // probably unnecessary, as we operate on databackupL1, updating dataCurrent
         dataBackupL1.squeeze();  // shed excess memory
@@ -837,6 +845,7 @@ void MyImage::illuminationCorrection(int chip, QString thelidir, QString instNam
             successProcessing = true;
         }
         delete illumCorrFlat;
+        illumCorrFlat = nullptr;
     }
 }
 
@@ -980,6 +989,7 @@ void MyImage::setupCoaddMode()
     dataWeight.swap(myWeight->dataCurrent);
 
     delete myWeight;
+    myWeight = nullptr;
 }
 
 void MyImage::updateZeroOrderOnDrive(QString updateMode)

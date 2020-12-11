@@ -32,11 +32,10 @@ If not, see https://www.gnu.org/licenses/ .
 
 void MainWindow::deleteDummyLineEdits(QLineEdit *le1, QLineEdit *le2)
 {
-    // set the pointers to the null pointer
-    le1 = nullptr;
-    le2 = nullptr;
     delete le1;
     delete le2;
+    le1 = nullptr;
+    le2 = nullptr;
 }
 
 QStringList MainWindow::taskHDUreformat(bool &stop, const QString mode)

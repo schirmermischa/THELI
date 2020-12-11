@@ -196,6 +196,7 @@ void ColorPicture::taskInternalCropCoadds()
         }
     }
     delete errorCodes;
+    errorCodes = nullptr;
 
     // Prepare for segmentation
     // Move the cropped weights over into the cropped coadd

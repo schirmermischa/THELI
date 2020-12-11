@@ -132,8 +132,12 @@ void Controller::getNumberOfActiveImages(Data *&data)
 
 Controller::~Controller()
 {
+
+    for (auto &it : DT_BIAS) {
+        delete it;
+        it = nullptr;
+    }
     /*
-    for (auto &it : DT_BIAS) delete it;
     for (auto &it : DT_DARK) delete it;
     for (auto &it : DT_FLATOFF) delete it;
     for (auto &it : DT_FLAT) delete it;
@@ -145,6 +149,7 @@ Controller::~Controller()
 
     //    mask->reset();
     delete mask;
+    mask = nullptr;
     omp_destroy_lock(&lock);
     omp_destroy_lock(&memoryLock);
     omp_destroy_lock(&genericLock);
@@ -153,11 +158,14 @@ Controller::~Controller()
 
     for (auto &it : externalProcesses) {
         delete it;
+        it = nullptr;
     }
 
     //    delete externalProcess;
     delete stdoutByteArray;
     delete stderrByteArray;
+    stdoutByteArray = nullptr;
+    stderrByteArray = nullptr;
 }
 
 // Reads whatever is defined in the Setup data tree section, and maps it onto the various lists
@@ -315,6 +323,7 @@ void Controller::rereadScienceDataDirReceived()
 
     for (auto &data: DT_SCIENCE) {
         delete data;
+        data = nullptr;
     }
     DT_SCIENCE.clear();
 

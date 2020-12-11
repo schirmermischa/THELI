@@ -47,7 +47,6 @@ Splitter::Splitter(const instrumentDataType &instrumentData, const Mask *detecto
     cdw(confDockWidget)
 {
     fileName = filename;
-    cdw = confDockWidget;
     mainDirName = maindirname;
     subDirName = subdirname;
     path = mainDirName + "/" + subDirName;
@@ -565,6 +564,7 @@ void Splitter::getCurrentExtensionData()
     }
 
     delete [] buffer;
+    buffer = nullptr;
 
     printCfitsioError("getCurrentExtensionData()", rawStatus);
 }
@@ -605,6 +605,8 @@ void Splitter::getDataInFirstCubeSlice()
 
     delete [] buffer;
     delete [] fpixel;
+    buffer = nullptr;
+    fpixel = nullptr;
 
     printCfitsioError("getDataInFirstCubeSlice()", rawStatus);
 }
@@ -638,6 +640,7 @@ void Splitter::getDataInCube()
     }
 
     delete [] bufferAll;
+    bufferAll = nullptr;
 
     printCfitsioError("getDataInCube()", rawStatus);
 }
@@ -840,6 +843,7 @@ void Splitter::writeImage(int chipMapped)
     fits_close_file(fptr, &status);
 
     delete [] array;
+    array = nullptr;
 
     printCfitsioError("writeImage()", status);
 }
@@ -963,6 +967,7 @@ bool Splitter::individualFixWriteImage(int chipMapped)
             fits_close_file(fptr, &status);
 
             delete [] array;
+            array = nullptr;
 
             printCfitsioError("writeImage()", status);
         }
@@ -1044,6 +1049,7 @@ bool Splitter::individualFixWriteImage(int chipMapped)
             fits_close_file(fptr, &status);
 
             delete [] array;
+            array = nullptr;
 
             printCfitsioError("writeImage()", status);
         }
@@ -1105,6 +1111,7 @@ void Splitter::writeImageSlice(int chip, long slice)
     fits_close_file(fptr, &status);
 
     delete [] array;
+    array = nullptr;
 
     printCfitsioError("writeImageSlice()", status);
 }

@@ -140,6 +140,7 @@ void MyImage::readData(fitsfile **fptr, int *status)
     dataCurrent.squeeze(); // shed excess memory
 
     delete [] buffer;
+    buffer = nullptr;
 }
 
 void MyImage::readDataWeight(fitsfile **fptr, int *status)
@@ -171,6 +172,7 @@ void MyImage::readDataWeight(fitsfile **fptr, int *status)
     dataWeight.squeeze(); // shed excess memory
 
     delete [] buffer;
+    buffer = nullptr;
 }
 
 bool MyImage::loadData(QString loadFileName)

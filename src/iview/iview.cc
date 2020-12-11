@@ -481,7 +481,10 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
 
     // Get the dynamic range
     // Normal viewer mode
-    if (dataIntSet) delete[] dataInt;
+    if (dataIntSet) {
+        delete[] dataInt;
+        dataInt = nullptr;
+    }
     dataInt = new unsigned char[naxis1*naxis2];
     dataIntSet = true;
     // AUTO
@@ -587,7 +590,10 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
     // Get the dynamic range
     // Normal viewer mode
     if (displayMode == "FITSmonochrome") {
-        if (dataIntSet) delete[] dataInt;
+        if (dataIntSet) {
+            delete[] dataInt;
+            dataInt = nullptr;
+        }
         dataInt = new unsigned char[naxis1*naxis2];
         dataIntSet = true;
         // AUTO
@@ -605,9 +611,18 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
         }
     }
     else if (displayMode == "FITScolor") {
-        if (colorMode == "redChannel" && dataIntRSet) delete[] dataIntR;
-        if (colorMode == "greenChannel" && dataIntGSet) delete[] dataIntG;
-        if (colorMode == "blueChannel" && dataIntBSet) delete[] dataIntB;
+        if (colorMode == "redChannel" && dataIntRSet) {
+            delete[] dataIntR;
+            dataIntR = nullptr;
+        }
+        if (colorMode == "greenChannel" && dataIntGSet) {
+            delete[] dataIntG;
+            dataIntG = nullptr;
+        }
+        if (colorMode == "blueChannel" && dataIntBSet) {
+            delete[] dataIntB;
+            dataIntB = nullptr;
+        }
         if (colorMode == "redChannel") {
             dataIntR = new unsigned char[naxis1*naxis2];
             dataIntRSet = true;

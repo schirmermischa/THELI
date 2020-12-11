@@ -322,6 +322,7 @@ MainWindow::~MainWindow()
 {
     // delete class variables that have been assigned with 'new':
     delete instrument_model;
+    instrument_model = nullptr;
     delete ui;
 }
 
@@ -381,6 +382,7 @@ void MainWindow::addProgressBars()
         ui->statusBar->addWidget(memoryProgressBar);
     }
     delete sysInfo;
+    sysInfo = nullptr;
 }
 
 // should be done after controller has been established and settings have been read

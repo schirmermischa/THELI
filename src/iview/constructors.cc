@@ -420,16 +420,29 @@ void IView::closeEvent(QCloseEvent *event)
 
 IView::~IView()
 {
-    if (dataIntSet) delete [] dataInt;
-    if (dataIntRSet) delete [] dataIntR;
-    if (dataIntGSet) delete [] dataIntG;
-    if (dataIntBSet) delete [] dataIntB;
+    if (dataIntSet) {
+        delete [] dataInt;
+        dataInt = nullptr;
+    }
+    if (dataIntRSet) {
+        delete [] dataIntR;
+        dataIntR = nullptr;
+    }
+    if (dataIntGSet) {
+        delete [] dataIntG;
+        dataIntG = nullptr;
+    }
+    if (dataIntBSet) {
+        delete [] dataIntB;
+        dataIntB = nullptr;
+    }
     // It appears that 'scene' does not take ownership of the pixmapitem.
     // nullptr if e.g. closing the GUI without saving the images. Don't know how that can be related, but here we go ...
-    if (pixmapItem != nullptr) delete pixmapItem;
+    if (pixmapItem != nullptr) {
+        delete pixmapItem;
+        pixmapItem = nullptr;
+    }
     delete ui;
-    //    delete scene;
-    //    delete myGraphicsView;
     //    if (icdwDefined) delete icdw;
     //    if (scampdwDefined) delete scampdw;
 
@@ -439,6 +452,8 @@ IView::~IView()
     // delete wcs;
     delete myGraphicsView;
     delete scene;
+    myGraphicsView = nullptr;
+    scene = nullptr;
 }
 
 void IView::makeConnections()

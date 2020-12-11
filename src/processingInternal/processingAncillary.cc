@@ -62,6 +62,7 @@ void Controller::taskInternalGetCatalogFromWEB()
     query->pixscale = instData->pixscale;
     query->doAstromQueryFromWeb();
     delete query;
+    query = nullptr;
 
     //    pushEndMessage(taskBasename, scienceDir);
 }
@@ -192,10 +193,12 @@ void Controller::taskInternalGetCatalogFromIMAGE()
     query->writeAstromIview();
     query->pushNumberOfSources();
     delete query;
+    query = nullptr;
     detectionImage->releaseAllDetectionMemory();
     detectionImage->releaseBackgroundMemory("entirely");
 
     delete detectionImage;
+    detectionImage = nullptr;
 
     // dump reference catalog ID
     QString outpath = mainDirName+"/"+scienceData->subDirName+"/cat/refcat/";
@@ -233,6 +236,7 @@ void Controller::taskInternalResolveTarget()
     }
 
     delete query;
+    query = nullptr;
 }
 
 void Controller::taskInternalRestoreHeader()

@@ -1043,8 +1043,10 @@ void Controller::coaddUpdate()
 
         coadd->freeAll();
         delete coadd;
+        coadd = nullptr;
 
         delete gaiaQuery;
+        gaiaQuery = nullptr;
 
         /*
        // TODO: that should be redone using the new gaia matching method

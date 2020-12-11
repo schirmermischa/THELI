@@ -287,6 +287,7 @@ void Controller::taskInternalBinnedpreview()
         myBinnedImage->writeImage(outDirName+outName);
         // TODO: preserve for iView; set memory flags accordingly; could create myImageList and construct iView accordingly
         delete myBinnedImage;
+        myBinnedImage = nullptr;
     }
 
     checkSuccessProcessing(scienceData);

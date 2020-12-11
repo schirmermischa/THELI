@@ -337,7 +337,7 @@ void ColorPicture::writeG2refcat(const QString refcatName, const QVector<QVector
 
 void ColorPicture::colorCalibRetrieveCatalogs(QList<Query*> queryList)
 {
-    emit messageAvailable("Querying reference sources: ", "ignore");
+    emit messageAvailable("Querying reference sources, this may take a while ...", "ignore");
 
     // Collector for meta data from the queries
     QStringList queryResult;

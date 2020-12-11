@@ -476,6 +476,7 @@ void initEnvironment(QString &thelidir, QString &userdir)
     userdir.replace("//","/");
 
     delete sysInfo;
+    sysInfo = nullptr;
 }
 
 QString findExecutableName(QString program)
@@ -570,10 +571,12 @@ long get_memory()
         QString memory = list[1];
         p.close();
         delete sysInfo;
+        sysInfo = nullptr;
         return memory.toFloat()/1024;  // CHECK normalization!
     }
 
     delete sysInfo;
+    sysInfo = nullptr;
     return memory.toLong();
 }
 

@@ -212,4 +212,5 @@ void ColorPicture::taskInternalBBNBcombine()
     emit addCombinedImage(combinedImage);
 
     delete combinedWeight;
+    combinedWeight = nullptr;
 }

@@ -38,6 +38,7 @@ void MyGraphicsScene::keyReleaseEvent(QKeyEvent * keyEvent)
         {
             removeItem(item);
             delete item;
+            item = nullptr;
         }
         emit itemDeleted();
     }

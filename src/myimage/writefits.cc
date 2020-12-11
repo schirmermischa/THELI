@@ -198,6 +198,7 @@ bool MyImage::write(QString fileName, const QVector<float> &data, const float ex
     fits_close_file(fptr, &status);
 
     delete [] array;
+    array = nullptr;
 
     if (status) {
         printCfitsioError("MyImage::write()", status);
@@ -249,6 +250,7 @@ void MyImage::writeSegmentation(QString fileName)
     fits_close_file(fptr, &status);
 
     delete [] array;
+    array = nullptr;
 
     printCfitsioError("MyImage::writeSegmentation()", status);
 }
@@ -279,6 +281,7 @@ void MyImage::writeObjectMask(QString fileName)
     fits_write_img(fptr, TLONG, fpixel, nelements, array, &status);
     fits_close_file(fptr, &status);
     delete [] array;
+    array = nullptr;
 
     printCfitsioError("MyImage::writeObjectMask()", status);
 }
@@ -329,6 +332,7 @@ void MyImage::writeConstImage(QString fileName, float constValue, const QVector<
     fits_close_file(fptr, &status);
 
     delete [] array;
+    array = nullptr;
 
     printCfitsioError("MyImage::writeConstImage()", status);
 }
@@ -382,6 +386,7 @@ bool MyImage::writeDebayer(QString fileName, const float exptime, const QString 
     fits_close_file(fptr, &status);
 
     delete [] array;
+    array = nullptr;
 
     if (status) {
         printCfitsioError("MyImage::writeDebayer()", status);

@@ -127,6 +127,7 @@ void Controller::taskInternalHDUreformat()
         if (splitter->commaDetected) commaDetected = true;
         if (!splitter->successProcessing) successProcessing = false;
         delete splitter;     // Hogging lots of memory otherwise!
+        splitter = nullptr;
 
         // splitter handles the progress counter
         // No memory management needed, splitter simply runs out of scope

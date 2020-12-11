@@ -597,6 +597,7 @@ void MyImage::releaseAllDetectionMemory()
 {
     for (auto &object : objectList) {
         delete object;
+        object = nullptr;
     }
     objectList.clear();
 

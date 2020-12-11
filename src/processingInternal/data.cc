@@ -210,9 +210,10 @@ Data::~Data()
 {
     for (auto &it: combinedImage) {
         delete it;
+        it = nullptr;
     }
 
-    //    deleteMyImageList();
+    deleteMyImageList();
 
     omp_destroy_lock(&progressLock);
 }
@@ -2467,17 +2468,16 @@ void Data::establish_connections()
 }
 */
 
-/*
 void Data::deleteMyImageList()
 {
     if (myImageList.isEmpty()) return;
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it: myImageList[chip]) {
             delete it;
+            it = nullptr;
         }
     }
 }
-*/
 
 /*
 void Data::forceStatus(int chip, QString status)
@@ -2524,6 +2524,7 @@ void Data::getFixedHeaderKeys(QString filename, QStringList &badImages)
             //          qDebug() << qSetRealNumberPrecision(12) << mjdobs;
         }
         delete filterName;
+        filterName = nullptr;
     }
 
     fits_close_file(fptr, &status);
@@ -2707,6 +2708,7 @@ void Data::writeGlobalflags(int chip, QString filter)
     fits_close_file(fptr, &status);
 
     delete [] array;
+    array = nullptr;
 
     printCfitsioError("writeGlobalflags()", status);
 }

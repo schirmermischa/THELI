@@ -117,6 +117,10 @@ ColorPicture::~ColorPicture()
     delete SDSSquery;
     delete SKYMAPPERquery;
     delete APASSquery;
+    PANSTARRSquery = nullptr;
+    SDSSquery = nullptr;
+    SKYMAPPERquery = nullptr;
+    APASSquery = nullptr;
 
     delete ui;
 }

@@ -1011,6 +1011,7 @@ void Controller::retrieveBrightStars(Data *skyData, QList<QVector<double>> &brig
     emit messageAvailable(numstars+pointing, "controller");
 
     delete query;
+    query = nullptr;
 }
 
 bool Controller::idChipsWithBrightStars(Data *skyData, QList<QVector<double>> &brightStarList)

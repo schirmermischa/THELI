@@ -642,6 +642,7 @@ void Controller::doImageQualityAnalysis()
                                                  + QString::number(imageQuality->ellipticity, 'f', 3) + " / "
                                                  + QString::number(imageQuality->numSources), "ignore");
         delete imageQuality;
+        imageQuality = nullptr;
         it->unprotectMemory();
         if (minimizeMemoryUsage) {
             it->freeAll();
@@ -651,6 +652,7 @@ void Controller::doImageQualityAnalysis()
     workerThread->quit();
 
     delete gaiaQuery;
+    gaiaQuery = nullptr;
 
     //    emit messageAvailable("You can display the results of the image quality analysis in the statistics module", "note");
 

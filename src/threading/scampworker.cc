@@ -44,6 +44,7 @@ void ScampWorker::runScamp()
     emit finishedScamp();
     emit finished();
     delete extProcess;
+    extProcess = nullptr;
     // stdout and stderr channels are slotted into the monitor's plainTextEdit
 }
 
