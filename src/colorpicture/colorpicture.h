@@ -72,7 +72,12 @@ public slots:
     void updateVerbosity(int verbosityLevel);
 
 private slots:
+
+    void addCombinedImageReceived(MyImage *combinedImage);
+    void criticalReceived();
+    void displayMessage(QString message, QString type);
     void measureStatistics(long x, long y);
+    void on_abortPushButton_clicked();
     void on_actionClose_triggered();
     void on_createTiffPushButton_clicked();
     void on_redComboBox_currentIndexChanged(int index);
@@ -88,18 +93,15 @@ private slots:
     void on_clearCoaddsPushButton_clicked();
     void on_BBNBcombinePushButton_clicked();
     void sendColorFactors();
+    void setWCSLockReceived(bool locked);
     void updateCalibFactors();
+    void updateColorFactorsExternal(QString redFactor, QString blueFactor);
     void updateImageListView();
     void updateFilterRatio();
     void updateIviewStatus();
     void updateTiff();
-    void updateColorFactorsExternal(QString redFactor, QString blueFactor);
-    void validate();
     void updateNrefStarsReceived(QString name, long number);
-    void displayMessage(QString message, QString type);
-    void criticalReceived();
-    void on_abortPushButton_clicked();
-    void addCombinedImageReceived(MyImage *combinedImage);
+    void validate();
 
 private:
     QString mainDir;
@@ -117,7 +119,7 @@ private:
     QThread *workerThread;
     ColorPictureWorker *colorpictureWorker;
 
-    omp_lock_t wcslock;
+    omp_lock_t wcsLock;
 
     float bbnbFluxRatio = 1.0;
     float bbnbFluxRatioError = 0.0;

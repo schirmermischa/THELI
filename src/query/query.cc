@@ -165,7 +165,7 @@ void Query::getCatalogSearchRadiusAstrom()
         // safeguarding against a potential threading issue with wcslib:
         if (radius > 5.*scienceData->instData->radius*60) {
             radius = 2.*scienceData->instData->radius*60;
-            // TODO: this is probably not necessary anymore because of the wcslock in MyImage::initWCS()
+            // TODO: this is probably not necessary anymore because of the wcslock in MyImage::initWCS() and the corresponding critical sections
             emit messageAvailable("Truncating the search radius to "+QString::number(radius, 'f', 1) + " arcmin", "warning");
             emit messageAvailable("Do you have different targets collected in the same directory?", "warning");
             qDebug() << "RA corner vertices" << corners_crval1;

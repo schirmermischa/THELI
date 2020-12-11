@@ -187,7 +187,10 @@ bool MyImage::loadData(QString loadFileName)
     initFITS(&fptr, loadFileName, &status);
     readHeader(&fptr, &status);
     readData(&fptr, &status);
-    initWCS();
+#pragma omp critical
+    {
+        initWCS();
+    }
     initTHELIheader(&status);
     checkTHELIheader(&status);
     cornersToRaDec();

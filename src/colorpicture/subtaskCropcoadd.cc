@@ -129,6 +129,9 @@ void ColorPicture::taskInternalCropCoadds()
         MyImage *myImage = new MyImage(dirName+it, dummyMask, &verbosity);
         connect(myImage, &MyImage::messageAvailable, this, &ColorPicture::displayMessage);
         connect(myImage, &MyImage::critical, this, &ColorPicture::criticalReceived);
+        // WCSlock not necessary, as the corresponding initWCS() call is inside a critical section
+        // Besides, the following line stalls the execution of the cropping, because the unlocking signal apparently never gets received ...
+        // connect(myImage, &MyImage::setWCSLock, this, &ColorPicture::setWCSLockReceived, Qt::DirectConnection);
         myImage->globalMaskAvailable = false;
         myImage->maxCPU = maxCPU / imageList.length();
         myImage->loadHeader();
@@ -189,7 +192,6 @@ void ColorPicture::taskInternalCropCoadds()
         fits_update_key_flt(fptr, "CRPIX1", crpix1New, 6, nullptr, &status);
         fits_update_key_flt(fptr, "CRPIX2", crpix2New, 6, nullptr, &status);
         fits_close_file(fptr, &status);
-
         QString code = errorCodes->errorKeyMap.value(status);
         if (status) {
             emit messageAvailable("CFITSIO: Could not update CRPIX keywords in "+name+":<br>"+code, "error");
@@ -217,6 +219,7 @@ void ColorPicture::taskInternalCropCoadds()
             }
         }
     }
+
     emit messageAvailable("Done.", "info");
 }
 

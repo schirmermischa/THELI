@@ -138,6 +138,14 @@ void ColorPicture::loadPreferences()
     verbosity = 0;
 }
 
+// Receiving end from setWCSLock call
+void ColorPicture::setWCSLockReceived(bool locked)
+{
+    qDebug() << "received locking signal:" << locked;
+    if (locked) omp_set_lock(&wcsLock);
+    else omp_unset_lock(&wcsLock);
+}
+
 void ColorPicture::displayMessage(QString message, QString type)
 {
     if (type == "error") {
@@ -412,7 +420,7 @@ void ColorPicture::updateBBNBcombine()
 
 void ColorPicture::toggleCalibResult()
 {
-    int i;
+    int i = 4;
     int nrefcat = 4;
     if (ui->resultPANSTARRSPushButton->isChecked()) i = 0;
     else if (ui->resultSDSSPushButton->isChecked()) i = 1;
@@ -429,6 +437,7 @@ void ColorPicture::toggleCalibResult()
         ui->blueErrorLineEdit->setText(photcatresult[i].bfacerr);
     }
     else {
+        emit messageAvailable("BUG: code should never enter here", "error");
         ui->redFactorLineEdit->clear();
         ui->redErrorLineEdit->clear();
         ui->greenFactorLineEdit->setText("1.000");
