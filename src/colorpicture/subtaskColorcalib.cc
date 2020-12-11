@@ -277,6 +277,11 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
         photcatresult[index].bfacerr = "0.000";
         photcatresult[index].nstars = "0";
         writeG2refcat(REFCAT->name, matchedREFCAT);
+        QString nstars = "0 stars";
+        if (REFCAT->name == "PANSTARRS") ui->numPANSTARRSLabel->setText(nstars);
+        else if (REFCAT->name == "SDSS") ui->numSDSSLabel->setText(nstars);
+        else if (REFCAT->name == "SKYMAPPER") ui->numSKYMAPPERLabel->setText(nstars);
+        else if (REFCAT->name == "APASS") ui->numAPASSLabel->setText(nstars);
         return;
     }
     // Calculate the color correction factors
