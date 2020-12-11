@@ -104,18 +104,22 @@ void ColorPicture::taskInternalColorCalib()
     // Retrieve the photometric reference catalogs and identify solar type analogs
 
     // nested parallelism within colorCalibSegmentImages();
-    //#pragma omp parallel sections
-    //    {
-    //#pragma omp section
-    //        {
-    // Detect sources in all images
-    colorCalibSegmentImages();
-    //        }
-    // retrieve catalogs
-    colorCalibRetrieveCatalogs(queryList);
+#pragma omp parallel sections
+    {
+#pragma omp section
+        {
+            // Detect sources in all images
+            colorCalibSegmentImages();
+        }
+#pragma omp section
+        {
+            // retrieve catalogs
+            colorCalibRetrieveCatalogs(queryList);
 
-    // Extract solar analogs
-    filterSolarTypeStars(queryList);
+            // Extract solar analogs
+            filterSolarTypeStars(queryList);
+        }
+    }
     //        }
     //#pragma omp section
     //        {
@@ -350,7 +354,7 @@ void ColorPicture::colorCalibRetrieveCatalogs(QList<Query*> queryList)
 
     // It appears that the parallel query is not threadsafe.
     // Results in not reproducible errors, at least when run through Qt5 debugger (but when run through valgrind)
-    //#pragma omp parallel for num_threads(maxCPU)
+    // #pragma omp parallel for num_threads(maxCPU)
     for (int i=0; i<queryList.length(); ++i) {
         auto &query = queryList[i];
         query->photomDir = ui->dirLineEdit->text() + "/color_theli/";
