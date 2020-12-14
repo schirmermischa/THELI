@@ -147,20 +147,20 @@ QRect IView::adjustGeometry()
 
     if (naxis2 > screenHeight-minMargin) {
         myGraphicsView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-//        myGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        //        myGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         geometry.setHeight(screenHeight-minMargin);
     }
     else {
-//        myGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        //        myGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
 
     if (naxis1 > screenWidth-minMargin) {
         myGraphicsView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-//        myGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        //        myGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         geometry.setWidth(screenWidth-minMargin);
     }
     else {
-//        myGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        //        myGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
 
     return geometry;
@@ -653,14 +653,70 @@ void IView::mapFITS()
         G2shown = colordw->ui->G2referencesPushButton->isChecked();
     }
 
+    //**************************************************
+    // ADDITIONAL SECTION TO TEST TRANSFORMATIONS
+    QTransform *transform = nullptr; // transformation maxtrix
+    if(wcs) {
+        // Transformation prameters, to be filled explicitly from WCS matrix
+        // Must be computed with respect to global reference system valid for all images. Not sure how to do this
+        qreal scale = 1.; // scaling factor
+        qreal phi = 0.;   // rotation angle
+        qreal dx = 0.;    // translation
+        qreal dy = 0.;    // translation
+        /*
+        transform = new QTransform();
+
+        // Adjust according to CD matrix
+        qreal matrix[][3] = {
+            {cd11, cd21, 0.0},
+            {cd12, cd22, 0.0},
+            {crpix1, crpix2, 1.0},
+        };
+
+        qreal matrix[][3] = {
+            {1.0, 0.0, 0.0},
+            {0.0, 1.0, 0.0},
+            {0.0, 0.0, 1.0},
+        };
+        transform->setMatrix(matrix[0][0], matrix[0][1], matrix[0][2],
+                matrix[1][0], matrix[1][1], matrix[1][2],
+                matrix[2][0], matrix[2][1], matrix[2][2]);
+
+        transform->rotate(0.);
+        dx = naxis1/2. - (transform->m11()*naxis1/2.+transform->m21()*naxis2/2.);
+        dy = naxis2/2. - (transform->m12()*naxis1/2.+transform->m22()*naxis2/2.);
+        transform->translate(-wcs->crpix[0], -wcs->crpix[1]);
+        */
+    }
+    else {
+        // A WCS lock toggle button should be deactivated
+    }
+
+    // the scene MUST have it's final size BEFORE we add an item
+    if(scene->width() < 1 || scene->height() < 1)
+        scene->setSceneRect( 0, 0, naxis1, naxis2);
+
+    // end additional section
+    //**************************************************
+
+
     clearItems();
     if (displayMode == "FITSmonochrome" || displayMode == "MEMview") {
         compressDynrange(fitsData, dataInt);
         QImage fitsImage(dataInt, naxis1, naxis2, naxis1, QImage::Format_Grayscale8);
         fitsImage = fitsImage.mirrored(false, true);
+        // apply transformation if there is one
+        // if(transform) fitsImage = fitsImage.transformed(*transform,Qt::SmoothTransformation);
         pixmapItem = new QGraphicsPixmapItem( QPixmap::fromImage(fitsImage));
+        // while transformation the translations gets lost because the image is cropped to its contents, so we have to translate afterwards
+        //  if(transform) pixmapItem->setOffset(transform->m31(), transform->m32());
+        //       qDebug() << transform->m11() << transform->m12() << transform->m13();
+        //       qDebug() << transform->m21() << transform->m22() << transform->m23();
+        //       qDebug() << transform->m31() << transform->m32() << transform->m33();
         scene->clear();
         scene->addItem(pixmapItem);
+        myGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+        myGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     }
     else if (displayMode == "FITScolor") {
         compressDynrange(fitsDataR, dataIntR, colordw->colorFactorApplied[0]);
@@ -674,16 +730,23 @@ void IView::mapFITS()
             rowData[i%naxis1] = argb;
         }
         colorFitsImage = colorFitsImage.mirrored(false, true);
+        // if (transform) colorFitsImage = colorFitsImage.transformed(*transform,Qt::SmoothTransformation);
         // QGraphicsPixmapItem *item = new QGraphicsPixmapItem( QPixmap::fromImage(colorFitsImage));
         // CHECK if that works
         pixmapItem = new QGraphicsPixmapItem( QPixmap::fromImage(colorFitsImage));
-
+        // if(transform) pixmapItem->setOffset(transform->m31(), transform->m32());
         scene->clear();
         scene->addItem(pixmapItem);
     }
     else {
         qDebug() << "IView::mapFITS(): Invalid mode in mapFITS()";
     }
+
+    if (transform) {
+        delete transform;
+        transform = nullptr;
+    }
+
     // Replot the source and reference catalogs (if the corresponding actions are checked)
     if (sourceCatShown && ui->actionSourceCat->isVisible()) {
         ui->actionSourceCat->setChecked(true);
