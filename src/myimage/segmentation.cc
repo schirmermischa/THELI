@@ -346,8 +346,8 @@ void MyImage::estimateMatchingTolerance()
         emit warning();
     }
     else {
-        float seeing_image = 2. * straightMedian_T(sizes);
-        matchingTolerance = seeing_image * plateScale / 3600.;
+        float radius = straightMedian_T(sizes);      // used to be twice as big
+        matchingTolerance = radius * plateScale / 3600.;
         if (*verbosity > 2) emit messageAvailable(chipName + " : IQ matching tolerance = "+QString::number(matchingTolerance*3600, 'f', 1)+" arcsec", "image");
     }
 }

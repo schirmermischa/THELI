@@ -564,8 +564,8 @@ void Controller::taskInternalProcessscience()
         // Don't remember why we need a lock here. I think it had to do with the headers. Will crash otherwise
         // TODO: probably not needed anymore with latest memory scheme
         QString message;
-#pragma omp critical
-        {
+// #pragma omp critical
+//        {
             if (biasData != nullptr) {
                 biasData->loadCombinedImage(chip);  // skipped if already in memory
                 message.append(biasData->subDirName);
@@ -575,7 +575,7 @@ void Controller::taskInternalProcessscience()
                 if (message.isEmpty()) message.append(flatData->subDirName);
                 else message.append(" and " + flatData->subDirName);
             }
-        }
+//        }
         if (verbosity >= 0) {
             if (!message.isEmpty() && instData->bayer.isEmpty()) emit messageAvailable(it->chipName + " : Correcting with "+message, "image");
             if (!message.isEmpty() && !instData->bayer.isEmpty()) emit messageAvailable(it->chipName + " : Correcting with "+message+", debayering", "image");

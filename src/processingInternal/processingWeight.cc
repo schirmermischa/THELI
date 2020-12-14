@@ -145,11 +145,13 @@ void Controller::taskInternalGlobalweight()
 
         releaseMemory(nimg*instData->storage, maxExternalThreads);
 
-#pragma omp critical
-        {
+        // not sure why i had this in a critical section. libwcs not being threadsafe i think.
+        // should be fixed now that the MyImage::initWCS is always called inside a omp critical section
+//#pragma omp critical
+//        {
             if (biasData != nullptr) biasData->loadCombinedImage(chip);  // skipped if already in memory
             if (flatData != nullptr) flatData->loadCombinedImage(chip);  // skipped if already in memory
-        }
+//        }
 
         GLOBALWEIGHTS->initGlobalWeight(chip, flatData, filter, sameWeight, flatMin, flatMax);
         GLOBALWEIGHTS->thresholdGlobalWeight(chip, biasData, filter, threshMin, threshMax);
@@ -255,11 +257,7 @@ void Controller::taskInternalIndividualweight()
             abortProcess = true;
             continue;
         }
-        // Locking, otherwise the same globalweight will be initialized several times (image geometry not threadsafe)
-#pragma omp critical
-        {
-            it->initWeightfromGlobalWeight(GLOBALWEIGHTS->myImageList[chip]);
-        }
+        it->initWeightfromGlobalWeight(GLOBALWEIGHTS->myImageList[chip]);   // calls a threadsafe version of MyImage::loadData() to avoid parallel reads of the same globalweight map
         it->thresholdWeight(imageMin, imageMax);
         it->applyPolygons();
         it->maskSaturatedPixels(cdw->ui->CIWsaturationLineEdit->text(), cdw->ui->CIWmasksaturationCheckBox->isChecked());

@@ -179,10 +179,7 @@ bool MyImage::loadData(QString loadFileName)
 {
     if (loadFileName.isEmpty()) loadFileName = path + "/" + chipName+processingStatus->statusString+".fits";
 
-//    qDebug() << "loadData():" << path + "/" + chipName+processingStatus->statusString+".fits";
-
     int status = 0;
-
     fitsfile *fptr = nullptr;
     initFITS(&fptr, loadFileName, &status);
     readHeader(&fptr, &status);
@@ -205,6 +202,34 @@ bool MyImage::loadData(QString loadFileName)
     else return true;
 }
 
+// for weights only, when having to read the globalweights
+bool MyImage::loadDataThreadSafe(QString loadFileName)
+{
+    int status = 0;
+#pragma omp critical
+    {
+        if (loadFileName.isEmpty()) loadFileName = path + "/" + chipName+processingStatus->statusString+".fits";
+
+        fitsfile *fptr = nullptr;
+        initFITS(&fptr, loadFileName, &status);
+        readHeader(&fptr, &status);
+        readData(&fptr, &status);
+        initWCS();
+        initTHELIheader(&status);
+        checkTHELIheader(&status);
+        cornersToRaDec();
+        fits_close_file(fptr, &status);
+
+        printCfitsioError("MyImage::loadData()", status);
+
+        if (!status) headerInfoProvided = true;
+        else headerInfoProvided = false;
+    }
+
+    if (status) return false;
+    else return true;
+}
+
 // Setup the WCS
 void MyImage::initWCS()
 {
@@ -214,6 +239,7 @@ void MyImage::initWCS()
     int nreject;
     int nwcs;
     int check = wcspih(fullheader, numHeaderKeys, 0, 0, &nreject, &nwcs, &wcs);
+
     if (check > 1) {
         emit messageAvailable("MyImage::initWCS(): " + baseName + ": wcspih() returned" + QString::number(check), "error" );
         emit critical();

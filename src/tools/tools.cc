@@ -656,6 +656,8 @@ void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>>
         if (mult>1) ++multiple2;
     }
 
+//    qDebug() << multiple1 << multiple2;
+
     // Second pass, match unambiguous sources, only
 #pragma omp parallel for num_threads(nthreads)
     for (long i=0; i<dim1; ++i) {

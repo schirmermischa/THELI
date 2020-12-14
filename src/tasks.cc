@@ -34,8 +34,8 @@ QStringList MainWindow::taskHDUreformat(bool &stop, const QString mode)
 {
     QString taskBasename = "HDUreformat";
     QStringList goodDirList;
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupBiasLineEdit, le1, le2, "", success);
@@ -54,8 +54,8 @@ QStringList MainWindow::taskProcessbias(bool &stop, const QString mode)
 {
     QString taskBasename = "Processbias";
     QStringList goodDirList;   
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupBiasLineEdit, le1, le2, "", success);
@@ -68,8 +68,8 @@ QStringList MainWindow::taskProcessdark(bool &stop, const QString mode)
 {
     QString taskBasename = "Processdark";
     QStringList goodDirList;
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupDarkLineEdit, le1, le2, "", success);
@@ -82,8 +82,8 @@ QStringList MainWindow::taskProcessflatoff(bool &stop, const QString mode)
 {
     QString taskBasename = "Processflatoff";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupFlatoffLineEdit, le1, le2, "", success);
@@ -96,8 +96,8 @@ QStringList MainWindow::taskProcessflat(bool &stop, const QString mode)
 {
     QString taskBasename = "Processflat";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     // Do we use the FLAT OFF/DARK or BIAS (in case one or more are defined);
@@ -118,8 +118,8 @@ QStringList MainWindow::taskProcessscience(bool &stop, const QString mode)
 {
     QString taskBasename = "Processscience";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     // Do we use the FLAT and / or BIAS (in case one or more are defined);
@@ -148,8 +148,8 @@ QStringList MainWindow::taskChopnod(bool &stop, const QString mode)
 {
     QString taskBasename = "Chopnod";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
@@ -163,8 +163,8 @@ QStringList MainWindow::taskBackground(bool &stop, const QString mode)
 {
     QString taskBasename = "Background";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     // The first argument gets replaced by the sky dir (if any)
@@ -172,11 +172,10 @@ QStringList MainWindow::taskBackground(bool &stop, const QString mode)
     if (!sky.isEmpty()) le1 = ui->setupSkyLineEdit;
     else le1->setText("noskydir");
     // Standard stars don't have separate sky entries (at least we don't support it)
-    auto *nosky = new QLineEdit();
+    auto *nosky = new QLineEdit(controller);
     nosky->setText("noskydir");
 
     handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
-
     if (processSkyImages) handleDataDirs(goodDirList, ui->setupSkyLineEdit, le1, le2, "", success);
     handleDataDirs(goodDirList, ui->setupStandardLineEdit, nosky, le2, "", success);
 
@@ -187,9 +186,9 @@ QStringList MainWindow::taskBackground(bool &stop, const QString mode)
 QStringList MainWindow::taskCollapse(bool &stop, const QString mode)
 {
     QString taskBasename = "Collapse";
-    QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    QStringList goodDirList;
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
@@ -204,8 +203,8 @@ QStringList MainWindow::taskBinnedpreview(bool &stop, const QString mode)
 {
     QString taskBasename = "Binnedpreview";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
@@ -219,8 +218,8 @@ QStringList MainWindow::taskGlobalweight(bool &stop, const QString mode)
 {
     QString taskBasename = "Globalweight";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     // Do we use the FLAT and / or BIAS (in case one or more are defined);
@@ -245,8 +244,8 @@ QStringList MainWindow::taskIndividualweight(bool &stop, const QString mode)
 {
     QString taskBasename = "Individualweight";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
@@ -261,8 +260,8 @@ QStringList MainWindow::taskSeparate(bool &stop, const QString mode)
 {
     QString taskBasename = "Separate";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
@@ -276,8 +275,8 @@ QStringList MainWindow::taskAbsphotindirect(bool &stop, const QString mode)
 {
     QString taskBasename = "Absphotindirect";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
@@ -290,8 +289,8 @@ QStringList MainWindow::taskCreatesourcecat(bool &stop, const QString mode)
 {
     QString taskBasename = "Createsourcecat";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
@@ -305,8 +304,8 @@ QStringList MainWindow::taskAstromphotom(bool &stop, const QString mode)
 {
     QString taskBasename = "Astromphotom";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
@@ -320,8 +319,8 @@ QStringList MainWindow::taskGetCatalogFromWEB(bool &stop, const QString mode)
 {
     QString taskBasename = "GetCatalogFromWEB";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
@@ -334,8 +333,8 @@ QStringList MainWindow::taskGetCatalogFromIMAGE(bool &stop, const QString mode)
 {
     QString taskBasename = "GetCatalogFromIMAGE";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
@@ -348,8 +347,8 @@ QStringList MainWindow::taskRestoreHeader(bool &stop, const QString mode)
 {
     QString taskBasename = "RestoreHeader";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
@@ -362,8 +361,8 @@ QStringList MainWindow::taskSkysub(bool &stop, const QString mode)
 {
     QString taskBasename = "Skysub";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);
@@ -377,8 +376,8 @@ QStringList MainWindow::taskCoaddition(bool &stop, const QString mode)
 {
     QString taskBasename = "Coaddition";
     QStringList goodDirList;    
-    auto *le1 = new QLineEdit(this);
-    auto *le2 = new QLineEdit(this);
+    auto *le1 = new QLineEdit(controller);
+    auto *le2 = new QLineEdit(controller);
     bool success = true;
 
     handleDataDirs(goodDirList, ui->setupScienceLineEdit, le1, le2, "", success);

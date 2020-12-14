@@ -216,6 +216,38 @@ void MyImage::readImage(bool determineMode)
     }
 }
 
+// Only needed for initialising the global weights
+void MyImage::readImageThreadSafe(bool determineMode)
+{
+    dataCurrent_deletable = false;
+    dataWeight_deletable = false;
+
+    // Leave if image is already loaded
+    if (imageInMemory) {
+        updateProcInfo("Already in memory");
+        if (*verbosity > 2) emit messageAvailable(chipName+" : Already in memory", "image");
+        return;
+    }
+    else {
+        if (loadDataThreadSafe()) {
+            getMode(determineMode);
+            imageInMemory = true;
+            imageOnDrive = true;
+            successProcessing = true;
+            headerInfoProvided = true;
+            updateProcInfo("Loaded");
+            if (*verbosity > 2) emit messageAvailable(chipName+" : Loaded", "image");
+
+        }
+        else {
+            emit messageAvailable("MyImage::readImage(): Could not load " + baseName + ".fits", "error");
+            emit critical();
+            successProcessing = false;
+        }
+        emit modelUpdateNeeded(chipName);
+    }
+}
+
 // Used by iview when loading directly from FITS files, by swarpfilter when reading weights,
 // and by color picture when cropping images
 void MyImage::readImage(QString loadFileName)

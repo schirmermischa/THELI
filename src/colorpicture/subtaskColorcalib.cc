@@ -150,22 +150,28 @@ void ColorPicture::colorCalibMatchCatalogs()
     int multipleR = 0;
     int multipleG = 0;
     int multipleB = 0;
-    double tolerance;
-    tolerance = (imageR->matchingTolerance + imageG->matchingTolerance) / 2.;
+    double toleranceRG = (imageR->matchingTolerance + imageG->matchingTolerance) / 2.;
+    // upper cap of 1.5 pixels
+    if (toleranceRG*3600/imageR->plateScale > 2.0) toleranceRG = 1.5*imageR->plateScale/3600.;
+
     QVector<QVector<double>> matchedRG;
 
     // if filter order is changed, must update rCorr and bCorr below!
-    match2D(objDatR, objDatG, matchedRG, tolerance, multipleR, multipleG, 0);
+    match2D(objDatR, objDatG, matchedRG, toleranceRG, multipleR, multipleG, 0);
 
     // Match R+G with B
-    tolerance = (imageR->matchingTolerance + imageB->matchingTolerance) / 2.;
-    QVector<QVector<double>> matchedRGB;
-    match2D(matchedRG, objDatB, matchedRGB, tolerance, multipleR, multipleB, maxCPU);
+    double toleranceRB = (imageR->matchingTolerance + imageB->matchingTolerance) / 2.;
+    // upper cap of 1.5 pixels
+    if (toleranceRB*3600/imageR->plateScale > 2.0) toleranceRB = 1.5*imageR->plateScale/3600.;
 
-    QString tolB = QString::number(imageB->matchingTolerance*3600,'f',1) + "\" (" + QString::number(imageB->matchingTolerance*3600/imageB->plateScale,'f',1) + " pix)";
-    QString tolG = QString::number(imageG->matchingTolerance*3600,'f',1) + "\" (" + QString::number(imageG->matchingTolerance*3600/imageG->plateScale,'f',1) + " pix)";
-    QString tolR = QString::number(imageR->matchingTolerance*3600,'f',1) + "\" (" + QString::number(imageR->matchingTolerance*3600/imageR->plateScale,'f',1) + " pix)";
-    emit messageAvailable("RGB matching tolerances:  " + tolB + " --- " + tolG + " --- " +tolR, "ignore");
+    // print matching radius in pixels
+//    qDebug() << imageR->matchingTolerance*3600/imageR->plateScale << imageG->matchingTolerance*3600/imageG->plateScale << imageB->matchingTolerance*3600/imageB->plateScale;
+
+    QVector<QVector<double>> matchedRGB;
+    match2D(matchedRG, objDatB, matchedRGB, toleranceRB, multipleR, multipleB, maxCPU);
+
+    QString meanTol = QString::number(0.5*(toleranceRB+toleranceRG)*3600,'f',1) + "\" (" + QString::number(0.5*(toleranceRB+toleranceRG)*3600/imageB->plateScale,'f',1) + " pix)";
+    emit messageAvailable("RGB mean matching tolerances:  " + meanTol, "ignore");
     emit messageAvailable("RGB # of matched sources: " + QString::number(matchedRGB.length()), "ignore");
 
     // Extract AVGWHITE color correction factors
@@ -195,19 +201,20 @@ void ColorPicture::colorCalibMatchCatalogs()
     emit updateNrefStars("AVGWHITE", rCorr.length());
 
     // Match with reference catalogs
-    tolerance = (imageR->matchingTolerance + imageG->matchingTolerance + imageB->matchingTolerance) / 3.;
+    // TODO: take into account proper motions
+    double toleranceRGB = (imageR->matchingTolerance + imageG->matchingTolerance + imageB->matchingTolerance) / 3.;
 
     filterReferenceCatalog(PANSTARRS, imageG);
-    colorCalibMatchReferenceCatalog(matchedRGB, PANSTARRS, tolerance);
+    colorCalibMatchReferenceCatalog(matchedRGB, PANSTARRS, toleranceRGB);
 
     filterReferenceCatalog(SDSS, imageG);
-    colorCalibMatchReferenceCatalog(matchedRGB, SDSS, tolerance);
+    colorCalibMatchReferenceCatalog(matchedRGB, SDSS, toleranceRGB);
 
     filterReferenceCatalog(SKYMAPPER, imageG);
-    colorCalibMatchReferenceCatalog(matchedRGB, SKYMAPPER, tolerance);
+    colorCalibMatchReferenceCatalog(matchedRGB, SKYMAPPER, toleranceRGB);
 
     filterReferenceCatalog(APASS, imageG);
-    colorCalibMatchReferenceCatalog(matchedRGB, APASS, tolerance);
+    colorCalibMatchReferenceCatalog(matchedRGB, APASS, toleranceRGB);
 }
 
 // Remove objects outside the actual field of view (simply for clarity)
@@ -406,7 +413,7 @@ void ColorPicture::colorCalibSegmentImages()
     // Create object catalogs, get matching tolerance
     QString DT = ui->DTLineEdit->text();
     QString DMIN = ui->DMINLineEdit->text();
-#pragma omp parallel for num_threads(maxCPU)
+#pragma omp parallel for num_threads(maxCPU)             // ignored since we run it in a parallel section
     for (int i=0; i<croppedList.length(); ++i) {
         auto &it = croppedList[i];
         // only do source detection if the image is also present in one of the RGB channels:
