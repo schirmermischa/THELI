@@ -182,19 +182,13 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
     */
 
     /*
-    imageB->dataCurrent.resize(n*m);
+    B.resize(n*m);
     imageG->dataCurrent.resize(n*m);
     imageR->dataCurrent.resize(n*m);
     */
 
-    // correct Offset & correct colors
+    // correct offset & correct colors
     // for bayerfilter RGBG colorbalance:
-    const float R = 2.21;
-    const float G = 1.00;
-    const float B = 1.01;
-    const float g = 1.51;
-    // offset correction
-    const float o = 256;
 
     // Subtract offset;
     // Color balance with sensor multipliers R,G,B,g
@@ -202,95 +196,59 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
     long i = 0;
     long j = 0;
 
-    // TODO: test if we can simplify the code below by using references to vectors (less writing);
+    // TODO: use references to vectors to simplify the code;
     // QVector<float> &I = image->dataCurrent;
 
-    if (R != 1.0 && G != 1.0 && B != 1.0 && o != 0.0) {
-        for (j=0; j<m; ++j) {
-            for (i=0; i<n; ++i) {
-                if ( j == 0 || j >= m-1 || i == 0 || i >= n-1) {  // upper lower left right edge
-                    // don't care here
-                    ++k1;
-                }
-                else {
-                    if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 0){ // red pixel
-                        image->dataCurrent[(i+n*j)] = R*(image->dataCurrent[(i+n*j)]-o);
-                        k1++;
-                    }
-                    if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 0){ // green pixel 1, red above
-                        image->dataCurrent[(i+n*j)] = G*(image->dataCurrent[(i+n*j)]-o);
-                        k1++;
-                    }
-                    if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 1){ // green pixel 2, blue above
-                        image->dataCurrent[(i+n*j)] = g*(image->dataCurrent[(i+n*j)]-o);
-                        k1++;;
-                    }
-                    if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 1){ // blue pixel
-                        image->dataCurrent[(i+n*j)] = B*(image->dataCurrent[(i+n*j)]-o);
-                        k1++;
-                    }
-                }
-            }
-        }
-    }
-
     k1 = 0;  // red
+
+    QVector<float> &I = image->dataCurrent;
+    QVector<float> &R = imageR->dataCurrent;
+    QVector<float> &G = imageG->dataCurrent;
+    QVector<float> &B = imageB->dataCurrent;
 
     // Calculate the green values at red and blue pixels
     for (j=0; j<m; ++j) {
         for (i=0; i<n; ++i) {
 
             if( j<=2 || j>=m-3 || i<=2 || i>=n-3) { // 3 rows top bottom left right
-                imageR->dataCurrent[k1] = image->dataCurrent[(i+n*j)];  // all the same with current color
-                imageG->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
-                imageB->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
+                R[k1] = I[(i+n*j)];  // all the same with current color
+                G[k1] = I[(i+n*j)];
+                B[k1] = I[(i+n*j)];
                 ++k1;
             }
             else{
                 // gradient calculation for green values at red or blue pixels
-                float DN = fabs(image->dataCurrent[(i-2*n+n*j)]-image->dataCurrent[(i+n*j)])*2.0
-                        + fabs(image->dataCurrent[(i-n+n*j)]-image->dataCurrent[(i+n+n*j)]);
-                float DE = fabs(image->dataCurrent[(i+n*j)]-image->dataCurrent[(i+2+n*j)])*2.0
-                        + fabs(image->dataCurrent[(i-1+n*j)]-image->dataCurrent[(i+1+n*j)]);
-                float DW = fabs(image->dataCurrent[(i-2+n*j)]-image->dataCurrent[(i+n*j)])*2.0
-                        + fabs(image->dataCurrent[(i-1+n*j)]-image->dataCurrent[(i+1+n*j)]);
-                float DS = fabs(image->dataCurrent[(i+n*j)]-image->dataCurrent[(i+2*n+n*j)])*2.0
-                        + fabs(image->dataCurrent[(i-n+n*j)]-image->dataCurrent[(i+n+n*j)]);
+                float DN = fabs(I[(i-2*n+n*j)]-I[(i+n*j)])*2.0     + fabs(I[(i-n+n*j)]-I[(i+n+n*j)]);
+                float DE = fabs(I[(i+n*j)]    -I[(i+2+n*j)])*2.0   + fabs(I[(i-1+n*j)]-I[(i+1+n*j)]);
+                float DW = fabs(I[(i-2+n*j)]  -I[(i+n*j)])*2.0     + fabs(I[(i-1+n*j)]-I[(i+1+n*j)]);
+                float DS = fabs(I[(i+n*j)]    -I[(i+2*n+n*j)])*2.0 + fabs(I[(i-n+n*j)]-I[(i+n+n*j)]);
 
                 if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 0) { // red pixel
-                    imageR->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
+                    R[k1] = I[(i+n*j)];
                     switch (direction(DN,DE,DW,DS)) {
-                    case 1: imageG->dataCurrent[k1] = (image->dataCurrent[(i-n+n*j)]*3.0+ image->dataCurrent[(i+n*j)]
-                                + image->dataCurrent[(i+n+n*j)] - image->dataCurrent[(i-2*n+n*j)]) / 4.0; break;
-                    case 2: imageG->dataCurrent[k1] = (image->dataCurrent[(i+1+n*j)]*3.0+ image->dataCurrent[(i+n*j)]
-                                + image->dataCurrent[(i-1+n*j)] - image->dataCurrent[(i+2+n*j)]) / 4.0; break;
-                    case 3: imageG->dataCurrent[k1] = (image->dataCurrent[(i-1+n*j)]*3.0+ image->dataCurrent[(i+n*j)]
-                                + image->dataCurrent[(i+1+n*j)] - image->dataCurrent[(i-2+n*j)]) / 4.0; break;
-                    case 4: imageG->dataCurrent[k1] = (image->dataCurrent[(i+n+n*j)]*3.0+ image->dataCurrent[(i+n*j)]
-                                + image->dataCurrent[(i-n+n*j)] - image->dataCurrent[(i+2*n+n*j)]) / 4.0; break;
+                    case 1: G[k1] = (I[(i-n+n*j)]*3.0 + I[(i+n*j)] + I[(i+n+n*j)] - I[(i-2*n+n*j)]) / 4.0; break;
+                    case 2: G[k1] = (I[(i+1+n*j)]*3.0 + I[(i+n*j)] + I[(i-1+n*j)] - I[(i+2+n*j)]) / 4.0; break;
+                    case 3: G[k1] = (I[(i-1+n*j)]*3.0 + I[(i+n*j)] + I[(i+1+n*j)] - I[(i-2+n*j)]) / 4.0; break;
+                    case 4: G[k1] = (I[(i+n+n*j)]*3.0 + I[(i+n*j)] + I[(i-n+n*j)] - I[(i+2*n+n*j)]) / 4.0; break;
                     }
                     ++k1;
                 }
                 else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 1){ // blue pixel
                     switch (direction(DN,DE,DW,DS)){
-                    case 1: imageG->dataCurrent[k1] = (image->dataCurrent[(i-n+n*j)]*3.0+ image->dataCurrent[(i+n*j)]
-                                + image->dataCurrent[(i+n+n*j)] - image->dataCurrent[(i-2*n+n*j)]) / 4.0; break;
-                    case 2: imageG->dataCurrent[k1] = (image->dataCurrent[(i+1+n*j)]*3.0+ image->dataCurrent[(i+n*j)]
-                                + image->dataCurrent[(i-1+n*j)] - image->dataCurrent[(i+2+n*j)]) / 4.0; break;
-                    case 3: imageG->dataCurrent[k1] = (image->dataCurrent[(i-1+n*j)]*3.0+ image->dataCurrent[(i+n*j)]
-                                + image->dataCurrent[(i+1+n*j)] - image->dataCurrent[(i-2+n*j)]) / 4.0; break;
-                    case 4: imageG->dataCurrent[k1] = (image->dataCurrent[(i+n+n*j)]*3.0+ image->dataCurrent[(i+n*j)]
-                                + image->dataCurrent[(i-n+n*j)] - image->dataCurrent[(i+2*n+n*j)]) / 4.0; break;
+                    case 1: G[k1] = (I[(i-n+n*j)]*3.0 + I[(i+n*j)] + I[(i+n+n*j)] - I[(i-2*n+n*j)]) / 4.0; break;
+                    case 2: G[k1] = (I[(i+1+n*j)]*3.0 + I[(i+n*j)] + I[(i-1+n*j)] - I[(i+2+n*j)]) / 4.0; break;
+                    case 3: G[k1] = (I[(i-1+n*j)]*3.0 + I[(i+n*j)] + I[(i+1+n*j)] - I[(i-2+n*j)]) / 4.0; break;
+                    case 4: G[k1] = (I[(i+n+n*j)]*3.0 + I[(i+n*j)] + I[(i-n+n*j)] - I[(i+2*n+n*j)]) / 4.0; break;
                     }
-                    imageB->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
+                    B[k1] = I[(i+n*j)];
                     ++k1;
                 }
                 else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 0){ // green pixel, red above
-                    imageG->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
+                    G[k1] = I[(i+n*j)];
                     ++k1;
                 }
                 else if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 1){ // green pixel, blue above
-                    imageG->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
+                    G[k1] = I[(i+n*j)];
                     ++k1;
                 }
             }
@@ -306,137 +264,129 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
             if (j<=2 || j>=m-3 || i<=2 || i>=n-3) {  // 3 rows top bottom left right
                 if (!xoffset && !yoffset) {  // RGGB
                     if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 0){ // red pixel
-                        imageR->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
-                        imageG->dataCurrent[k1] = image->dataCurrent[(i+1+n*j)];
-                        imageB->dataCurrent[k1] = image->dataCurrent[(i+1+n+n*j)];
+                        R[k1] = I[(i+n*j)];
+                        G[k1] = I[(i+1+n*j)];
+                        B[k1] = I[(i+1+n+n*j)];
                     }
                     else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 0){ // green pixel, red above
-                        imageR->dataCurrent[k1] = image->dataCurrent[(i-n+n*j)];
-                        imageG->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
-                        imageB->dataCurrent[k1] = image->dataCurrent[(i+1+n*j)];
+                        R[k1] = I[(i-n+n*j)];
+                        G[k1] = I[(i+n*j)];
+                        B[k1] = I[(i+1+n*j)];
                     }
                     else if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 1){ // green pixel, blue above
-                        imageR->dataCurrent[k1] = image->dataCurrent[(i-1+n*j)];
-                        imageG->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
-                        imageB->dataCurrent[k1] = image->dataCurrent[(i+n+n*j)];
+                        R[k1] = I[(i-1+n*j)];
+                        G[k1] = I[(i+n*j)];
+                        B[k1] = I[(i+n+n*j)];
                     }
                     else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 1){ // blue pixel
-                        imageR->dataCurrent[k1] = image->dataCurrent[(i-1-n+n*j)];
-                        imageG->dataCurrent[k1] = image->dataCurrent[(i-1+n*j)];
-                        imageB->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
+                        R[k1] = I[(i-1-n+n*j)];
+                        G[k1] = I[(i-1+n*j)];
+                        B[k1] = I[(i+n*j)];
                     }
                 }
                 else if (xoffset && !yoffset) { //GRBG
                     if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 0){ // red pixel
-                        imageR->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
-                        imageG->dataCurrent[k1] = image->dataCurrent[(i-1+n*j)];
-                        imageB->dataCurrent[k1] = image->dataCurrent[(i-1+n+n*j)];
+                        R[k1] = I[(i+n*j)];
+                        G[k1] = I[(i-1+n*j)];
+                        B[k1] = I[(i-1+n+n*j)];
                     }
                     else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 0){ // green pixel, red above
-                        imageR->dataCurrent[k1] = image->dataCurrent[(i-n+n*j)];
-                        imageG->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
-                        imageB->dataCurrent[k1] = image->dataCurrent[(i-1+n*j)];
+                        R[k1] = I[(i-n+n*j)];
+                        G[k1] = I[(i+n*j)];
+                        B[k1] = I[(i-1+n*j)];
                     }
                     else if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 1){ // green pixel, blue above
-                        imageR->dataCurrent[k1] = image->dataCurrent[(i+1+n*j)];
-                        imageG->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
-                        imageB->dataCurrent[k1] = image->dataCurrent[(i+n+n*j)];
+                        R[k1] = I[(i+1+n*j)];
+                        G[k1] = I[(i+n*j)];
+                        B[k1] = I[(i+n+n*j)];
                     }
                     else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 1){ // blue pixel
-                        imageR->dataCurrent[k1] = image->dataCurrent[(i+1-n+n*j)];
-                        imageG->dataCurrent[k1] = image->dataCurrent[(i+1+n*j)];
-                        imageB->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
+                        R[k1] = I[(i+1-n+n*j)];
+                        G[k1] = I[(i+1+n*j)];
+                        B[k1] = I[(i+n*j)];
                     }
                 }
                 else if (!xoffset && yoffset) { //GBRG
                     if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 0){ // red pixel
-                        imageR->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
-                        imageG->dataCurrent[k1] = image->dataCurrent[(i-n+n*j)];
-                        imageB->dataCurrent[k1] = image->dataCurrent[(i+1-n+n*j)];
+                        R[k1] = I[(i+n*j)];
+                        G[k1] = I[(i-n+n*j)];
+                        B[k1] = I[(i+1-n+n*j)];
                     }
                     else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 0){ // green pixel, red above
-                        imageR->dataCurrent[k1] = image->dataCurrent[(i+n+n*j)];
-                        imageG->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
-                        imageB->dataCurrent[k1] = image->dataCurrent[(i+1+n*j)];
+                        R[k1] = I[(i+n+n*j)];
+                        G[k1] = I[(i+n*j)];
+                        B[k1] = I[(i+1+n*j)];
                     }
                     else if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 1){ // green pixel, blue above
-                        imageR->dataCurrent[k1] = image->dataCurrent[(i-1+n*j)];
-                        imageG->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
-                        imageB->dataCurrent[k1] = image->dataCurrent[(i-n+n*j)];
+                        R[k1] = I[(i-1+n*j)];
+                        G[k1] = I[(i+n*j)];
+                        B[k1] = I[(i-n+n*j)];
                     }
                     else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 1){ // blue pixel
-                        imageR->dataCurrent[k1] = image->dataCurrent[(i-1+n+n*j)];
-                        imageG->dataCurrent[k1] = image->dataCurrent[(i-1+n*j)];
-                        imageB->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
+                        R[k1] = I[(i-1+n+n*j)];
+                        G[k1] = I[(i-1+n*j)];
+                        B[k1] = I[(i+n*j)];
                     }
                 }
                 else if (xoffset && yoffset) { //BGGR
                     if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 0){ // red pixel
-                        imageR->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
-                        imageG->dataCurrent[k1] = image->dataCurrent[(i-1+n*j)];
-                        imageB->dataCurrent[k1] = image->dataCurrent[(i-1-n+n*j)];
+                        R[k1] = I[(i+n*j)];
+                        G[k1] = I[(i-1+n*j)];
+                        B[k1] = I[(i-1-n+n*j)];
                     }
                     else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 0){ // green pixel, red above
-                        imageR->dataCurrent[k1] = image->dataCurrent[(i+n+n*j)];
-                        imageG->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
-                        imageB->dataCurrent[k1] = image->dataCurrent[(i-1+n*j)];
+                        R[k1] = I[(i+n+n*j)];
+                        G[k1] = I[(i+n*j)];
+                        B[k1] = I[(i-1+n*j)];
                     }
                     else if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 1){ // green pixel, blue above
-                        imageR->dataCurrent[k1] = image->dataCurrent[(i+1+n*j)];
-                        imageG->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
-                        imageB->dataCurrent[k1] = image->dataCurrent[(i-n+n*j)];
+                        R[k1] = I[(i+1+n*j)];
+                        G[k1] = I[(i+n*j)];
+                        B[k1] = I[(i-n+n*j)];
                     }
                     else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 1){ // blue pixel
-                        imageR->dataCurrent[k1] = image->dataCurrent[(i+1+n+n*j)];
-                        imageG->dataCurrent[k1] = image->dataCurrent[(i+1+n*j)];
-                        imageB->dataCurrent[k1] = image->dataCurrent[(i+n*j)];
+                        R[k1] = I[(i+1+n+n*j)];
+                        G[k1] = I[(i+1+n*j)];
+                        B[k1] = I[(i+n*j)];
                     }
                 }
                 k1++;
             }
             else{
                 // diagonal gradients
-                float dne = fabs(image->dataCurrent[(i-n+1+n*j)]-image->dataCurrent[(i+n-1+n*j)])
-                        + fabs(image->dataCurrent[(i-2*n+2+n*j)]-image->dataCurrent[(i+n*j)])
-                        + fabs(image->dataCurrent[(i+n*j)]-image->dataCurrent[(i+2*n-2+n*j)])
-                        + fabs(imageG->dataCurrent[(i-n+1+n*j)]-imageG->dataCurrent[(i+n*j)])
-                        + fabs(imageG->dataCurrent[(i+n*j)]-imageG->dataCurrent[(i+n-1+n*j)]);
-                float dnw = fabs(image->dataCurrent[(i-n-1+n*j)]-image->dataCurrent[(i+n+1+n*j)])
-                        + fabs(image->dataCurrent[(i-2-2*n+n*j)]-image->dataCurrent[(i+n*j)])
-                        + fabs(image->dataCurrent[(i+n*j)]-image->dataCurrent[(i+2+2*n+n*j)])
-                        + fabs(imageG->dataCurrent[(i-n-1+n*j)]-imageG->dataCurrent[(i+n*j)])
-                        + fabs(imageG->dataCurrent[(i+n*j)]-imageG->dataCurrent[(i+n+1+n*j)]);
+                float dne = fabs(I[(i-n+1+n*j)]-I[(i+n-1+n*j)])
+                        + fabs(I[(i-2*n+2+n*j)]-I[(i+n*j)])
+                        + fabs(I[(i+n*j)]-I[(i+2*n-2+n*j)])
+                        + fabs(G[(i-n+1+n*j)]-G[(i+n*j)])
+                        + fabs(G[(i+n*j)]-G[(i+n-1+n*j)]);
+                float dnw = fabs(I[(i-n-1+n*j)]-I[(i+n+1+n*j)])
+                        + fabs(I[(i-2-2*n+n*j)]-I[(i+n*j)])
+                        + fabs(I[(i+n*j)]-I[(i+2+2*n+n*j)])
+                        + fabs(G[(i-n-1+n*j)]-G[(i+n*j)])
+                        + fabs(G[(i+n*j)]-G[(i+n+1+n*j)]);
 
                 if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 0) { // red pixel
                     if (dne <= dnw)
-                        imageB->dataCurrent[k1] = hue_transit(imageG->dataCurrent[i-n+1+n*j], imageG->dataCurrent[i+n*j], imageG->dataCurrent[i+n-1+n*j],
-                                image->dataCurrent[(i-n+1+n*j)], image->dataCurrent[(i+n-1+n*j)]);
+                        B[k1] = hue_transit(G[i-n+1+n*j], G[i+n*j], G[i+n-1+n*j], I[(i-n+1+n*j)], I[(i+n-1+n*j)]);
                     else
-                        imageB->dataCurrent[k1] = hue_transit(imageG->dataCurrent[i-n-1+n*j], imageG->dataCurrent[i+n*j], imageG->dataCurrent[i+n+1+n*j],
-                                image->dataCurrent[(i-n-1+n*j)], image->dataCurrent[(i+n+1+n*j)]);
+                        B[k1] = hue_transit(G[i-n-1+n*j], G[i+n*j], G[i+n+1+n*j], I[(i-n-1+n*j)], I[(i+n+1+n*j)]);
                     ++k1;
                 }
                 else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 0) { // green pixel, red above
-                    imageR->dataCurrent[k1] = hue_transit(imageG->dataCurrent[(i-n+n*j)], image->dataCurrent[(i+n*j)], imageG->dataCurrent[(i+n+n*j)],
-                            image->dataCurrent[(i-n+n*j)], image->dataCurrent[(i+n+n*j)]);
-                    imageB->dataCurrent[k1] = hue_transit(imageG->dataCurrent[(i-1+n*j)], image->dataCurrent[(i+n*j)], imageG->dataCurrent[(i+1+n*j)],
-                            image->dataCurrent[(i-1+n*j)], image->dataCurrent[(i+1+n*j)]);
+                    R[k1] = hue_transit(G[(i-n+n*j)], I[(i+n*j)], G[(i+n+n*j)], I[(i-n+n*j)], I[(i+n+n*j)]);
+                    B[k1] = hue_transit(G[(i-1+n*j)], I[(i+n*j)], G[(i+1+n*j)], I[(i-1+n*j)], I[(i+1+n*j)]);
                     ++k1;
                 }
                 else if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 1) { // green pixel, blue above
-                    imageR->dataCurrent[k1] = hue_transit(imageG->dataCurrent[(i-1+n*j)], image->dataCurrent[(i+n*j)], imageG->dataCurrent[(i+1+n*j)],
-                            image->dataCurrent[(i-1+n*j)], image->dataCurrent[(i+1+n*j)]);
-                    imageB->dataCurrent[k1] = hue_transit(imageG->dataCurrent[(i-n+n*j)], image->dataCurrent[(i+n*j)], imageG->dataCurrent[(i+n+n*j)],
-                            image->dataCurrent[(i-n+n*j)], image->dataCurrent[(i+n+n*j)]);
+                    R[k1] = hue_transit(G[(i-1+n*j)], I[(i+n*j)], G[(i+1+n*j)], I[(i-1+n*j)], I[(i+1+n*j)]);
+                    B[k1] = hue_transit(G[(i-n+n*j)], I[(i+n*j)], G[(i+n+n*j)], I[(i-n+n*j)], I[(i+n+n*j)]);
                     ++k1;
                 }
                 else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 1) { // blue pixel
                     if (dne <= dnw)
-                        imageR->dataCurrent[k1] = hue_transit(imageG->dataCurrent[(i-n+1+n*j)], imageG->dataCurrent[(i+n*j)], imageG->dataCurrent[(i+n-1+n*j)],
-                                image->dataCurrent[(i-n+1+n*j)], image->dataCurrent[(i+n-1+n*j)]);
+                        R[k1] = hue_transit(G[(i-n+1+n*j)], G[(i+n*j)], G[(i+n-1+n*j)], I[(i-n+1+n*j)], I[(i+n-1+n*j)]);
                     else
-                        imageR->dataCurrent[k1] = hue_transit(imageG->dataCurrent[(i-n-1+n*j)], imageG->dataCurrent[(i+n*j)], imageG->dataCurrent[(i+n+1+n*j)],
-                                image->dataCurrent[(i-n-1+n*j)], image->dataCurrent[(i+n+1+n*j)]);
+                        R[k1] = hue_transit(G[(i-n-1+n*j)], G[(i+n*j)], G[(i+n+1+n*j)], I[(i-n-1+n*j)], I[(i+n+1+n*j)]);
                     ++k1;
                 }
             }
