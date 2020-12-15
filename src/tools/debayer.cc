@@ -26,10 +26,10 @@ If not, see https://www.gnu.org/licenses/ .
 float hue_transit(float l1, float l2, float l3, float v1, float v3)
 {
     //printf("hue_transit: l1 %5.1f l2 %5.1f l3 %5.1f v1 %5.1f v3 %5.1f\n",l1,l2,l3,v1,v3);
-    if((l1<l2 && l2<l3) || (l1> l2 && l2 > l3))
-        return(v1+(v3-v1) * (l2-l1)/(l3-l1));
+    if ((l1<l2 && l2<l3) || (l1> l2 && l2 > l3))
+        return (v1+(v3-v1) * (l2-l1)/(l3-l1));
     else
-        return((v1+v3)/2.0+(l2*2.0-l1-l3)/4.0);
+        return ((v1+v3)/2.0 + (l2*2.0-l1-l3)/4.0);
 }
 
 // For debayering
@@ -149,9 +149,7 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
         }
     }
 
-    /* ====================
-     *  BEGIN PPG algorithm
-    */
+    // ==== BEGIN PPG algorithm ===
 
     // cut all patterns to RGGB
     int xoffset;
@@ -181,25 +179,7 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
       gBgBgBgBg
     */
 
-    /*
-    B.resize(n*m);
-    imageG->dataCurrent.resize(n*m);
-    imageR->dataCurrent.resize(n*m);
-    */
-
-    // correct offset & correct colors
-    // for bayerfilter RGBG colorbalance:
-
-    // Subtract offset;
-    // Color balance with sensor multipliers R,G,B,g
-    long k1 = 0;
-    long i = 0;
-    long j = 0;
-
-    // TODO: use references to vectors to simplify the code;
-    // QVector<float> &I = image->dataCurrent;
-
-    k1 = 0;  // red
+    long k = 0;
 
     QVector<float> &I = image->dataCurrent;
     QVector<float> &R = imageR->dataCurrent;
@@ -207,14 +187,14 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
     QVector<float> &B = imageB->dataCurrent;
 
     // Calculate the green values at red and blue pixels
-    for (j=0; j<m; ++j) {
-        for (i=0; i<n; ++i) {
+    for (long j=0; j<m; ++j) {
+        for (long i=0; i<n; ++i) {
 
             if( j<=2 || j>=m-3 || i<=2 || i>=n-3) { // 3 rows top bottom left right
-                R[k1] = I[(i+n*j)];  // all the same with current color
-                G[k1] = I[(i+n*j)];
-                B[k1] = I[(i+n*j)];
-                ++k1;
+                R[k] = I[(i+n*j)];  // all the same with current color
+                G[k] = I[(i+n*j)];
+                B[k] = I[(i+n*j)];
+                ++k;
             }
             else{
                 // gradient calculation for green values at red or blue pixels
@@ -224,133 +204,133 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
                 float DS = fabs(I[(i+n*j)]    -I[(i+2*n+n*j)])*2.0 + fabs(I[(i-n+n*j)]-I[(i+n+n*j)]);
 
                 if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 0) { // red pixel
-                    R[k1] = I[(i+n*j)];
+                    R[k] = I[(i+n*j)];
                     switch (direction(DN,DE,DW,DS)) {
-                    case 1: G[k1] = (I[(i-n+n*j)]*3.0 + I[(i+n*j)] + I[(i+n+n*j)] - I[(i-2*n+n*j)]) / 4.0; break;
-                    case 2: G[k1] = (I[(i+1+n*j)]*3.0 + I[(i+n*j)] + I[(i-1+n*j)] - I[(i+2+n*j)]) / 4.0; break;
-                    case 3: G[k1] = (I[(i-1+n*j)]*3.0 + I[(i+n*j)] + I[(i+1+n*j)] - I[(i-2+n*j)]) / 4.0; break;
-                    case 4: G[k1] = (I[(i+n+n*j)]*3.0 + I[(i+n*j)] + I[(i-n+n*j)] - I[(i+2*n+n*j)]) / 4.0; break;
+                    case 1: G[k] = (I[(i-n+n*j)]*3.0 + I[(i+n*j)] + I[(i+n+n*j)] - I[(i-2*n+n*j)]) / 4.0; break;
+                    case 2: G[k] = (I[(i+1+n*j)]*3.0 + I[(i+n*j)] + I[(i-1+n*j)] - I[(i+2+n*j)]) / 4.0; break;
+                    case 3: G[k] = (I[(i-1+n*j)]*3.0 + I[(i+n*j)] + I[(i+1+n*j)] - I[(i-2+n*j)]) / 4.0; break;
+                    case 4: G[k] = (I[(i+n+n*j)]*3.0 + I[(i+n*j)] + I[(i-n+n*j)] - I[(i+2*n+n*j)]) / 4.0; break;
                     }
-                    ++k1;
+                    ++k;
                 }
                 else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 1){ // blue pixel
                     switch (direction(DN,DE,DW,DS)){
-                    case 1: G[k1] = (I[(i-n+n*j)]*3.0 + I[(i+n*j)] + I[(i+n+n*j)] - I[(i-2*n+n*j)]) / 4.0; break;
-                    case 2: G[k1] = (I[(i+1+n*j)]*3.0 + I[(i+n*j)] + I[(i-1+n*j)] - I[(i+2+n*j)]) / 4.0; break;
-                    case 3: G[k1] = (I[(i-1+n*j)]*3.0 + I[(i+n*j)] + I[(i+1+n*j)] - I[(i-2+n*j)]) / 4.0; break;
-                    case 4: G[k1] = (I[(i+n+n*j)]*3.0 + I[(i+n*j)] + I[(i-n+n*j)] - I[(i+2*n+n*j)]) / 4.0; break;
+                    case 1: G[k] = (I[(i-n+n*j)]*3.0 + I[(i+n*j)] + I[(i+n+n*j)] - I[(i-2*n+n*j)]) / 4.0; break;
+                    case 2: G[k] = (I[(i+1+n*j)]*3.0 + I[(i+n*j)] + I[(i-1+n*j)] - I[(i+2+n*j)]) / 4.0; break;
+                    case 3: G[k] = (I[(i-1+n*j)]*3.0 + I[(i+n*j)] + I[(i+1+n*j)] - I[(i-2+n*j)]) / 4.0; break;
+                    case 4: G[k] = (I[(i+n+n*j)]*3.0 + I[(i+n*j)] + I[(i-n+n*j)] - I[(i+2*n+n*j)]) / 4.0; break;
                     }
-                    B[k1] = I[(i+n*j)];
-                    ++k1;
+                    B[k] = I[(i+n*j)];
+                    ++k;
                 }
                 else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 0){ // green pixel, red above
-                    G[k1] = I[(i+n*j)];
-                    ++k1;
+                    G[k] = I[(i+n*j)];
+                    ++k;
                 }
                 else if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 1){ // green pixel, blue above
-                    G[k1] = I[(i+n*j)];
-                    ++k1;
+                    G[k] = I[(i+n*j)];
+                    ++k;
                 }
             }
         }
     }
 
-    k1 = 0;
+    k = 0;
     // Calculating blue and red at green pixels
     // Calculating blue or red at red or blue pixels
-    for (j=0; j<m; ++j) {
-        for (i=0; i<n; ++i) {
+    for (long j=0; j<m; ++j) {
+        for (long i=0; i<n; ++i) {
 
             if (j<=2 || j>=m-3 || i<=2 || i>=n-3) {  // 3 rows top bottom left right
                 if (!xoffset && !yoffset) {  // RGGB
                     if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 0){ // red pixel
-                        R[k1] = I[(i+n*j)];
-                        G[k1] = I[(i+1+n*j)];
-                        B[k1] = I[(i+1+n+n*j)];
+                        R[k] = I[(i+n*j)];
+                        G[k] = I[(i+1+n*j)];
+                        B[k] = I[(i+1+n+n*j)];
                     }
                     else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 0){ // green pixel, red above
-                        R[k1] = I[(i-n+n*j)];
-                        G[k1] = I[(i+n*j)];
-                        B[k1] = I[(i+1+n*j)];
+                        R[k] = I[(i-n+n*j)];
+                        G[k] = I[(i+n*j)];
+                        B[k] = I[(i+1+n*j)];
                     }
                     else if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 1){ // green pixel, blue above
-                        R[k1] = I[(i-1+n*j)];
-                        G[k1] = I[(i+n*j)];
-                        B[k1] = I[(i+n+n*j)];
+                        R[k] = I[(i-1+n*j)];
+                        G[k] = I[(i+n*j)];
+                        B[k] = I[(i+n+n*j)];
                     }
                     else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 1){ // blue pixel
-                        R[k1] = I[(i-1-n+n*j)];
-                        G[k1] = I[(i-1+n*j)];
-                        B[k1] = I[(i+n*j)];
+                        R[k] = I[(i-1-n+n*j)];
+                        G[k] = I[(i-1+n*j)];
+                        B[k] = I[(i+n*j)];
                     }
                 }
                 else if (xoffset && !yoffset) { //GRBG
                     if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 0){ // red pixel
-                        R[k1] = I[(i+n*j)];
-                        G[k1] = I[(i-1+n*j)];
-                        B[k1] = I[(i-1+n+n*j)];
+                        R[k] = I[(i+n*j)];
+                        G[k] = I[(i-1+n*j)];
+                        B[k] = I[(i-1+n+n*j)];
                     }
                     else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 0){ // green pixel, red above
-                        R[k1] = I[(i-n+n*j)];
-                        G[k1] = I[(i+n*j)];
-                        B[k1] = I[(i-1+n*j)];
+                        R[k] = I[(i-n+n*j)];
+                        G[k] = I[(i+n*j)];
+                        B[k] = I[(i-1+n*j)];
                     }
                     else if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 1){ // green pixel, blue above
-                        R[k1] = I[(i+1+n*j)];
-                        G[k1] = I[(i+n*j)];
-                        B[k1] = I[(i+n+n*j)];
+                        R[k] = I[(i+1+n*j)];
+                        G[k] = I[(i+n*j)];
+                        B[k] = I[(i+n+n*j)];
                     }
                     else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 1){ // blue pixel
-                        R[k1] = I[(i+1-n+n*j)];
-                        G[k1] = I[(i+1+n*j)];
-                        B[k1] = I[(i+n*j)];
+                        R[k] = I[(i+1-n+n*j)];
+                        G[k] = I[(i+1+n*j)];
+                        B[k] = I[(i+n*j)];
                     }
                 }
                 else if (!xoffset && yoffset) { //GBRG
                     if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 0){ // red pixel
-                        R[k1] = I[(i+n*j)];
-                        G[k1] = I[(i-n+n*j)];
-                        B[k1] = I[(i+1-n+n*j)];
+                        R[k] = I[(i+n*j)];
+                        G[k] = I[(i-n+n*j)];
+                        B[k] = I[(i+1-n+n*j)];
                     }
                     else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 0){ // green pixel, red above
-                        R[k1] = I[(i+n+n*j)];
-                        G[k1] = I[(i+n*j)];
-                        B[k1] = I[(i+1+n*j)];
+                        R[k] = I[(i+n+n*j)];
+                        G[k] = I[(i+n*j)];
+                        B[k] = I[(i+1+n*j)];
                     }
                     else if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 1){ // green pixel, blue above
-                        R[k1] = I[(i-1+n*j)];
-                        G[k1] = I[(i+n*j)];
-                        B[k1] = I[(i-n+n*j)];
+                        R[k] = I[(i-1+n*j)];
+                        G[k] = I[(i+n*j)];
+                        B[k] = I[(i-n+n*j)];
                     }
                     else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 1){ // blue pixel
-                        R[k1] = I[(i-1+n+n*j)];
-                        G[k1] = I[(i-1+n*j)];
-                        B[k1] = I[(i+n*j)];
+                        R[k] = I[(i-1+n+n*j)];
+                        G[k] = I[(i-1+n*j)];
+                        B[k] = I[(i+n*j)];
                     }
                 }
                 else if (xoffset && yoffset) { //BGGR
                     if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 0){ // red pixel
-                        R[k1] = I[(i+n*j)];
-                        G[k1] = I[(i-1+n*j)];
-                        B[k1] = I[(i-1-n+n*j)];
+                        R[k] = I[(i+n*j)];
+                        G[k] = I[(i-1+n*j)];
+                        B[k] = I[(i-1-n+n*j)];
                     }
                     else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 0){ // green pixel, red above
-                        R[k1] = I[(i+n+n*j)];
-                        G[k1] = I[(i+n*j)];
-                        B[k1] = I[(i-1+n*j)];
+                        R[k] = I[(i+n+n*j)];
+                        G[k] = I[(i+n*j)];
+                        B[k] = I[(i-1+n*j)];
                     }
                     else if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 1){ // green pixel, blue above
-                        R[k1] = I[(i+1+n*j)];
-                        G[k1] = I[(i+n*j)];
-                        B[k1] = I[(i-n+n*j)];
+                        R[k] = I[(i+1+n*j)];
+                        G[k] = I[(i+n*j)];
+                        B[k] = I[(i-n+n*j)];
                     }
                     else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 1){ // blue pixel
-                        R[k1] = I[(i+1+n+n*j)];
-                        G[k1] = I[(i+1+n*j)];
-                        B[k1] = I[(i+n*j)];
+                        R[k] = I[(i+1+n+n*j)];
+                        G[k] = I[(i+1+n*j)];
+                        B[k] = I[(i+n*j)];
                     }
                 }
-                k1++;
+                ++k;
             }
             else{
                 // diagonal gradients
@@ -367,36 +347,33 @@ void debayer(int chip, MyImage *image, MyImage *imageB, MyImage *imageG, MyImage
 
                 if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 0) { // red pixel
                     if (dne <= dnw)
-                        B[k1] = hue_transit(G[i-n+1+n*j], G[i+n*j], G[i+n-1+n*j], I[(i-n+1+n*j)], I[(i+n-1+n*j)]);
+                        B[k] = hue_transit(G[i-n+1+n*j], G[i+n*j], G[i+n-1+n*j], I[(i-n+1+n*j)], I[(i+n-1+n*j)]);
                     else
-                        B[k1] = hue_transit(G[i-n-1+n*j], G[i+n*j], G[i+n+1+n*j], I[(i-n-1+n*j)], I[(i+n+1+n*j)]);
-                    ++k1;
+                        B[k] = hue_transit(G[i-n-1+n*j], G[i+n*j], G[i+n+1+n*j], I[(i-n-1+n*j)], I[(i+n+1+n*j)]);
+                    ++k;
                 }
                 else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 0) { // green pixel, red above
-                    R[k1] = hue_transit(G[(i-n+n*j)], I[(i+n*j)], G[(i+n+n*j)], I[(i-n+n*j)], I[(i+n+n*j)]);
-                    B[k1] = hue_transit(G[(i-1+n*j)], I[(i+n*j)], G[(i+1+n*j)], I[(i-1+n*j)], I[(i+1+n*j)]);
-                    ++k1;
+                    R[k] = hue_transit(G[(i-n+n*j)], I[(i+n*j)], G[(i+n+n*j)], I[(i-n+n*j)], I[(i+n+n*j)]);
+                    B[k] = hue_transit(G[(i-1+n*j)], I[(i+n*j)], G[(i+1+n*j)], I[(i-1+n*j)], I[(i+1+n*j)]);
+                    ++k;
                 }
                 else if ((j+yoffset)%2 == 0 && (i+xoffset)%2 == 1) { // green pixel, blue above
-                    R[k1] = hue_transit(G[(i-1+n*j)], I[(i+n*j)], G[(i+1+n*j)], I[(i-1+n*j)], I[(i+1+n*j)]);
-                    B[k1] = hue_transit(G[(i-n+n*j)], I[(i+n*j)], G[(i+n+n*j)], I[(i-n+n*j)], I[(i+n+n*j)]);
-                    ++k1;
+                    R[k] = hue_transit(G[(i-1+n*j)], I[(i+n*j)], G[(i+1+n*j)], I[(i-1+n*j)], I[(i+1+n*j)]);
+                    B[k] = hue_transit(G[(i-n+n*j)], I[(i+n*j)], G[(i+n+n*j)], I[(i-n+n*j)], I[(i+n+n*j)]);
+                    ++k;
                 }
                 else if ((j+yoffset)%2 == 1 && (i+xoffset)%2 == 1) { // blue pixel
                     if (dne <= dnw)
-                        R[k1] = hue_transit(G[(i-n+1+n*j)], G[(i+n*j)], G[(i+n-1+n*j)], I[(i-n+1+n*j)], I[(i+n-1+n*j)]);
+                        R[k] = hue_transit(G[(i-n+1+n*j)], G[(i+n*j)], G[(i+n-1+n*j)], I[(i-n+1+n*j)], I[(i+n-1+n*j)]);
                     else
-                        R[k1] = hue_transit(G[(i-n-1+n*j)], G[(i+n*j)], G[(i+n+1+n*j)], I[(i-n-1+n*j)], I[(i+n+1+n*j)]);
-                    ++k1;
+                        R[k] = hue_transit(G[(i-n-1+n*j)], G[(i+n*j)], G[(i+n+1+n*j)], I[(i-n-1+n*j)], I[(i+n+1+n*j)]);
+                    ++k;
                 }
             }
         }
     }
 
-    /*
-     *  END PPG algorithm
-     * ==================
-    */
+    // === END PPG algorithm ===
 }
 
 void updateDebayerMemoryStatus(MyImage *image)
