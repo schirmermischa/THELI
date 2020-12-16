@@ -699,3 +699,104 @@ void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>>
 
     omp_destroy_lock(&lock);
 }
+
+// same as match2d, just uses the reference coordinates in the output catalog
+void match2D_refcoords(const QVector<QVector<double>> vec1, const QVector<QVector<double>> vec2, QVector<QVector<double>> &matched,
+             double tolerance, int &multiple1, int &multiple2, int nthreads)
+{
+    if (vec1.isEmpty() || vec2.isEmpty()) return;
+
+    // Only the reference vector needs to be sorted, using the first column (DEC)
+    sort2DVector(vec2);
+
+    long dim1 = vec1.length();  // Objects
+    long dim2 = vec2.length();  // Reference sources
+
+    matched.reserve(dim1);
+
+    QVector<int> numMatched1;
+    QVector<int> numMatched2;
+    numMatched1.fill(0, dim1);  // How many times an object got matched with different reference sources
+    numMatched2.fill(0, dim2);  // How many times a reference source got matched with different objects
+
+    omp_lock_t lock;
+    omp_init_lock(&lock);
+
+    // First pass: identify ambiguous sources and references
+    //#pragma omp parallel for num_threads(nthreads)
+    for (long i=0; i<dim1; ++i) {
+        bool inside_previous = false;
+        bool inside_current = false;
+        for (long j=0; j<dim2; ++j) {
+            // calc DEC offset and see if we are "within reach" (list is sorted with respect to DEC)
+            double ddec = fabs(vec2.at(j)[0] - vec1.at(i)[0]);
+            if (ddec < tolerance) inside_current = true;
+            else inside_current = false;
+
+            // Leave if we passed the plausible matching zone ("zone" refers to the range in the sorted list that could match)
+            if (inside_previous && !inside_current) break;
+
+            if (inside_current) {
+                // distance between the two points (in [deg])
+                double distance = haversine(vec2.at(j)[1], vec1.at(i)[1], vec2.at(j)[0], vec1.at(i)[0]);
+                if (distance < tolerance) {
+                    ++numMatched1[i];
+                    ++numMatched2[j];
+                }
+            }
+            inside_previous = inside_current;
+        }
+    }
+
+    multiple1 = 0;
+    multiple2 = 0;
+    for (auto &mult : numMatched1) {
+        if (mult>1) ++multiple1;
+    }
+    for (auto &mult : numMatched2) {
+        if (mult>1) ++multiple2;
+    }
+
+//    qDebug() << multiple1 << multiple2;
+
+    // Second pass, match unambiguous sources, only
+#pragma omp parallel for num_threads(nthreads)
+    for (long i=0; i<dim1; ++i) {
+        if (numMatched1[i] > 1) continue;
+        bool inside_previous = false;
+        bool inside_current = false;
+        QVector<double> dummy;
+        for (long j=0; j<dim2; ++j) {
+            if (numMatched2[j] > 1) continue;
+            // calc DEC offset and see if we are "within reach"
+            double ddec = fabs(vec2.at(j)[0] - vec1.at(i)[0]);
+            if (ddec < tolerance) inside_current = true;
+            else inside_current = false;
+
+            // Leave if we passed the plausible matching zone
+            if (inside_previous && !inside_current) break;
+
+            if (inside_current) {
+                // distance between the two points (in [deg])
+                double distance = haversine(vec2.at(j)[1], vec1.at(i)[1], vec2.at(j)[0], vec1.at(i)[0]);
+                if (distance < tolerance) {
+                    dummy << vec2.at(j)[0]; // RA OBJ
+                    dummy << vec2.at(j)[1]; // DEC OBJ
+                    for (int k=2; k<vec2.at(j).length(); ++k) {
+                        dummy << vec2.at(j)[k]; // MAG and MAGERR for reference sources
+                    }
+                    for (int k=2; k<vec1.at(i).length(); ++k) {
+                        dummy << vec1.at(i)[k]; // MAG and MAGERR for objects
+                    }
+#pragma omp critical
+                    {
+                        matched.append(dummy);
+                    }
+                }
+            }
+            inside_previous = inside_current;
+        }
+    }
+
+    omp_destroy_lock(&lock);
+}

@@ -315,10 +315,10 @@ void AbsZeroPoint::taskInternalAbszeropoint()
     matched.clear();       // Otherwise, multiple runs will append to previous data
     if (ui->zpRefcatComboBox->currentText().contains("2MASS")) {
         // simple way to accomodate accumulated proper motions for 2MASS (adding 1" matching radius)
-        match2D(objDat, refDat, matched, myImage->matchingTolerance + 1./3600., multiple1, multiple2, maxCPU);
+        match2D_refcoords(objDat, refDat, matched, myImage->matchingTolerance + 1./3600., multiple1, multiple2, maxCPU);
     }
     else {
-        match2D(objDat, refDat, matched, myImage->matchingTolerance, multiple1, multiple2, maxCPU);
+        match2D_refcoords(objDat, refDat, matched, myImage->matchingTolerance, multiple1, multiple2, maxCPU);
     }
 
     if (matched.length() == 0) {
@@ -337,6 +337,7 @@ void AbsZeroPoint::taskInternalAbszeropoint()
     emit readyForPlotting();
 
     // update the catalog display if iview is open
+    writeAbsPhotRefcat();
     if (iViewOpen) on_showAbsphotPushButton_clicked();
 }
 
@@ -433,8 +434,6 @@ void AbsZeroPoint::queryRefCat()
         if (myImage->containsRaDec(raRefCat[i], deRefCat[i])) ++ngood;
     }
 
-    writeAbsPhotRefcat();
-
     emit messageAvailable(QString::number(numRefSources) + " reference sources found, "+QString::number(ngood)+" inside image", "info");
     emit messageAvailable("Please wait for object detection to finish ...", "ignore");
 }
@@ -445,27 +444,44 @@ void AbsZeroPoint::writeAbsPhotRefcat()
     QString outpath = myImage->path;
     QDir outdir(outpath);
     if (!outdir.exists()) {
-        emit messageAvailable(QString(__func__) + " : " + myImage->path +" directory does not exist to write AbsPhot reference catalog", "error");
+        emit messageAvailable(QString(__func__) + " : " + myImage->path +" directory does not exist to write AbsPhot reference catalogs", "error");
         emit criticalReceived();
         return;
     }
 
-    QFile outcat_iview(outpath+"/ABSPHOT_sources_matched.iview");
-    QTextStream stream_iview(&outcat_iview);
-    if( !outcat_iview.open(QIODevice::WriteOnly)) {
-        emit messageAvailable(QString(__func__) + " : ERROR writing "+outpath+outcat_iview.fileName()+" : "+outcat_iview.errorString(), "error");
+    QFile outcat_iview_matched(outpath+"/ABSPHOT_sources_matched.iview");
+    QTextStream stream_iview_matched(&outcat_iview_matched);
+    if( !outcat_iview_matched.open(QIODevice::WriteOnly)) {
+        emit messageAvailable(QString(__func__) + " : ERROR writing "+outpath+outcat_iview_matched.fileName()+" : "+outcat_iview_matched.errorString(), "error");
         emit criticalReceived();
         return;
     }
 
-    // Write iView catalog
+    QFile outcat_iview_down(outpath+"/ABSPHOT_sources_downloaded.iview");
+    QTextStream stream_iview_down(&outcat_iview_down);
+    if( !outcat_iview_down.open(QIODevice::WriteOnly)) {
+        emit messageAvailable(QString(__func__) + " : ERROR writing "+outpath+outcat_iview_down.fileName()+" : "+outcat_iview_down.errorString(), "error");
+        emit criticalReceived();
+        return;
+    }
+
+    // Write downloaded iView catalog
     long i = 0;
     for (auto &it : raRefCat) {
-        stream_iview << QString::number(it, 'f', 9) << " " << QString::number(deRefCat[i], 'f', 9) << " " << QString::number(mag1RefCat[i], 'f', 3) << "\n";
+        stream_iview_down << QString::number(it, 'f', 9) << " " << QString::number(deRefCat[i], 'f', 9) << " " << QString::number(mag1RefCat[i], 'f', 3) << "\n";
         ++i;
     }
-    outcat_iview.close();
-    outcat_iview.setPermissions(QFile::ReadUser | QFile::WriteUser);
+    outcat_iview_down.close();
+    outcat_iview_down.setPermissions(QFile::ReadUser | QFile::WriteUser);
+
+    // Write matched iView catalog
+    i = 0;
+    for (auto &it : matched) {
+        stream_iview_matched << QString::number(it[1], 'f', 9) << " " << QString::number(it[0], 'f', 9) << " " << QString::number(matched[i][2], 'f', 3) << "\n";
+        ++i;
+    }
+    outcat_iview_matched.close();
+    outcat_iview_matched.setPermissions(QFile::ReadUser | QFile::WriteUser);
 }
 
 void AbsZeroPoint::buildAbsPhot()

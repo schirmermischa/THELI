@@ -976,7 +976,8 @@ void IView::showAbsPhotReferences(bool checked)
         }
 
         QString dirName = AbsPhotReferencePathName;
-        QString catName = "ABSPHOT_sources_matched.iview";
+        QString catNameMatched = "ABSPHOT_sources_matched.iview";
+        QString catNameDownloaded = "ABSPHOT_sources_downloaded.iview";
 
         if (AbsPhotReferencePathName.isEmpty()) {
             qDebug() << __func__ << "No path name defined for absolute reference catalog. AbsPhot references will not be displayed.";
@@ -986,7 +987,10 @@ void IView::showAbsPhotReferences(bool checked)
         // Clear the item list
         AbsPhotRefCatItems.clear();
         int width = 2;
-        readRaDecCatalog(dirName+"/"+catName, AbsPhotRefCatItems, 29, width, QColor("#ee0000"));
+        readRaDecCatalog(dirName+"/"+catNameDownloaded, AbsPhotRefCatItems, 29, width, QColor("#ee0000"));
+//        readRaDecCatalog(dirName+"/"+catNameDownloaded, AbsPhotRefCatItems, 27, width, QColor("#000000"));
+        readRaDecCatalog(dirName+"/"+catNameMatched, AbsPhotRefCatItems, 29, width, QColor("#eeee00"));
+//        readRaDecCatalog(dirName+"/"+catNameMatched, AbsPhotRefCatItems, 27, width, QColor("#000000"));
     }
     else {
         // Remove any previous catalog display.

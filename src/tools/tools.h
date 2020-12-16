@@ -49,6 +49,8 @@ QVector<float> collapse_quad(QVector<float> &data, const QVector<bool> &globalMa
                              const float kappa, const long n, const long m, const QString direction, const QString returnMode);
 void match2D(const QVector<QVector<double> > vec1, const QVector<QVector<double> > vec2, QVector<QVector<double>> &matched,
              double tolerance, int &multiple1, int &multiple2, int nthreads);
+void match2D_refcoords(const QVector<QVector<double> > vec1, const QVector<QVector<double> > vec2, QVector<QVector<double>> &matched,
+             double tolerance, int &multiple1, int &multiple2, int nthreads);
 
 double haversine(double ra1, double ra2, double dec1, double dec2);
 
