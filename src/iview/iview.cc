@@ -969,6 +969,12 @@ void IView::showAbsPhotReferences(bool checked)
     if (scene->items().isEmpty()) return;
 
     if (checked) {
+        // Clear previous items
+        if (!AbsPhotRefCatItems.isEmpty()) {
+            for (auto &it: AbsPhotRefCatItems) scene->removeItem(it);
+            AbsPhotRefCatItems.clear();
+        }
+
         QString dirName = AbsPhotReferencePathName;
         QString catName = "ABSPHOT_sources_matched.iview";
 

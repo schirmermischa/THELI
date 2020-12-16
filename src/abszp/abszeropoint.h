@@ -67,6 +67,7 @@ signals:
     void finished();
     void readyForPlotting();
     void abszpClosed();
+    void updateAbsPhotPlot(bool checked);
 
 public slots:
     void updateVerbosity(int verbosityLevel);

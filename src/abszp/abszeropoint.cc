@@ -307,7 +307,7 @@ void AbsZeroPoint::taskInternalAbszeropoint()
 
     // Estimate the matching tolerance
     myImage->estimateMatchingTolerance();
-//    qDebug() << "matching tolerance: " << myImage->matchingTolerance*3600./myImage->plateScale;
+    //    qDebug() << "matching tolerance: " << myImage->matchingTolerance*3600./myImage->plateScale;
 
     // Now do the matching
     int multiple1 = 0;
@@ -335,6 +335,9 @@ void AbsZeroPoint::taskInternalAbszeropoint()
 
     // The plotting makes changes to the GUI, and therefore has been done from within the main thread!
     emit readyForPlotting();
+
+    // update the catalog display if iview is open
+    if (iViewOpen) on_showAbsphotPushButton_clicked();
 }
 
 void AbsZeroPoint::queryRefCat()
@@ -1128,18 +1131,18 @@ void AbsZeroPoint::on_closePushButton_clicked()
 void AbsZeroPoint::on_showAbsphotPushButton_clicked()
 {
     if (!iViewOpen) {
-            iView = new IView("FITSmonochrome", ui->zpImageLineEdit->text(), this);
-            connect(iView, &IView::closed, this, &AbsZeroPoint::iViewClosed);
-            iView->show();
-            iView->AbsPhotReferencePathName = myImage->path;
-            iView->showAbsPhotReferences(true);
-            iViewOpen = true;
+        iView = new IView("FITSmonochrome", ui->zpImageLineEdit->text(), this);
+        connect(iView, &IView::closed, this, &AbsZeroPoint::iViewClosed);
+        connect(this, &AbsZeroPoint::updateAbsPhotPlot, iView, &IView::showAbsPhotReferences);
+        iView->show();
+        iView->AbsPhotReferencePathName = myImage->path;
+        iView->showAbsPhotReferences(true);
+        iViewOpen = true;
     }
     else {
-            iView->scene->clear();
-            iView->show();
-            iView->AbsPhotReferencePathName = myImage->path;
-            iView->showAbsPhotReferences(true);
+        iView->show();
+        iView->AbsPhotReferencePathName = myImage->path;
+        emit updateAbsPhotPlot(true);
     }
 }
 
