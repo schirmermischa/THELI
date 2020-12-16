@@ -126,15 +126,6 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     // the main dir is not set first. Hence the repaint.
     repaintDataDirs();
 
-    // Initial configuration of MainWindow
-    initGUI();
-
-    // Repaint background of previously executed tasks.
-    // initGUI loads the style sheet, thus defaulting to backgrounds
-    status.history2checkbox();
-
-    // this->setStyleSheet("QComboBox:hover { background-color: #99ccff };");
-
     // The entity that keeps track of the data, incl connections
     QString statusOld = status.getStatusFromHistory();
 
@@ -147,6 +138,18 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
         // editing finished not emitted if dirs are empty (because of the validator)
         connect(it, &QLineEdit::textChanged, this, &MainWindow::emitEditingFinished);
     }
+
+    // Initial configuration of MainWindow
+    initGUI();
+
+    // Repaint background of previously executed tasks.
+    // initGUI loads the style sheet, thus defaulting to backgrounds
+    status.history2checkbox();
+
+    // this->setStyleSheet("QComboBox:hover { background-color: #99ccff };");
+
+    // The entity that keeps track of the data, incl connections
+//    QString statusOld = status.getStatusFromHistory();
 
     // Another dock widget, must be done after instantiating the controller
     memoryViewer = new MemoryViewer(controller, this);

@@ -103,7 +103,7 @@ void MyImage::segmentImage(const QString DTstring, const QString DMINstring, con
     if (weightInMemory) {
         maxWeight = maxVec_T(dataWeight); // Could sort a sub-sample and use the 90% highest value or sth like that, more stable
     }
-    long i=0;
+    long i = 0;
     for (auto &pixel: dataCurrent) {
         // subtract background model
         float dorig = pixel - dataBackground.at(i);

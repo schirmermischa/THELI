@@ -17,7 +17,7 @@ along with this program in the LICENSE file.
 If not, see https://www.gnu.org/licenses/ .
 */
 
-// THELI internal source detection, using the definitions and nomenclature from
+// THELI internal source detection, (mostly) using the definitions and nomenclature from
 // https://sextractor.readthedocs.io/en/latest/index.html
 
 #include "detectedobject.h"
@@ -177,7 +177,7 @@ QVector<double> DetectedObject::calcFluxAper(float aperture)
     long npixAper = (xmaxAper-xminAper+1) * (ymaxAper-yminAper+1);
     pixelsAper_flux.resize(npixAper);
     pixelsAper_back.resize(npixAper);
-    pixelsAper_weight.resize(npixAper);
+    pixelsAper_weight.fill(1.0, npixAper);     // fill vector with dummy weight (if weight map is not available, e.g. during background object masking)
     pixelsAper_x.resize(npixAper);
     pixelsAper_y.resize(npixAper);
     long k = 0;
@@ -185,7 +185,7 @@ QVector<double> DetectedObject::calcFluxAper(float aperture)
         for (long i=xminAper; i<=xmaxAper; ++i) {
             pixelsAper_flux[k] = dataMeasure.at(i+naxis1*j);
             pixelsAper_back[k] = dataBackground.at(i+naxis1*j);
-            pixelsAper_weight[k] = dataWeight.at(i+naxis1*j);
+            if (weightInMemory) pixelsAper_weight[k] = dataWeight.at(i+naxis1*j);           // update weight if weight map is available
             pixelsAper_x[k] = i;
             pixelsAper_y[k] = j;
             ++k;
@@ -715,7 +715,7 @@ void DetectedObject::getWindowedPixels()
             double ii = double(i);
             double rsq = (X-ii)*(X-ii) + (Y-jj)*(Y-jj);
             if (rsq <= 4.*FLUX_RADIUS*FLUX_RADIUS) {
-                if (dataWeight.at(i+naxis1*j) == 0.) {
+                if (weightInMemory && dataWeight.at(i+naxis1*j) == 0.) {
                     bitflags.setBit(6,true);
                     continue;
                 }
@@ -763,8 +763,8 @@ void DetectedObject::calcMagAuto()
             // Work on pixels within 6x the ellipse
             double rsq = CXX*dx*dx + CYY*dy*dy + CXY*dx*dy;
             if (rsq <= 36.*A*A) {
-                rkron += float(dataMeasure.at(i+naxis1*j));
-                fsum += dataMeasure.at(i+naxis1*j);
+//                rkron += float(dataMeasure.at(i+naxis1*j));
+//                fsum += dataMeasure.at(i+naxis1*j);
             }
         }
     }
@@ -802,7 +802,7 @@ void DetectedObject::calcMagAuto()
             float dx = X - i;
             // Work on pixels within auto_radius
             if (dx*dx + dy*dy < auto_radius*auto_radius) {
-                if (dataWeight.at(i+naxis1*j) == 0.) bitflags.setBit(6,true);
+                if (weightInMemory && dataWeight.at(i+naxis1*j) == 0.) bitflags.setBit(6,true);
                 // With global mask
                 if (globalMaskAvailable) {
                     if (!mask.at(i+naxis1*j)) {
