@@ -659,11 +659,11 @@ void IView::mapFITS()
     if(wcs) {
         // Transformation prameters, to be filled explicitly from WCS matrix
         // Must be computed with respect to global reference system valid for all images. Not sure how to do this
+        /*
         qreal scale = 1.; // scaling factor
         qreal phi = 0.;   // rotation angle
         qreal dx = 0.;    // translation
         qreal dy = 0.;    // translation
-        /*
         transform = new QTransform();
 
         // Adjust according to CD matrix
@@ -963,6 +963,37 @@ void IView::showG2References(bool checked)
     myGraphicsView->show();
 }
 
+void IView::showAbsPhotReferences(bool checked)
+{
+    // Leave if no image is displayed
+    if (scene->items().isEmpty()) return;
+
+    if (checked) {
+        QString dirName = AbsPhotReferencePathName;
+        QString catName = "ABSPHOT_sources_matched.iview";
+
+        if (AbsPhotReferencePathName.isEmpty()) {
+            qDebug() << __func__ << "No path name defined for absolute reference catalog. AbsPhot references will not be displayed.";
+            return;
+        }
+
+        // Clear the item list
+        AbsPhotRefCatItems.clear();
+        int width = 2;
+        readRaDecCatalog(dirName+"/"+catName, AbsPhotRefCatItems, 29, width, QColor("#ee0000"));
+    }
+    else {
+        // Remove any previous catalog display.
+        if (!AbsPhotRefCatItems.isEmpty()) {
+            for (auto &it: AbsPhotRefCatItems) scene->removeItem(it);
+            AbsPhotRefCatItems.clear();
+        }
+    }
+
+    myGraphicsView->setScene(scene);
+    myGraphicsView->show();
+}
+
 bool IView::readRaDecCatalog(QString fileName, QList<QGraphicsRectItem*> &items, double size, int width, QColor color)
 {
     QString line;
@@ -1005,7 +1036,7 @@ bool IView::readRaDecCatalog(QString fileName, QList<QGraphicsRectItem*> &items,
         }
     }
     else {
-        //        qDebug() << "IView::readRaDecCatalog: could not open" << fileName;
+        qDebug() << "IView::readRaDecCatalog: could not open" << fileName;
         return false;
     }
 }

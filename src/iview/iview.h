@@ -88,6 +88,7 @@ public:
     bool sourcecatSourcesShown = false;
 
     QString G2referencePathName = "";
+    QString AbsPhotReferencePathName = "";
 
     IvConfDockWidget *icdw;
     IvScampDockWidget *scampdw;
@@ -140,6 +141,7 @@ private slots:
     void initDynrangeDrag();
     void initSeparationVector(QPointF pointStart);
     void loadImage();
+    void middlePressResetCRPIXreceived();
     void nextAction_triggered();
     void on_actionDragMode_triggered();
     void on_actionSkyMode_triggered();
@@ -154,25 +156,26 @@ private slots:
     void updateCRPIX(QPointF pointStart, QPointF pointEnd);
     void updateCRPIXFITS();
     void updateCDmatrix(double cd11, double cd12, double cd21, double cd22);
-    void middlePressResetCRPIXreceived();
 public slots:
+    void autoContrastPushButton_toggled_receiver(bool checked);
     void clearAll();
     void colorFactorChanged_receiver(QString redFactor, QString blueFactor);
     void loadFITSexternal(QString fileName, QString filter);
-    void mapFITS();
-    void showG2References(bool checked);
-    void updateColorViewInternal(float redFactor, float blueFactor);
-    void updateColorViewExternal(float redFactor, float blueFactor);
-    void solutionAcceptanceStateReceived(bool state);
-    void autoContrastPushButton_toggled_receiver(bool checked);
-    void zoomFitPushButton_clicked_receiver(bool checked);
-    void minmaxLineEdit_returnPressed_receiver(QString rangeMin, QString rangeMax);
-    void zoomInPushButton_clicked_receiver();
-    void zoomOutPushButton_clicked_receiver();
-    void zoomZeroPushButton_clicked_receiver();
     void loadFromRAM(MyImage *it, int level);
     void loadFromRAMlist(const QModelIndex &index);
     void loadFITSexternalRAM(int index);
+    void mapFITS();
+    void minmaxLineEdit_returnPressed_receiver(QString rangeMin, QString rangeMax);
+    void showG2References(bool checked);
+    void showAbsPhotReferences(bool checked);
+    void solutionAcceptanceStateReceived(bool state);
+    void updateColorViewInternal(float redFactor, float blueFactor);
+    void updateColorViewExternal(float redFactor, float blueFactor);
+    void zoomFitPushButton_clicked_receiver(bool checked);
+    void zoomInPushButton_clicked_receiver();
+    void zoomOutPushButton_clicked_receiver();
+    void zoomZeroPushButton_clicked_receiver();
+
 protected:
     void closeEvent(QCloseEvent *event) override;
     void resizeEvent(QResizeEvent *event);
@@ -213,7 +216,6 @@ private:
     int naxis2;
 
     double rad = 3.1415926535 / 180.;
-
     bool fromMemory = false;
 
     struct wcsprm *wcs;
@@ -229,6 +231,7 @@ private:
     QList<QGraphicsEllipseItem*> sourceCatItems;
     QList<QGraphicsRectItem*> refCatItems;
     QList<QGraphicsRectItem*> G2refCatItems;
+    QList<QGraphicsRectItem*> AbsPhotRefCatItems;
     QList<QGraphicsRectItem*> skyRectItems;
     QList<QGraphicsTextItem*> skyTextItems;
 
@@ -243,40 +246,40 @@ private:
     QVector<float> fitsDataG;
     QVector<float> fitsDataB;
 
+    void addDockWidgets();
     QRect adjustGeometry();
-    void clearVectorItems();
-    void clearSkyRectItems();
     void clearSkyCircleItems();
-    void dumpSkyCircleCoordinates();
-    QString dec2hex(double angle);
+    void clearSkyRectItems();
+    void clearVectorItems();
     void compressDynrange(const QVector<float> &fitsdata, unsigned char *intdata, float colorCorrectionFactor = 1.0);
-    QString getVectorLabel(double separation);
+    QString dec2hex(double angle);
+    void dumpSkyCircleCoordinates();
     void getImageStatistics(QString colorMode = "");
-    void getVectorOffsets(const qreal dx, const qreal dy, qreal &x_yoffset,
-                          qreal &y_xoffset, qreal &d_xoffset, qreal &d_yoffset);
+    QString getVectorLabel(double separation);
+    void getVectorOffsets(const qreal dx, const qreal dy, qreal &x_yoffset, qreal &y_xoffset, qreal &d_xoffset, qreal &d_yoffset);
+    double haversine(double x1, double y1, double x2, double y2);
+    void hideWCSdockWidget();
+    void imageListToChipName();
     void initGUI();
     void initGUIstep2();
+    void loadColorFITS(qreal scaleFactor);
     void loadFITS(QString filename, int currentId = 0, qreal scaleFactor = 1.0);
     bool loadFITSdata(QString filename, QVector<float> &data, QString colorMode = "");
-    void loadColorFITS(qreal scaleFactor);
     void makeConnections();
-    bool readRaDecCatalog(QString fileName, QList<QGraphicsRectItem *> &items, double size, int width, QColor color);
+    void measureAngularSeparations(QPointF pointStart, QPointF pointEnd, double &sepX, double &sepY, double &sepD);
     void readPreferenceSettings();
-    void sky2xy(double ra, double dec, double &x, double &y);
+    bool readRaDecCatalog(QString fileName, QList<QGraphicsRectItem *> &items, double size, int width, QColor color);
+    void replotCatalogAfterZoom();
     void setCurrentId(QString filename);
+    void setImageListFromMemory();
+    void showWCSdockWidget();
+    void sky2xy(double ra, double dec, double &x, double &y);
     void writePreferenceSettings();
     void xy2sky(double x, double y, QString button = "");
+
     template <typename T> int sgn(T val) {
         return (T(0) < val) - (val < T(0));
     }
-    void addDockWidgets();
-    void setImageListFromMemory();
-    void imageListToChipName();
-    void replotCatalogAfterZoom();
-    void showWCSdockWidget();
-    void hideWCSdockWidget();
-    double haversine(double x1, double y1, double x2, double y2);
-    void measureAngularSeparations(QPointF pointStart, QPointF pointEnd, double &sepX, double &sepY, double &sepD);
 };
 
 #endif // IVIEW_H

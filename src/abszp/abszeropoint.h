@@ -23,6 +23,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../threading/abszpworker.h"
 #include "../qcustomplot.h"
 #include "../myimage/myimage.h"
+#include "../iview/iview.h"
 
 #include <QMainWindow>
 #include <QThread>
@@ -69,9 +70,12 @@ signals:
 
 public slots:
     void updateVerbosity(int verbosityLevel);
+    void iViewClosed();
 
 private slots:
     void on_actionClose_triggered();
+    void on_closePushButton_clicked();
+    void on_showAbsphotPushButton_clicked();
     void on_zpImageLineEdit_textChanged(const QString &arg1);
     void on_zpRefcatComboBox_currentTextChanged(const QString &arg1);
     void on_zpLoadPushButton_clicked();
@@ -86,13 +90,20 @@ private slots:
     void finishedCalculations();
     void buildAbsPhot();
     void criticalReceived();
-    void on_closePushButton_clicked();
 
 private:
     void defaults_if_empty();
     void initGUI();
     void updateHeader();
     void validate();
+    bool doColortermFit();
+    void updateCoaddHeader();
+    void pushBeginMessage();
+    void pushEndMessage();
+    void queryRefCat();
+    void loadPreferences();
+    void closeEvent(QCloseEvent *event);
+    void writeAbsPhotRefcat();
 
     Ui::AbsZeroPoint *ui;
 
@@ -118,14 +129,10 @@ private:
     bool workerInit = false;
     bool workerThreadInit = false;
 
+    IView *iView;
+    bool iViewOpen = false;
+
     void clearText();
-    bool doColortermFit();
-    void updateCoaddHeader();
-    void pushBeginMessage();
-    void pushEndMessage();
-    void queryRefCat();
-    void loadPreferences();
-    void closeEvent(QCloseEvent *event);
 };
 
 #endif // ABSZEROPOINT_H

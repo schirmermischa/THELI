@@ -340,49 +340,7 @@
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_2">
     <layout class="QGridLayout" name="gridLayout_3">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="font">
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Setup</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <spacer name="verticalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>17</width>
-         <height>17</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="3" column="0" colspan="3">
-      <widget class="QLabel" name="zpHeaderLabel">
-       <property name="font">
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>System output</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0" colspan="3">
+     <item row="4" column="1" colspan="5">
       <widget class="QFrame" name="frame">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
@@ -437,7 +395,376 @@
        </layout>
       </widget>
      </item>
-     <item row="5" column="0" colspan="3">
+     <item row="1" column="1" colspan="5">
+      <widget class="QFrame" name="frame_3">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="palette">
+        <palette>
+         <active>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>252</red>
+             <green>252</green>
+             <blue>252</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Window">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>199</red>
+             <green>199</green>
+             <blue>200</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </active>
+         <inactive>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>252</red>
+             <green>252</green>
+             <blue>252</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Window">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>199</red>
+             <green>199</green>
+             <blue>200</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </inactive>
+         <disabled>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>199</red>
+             <green>199</green>
+             <blue>200</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Window">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>199</red>
+             <green>199</green>
+             <blue>200</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </disabled>
+        </palette>
+       </property>
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="4" column="1">
+         <widget class="QLabel" name="label_35">
+          <property name="text">
+           <string>Saturation / nonlinearity limit</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="1">
+         <widget class="QLabel" name="label_37">
+          <property name="text">
+           <string>Aperture diameters [ pixel ]</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2" colspan="2">
+         <widget class="QSpinBox" name="zpFitOrderSpinBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="statusTip">
+           <string>The order of the polynomial fit for the ZP / color term dependence</string>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" colspan="2">
+         <widget class="QComboBox" name="zpFilterComboBox">
+          <property name="statusTip">
+           <string>The filter in which you observed.</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLabel" name="label_39">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Polynomial fit order</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2" colspan="2">
+         <widget class="QLineEdit" name="zpPhoterrorLineEdit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>The maximum photometric error allowed for sources in the image.</string>
+          </property>
+          <property name="statusTip">
+           <string>The upper limit to the measured photometric error in your data.</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="1" colspan="3">
+         <widget class="QLineEdit" name="zpApertureLineEdit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="statusTip">
+           <string>A comma-separated list of aperture diameters used for the growth curve.</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QLabel" name="label_36">
+          <property name="text">
+           <string>Max phot error [ mag ]</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2" colspan="2">
+         <widget class="QLineEdit" name="zpSaturationLineEdit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>The level above which non-linearity (or saturation) occurs.</string>
+          </property>
+          <property name="statusTip">
+           <string>The level at which nonlinearity or saturation occurs.</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2" colspan="2">
+         <widget class="QComboBox" name="zpRefcatComboBox">
+          <property name="statusTip">
+           <string>A photometric reference catalog matching the filter of your observations. PANSTARRS queries can take several minutes.</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>PANSTARRS-DR1</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>SDSS-DR12</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>SKYMAPPER-DR1</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>APASS-DR9</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>2MASS</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>VHS-DR4</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>UKIDSS</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="2" column="2" colspan="2">
+         <widget class="QComboBox" name="zpColorComboBox">
+          <property name="statusTip">
+           <string>The color term is determined from the reference catalog. Ideally, choose one that matches other filters you have for this target.</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLabel" name="label_38">
+          <property name="text">
+           <string>Color term you want to use</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="label_31">
+          <property name="text">
+           <string>Photometric reference catalog</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="label_33">
+          <property name="text">
+           <string>Filter in which you observed</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>DT</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>DMIN</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="2" colspan="2">
+         <widget class="QLineEdit" name="zpDTLineEdit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="statusTip">
+           <string>Detection threshold per pixel</string>
+          </property>
+          <property name="text">
+           <string>10</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="2" colspan="2">
+         <widget class="QLineEdit" name="zpDMINLineEdit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="statusTip">
+           <string>Minimum number of connected pixels above the detection threshold</string>
+          </property>
+          <property name="text">
+           <string>10</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="6" column="1" colspan="2">
+      <widget class="QPushButton" name="showAbsphotPushButton">
+       <property name="text">
+        <string>Show AbsPhot references</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="5">
+      <spacer name="verticalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>17</width>
+         <height>17</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="label_3">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Setup</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1" colspan="5">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QPushButton" name="startPushButton">
@@ -1363,7 +1690,20 @@
        </item>
       </layout>
      </item>
-     <item row="6" column="1">
+     <item row="3" column="1" colspan="5">
+      <widget class="QLabel" name="zpHeaderLabel">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>System output</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="3">
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -1379,340 +1719,7 @@
        </property>
       </spacer>
      </item>
-     <item row="1" column="0" colspan="3">
-      <widget class="QFrame" name="frame_3">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="palette">
-        <palette>
-         <active>
-          <colorrole role="Base">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>252</red>
-             <green>252</green>
-             <blue>252</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Window">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>199</red>
-             <green>199</green>
-             <blue>200</blue>
-            </color>
-           </brush>
-          </colorrole>
-         </active>
-         <inactive>
-          <colorrole role="Base">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>252</red>
-             <green>252</green>
-             <blue>252</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Window">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>199</red>
-             <green>199</green>
-             <blue>200</blue>
-            </color>
-           </brush>
-          </colorrole>
-         </inactive>
-         <disabled>
-          <colorrole role="Base">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>199</red>
-             <green>199</green>
-             <blue>200</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="Window">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>199</red>
-             <green>199</green>
-             <blue>200</blue>
-            </color>
-           </brush>
-          </colorrole>
-         </disabled>
-        </palette>
-       </property>
-       <property name="autoFillBackground">
-        <bool>true</bool>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="4" column="1">
-         <widget class="QLabel" name="label_35">
-          <property name="text">
-           <string>Saturation / nonlinearity limit</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="1">
-         <widget class="QLabel" name="label_37">
-          <property name="text">
-           <string>Aperture diameters [ pixel ]</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="2" colspan="2">
-         <widget class="QSpinBox" name="zpFitOrderSpinBox">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="statusTip">
-           <string>The order of the polynomial fit for the ZP / color term dependence</string>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>3</number>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2" colspan="2">
-         <widget class="QComboBox" name="zpFilterComboBox">
-          <property name="statusTip">
-           <string>The filter in which you observed.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QLabel" name="label_39">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Polynomial fit order</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="2" colspan="2">
-         <widget class="QLineEdit" name="zpPhoterrorLineEdit">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>The maximum photometric error allowed for sources in the image.</string>
-          </property>
-          <property name="statusTip">
-           <string>The upper limit to the measured photometric error in your data.</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="1" colspan="3">
-         <widget class="QLineEdit" name="zpApertureLineEdit">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="statusTip">
-           <string>A comma-separated list of aperture diameters used for the growth curve.</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="QLabel" name="label_36">
-          <property name="text">
-           <string>Max phot error [ mag ]</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="2" colspan="2">
-         <widget class="QLineEdit" name="zpSaturationLineEdit">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>The level above which non-linearity (or saturation) occurs.</string>
-          </property>
-          <property name="statusTip">
-           <string>The level at which nonlinearity or saturation occurs.</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2" colspan="2">
-         <widget class="QComboBox" name="zpRefcatComboBox">
-          <property name="statusTip">
-           <string>A photometric reference catalog matching the filter of your observations. PANSTARRS queries can take several minutes.</string>
-          </property>
-          <item>
-           <property name="text">
-            <string>PANSTARRS-DR1</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>SDSS-DR12</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>SKYMAPPER-DR1</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>APASS-DR9</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>2MASS</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>VHS-DR4</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>UKIDSS</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item row="2" column="2" colspan="2">
-         <widget class="QComboBox" name="zpColorComboBox">
-          <property name="statusTip">
-           <string>The color term is determined from the reference catalog. Ideally, choose one that matches other filters you have for this target.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLabel" name="label_38">
-          <property name="text">
-           <string>Color term you want to use</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="label_31">
-          <property name="text">
-           <string>Photometric reference catalog</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLabel" name="label_33">
-          <property name="text">
-           <string>Filter in which you observed</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>DT</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="1">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>DMIN</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="2" colspan="2">
-         <widget class="QLineEdit" name="zpDTLineEdit">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="statusTip">
-           <string>Detection threshold per pixel</string>
-          </property>
-          <property name="text">
-           <string>10</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="2" colspan="2">
-         <widget class="QLineEdit" name="zpDMINLineEdit">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="statusTip">
-           <string>Minimum number of connected pixels above the detection threshold</string>
-          </property>
-          <property name="text">
-           <string>10</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item row="6" column="0">
+     <item row="6" column="5">
       <widget class="QPushButton" name="closePushButton">
        <property name="minimumSize">
         <size>
@@ -1759,7 +1766,6 @@
   <tabstop>zpDTLineEdit</tabstop>
   <tabstop>zpDMINLineEdit</tabstop>
   <tabstop>zpApertureLineEdit</tabstop>
-  <tabstop>closePushButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>

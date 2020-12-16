@@ -76,6 +76,7 @@ AbsZeroPoint::~AbsZeroPoint()
 void AbsZeroPoint::displayMessage(QString message, QString type)
 {
     if (type == "error") ui->zpPlainTextEdit->appendHtml("<font color=\"#ee0000\">"+message+"</font>");
+    else if (type == "info") ui->zpPlainTextEdit->appendHtml("<font color=\"#0033cc\">"+message+"</font>");
     else ui->zpPlainTextEdit->appendHtml(message);
 }
 
@@ -268,7 +269,9 @@ void AbsZeroPoint::taskInternalAbszeropoint()
             myImage->apertures = apertures;
             myImage->backgroundModel(100, "interpolate");
             myImage->segmentImage(DT, DMIN, true, false);
-            emit messageAvailable(QString::number(myImage->objectList.length()) + " objects detected.", "ignore");
+            long ngood = 0;
+            for (auto &it : myImage->objectList) if (it->FLAGS == 0) ++ngood;
+            emit messageAvailable(QString::number(myImage->objectList.length()) + " sources detected, "+QString::number(ngood) + " selected", "info");
         }
     }
 
@@ -285,24 +288,38 @@ void AbsZeroPoint::taskInternalAbszeropoint()
             objdata << object->DELTA_J2000 << object->ALPHA_J2000 << object->MAG_AUTO
                     << object->MAGERR_AUTO << object->MAG_APER << object->MAGERR_APER;
             objDat.append(objdata);
+            //            qDebug() <<  qSetRealNumberPrecision(12) << object->ALPHA_J2000 << object->DELTA_J2000;
         }
     }
+
+
+    //    qDebug() << " ";
     for (int i=0; i<raRefCat.length(); ++i) {
         QVector<double> refdata;
-        refdata << deRefCat[i] << raRefCat[i] << mag1RefCat[i]
-                   << mag2RefCat[i] << mag1errRefCat[i] << mag2errRefCat[i];
-        refDat.append(refdata);
+        // only propagate reference sources inside the image area
+        if (myImage->containsRaDec(raRefCat[i], deRefCat[i])) {
+            refdata << deRefCat[i] << raRefCat[i] << mag1RefCat[i]
+                       << mag2RefCat[i] << mag1errRefCat[i] << mag2errRefCat[i];
+            refDat.append(refdata);
+        }
+        //        qDebug() <<  qSetRealNumberPrecision(12) <<  raRefCat[i] << deRefCat[i];
     }
-
 
     // Estimate the matching tolerance
     myImage->estimateMatchingTolerance();
+//    qDebug() << "matching tolerance: " << myImage->matchingTolerance*3600./myImage->plateScale;
 
     // Now do the matching
     int multiple1 = 0;
     int multiple2 = 0;
     matched.clear();       // Otherwise, multiple runs will append to previous data
-    match2D(objDat, refDat, matched, myImage->matchingTolerance, multiple1, multiple2, maxCPU);
+    if (ui->zpRefcatComboBox->currentText().contains("2MASS")) {
+        // simple way to accomodate accumulated proper motions for 2MASS (adding 1" matching radius)
+        match2D(objDat, refDat, matched, myImage->matchingTolerance + 1./3600., multiple1, multiple2, maxCPU);
+    }
+    else {
+        match2D(objDat, refDat, matched, myImage->matchingTolerance, multiple1, multiple2, maxCPU);
+    }
 
     if (matched.length() == 0) {
         emit messageAvailable("No matches found!", "error");
@@ -311,7 +328,7 @@ void AbsZeroPoint::taskInternalAbszeropoint()
     }
     else {
         emit messageAvailable(QString::number(matched.length()) + " clean matches found.", "ignore");
-    //  for (auto &it : matched) qDebug() << qSetRealNumberPrecision(10) << it[0] << it[1];
+        //  for (auto &it : matched) qDebug() << qSetRealNumberPrecision(10) << it[0] << it[1];
     }
     if (multiple1 > 1) emit messageAvailable("Multiply matched objects (ignored): " + QString::number(multiple1), "ignore");
     if (multiple2 > 1) emit messageAvailable("Multiply matched reference sources (ignored): " + QString::number(multiple2), "ignore");
@@ -407,8 +424,45 @@ void AbsZeroPoint::queryRefCat()
     delete query;
     query = nullptr;
 
-    emit messageAvailable(QString::number(numRefSources) + " photometric reference sources found.", "ignore");
+    // Count how many inside image
+    long ngood = 0;
+    for (int i=0; i<raRefCat.length(); ++i) {
+        if (myImage->containsRaDec(raRefCat[i], deRefCat[i])) ++ngood;
+    }
+
+    writeAbsPhotRefcat();
+
+    emit messageAvailable(QString::number(numRefSources) + " reference sources found, "+QString::number(ngood)+" inside image", "info");
     emit messageAvailable("Please wait for object detection to finish ...", "ignore");
+}
+
+void AbsZeroPoint::writeAbsPhotRefcat()
+{
+    // The iView catalog (ASCII)
+    QString outpath = myImage->path;
+    QDir outdir(outpath);
+    if (!outdir.exists()) {
+        emit messageAvailable(QString(__func__) + " : " + myImage->path +" directory does not exist to write AbsPhot reference catalog", "error");
+        emit criticalReceived();
+        return;
+    }
+
+    QFile outcat_iview(outpath+"/ABSPHOT_sources_matched.iview");
+    QTextStream stream_iview(&outcat_iview);
+    if( !outcat_iview.open(QIODevice::WriteOnly)) {
+        emit messageAvailable(QString(__func__) + " : ERROR writing "+outpath+outcat_iview.fileName()+" : "+outcat_iview.errorString(), "error");
+        emit criticalReceived();
+        return;
+    }
+
+    // Write iView catalog
+    long i = 0;
+    for (auto &it : raRefCat) {
+        stream_iview << QString::number(it, 'f', 9) << " " << QString::number(deRefCat[i], 'f', 9) << " " << QString::number(mag1RefCat[i], 'f', 3) << "\n";
+        ++i;
+    }
+    outcat_iview.close();
+    outcat_iview.setPermissions(QFile::ReadUser | QFile::WriteUser);
 }
 
 void AbsZeroPoint::buildAbsPhot()
@@ -951,7 +1005,7 @@ void AbsZeroPoint::on_actionClose_triggered()
 
 bool AbsZeroPoint::doColortermFit()
 {
-     /*
+    /*
     int fitOrder = ui->zpFitOrderSpinBox->value();
     if (!absPhot->regression(fitOrder)) {
         QMessageBox::information( this, "Ill-constrainend fit",
@@ -1069,4 +1123,27 @@ void AbsZeroPoint::on_closePushButton_clicked()
 {
     emit abszpClosed();
     this->close();
+}
+
+void AbsZeroPoint::on_showAbsphotPushButton_clicked()
+{
+    if (!iViewOpen) {
+            iView = new IView("FITSmonochrome", ui->zpImageLineEdit->text(), this);
+            connect(iView, &IView::closed, this, &AbsZeroPoint::iViewClosed);
+            iView->show();
+            iView->AbsPhotReferencePathName = myImage->path;
+            iView->showAbsPhotReferences(true);
+            iViewOpen = true;
+    }
+    else {
+            iView->scene->clear();
+            iView->show();
+            iView->AbsPhotReferencePathName = myImage->path;
+            iView->showAbsPhotReferences(true);
+    }
+}
+
+void AbsZeroPoint::iViewClosed()
+{
+    iViewOpen = false;
 }

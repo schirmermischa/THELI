@@ -73,8 +73,6 @@ DetectedObject::DetectedObject(const QList<long> &objectIndices, const QVector<f
         if (weightInMemory) pixels_weight.append(weight.at(index));
         else pixels_weight.append(1.0);
     }
-    //    dataMeasure = &data;
-    //    wcs = wcsImage;
 }
 
 DetectedObject::~DetectedObject()
@@ -763,8 +761,8 @@ void DetectedObject::calcMagAuto()
             // Work on pixels within 6x the ellipse
             double rsq = CXX*dx*dx + CYY*dy*dy + CXY*dx*dy;
             if (rsq <= 36.*A*A) {
-//                rkron += float(dataMeasure.at(i+naxis1*j));
-//                fsum += dataMeasure.at(i+naxis1*j);
+                rkron += float(dataMeasure.at(i+naxis1*j));
+                fsum += dataMeasure.at(i+naxis1*j);
             }
         }
     }
@@ -774,23 +772,17 @@ void DetectedObject::calcMagAuto()
     rkron = rkron < 3.5 ? 3.5 : rkron;
 
     double auto_radius = 2.5*rkron;
-    if (X - auto_radius < 0
-            || X + auto_radius >= naxis1
-            || Y - auto_radius < 0
-            || Y + auto_radius >= naxis2) {
-        FLAGS += 8;
-    }
 
     imin = floor(X - auto_radius);
     imax = ceil(X + auto_radius);
     jmin = floor(Y - auto_radius);
     jmax = ceil(Y + auto_radius);
-    if (isTruncated(imin, imax, jmin, jmax)) bitflags.setBit(3,true);
 
     imin = imin < 0 ? 0 : int(imin);
     imax = imax >=naxis1 ? naxis1-1 : int(imax);
     jmin = jmin < 0 ? 0 : int(jmin);
     jmax = jmax >=naxis2 ? naxis2-1 : int(jmax);
+    if (isTruncated(imin, imax, jmin, jmax)) bitflags.setBit(3,true);
 
     FLUX_AUTO = 0;
     FLUXERR_AUTO = 0;

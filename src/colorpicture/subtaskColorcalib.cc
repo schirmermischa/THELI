@@ -337,7 +337,7 @@ void ColorPicture::writeG2refcat(const QString refcatName, const QVector<QVector
     QFile outcat_iview(outpath+"/PHOTCAT_calibration/PHOTCAT_sources_matched_"+refcatName+".iview");
     QTextStream stream_iview(&outcat_iview);
     if( !outcat_iview.open(QIODevice::WriteOnly)) {
-        emit messageAvailable("Query::processPhotomCatalog(): ERROR writing "+outpath+outcat_iview.fileName()+" : "+outcat_iview.errorString(), "error");
+        emit messageAvailable(QString(__func__) + ": ERROR writing "+outpath+outcat_iview.fileName()+" : "+outcat_iview.errorString(), "error");
         emit criticalReceived();
         return;
     }
