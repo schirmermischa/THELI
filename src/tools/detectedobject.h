@@ -73,8 +73,8 @@ public:
     long XMAX = 0;
     long YMIN = 0;
     long YMAX = 0;
-    double X = 0.;      // 1st moment
-    double Y = 0.;      // 1st moment
+    double X = 0.;      // 1st moment          // WARNING: zero-indexing, must add +1 if used externally
+    double Y = 0.;      // 1st moment          // WARNING: zero-indexing, must add +1 if used externally
     double X2 = 0.;     // 2nd moment
     double Y2 = 0.;     // 2nd moment
     double XY = 0.;     // 2nd moment
@@ -97,8 +97,8 @@ public:
     double FLUX_ISO = 0.;
 
     // WINDOWED
-    double XWIN = 0.;   // windowed 1st moment
-    double YWIN = 0.;   // windowed 1st moment
+    double XWIN = 0.;   // windowed 1st moment          // WARNING: zero-indexing, must add +1 if used externally
+    double YWIN = 0.;   // windowed 1st moment          // WARNING: zero-indexing, must add +1 if used externally
     double X2WIN = 0.;
     double Y2WIN = 0.;
     double XYWIN = 0.;

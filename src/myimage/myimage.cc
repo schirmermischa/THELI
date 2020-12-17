@@ -1372,11 +1372,11 @@ bool MyImage::containsRaDec(double alpha, double delta)
 
 void MyImage::cornersToRaDec()
 {
-    xy2sky(1, 1, alpha_ll, delta_ll);
-    xy2sky(naxis1, 1, alpha_lr, delta_lr);
-    xy2sky(1, naxis2, alpha_ul, delta_ul);
-    xy2sky(naxis1, naxis2, alpha_ur, delta_ur);
-    xy2sky(naxis1/2, naxis2/2, alpha_ctr, delta_ctr);
+    xy2sky(0., 0., alpha_ll, delta_ll);
+    xy2sky(naxis1-1., 0., alpha_lr, delta_lr);
+    xy2sky(0., naxis2-1., alpha_ul, delta_ul);
+    xy2sky(naxis1-1., naxis2-1., alpha_ur, delta_ur);
+    xy2sky(naxis1/2.-1., naxis2/2.-1., alpha_ctr, delta_ctr);
 }
 
 // UNUSED
@@ -1491,6 +1491,7 @@ void MyImage::sky2xy(const double alpha, const double delta, double &x, double &
     y = pixcrd[1];
 }
 
+// WARNING: cartesian arguments must be zero-indexed!
 void MyImage::xy2sky(const double x, const double y, double &alpha, double &delta)
 {
     double world[2];
@@ -1498,8 +1499,9 @@ void MyImage::xy2sky(const double x, const double y, double &alpha, double &delt
     double theta;
     double imgcrd[2];
     double pixcrd[2];
-    pixcrd[0] = x;
-    pixcrd[1] = y;
+    // CAREFUL! wcslib starts pixels counting at 1, hence must add +1 to zero-indexed C++ vectors
+    pixcrd[0] = x + 1.;
+    pixcrd[1] = y + 1.;
     int stat[1];
     wcsp2s(wcs, 1, 2, pixcrd, imgcrd, &phi, &theta, world, stat);
     alpha = world[0];

@@ -278,8 +278,8 @@ void AbsZeroPoint::taskInternalAbszeropoint()
     if (!successDetection || !successQuery) return;
 
     emit messageAvailable("Matching objects with reference sources ...", "ignore");
-    QVector<QVector<double>> refDat;
-    QVector<QVector<double>> objDat;
+    refDat.clear();
+    objDat.clear();
     // DEC comes first in the catalogs, because the matching alg sorts the vectors for DEC
 
     for (auto &object : myImage->objectList) {
@@ -288,38 +288,76 @@ void AbsZeroPoint::taskInternalAbszeropoint()
             objdata << object->DELTA_J2000 << object->ALPHA_J2000 << object->MAG_AUTO
                     << object->MAGERR_AUTO << object->MAG_APER << object->MAGERR_APER;
             objDat.append(objdata);
-            //            qDebug() <<  qSetRealNumberPrecision(12) << object->ALPHA_J2000 << object->DELTA_J2000;
+            //            qDebug() << qSetRealNumberPrecision(12) << object->ALPHA_J2000 << object->DELTA_J2000;
         }
-    }
-
-
-    //    qDebug() << " ";
-    for (int i=0; i<raRefCat.length(); ++i) {
-        QVector<double> refdata;
-        // only propagate reference sources inside the image area
-        if (myImage->containsRaDec(raRefCat[i], deRefCat[i])) {
-            refdata << deRefCat[i] << raRefCat[i] << mag1RefCat[i]
-                       << mag2RefCat[i] << mag1errRefCat[i] << mag2errRefCat[i];
-            refDat.append(refdata);
-        }
-        //        qDebug() <<  qSetRealNumberPrecision(12) <<  raRefCat[i] << deRefCat[i];
     }
 
     // Estimate the matching tolerance
     myImage->estimateMatchingTolerance();
-    //    qDebug() << "matching tolerance: " << myImage->matchingTolerance*3600./myImage->plateScale;
+    //    qDebug() << "matching tolerance: " << myImage->matchingTolerance;
+    // qDebug() << " " ;      // spacer between object and reference catalog output
 
-    // Now do the matching
+    // Iterate the matching once to get a sensible upper limit for the refcat download
+    // (and thus a cleaner process in extreme cases where the refcat is MUCH deeper than the image)
+    refCatUpperMagLimit = 40.;
     int multiple1 = 0;
     int multiple2 = 0;
-    matched.clear();       // Otherwise, multiple runs will append to previous data
-    if (ui->zpRefcatComboBox->currentText().contains("2MASS")) {
-        // simple way to accomodate accumulated proper motions for 2MASS (adding 1" matching radius)
-        match2D_refcoords(objDat, refDat, matched, myImage->matchingTolerance + 1./3600., multiple1, multiple2, maxCPU);
+    int loop = 0;
+    while (loop <= 1) {
+
+        // Collect suitable reference sources
+        refDat.clear();
+        for (int i=0; i<raRefCat.length(); ++i) {
+            QVector<double> refdata;
+            // only propagate reference sources inside the image area and brighter than the upper mag limit
+            if (myImage->containsRaDec(raRefCat[i], deRefCat[i])
+                    && mag1RefCat[i] < refCatUpperMagLimit) {
+                refdata << deRefCat[i] << raRefCat[i] << mag1RefCat[i] << mag2RefCat[i] << mag1errRefCat[i] << mag2errRefCat[i];
+                refDat.append(refdata);
+            }
+            // qDebug() << qSetRealNumberPrecision(12) << raRefCat[i] << deRefCat[i];
+        }
+
+        // Now do the matching
+        multiple1 = 0;
+        multiple2 = 0;
+        matched.clear();     // Otherwise, multiple runs will append to previous data
+        if (ui->zpRefcatComboBox->currentText().contains("2MASS")) {
+            // simple way to accomodate accumulated proper motions for 2MASS (adding 1" matching radius)
+            match2D_refcoords(objDat, refDat, matched, myImage->matchingTolerance + 1./3600., multiple1, multiple2, maxCPU);
+        }
+        else {
+            match2D_refcoords(objDat, refDat, matched, myImage->matchingTolerance, multiple1, multiple2, maxCPU);
+        }
+
+        // Update upper refcat mag limit and repeat once
+        refCatUpperMagLimit = getFirstZPestimate();
+//        qDebug() << "upper limit:" << refCatUpperMagLimit << refDat.length();
+        ++loop;
     }
-    else {
-        match2D_refcoords(objDat, refDat, matched, myImage->matchingTolerance, multiple1, multiple2, maxCPU);
+
+    // debugging: output catalogs
+    QFile outcat_detected(myImage->path+"/detected.cat");
+    QFile outcat_downloaded(myImage->path+"/downloaded.cat");
+    QTextStream stream_detected(&outcat_detected);
+    QTextStream stream_downloaded(&outcat_downloaded);
+    outcat_detected.open(QIODevice::WriteOnly);
+    outcat_downloaded.open(QIODevice::WriteOnly);
+    long i = 0;
+    for (auto &it : raRefCat) {
+        stream_downloaded << QString::number(it, 'f', 9) << " " << QString::number(deRefCat[i], 'f', 9) << " " << QString::number(mag1RefCat[i], 'f', 3) << "\n";
+        ++i;
     }
+    outcat_downloaded.close();
+    outcat_downloaded.setPermissions(QFile::ReadUser | QFile::WriteUser);
+
+    i = 0;
+    for (auto &it : objDat) {
+        stream_detected << QString::number(it[1], 'f', 9) << " " << QString::number(it[0], 'f', 9) << " " << QString::number(it[2], 'f', 3) << "\n";
+        ++i;
+    }
+    outcat_detected.close();
+    outcat_detected.setPermissions(QFile::ReadUser | QFile::WriteUser);
 
     if (matched.length() == 0) {
         emit messageAvailable("No matches found!", "error");
@@ -339,6 +377,29 @@ void AbsZeroPoint::taskInternalAbszeropoint()
     // update the catalog display if iview is open
     writeAbsPhotRefcat();
     if (iViewOpen) on_showAbsphotPushButton_clicked();
+
+    getFirstZPestimate();
+}
+
+double AbsZeroPoint::getFirstZPestimate()
+{
+    // if the reference catalog is much deeper than the image, we should apply a magnitude cut before matching.
+    // Hence, do a rough ZP estimate (without color term) and then rematch
+    QVector<double> magdiff;
+    QVector<double> magDetected;
+    magdiff.resize(matched.length());
+    magDetected.resize(matched.length());
+    long i = 0;
+    for (auto &it : matched) {
+        magdiff[i] = it[2] - it[6];
+        magDetected[i] = it[6];
+        ++i;
+    }
+    double medianZP = straightMedian_T(magdiff);
+    // double rms = madMask_T(magdiff);
+
+    // return the faintest detected magnitude estimate, and add 0.3 mag as a margin
+    return maxVec_T(magDetected) + medianZP + 0.3;
 }
 
 void AbsZeroPoint::queryRefCat()
@@ -467,8 +528,8 @@ void AbsZeroPoint::writeAbsPhotRefcat()
 
     // Write downloaded iView catalog
     long i = 0;
-    for (auto &it : raRefCat) {
-        stream_iview_down << QString::number(it, 'f', 9) << " " << QString::number(deRefCat[i], 'f', 9) << " " << QString::number(mag1RefCat[i], 'f', 3) << "\n";
+    for (auto &it : refDat) {
+        stream_iview_down << QString::number(it[1], 'f', 9) << " " << QString::number(it[0], 'f', 9) << " " << QString::number(it[2], 'f', 3) << "\n";
         ++i;
     }
     outcat_iview_down.close();
@@ -477,7 +538,7 @@ void AbsZeroPoint::writeAbsPhotRefcat()
     // Write matched iView catalog
     i = 0;
     for (auto &it : matched) {
-        stream_iview_matched << QString::number(it[1], 'f', 9) << " " << QString::number(it[0], 'f', 9) << " " << QString::number(matched[i][2], 'f', 3) << "\n";
+        stream_iview_matched << QString::number(it[1], 'f', 9) << " " << QString::number(it[0], 'f', 9) << " " << QString::number(it[2], 'f', 3) << "\n";
         ++i;
     }
     outcat_iview_matched.close();

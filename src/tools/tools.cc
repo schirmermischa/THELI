@@ -22,6 +22,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../functions.h"
 #include "../myimage/myimage.h"
 
+#include <algorithm>
 #include <omp.h>
 #include <QDebug>
 #include <QMessageBox>
@@ -478,10 +479,14 @@ QVector<float> collapse_quad(QVector<float> &data, const QVector<bool> &globalMa
 }
 
 // Sort a 2D QVector by its first element
-void sort2DVector(QVector<QVector<double>> data)
+// UNUSED; implemented explicitly in function
+void sort2DVector(QVector<QVector<double>> &data)
 {
     std::sort(data.begin(), data.end(),
               [](const QVector<double>& left, const QVector<double>& right)->bool {
+        //        if (left.empty()) return true;
+        //        if (right.empty()) return true;
+        //        return left.first() < right.first();
         if (left.empty() && right.empty()) return false;
         if (left.empty()) return true;
         if (right.empty()) return false;
@@ -599,14 +604,23 @@ void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>>
 
 // Copy magnitudes and mag errors from a {DEC, RA, <MAG>, <MAGERR>} vector to another {DEC, RA, <MAG>, <MAGERR>} vector (matching)
 // <MAG> can be one or more numbers, e.g. 2 ref mags, or several aperture mags
-// tolerance is in [deg]
-void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>> vec2, QVector<QVector<double>> &matched,
+// tolerance is in [d/data1/TESTDATA/ST10/NGC4651/NGC4651_ALL/coadd_Redeg]
+void match2D(const QVector<QVector<double>> vec1, QVector<QVector<double>> vec2, QVector<QVector<double>> &matched,
              double tolerance, int &multiple1, int &multiple2, int nthreads)
 {
     if (vec1.isEmpty() || vec2.isEmpty()) return;
 
     // Only the reference vector needs to be sorted, using the first column (DEC)
-    sort2DVector(vec2);
+    std::sort(vec2.begin(), vec2.end(),
+              [](const QVector<double>& left, const QVector<double>& right)->bool {
+        if (left.empty() && right.empty()) return false;
+        if (left.empty()) return true;
+        if (right.empty()) return false;
+        return left.first() < right.first();
+    }
+    );
+
+    // sort2DVector(vec2);
 
     long dim1 = vec1.length();  // Objects
     long dim2 = vec2.length();  // Reference sources
@@ -656,7 +670,7 @@ void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>>
         if (mult>1) ++multiple2;
     }
 
-//    qDebug() << multiple1 << multiple2;
+    //    qDebug() << multiple1 << multiple2;
 
     // Second pass, match unambiguous sources, only
 #pragma omp parallel for num_threads(nthreads)
@@ -701,13 +715,22 @@ void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>>
 }
 
 // same as match2d, just uses the reference coordinates in the output catalog
-void match2D_refcoords(const QVector<QVector<double>> vec1, const QVector<QVector<double>> vec2, QVector<QVector<double>> &matched,
-             double tolerance, int &multiple1, int &multiple2, int nthreads)
+void match2D_refcoords(const QVector<QVector<double>> vec1, QVector<QVector<double>> vec2, QVector<QVector<double>> &matched,
+                       double tolerance, int &multiple1, int &multiple2, int nthreads)
 {
     if (vec1.isEmpty() || vec2.isEmpty()) return;
 
     // Only the reference vector needs to be sorted, using the first column (DEC)
-    sort2DVector(vec2);
+    std::sort(vec2.begin(), vec2.end(),
+              [](const QVector<double>& left, const QVector<double>& right)->bool {
+        if (left.empty() && right.empty()) return false;
+        if (left.empty()) return true;
+        if (right.empty()) return false;
+        return left.first() < right.first();
+    }
+    );
+
+    //   sort2DVector(vec2);
 
     long dim1 = vec1.length();  // Objects
     long dim2 = vec2.length();  // Reference sources
@@ -723,7 +746,7 @@ void match2D_refcoords(const QVector<QVector<double>> vec1, const QVector<QVecto
     omp_init_lock(&lock);
 
     // First pass: identify ambiguous sources and references
-    //#pragma omp parallel for num_threads(nthreads)
+// #pragma omp parallel for num_threads(nthreads)
     for (long i=0; i<dim1; ++i) {
         bool inside_previous = false;
         bool inside_current = false;
@@ -757,12 +780,10 @@ void match2D_refcoords(const QVector<QVector<double>> vec1, const QVector<QVecto
         if (mult>1) ++multiple2;
     }
 
-//    qDebug() << multiple1 << multiple2;
-
     // Second pass, match unambiguous sources, only
 #pragma omp parallel for num_threads(nthreads)
     for (long i=0; i<dim1; ++i) {
-        if (numMatched1[i] > 1) continue;
+        //        if (numMatched1[i] > 1) continue;
         bool inside_previous = false;
         bool inside_current = false;
         QVector<double> dummy;

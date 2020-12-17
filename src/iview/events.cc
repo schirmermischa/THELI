@@ -83,8 +83,8 @@ void IView::showCurrentMousePos(QPointF point)
 
     float x_cursor;
     float y_cursor;
-    x_cursor = point.x()+0.5;
-    y_cursor = naxis2 - point.y()+0.5;
+    x_cursor = point.x() + 0.5;
+    y_cursor = naxis2 - point.y() + 0.5;
 
     // Display the information
     QString xpos = QString::number(x_cursor);
@@ -177,9 +177,9 @@ double IView::haversine(double x1, double y1, double x2, double y2)
     double theta;
     double imgcrd[2];
     double pixcrd[2];
-    int  	stat[1];
+    int stat[1];
 
-    // Get alpha / delta for the first point
+    // zero-indexing of C++ vectors can be ignored when measuring distances.
     pixcrd[0] = x1;
     pixcrd[1] = y1;
     wcsp2s(wcs, 1, 2, pixcrd, imgcrd, &phi, &theta, world1, stat);
@@ -371,6 +371,7 @@ void IView::drawSkyRectangle(QPointF pointStart, QPointF pointEnd)
     // Collect alpha and delta of the four vertices
     QVector<double> alphaValues;
     QVector<double> deltaValues;
+    // TODO if routine is activated: must translate x/y to FITS coordinate system before computing sky coordinates!
     xy2sky(x1,y1,"middleButton");
     alphaValues.append(skyRa);
     deltaValues.append(skyDec);

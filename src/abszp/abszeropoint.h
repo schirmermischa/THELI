@@ -105,6 +105,8 @@ private:
     void loadPreferences();
     void closeEvent(QCloseEvent *event);
     void writeAbsPhotRefcat();
+    void clearText();
+    double getFirstZPestimate();
 
     Ui::AbsZeroPoint *ui;
 
@@ -123,6 +125,11 @@ private:
     QVector<float> mag2errRefCat;
     long numRefSources = 0;
 
+    double refCatUpperMagLimit = 40.;
+
+    QVector<QVector<double>> refDat;
+    QVector<QVector<double>> objDat;
+
     QVector<QVector<double>> matched;
 
     MyImage *myImage;
@@ -133,7 +140,6 @@ private:
     IView *iView;
     bool iViewOpen = false;
 
-    void clearText();
 };
 
 #endif // ABSZEROPOINT_H

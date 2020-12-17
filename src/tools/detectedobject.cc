@@ -29,6 +29,14 @@ If not, see https://www.gnu.org/licenses/ .
 #include "wcs.h"
 #include "wcshdr.h"
 
+
+//  ========  WARNING  ==========================================
+//
+// Image position parameters X, Y, XWIN and YWIN are zero-indexed
+// (must add +1 to be consistent with FITS convention)
+//
+// ==============================================================
+
 DetectedObject::DetectedObject(const QList<long> &objectIndices, const QVector<float> &data, const QVector<float> &background, const QVector<float> &weight,
                                const QVector<bool> &_mask, bool weightinmemory, const long nax1, const long nax2, const long objid,
                                const float satVal, const float gainval, wcsprm &wcsImage, QObject *parent) : QObject(parent),
@@ -140,6 +148,8 @@ void DetectedObject::computeObjectParams()
     // Applied only when writing catalogs to disk for scamp
     // correctOriginOffset();
     calcSkyCoords();
+
+//    qDebug() << FLAGS;
 }
 
 void DetectedObject::calcFlux()
@@ -515,8 +525,9 @@ void DetectedObject::calcSkyCoords()
     double theta;
     double imgcrd[2];
     double pixcrd[2];
-    pixcrd[0] = X;
-    pixcrd[1] = Y;
+    // CAREFUL! wcslib starts pixels counting at 1, hence must add +1 to zero-indexed C++ vectors
+    pixcrd[0] = XWIN + 1.;
+    pixcrd[1] = YWIN + 1.;
     int stat[1];
     wcsp2s(&wcs, 1, 2, pixcrd, imgcrd, &phi, &theta, world, stat);
     ALPHA_J2000 = world[0];
@@ -755,20 +766,36 @@ void DetectedObject::calcMagAuto()
     double rkron = 0.;
     double fsum = 0.;
     for (long j=jmin; j<=jmax; ++j) {
-        float dy = Y - j;
+        float dy = j - Y;
         for (long i=imin; i<=imax; ++i) {
-            float dx = X - i;
+            float dx = i - X;
             // Work on pixels within 6x the ellipse
             double rsq = CXX*dx*dx + CYY*dy*dy + CXY*dx*dy;
             if (rsq <= 36.*A*A) {
-                rkron += float(dataMeasure.at(i+naxis1*j));
+                rkron += sqrt(rsq) * dataMeasure.at(i+naxis1*j);
                 fsum += dataMeasure.at(i+naxis1*j);
             }
         }
     }
-    rkron /= fsum;
 
-    // enfore a minimum radius of 3.5 pixels for noisy objects
+    /* debugging
+    // objects close to the detection limit may not fulfil the "rsq <= 36.*A*A" requirement
+    if (fsum == 0.) {
+        for (long j=jmin; j<=jmax; ++j) {
+            float dy = j - Y;
+            for (long i=imin; i<=imax; ++i) {
+                float dx = i - X;
+                double rsq = CXX*dx*dx + CYY*dy*dy + CXY*dx*dy;
+                qDebug() << i << j << dx << dy << CXX << CYY << CXY << rsq << 36.*A*A << dataMeasure.at(i+naxis1*j);
+            }
+        }
+    }
+    */
+
+    if (fsum == 0.) rkron = 3.5;
+    else rkron /= fsum;
+
+    // enforce a minimum radius of 3.5 pixels for noisy objects
     rkron = rkron < 3.5 ? 3.5 : rkron;
 
     double auto_radius = 2.5*rkron;
@@ -815,16 +842,20 @@ void DetectedObject::calcMagAuto()
         }
     }
 
-    FLUXERR_AUTO = sqrt(FLUXERR_AUTO);
-    MAG_AUTO = -2.5*log10(FLUX_AUTO) + ZP;
-    MAGERR_AUTO = 99.;
-    if (FLUX_AUTO > 0.) MAGERR_AUTO = 2.5*log10(1.+FLUXERR_AUTO/FLUX_AUTO);
-
-    if (numMasked / numTot > 0.1) bitflags.setBit(1,true);
     if (FLUX_AUTO < 0.) {
         bitflags.setBit(7,true);
         badDetection = true;
+        MAGERR_AUTO = 99.;
+        MAG_AUTO = 99.;
+        FLUXERR_AUTO = 0.;
     }
+    else {
+        FLUXERR_AUTO = sqrt(FLUXERR_AUTO);
+        MAG_AUTO = -2.5*log10(FLUX_AUTO) + ZP;
+        MAGERR_AUTO = 2.5*log10(1.+FLUXERR_AUTO/FLUX_AUTO);
+    }
+
+    if (numMasked / numTot > 0.1) bitflags.setBit(1,true);
 }
 
 void DetectedObject::filterSpuriousDetections()

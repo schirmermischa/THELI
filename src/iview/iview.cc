@@ -912,7 +912,14 @@ void IView::showReferenceCat()
                         QFileDialog::getOpenFileName(this, tr("Select reference catalog (theli_mystd.iview)"), dirName,
                                                      "theli_mystd.iview");
                 if (QFile(refcatFileName).exists()) {
-                    readRaDecCatalog(refcatFileName, refCatItems, symbolSize, width, color);
+                    if (!readRaDecCatalog(refcatFileName, refCatItems, symbolSize, width, color)) {
+                        qDebug() << __func__ << " : Could not read manually provided reference catalog.";
+                        // Remove any previous catalog display.
+                        if (!refCatItems.isEmpty()) {
+                            for (auto &it: refCatItems) scene->removeItem(it);
+                            refCatItems.clear();
+                        }
+                    }
                 }
             }
         }
@@ -987,10 +994,10 @@ void IView::showAbsPhotReferences(bool checked)
         // Clear the item list
         AbsPhotRefCatItems.clear();
         int width = 2;
-        readRaDecCatalog(dirName+"/"+catNameDownloaded, AbsPhotRefCatItems, 29, width, QColor("#ee0000"));
-//        readRaDecCatalog(dirName+"/"+catNameDownloaded, AbsPhotRefCatItems, 27, width, QColor("#000000"));
-        readRaDecCatalog(dirName+"/"+catNameMatched, AbsPhotRefCatItems, 29, width, QColor("#eeee00"));
-//        readRaDecCatalog(dirName+"/"+catNameMatched, AbsPhotRefCatItems, 27, width, QColor("#000000"));
+        readRaDecCatalog(dirName+"/"+catNameDownloaded, AbsPhotRefCatItems, 20, width, QColor("#ee0000"));
+//        readRaDecCatalog(dirName+"/"+catNameDownloaded, AbsPhotRefCatItems, 18, width, QColor("#000000"));
+        readRaDecCatalog(dirName+"/"+catNameMatched, AbsPhotRefCatItems, 20, width, QColor("#eeee00"));
+//        readRaDecCatalog(dirName+"/"+catNameMatched, AbsPhotRefCatItems, 18, width, QColor("#000000"));
     }
     else {
         // Remove any previous catalog display.
@@ -1046,7 +1053,7 @@ bool IView::readRaDecCatalog(QString fileName, QList<QGraphicsRectItem*> &items,
         }
     }
     else {
-        qDebug() << "IView::readRaDecCatalog: could not open" << fileName;
+        // error handling in caller function
         return false;
     }
 }
