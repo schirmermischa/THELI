@@ -693,8 +693,8 @@ void match2D(const QVector<QVector<double>> vec1, QVector<QVector<double>> vec2,
                 // distance between the two points (in [deg])
                 double distance = haversine(vec2.at(j)[1], vec1.at(i)[1], vec2.at(j)[0], vec1.at(i)[0]);
                 if (distance < tolerance) {
-                    dummy << vec1.at(i)[0]; // RA OBJ
-                    dummy << vec1.at(i)[1]; // DEC OBJ
+                    dummy << vec1.at(i)[0]; // DEC OBJ
+                    dummy << vec1.at(i)[1]; // RA OBJ
                     for (int k=2; k<vec2.at(j).length(); ++k) {
                         dummy << vec2.at(j)[k]; // MAG and MAGERR for reference sources
                     }
@@ -801,8 +801,8 @@ void match2D_refcoords(const QVector<QVector<double>> vec1, QVector<QVector<doub
                 // distance between the two points (in [deg])
                 double distance = haversine(vec2.at(j)[1], vec1.at(i)[1], vec2.at(j)[0], vec1.at(i)[0]);
                 if (distance < tolerance) {
-                    dummy << vec2.at(j)[0]; // RA OBJ
-                    dummy << vec2.at(j)[1]; // DEC OBJ
+                    dummy << vec2.at(j)[0]; // DEC OBJ
+                    dummy << vec2.at(j)[1]; // RA OBJ
                     for (int k=2; k<vec2.at(j).length(); ++k) {
                         dummy << vec2.at(j)[k]; // MAG and MAGERR for reference sources
                     }
