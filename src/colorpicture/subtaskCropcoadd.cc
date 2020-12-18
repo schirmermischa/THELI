@@ -118,6 +118,8 @@ void ColorPicture::on_getCoaddsPushButton_clicked()
 
 void ColorPicture::taskInternalCropCoadds()
 {
+    if (verbosity <= 1) emit messageAvailable("Cropping images ...", "ignore");
+
     QString dirName = ui->dirLineEdit->text() + "/color_theli/";
     QDir colorTheli(dirName);
     QStringList filter("*.fits");
@@ -163,7 +165,7 @@ void ColorPicture::taskInternalCropCoadds()
 #pragma omp parallel for num_threads(maxCPU)
     for (int i=0; i<coaddList.length(); ++i) {
         auto &it = coaddList[i];
-        emit messageAvailable("Cropping "+it->name, "ignore");
+        if (verbosity >= 2) emit messageAvailable("Cropping "+it->name, "ignore");
         // crop image
         float xlowNew = xlow + crpix1[i];
         float ylowNew = ylow + crpix2[i];

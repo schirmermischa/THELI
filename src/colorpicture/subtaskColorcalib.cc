@@ -171,8 +171,8 @@ void ColorPicture::colorCalibMatchCatalogs()
     match2D(matchedRG, objDatB, matchedRGB, toleranceRB, multipleR, multipleB, maxCPU);
 
     QString meanTol = QString::number(0.5*(toleranceRB+toleranceRG)*3600,'f',1) + "\" (" + QString::number(0.5*(toleranceRB+toleranceRG)*3600/imageB->plateScale,'f',1) + " pix)";
-    emit messageAvailable("RGB mean matching tolerances:  " + meanTol, "ignore");
-    emit messageAvailable("RGB # of matched sources: " + QString::number(matchedRGB.length()), "ignore");
+    if (verbosity >= 2) emit messageAvailable("RGB mean matching tolerances:  " + meanTol, "ignore");
+    if (verbosity >= 2) emit messageAvailable("RGB # of matched sources: " + QString::number(matchedRGB.length()), "ignore");
 
     // Extract AVGWHITE color correction factors
     QVector<double> rCorr;   // red correction factors wrt. green channel
@@ -234,7 +234,7 @@ void ColorPicture::filterReferenceCatalog(RefCatData *REFCAT, MyImage *channelIm
         }
     }
     if (REFCAT->ra.length() > 0) {
-        emit messageAvailable(REFCAT->name + " : " + QString::number(countG2inside) + " of the G2 references located inside pixel area", "note");
+        REFCAT->resultString = REFCAT->name + " : " + QString::number(countG2inside) + " G2 references inside image";
     }
 }
 
@@ -279,7 +279,7 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
     match2D(matchedRGB, refDat, matchedREFCAT, tolerance, dummy1, dummy2, maxCPU);
 
     if (matchedREFCAT.isEmpty()) {
-        emit messageAvailable("None of the G2-like sources in " + REFCAT->name + " were detected in your image.", "warning");
+        emit messageAvailable("None of the G2-like sources in " + REFCAT->name + " were detected.", "warning");
         photcatresult[index].rfac    = "1.000";
         photcatresult[index].rfacerr = "0.000";
         photcatresult[index].gfac    = "1.000";
@@ -294,8 +294,7 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
         else if (REFCAT->name == "SKYMAPPER") ui->numSKYMAPPERLabel->setText(nstars);
         else if (REFCAT->name == "APASS") ui->numAPASSLabel->setText(nstars);
         return;
-    }
-    // Calculate the color correction factors
+    }    // Calculate the color correction factors
     // matchRGB contains magnitudes in the order BGR, i.e. matchREFCAT contains: magref-B-G-R
     QVector<float> rCorr;   // red correction factors wrt. green channel
     QVector<float> bCorr;   // cblue orrection factors wrt. green channel
@@ -324,8 +323,14 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
     else if (REFCAT->name == "AVGWHITE") ui->numAVGWHITELabel->setText(nstars);
 
     QString type = "note";
-    if (matchedREFCAT.length() == 0) type = "warning";
-    emit messageAvailable(REFCAT->name + " : "+QString::number(matchedREFCAT.length()) + " of them were detected in the image.", type);
+    if (matchedREFCAT.length() == 0) {
+        REFCAT->resultString = REFCAT->name + " : None of the G2 references were detected in the image.";
+        type = "warning";
+    }
+    else {
+        REFCAT->resultString.append(", " +QString::number(matchedREFCAT.length()) + " of which detected.");
+    }
+    emit messageAvailable(REFCAT->resultString, type);
 }
 
 void ColorPicture::writeG2refcat(const QString refcatName, const QVector<QVector<double>> matchedREFCAT)
@@ -441,7 +446,7 @@ void ColorPicture::colorCalibSegmentImages()
         if (it->name == ui->redComboBox->currentText()) channelName = "R";
         if (it->name == ui->greenComboBox->currentText()) channelName = "G";
         if (it->name == ui->blueComboBox->currentText()) channelName = "B";
-        emit messageAvailable(channelName + " : " + QString::number(it->objectList.length()) + " sources", "ignore");
+        if (verbosity >= 2) emit messageAvailable(channelName + " : " + QString::number(it->objectList.length()) + " sources", "ignore");
     }
 }
 

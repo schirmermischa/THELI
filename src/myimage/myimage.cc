@@ -909,6 +909,10 @@ void MyImage::collapseCorrection(QString threshold, QString direction)
 QVector<float> MyImage::extractPixelValues(long xmin, long xmax, long ymin, long ymax)
 {
     // CHECK: if not in memory then load from drive
+    if (xmin < 0) xmin = 0;
+    if (xmax >= naxis1-1) xmax = naxis1-1;
+    if (ymin < 0) ymin = 0;
+    if (ymax >= naxis2-1) ymax = naxis2-1;
 
     long nsub = xmax - xmin + 1;
     long msub = ymax - ymin + 1;
@@ -1443,10 +1447,18 @@ void MyImage::mergeObjectWithGlobalMask()
     }
 }
 
-void MyImage::subtract(float value)
+void MyImage::subtract(float value, QString mode)
 {
-    for (auto &it : dataCurrent) {
-        it -= value;
+    if (mode.isEmpty()) {
+        for (auto &it : dataCurrent) {
+            it -= value;
+        }
+    }
+    else if (mode == "TIFF") {
+        if (dataTIFF.isEmpty()) dataTIFF = dataCurrent;
+        for (auto &it : dataTIFF) {
+            it -= value;
+        }
     }
 }
 
@@ -1457,10 +1469,18 @@ void MyImage::add(float value)
     }
 }
 
-void MyImage::multiply(float value)
+void MyImage::multiply(float value, QString mode)
 {
-    for (auto &it : dataCurrent) {
-        it *= value;
+    if (mode.isEmpty()) {
+        for (auto &it : dataCurrent) {
+            it *= value;
+        }
+    }
+    else if (mode == "TIFF") {
+        if (dataTIFF.isEmpty()) dataTIFF = dataCurrent;
+        for (auto &it : dataTIFF) {
+            it *= value;
+        }
     }
 }
 

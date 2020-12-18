@@ -305,6 +305,7 @@ public:
     // Associated data
     QVector<float> dataWeight;
     QVector<float> dataWeightSmooth;
+    QVector<float> dataTIFF;
     //    QVector<uint> mask;
     float maskValue = 0.;
     float saturationValue = 1.e9;
@@ -404,7 +405,7 @@ public:
     void maskExpand(QString expFactor, bool writeObjectmaskImage = false);
     void maskSaturatedPixels(QString tolerance, bool requested);
     void mergeObjectWithGlobalMask();
-    void multiply(float value);
+    void multiply(float value, QString mode = "");
     void normalizeFlat();
     void protectMemory();
     void pullUp();
@@ -442,7 +443,7 @@ public:
     void sky2xy(const double alpha, const double delta, double &x, double &y);
     void sourceExtractorCatToAnet();
     void sourceExtractorCatToIview();
-    void subtract(float value);
+    void subtract(float value, QString mode = "");
     void subtractBackgroundModel();
     void subtractBias();
     void subtractBias(QVector<float> const &dataCurrent, QString dataType);
@@ -473,6 +474,7 @@ public:
     void writeCatalog(QString minFWHM_string, QString maxFlag_string);
     void writeConstSkyImage(float constValue);
     void writeImage(QString fileName = "", QString filter = "", float exptime = -1.0, bool addGain = false);
+    void writeImageTIFF(QString fileName = "", QString filter = "", float exptime = -1.0, bool addGain = false);
     void writeImageBackupL1();
     void writeImageBackupL2();
     void writeImageBackupL3();

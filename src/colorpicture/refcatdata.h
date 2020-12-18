@@ -40,6 +40,8 @@ public:
     long numG2Sources = 0;
     QString name = "";
 
+    QString resultString = "";
+
     void clear();
 
 signals:

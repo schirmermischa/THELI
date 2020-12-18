@@ -56,7 +56,10 @@ void ColorPicture::taskInternalFits2Tiff()
     int nrows = ui->statisticsTableWidget->rowCount();
     int ncols = ui->statisticsTableWidget->columnCount();
     // Leave if the table hasn't been initialized
-    if (ncols != 5 || !statisticsRetrieved) return;
+    if (ncols != 5 || !statisticsRetrieved) {
+        emit messageAvailable("You must first determine the background level.", "warning");
+        return;
+    }
 
     QString bfac = ui->blueFactorLineEdit->text();
     QString rfac = ui->redFactorLineEdit->text();
@@ -93,11 +96,15 @@ void ColorPicture::taskInternalFits2Tiff()
         else if (name == ui->blueComboBox->currentText()) factor = ui->blueFactorLineEdit->text().toFloat();
         else factor = 1.0;
         float medVal = ui->statisticsTableWidget->item(i,1)->data(Qt::DisplayRole).toFloat();
-        myImage->subtract(medVal);
-        myImage->multiply(factor);
+        // Do the rescaling on a separate data vector
+        myImage->dataTIFF = myImage->dataCurrent;
+        myImage->subtract(medVal, "TIFF");
+        myImage->multiply(factor, "TIFF");
         myImage->toTIFF(16, minMin, maxMax);
-        myImage->writeImage(myImage->path + "/"+myImage->baseName + "_2tiff.fits");
-        emit messageAvailable("TIFF written to " + myImage->path + "/"+myImage->baseName + ".tiff", "info");
+        myImage->writeImageTIFF(myImage->path + "/"+myImage->baseName + "_2tiff.fits");
+        emit messageAvailable("Wrote " + myImage->path + "/"+myImage->baseName + ".tiff", "ignore");
+        myImage->dataTIFF.clear();
+        myImage->dataTIFF.squeeze();
     }
 }
 

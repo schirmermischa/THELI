@@ -49,6 +49,17 @@ void MyImage::writeImage(QString fileName, QString filter, float exptime, bool a
     emit modelUpdateNeeded(chipName);
 }
 
+// same as above, just writes the dataTIFF vector instead
+void MyImage::writeImageTIFF(QString fileName, QString filter, float exptime, bool addGain)
+{
+    if (!successProcessing) return;
+
+    if (addGain) addGainNormalization = true;
+    else addGainNormalization = false;
+
+    static_cast<void> (write(fileName, dataTIFF, exptime, filter, header));
+}
+
 void MyImage::writeImageBackupL1()
 {
     if (!successProcessing) return;

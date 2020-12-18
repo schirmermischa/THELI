@@ -141,7 +141,6 @@ void ColorPicture::loadPreferences()
 // Receiving end from setWCSLock call
 void ColorPicture::setWCSLockReceived(bool locked)
 {
-    qDebug() << "received locking signal:" << locked;
     if (locked) omp_set_lock(&wcsLock);
     else omp_unset_lock(&wcsLock);
 }
@@ -493,6 +492,11 @@ void ColorPicture::on_previewCalibPushButton_clicked()
 {
     if (iViewOpen) {
         iView->raise();
+        QMessageBox msgBox;
+        msgBox.setText("Left-click into a blank region of the image to obtain image statistics. "
+                       "Ideally, this should be the darkest region of the image with few stars.\n\n"
+                       "Statistics will be measured in a 9x9 pixel area.");
+        msgBox.exec();
         return;
     }
 

@@ -3669,7 +3669,7 @@ p, li { white-space: pre-wrap; }
                 <string>Detection threshold per pixel</string>
                </property>
                <property name="text">
-                <string>3.0</string>
+                <string>10</string>
                </property>
               </widget>
              </item>

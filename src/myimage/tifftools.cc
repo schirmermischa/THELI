@@ -34,7 +34,9 @@ void MyImage::toTIFF(int bit, float minthresh, float maxthresh, bool zscaleing, 
     }
     */
 
-    emit messageAvailable("Creating "+baseName+".tiff ...", "ignore");
+    if (*verbosity >= 2) emit messageAvailable("Creating "+baseName+".tiff ...", "ignore");
+
+    if (dataTIFF.isEmpty()) dataTIFF = dataCurrent;
 
     long n = naxis1;
     long m = naxis2;
@@ -42,8 +44,8 @@ void MyImage::toTIFF(int bit, float minthresh, float maxthresh, bool zscaleing, 
 
     // If z-scale is requested
     if (zscaleing) {
-        float medVal = medianMask_T(dataCurrent);
-        float rmsVal = rmsMask_T(dataCurrent);
+        float medVal = medianMask_T(dataTIFF);
+        float rmsVal = rmsMask_T(dataTIFF);
         minthresh = medVal - 2.*rmsVal;
         maxthresh = medVal + 10.*rmsVal;
     }
@@ -54,15 +56,15 @@ void MyImage::toTIFF(int bit, float minthresh, float maxthresh, bool zscaleing, 
         double gmaxlevel = pow(maxthresh, gamma);
 #pragma omp parallel for
         for (long k=0; k<dim; ++k) {
-            dataCurrent[k] = pow(dataCurrent[k], gamma) / gmaxlevel * maxthresh;
+            dataTIFF[k] = pow(dataTIFF[k], gamma) / gmaxlevel * maxthresh;
         }
     }
 
     // Clipping min and max values
 #pragma omp parallel for
     for (long k=0; k<dim; k++) {
-        if (dataCurrent[k] <= minthresh) dataCurrent[k] = minthresh;
-        if (dataCurrent[k] >= maxthresh) dataCurrent[k] = maxthresh;
+        if (dataTIFF[k] <= minthresh) dataTIFF[k] = minthresh;
+        if (dataTIFF[k] >= maxthresh) dataTIFF[k] = maxthresh;
     }
 
     float blowup = 0.;
@@ -83,9 +85,9 @@ void MyImage::toTIFF(int bit, float minthresh, float maxthresh, bool zscaleing, 
 #pragma omp parallel for
     for (long i=0; i<n; ++i)  {
         for (long j=0; j<m; ++j)  {
-            dataCurrent[i+n*j] = blowup * (dataCurrent[i+n*j] - minthresh) + grey;
+            dataTIFF[i+n*j] = blowup * (dataTIFF[i+n*j] - minthresh) + grey;
             // flipping TIFF in y dir
-            imtiff[i][naxis2-j-1] = (long) dataCurrent[i+n*j];
+            imtiff[i][naxis2-j-1] = (long) dataTIFF[i+n*j];
         }
     }
 
