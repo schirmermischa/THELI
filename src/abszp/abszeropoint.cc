@@ -351,10 +351,8 @@ void AbsZeroPoint::taskInternalAbszeropoint()
     outcat_downloaded.close();
     outcat_downloaded.setPermissions(QFile::ReadUser | QFile::WriteUser);
 
-    i = 0;
     for (auto &it : objDat) {
         stream_detected << QString::number(it[1], 'f', 9) << " " << QString::number(it[0], 'f', 9) << " " << QString::number(it[2], 'f', 3) << "\n";
-        ++i;
     }
     outcat_detected.close();
     outcat_detected.setPermissions(QFile::ReadUser | QFile::WriteUser);
@@ -536,10 +534,8 @@ void AbsZeroPoint::writeAbsPhotRefcat()
     outcat_iview_down.setPermissions(QFile::ReadUser | QFile::WriteUser);
 
     // Write matched iView catalog
-    i = 0;
     for (auto &it : matched) {
         stream_iview_matched << QString::number(it[1], 'f', 9) << " " << QString::number(it[0], 'f', 9) << " " << QString::number(it[2], 'f', 3) << "\n";
-        ++i;
     }
     outcat_iview_matched.close();
     outcat_iview_matched.setPermissions(QFile::ReadUser | QFile::WriteUser);
@@ -571,10 +567,10 @@ void AbsZeroPoint::buildAbsPhot()
     // Object magnitudes are calculated for a fiducial ZP = 0, and need to be exposure time normalized
     // CHECK: this would go wrong if someone calibrates an image that is not normalized to one second!
     //    float normalization = 2.5*log10(myImage->exptime);
-    float normalization = 0.;
+    float normalization = 0.;   // additive, in mag-space
     for (auto &match : matched) {
-        absPhot->qv_RA.append(match[0]);
-        absPhot->qv_DEC.append(match[1]);
+        absPhot->qv_RA.append(match[1]);
+        absPhot->qv_DEC.append(match[0]);
         absPhot->qv_mag1ref.append(match[2]);
         absPhot->qv_mag2ref.append(match[3]);
         absPhot->qv_mag1errref.append(match[4]);
@@ -856,19 +852,19 @@ void AbsZeroPoint::showData(QCPAbstractPlottable *plottable, int dataIndex)
      *
      * NOT WORKING! for some reason dataIndex does not select the object clicked, but some random other object.
      * It appears that data points plotted start with index 0 at left and have highest index at right.
+    */
     else if (plottable->parentLayerable()->objectName() == "colorRect") {
         // Select only clicks on data points
-        if (QCPGraph *graph = qobject_cast<QCPGraph*>(plottable)) {
+//        if (QCPGraph *graph = qobject_cast<QCPGraph*>(plottable)) {
             // set or unset the flag for this data point
-            if (absPhot->qv_ManualFlag[dataIndex]) absPhot->qv_ManualFlag[dataIndex] = false;
-            else absPhot->qv_ManualFlag[dataIndex] = true;
-            qDebug() << dataIndex << "AA" << absPhot->qv_colorIndividual[dataIndex] << absPhot->qv_ZPIndividual[dataIndex];
-            absPhot->regression(absPhot->slope, absPhot->cutoff);
-            absPhot->getZP();
+//            if (absPhot->qv_ManualFlag[dataIndex]) absPhot->qv_ManualFlag[dataIndex] = false;
+//            else absPhot->qv_ManualFlag[dataIndex] = true;
+//            qDebug() << qSetRealNumberPrecision(12) << dataIndex << "AA" << absPhot->qv_colorIndividual[dataIndex] << absPhot->qv_ZPIndividual[dataIndex] << absPhot->qv_RA[dataIndex] << absPhot->qv_DEC[dataIndex];
+//            absPhot->regression(absPhot->slope, absPhot->cutoff);
+//            absPhot->getZP();
             // plot();
-        }
+//        }
     }
-    */
 }
 
 void AbsZeroPoint::plot()
@@ -965,7 +961,8 @@ void AbsZeroPoint::plot()
 
     // The graph for the color dependence
     QCPGraph *colorZPGraph = ui->zpPlot->addGraph(AxisRectColor->axis(QCPAxis::atBottom), AxisRectColor->axis(QCPAxis::atLeft));
-    colorZPGraph->setSelectable(QCP::SelectionType::stNone);
+    colorZPGraph->setSelectable(QCP::stSingleData);
+//    colorZPGraph->setSelectable(QCP::SelectionType::stNone);
     colorZPGraph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, QPen(QColor("#096169")), QBrush(QColor("#096169")), 6));
     colorZPGraph->setLineStyle(QCPGraph::lsNone);
     colorZPGraph->rescaleKeyAxis();

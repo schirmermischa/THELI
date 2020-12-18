@@ -655,7 +655,7 @@ void IView::mapFITS()
 
     //**************************************************
     // ADDITIONAL SECTION TO TEST TRANSFORMATIONS
-    QTransform *transform = nullptr; // transformation maxtrix
+//    QTransform *transform = nullptr; // transformation maxtrix
     if(wcs) {
         // Transformation prameters, to be filled explicitly from WCS matrix
         // Must be computed with respect to global reference system valid for all images. Not sure how to do this
@@ -742,10 +742,12 @@ void IView::mapFITS()
         qDebug() << "IView::mapFITS(): Invalid mode in mapFITS()";
     }
 
+    /*
     if (transform) {
         delete transform;
         transform = nullptr;
     }
+    */
 
     // Replot the source and reference catalogs (if the corresponding actions are checked)
     if (sourceCatShown && ui->actionSourceCat->isVisible()) {
