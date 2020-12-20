@@ -20,6 +20,8 @@ If not, see https://www.gnu.org/licenses/ .
 #ifndef IVCONFDOCKWIDGET_H
 #define IVCONFDOCKWIDGET_H
 
+#include "../mygraphicsview.h"
+#include "../mygraphicsscene.h"
 #include <QDockWidget>
 
 namespace Ui {
@@ -39,6 +41,12 @@ public:
 
     IView *iview;
 
+    MyGraphicsView *magnifyGraphicsView;
+    MyGraphicsScene *magnifyScene = new MyGraphicsScene();
+
+    int magnify_nx = 0;   // the width and height of the magnifyer window;
+    int magnify_ny = 0;
+
     void switchMode(QString mode);
     double zoom2scale(int zoomlevel);
 
@@ -54,6 +62,7 @@ public slots:
     void on_zoomFitPushButton_clicked();
     void on_zoomZeroPushButton_clicked();
     void on_filterLineEdit_textChanged(const QString &arg1);
+    void updateMagnifyWindowReceived(QGraphicsPixmapItem *magnifyPixmapItem, int scaleFactor);
 
 signals:
     void autoContrastPushButton_toggled(bool checked);

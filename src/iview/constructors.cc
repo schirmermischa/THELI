@@ -499,6 +499,9 @@ void IView::makeConnections()
     connect(timer, &QTimer::timeout, this, &IView::backAction_triggered);
 
     connect(this, &IView::middleMouseModeChanged, myGraphicsView, &MyGraphicsView::updateMiddleMouseMode);
+
+    connect(this, &IView::updateMagnifyWindow, icdw, &IvConfDockWidget::updateMagnifyWindowReceived);
+    connect(myGraphicsView, &MyGraphicsView::currentMousePos, this, &IView::updateMagnifyWindowReceived);
 }
 
 void IView::switchMode(QString mode)

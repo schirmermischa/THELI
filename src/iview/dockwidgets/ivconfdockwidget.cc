@@ -27,6 +27,26 @@ IvConfDockWidget::IvConfDockWidget(IView *parent) :
 {
     ui->setupUi(this);
     iview = parent;
+
+    magnifyGraphicsView = new MyGraphicsView();
+    QPalette backgroundPalette;
+    backgroundPalette.setColor(QPalette::Base, QColor("#000000"));
+    magnifyGraphicsView->setPalette(backgroundPalette);
+    magnifyGraphicsView->setMouseTracking(true);
+//    connect(magnifyGraphicsView, &MyGraphicsView::currentMousePos, this, &IvConfDockWidget::showCurrentMousePos);
+//    connect(magnifyGraphicsView, &MyGraphicsView::leftDragTravelled, this, &IView::drawSeparationVector);
+//    connect(magnifyGraphicsView, &MyGraphicsView::leftPress, this, &IView::initSeparationVector);
+//    connect(magnifyGraphicsView, &MyGraphicsView::leftPress, this, &IView::sendStatisticsCenter);
+//    connect(magnifyGraphicsView, &MyGraphicsView::leftButtonReleased, this, &IView::clearSeparationVector);
+//    connect(magnifyGraphicsView, &MyGraphicsView::leftButtonReleased, this, &IView::updateSkyCircles);
+
+    ui->magnifyFrame->setContentsMargins(0,0,0,0);
+    ui->magnifyLayout->addWidget(magnifyGraphicsView);
+    magnify_nx = ui->magnifyFrame->width();
+    magnify_ny = ui->magnifyFrame->height();
+
+    magnifyGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    magnifyGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
 IvConfDockWidget::~IvConfDockWidget()
@@ -109,6 +129,9 @@ void IvConfDockWidget::on_minLineEdit_returnPressed()
 
 void IvConfDockWidget::on_maxLineEdit_returnPressed()
 {
+    //QPixmap magnifyPixmap = QPixmap("/home/mischa/euclid_logo.png");
+    //icdw->magnifyGraphicsView->resetMatrix();
+    //QGraphicsPixmapItem *newItem = new QGraphicsPixmapItem(magnifyPixmap);
     ui->autocontrastPushButton->setChecked(false);
     emit minmaxLineEdit_returnPressed(ui->minLineEdit->text(), ui->maxLineEdit->text());
 }
@@ -121,6 +144,9 @@ void IvConfDockWidget::on_autocontrastPushButton_toggled(bool checked)
 void IvConfDockWidget::on_filterLineEdit_textChanged(const QString &arg1)
 {
     QString filter = arg1;
+    //QPixmap magnifyPixmap = QPixmap("/home/mischa/euclid_logo.png");
+    //icdw->magnifyGraphicsView->resetMatrix();
+    //QGraphicsPixmapItem *newItem = new QGraphicsPixmapItem(magnifyPixmap);
 
     if (filter.isEmpty()
             || !filter.contains(".fits")
@@ -138,4 +164,16 @@ void IvConfDockWidget::on_filterLineEdit_textChanged(const QString &arg1)
 void IvConfDockWidget::on_quitPushButton_clicked()
 {
     emit closeIview();
+}
+
+void IvConfDockWidget::updateMagnifyWindowReceived(QGraphicsPixmapItem *magnifyPixmapItem, int scaleFactor)
+{
+    magnifyGraphicsView->resetMatrix();
+
+    magnifyScene->clear();
+    magnifyScene->addItem(magnifyPixmapItem);
+    magnifyGraphicsView->setScene(magnifyScene);
+    magnifyScene->update(0,0,150,150);
+    magnifyGraphicsView->scale(scaleFactor, scaleFactor);
+    magnifyGraphicsView->show();
 }

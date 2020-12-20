@@ -346,7 +346,7 @@ void IView::loadFITSexternalRAM(int index)
 void IView::loadPNG(QString filename, int currentId)
 {
     if (imageList.isEmpty() || dirName.isEmpty()) {
-        qDebug() << "IView::loadPNG(): No scamp checkplots found!";
+        qDebug() << __func__ << " No scamp checkplots found!";
         return;
     }
 
@@ -429,11 +429,24 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
         pageLabel->setText(" Image "+QString::number(currentId+1)+" / "+QString::number(numImages));
 
         // Show the magnified area in the zoom window
-        //        QPixmap zoomedPixmap = copy(scene->items().at(0),
-        //        zoomedPixmap.
-        //ui->zoomGraphicsView->setScene(zoomScene);
-        //ui->zoomGraphicsView->scale(scaleFactor*5, scaleFactor*5);
-        //ui->zoomGraphicsView->show();
+
+        //        if (displayMode == "FITSmonochrome") {
+        QPixmap magnifyPixmap = pixmapItem->pixmap().copy(naxis1/2-icdw->magnify_nx/2,naxis2/2-icdw->magnify_nx/2,icdw->magnify_nx, icdw->magnify_ny);
+        magnifyPixmapItem = new QGraphicsPixmapItem(magnifyPixmap);
+        //        }
+        //        else if (displayMode == "FITScolor") {
+        //           QPixmap magnifyPixmap = pixmapItem->pixmap().copy(naxis1/2,naxis2/2,icdw->magnify_nx, icdw->magnify_ny);
+        //           magnifyPixmapItem = new QGraphicsPixmapItem(magnifyPixmap);
+        //        }
+        //QPixmap magnifyPixmap = QPixmap("/home/mischa/euclid_logo.png");
+        //icdw->zoomGraphicsView->resetMatrix();
+        //QGraphicsPixmapItem *newItem = new QGraphicsPixmapItem(magnifyPixmap);
+        emit updateMagnifyWindow(magnifyPixmapItem, icdw->zoom2scale(zoomLevel)*10);
+
+        //        icdw->zoomScene->clear();
+        //        icdw->zoomScene->addItem(newItem);
+        //        icdw->zoomGraphicsView->setScene(icdw->zoomScene);
+        //        icdw->zoomGraphicsView->show();
     }
     else {
         // At end of file list, or file does not exist anymore.
@@ -445,8 +458,24 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
 
 void IView::loadFromRAMlist(const QModelIndex &index)
 {
-
     loadFromRAM(myImageList[index.row()], index.column());
+
+    QPixmap magnifyPixmap = pixmapItem->pixmap().copy(naxis1/2-icdw->magnify_nx/2, naxis2/2-icdw->magnify_nx/2, icdw->magnify_nx, icdw->magnify_ny);
+    magnifyPixmapItem = new QGraphicsPixmapItem(magnifyPixmap);
+    emit updateMagnifyWindow(magnifyPixmapItem, icdw->zoom2scale(zoomLevel)*10);
+}
+
+void IView::updateMagnifyWindowReceived(QPointF point)
+{
+    if (displayMode == "FITSmonochrome") {
+        QPixmap magnifyPixmap = pixmapItem->pixmap().copy(point.x() - icdw->magnify_nx/2, point.y()-icdw->magnify_nx/2, icdw->magnify_nx, icdw->magnify_ny);
+        magnifyPixmapItem = new QGraphicsPixmapItem(magnifyPixmap);
+    }
+    else if (displayMode == "FITScolor") {
+        QPixmap magnifyPixmap = pixmapItem->pixmap().copy(point.x() - 0.*icdw->magnify_nx, point.y()-0.*icdw->magnify_nx, icdw->magnify_nx, icdw->magnify_ny);
+        magnifyPixmapItem = new QGraphicsPixmapItem(magnifyPixmap);
+    }
+    emit updateMagnifyWindow(magnifyPixmapItem, icdw->zoom2scale(zoomLevel)*10);
 }
 
 void IView::loadFromRAM(MyImage *it, int indexColumn)
@@ -655,7 +684,7 @@ void IView::mapFITS()
 
     //**************************************************
     // ADDITIONAL SECTION TO TEST TRANSFORMATIONS
-//    QTransform *transform = nullptr; // transformation maxtrix
+    //    QTransform *transform = nullptr; // transformation maxtrix
     if(wcs) {
         // Transformation prameters, to be filled explicitly from WCS matrix
         // Must be computed with respect to global reference system valid for all images. Not sure how to do this
@@ -997,9 +1026,9 @@ void IView::showAbsPhotReferences(bool checked)
         AbsPhotRefCatItems.clear();
         int width = 2;
         readRaDecCatalog(dirName+"/"+catNameDownloaded, AbsPhotRefCatItems, 20, width, QColor("#ee0000"));
-//        readRaDecCatalog(dirName+"/"+catNameDownloaded, AbsPhotRefCatItems, 18, width, QColor("#000000"));
+        //        readRaDecCatalog(dirName+"/"+catNameDownloaded, AbsPhotRefCatItems, 18, width, QColor("#000000"));
         readRaDecCatalog(dirName+"/"+catNameMatched, AbsPhotRefCatItems, 20, width, QColor("#eeee00"));
-//        readRaDecCatalog(dirName+"/"+catNameMatched, AbsPhotRefCatItems, 18, width, QColor("#000000"));
+        //        readRaDecCatalog(dirName+"/"+catNameMatched, AbsPhotRefCatItems, 18, width, QColor("#000000"));
     }
     else {
         // Remove any previous catalog display.

@@ -127,6 +127,7 @@ signals:
     void solutionAcceptanceState(bool state);
     void middleMouseModeChanged(QString mode);
     void currentlyDisplayedIndex(int index);
+    void updateMagnifyWindow(QGraphicsPixmapItem *magnifyPixmapItem, qreal scaleFactor);
 
 private slots:
     void adjustBrightnessContrast(QPointF point);
@@ -156,6 +157,7 @@ private slots:
     void updateCRPIX(QPointF pointStart, QPointF pointEnd);
     void updateCRPIXFITS();
     void updateCDmatrix(double cd11, double cd12, double cd21, double cd22);
+    void updateMagnifyWindowReceived(QPointF point);
 public slots:
     void autoContrastPushButton_toggled_receiver(bool checked);
     void clearAll();
@@ -208,6 +210,7 @@ private:
     unsigned char *dataIntG;
     unsigned char *dataIntB;
     QGraphicsPixmapItem *pixmapItem;
+    QGraphicsPixmapItem *magnifyPixmapItem;
     bool dataIntSet = false;
     bool dataIntRSet = false;
     bool dataIntGSet = false;
