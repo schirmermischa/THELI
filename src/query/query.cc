@@ -147,7 +147,7 @@ void Query::getCatalogSearchRadiusAstrom()
     // Search radius in RA in arcmin, take into account possible pass over 0|360 deg boundary
     double crval1_min = minVec_T(corners_crval1);
     double crval1_max = maxVec_T(corners_crval1);
-    if (crval1_max - crval1_min > 350.) {
+    if (crval1_max - crval1_min > 180.) {
         for (auto &ra : corners_crval1) {
             if (ra > 180.) ra -= 360.;
         }
