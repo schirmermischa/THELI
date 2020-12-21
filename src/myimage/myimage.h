@@ -24,6 +24,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../threading/sourceextractorworker.h"
 #include "../threading/anetworker.h"
 #include "../processingStatus/processingStatus.h"
+#include "../instrumentdata.h"
 
 #include "fitsio2.h"
 #include <gsl/gsl_vector.h>
@@ -351,6 +352,7 @@ public:
     void calcMedianSeeingEllipticity();
     void calcMedianSeeingEllipticitySex();
     void checkBrightStars(const QList<QVector<double> > &brightStarList, float safetyDistance, float plateScale);
+    void checkCorrectMaskSize(const instrumentDataType *instData);
     void checkTaskRepeatStatus(QString taskBasename);
     void checkWCSsanity();
     void collapseCorrection(QString threshold, QString direction);

@@ -32,6 +32,7 @@ If not, see https://www.gnu.org/licenses/ .
 
 #include <QString>
 #include <QStringList>
+#include <QMessageBox>
 #include <QVector>
 #include <QFile>
 #include <QDir>
@@ -330,8 +331,8 @@ void Splitter::extractImagesFITS()
             buildTheliHeaderMJDOBS();
             buildTheliHeaderAIRMASS();
 
-//            buildTheliHeaderGAIN(chipMapped);
-//            buildTheliHeader();
+            //            buildTheliHeaderGAIN(chipMapped);
+            //            buildTheliHeader();
 
             // 2D image
             if (naxis == 2) {
@@ -352,7 +353,7 @@ void Splitter::extractImagesFITS()
                 convertToElectrons(chipMapped);
                 applyMask(chipMapped);
                 writeImage(chipMapped);
-//                initMyImage(chip);
+                //                initMyImage(chip);
             }
 
             // Cube
@@ -1217,4 +1218,21 @@ void Splitter::readPrimaryHeader()
         QString string = subString.toString();
         primaryHeader.push_back(string);
     }
+}
+
+bool Splitter::checkCorrectMaskSize(const int chip)
+{
+    long n_mask = mask->globalMask[chip].length();
+    long n_data = dataCurrent.length();
+    if (n_mask > 0 && n_mask != n_data) {
+        if (!maskSizeWarningShown) {
+            emit messageAvailable("Inconsistent image size detected between data and instrument configuration"
+                                  " (overscan and / or data section) in\n"+instData.nameFullPath, "error");
+            emit critical();
+            successProcessing = false;
+            maskSizeWarningShown = true;
+            return false;
+        }
+    }
+    return true;
 }

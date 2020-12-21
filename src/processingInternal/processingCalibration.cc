@@ -74,7 +74,6 @@ void Controller::taskInternalProcessbias()
     // NOTE: QString is not threadsafe, must create copies for threads!
     // NOTE: a 'bad' chip will 'continue', but openMP waits until at least one of the other threads has finished
 
-
 #pragma omp parallel for num_threads(maxExternalThreads) firstprivate(nlow, nhigh, min, max, dataDirName, dataSubDirName)
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (abortProcess || !successProcessing || instData->badChips.contains(chip)) continue;
@@ -88,6 +87,7 @@ void Controller::taskInternalProcessbias()
             if (abortProcess) break;
             if (!it->successProcessing) continue;
             it->setupCalibDataInMemory(false, true, false);   // Read image (if not already in memory), do not create backup, do get mode
+            it->checkCorrectMaskSize(instData);
             it->setModeFlag(min, max);                        // Flag the image if its mode is outside a user-provided acceptable range
 #pragma omp atomic
             progress += progressHalfStepSize;
@@ -170,6 +170,7 @@ void Controller::taskInternalProcessdark()
             if (abortProcess) break;
             if (!it->successProcessing) continue;
             it->setupCalibDataInMemory(false, true, false);
+            it->checkCorrectMaskSize(instData);
             it->setModeFlag(min, max);
 #pragma omp atomic
             progress += progressHalfStepSize;
@@ -245,6 +246,7 @@ void Controller::taskInternalProcessflatoff()
             if (abortProcess) break;
             if (!it->successProcessing) continue;
             it->setupCalibDataInMemory(false, true, false);
+            it->checkCorrectMaskSize(instData);
             it->setModeFlag(min, max);
 #pragma omp atomic
             progress += progressHalfStepSize;
@@ -376,6 +378,7 @@ void Controller::taskInternalProcessflat()
             if (verbosity >= 0 && !message.isEmpty()) emit messageAvailable(it->chipName + " : Correcting with "+message+"_"+QString::number(chip+1)+".fits", "image");
             // careful with the booleans, they make sure the data is correctly reread from disk or memory if task is repeated
             it->setupCalibDataInMemory(true, true, true);    // read from backupL1, if not then from disk. Makes backup copy if not yet done
+            it->checkCorrectMaskSize(instData);
             it->setModeFlag(min, max);                       // Must set mode flags before subtracting dark component (flatoffs can have really high levels in NIR data)
             if (biasData != nullptr && biasData->successProcessing) { // cannot pass nullptr to subtractBias()
 //                it->subtractBias(ref, biasDataType);
@@ -584,6 +587,7 @@ void Controller::taskInternalProcessscience()
         it->processingStatus->Processscience = false;
 
         it->setupData(scienceData->isTaskRepeated, true, false, backupDirName);
+        it->checkCorrectMaskSize(instData);
 
         if (!it->successProcessing) {
             abortProcess = true;

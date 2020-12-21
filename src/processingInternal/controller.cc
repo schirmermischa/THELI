@@ -761,7 +761,6 @@ bool Controller::testResetDesire(const Data *data)
     return true;
 }
 
-// UNUSED
 void Controller::getDetectorSections()
 {
     overscanX.clear();

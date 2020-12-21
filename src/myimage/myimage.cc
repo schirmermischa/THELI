@@ -24,6 +24,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../tools/cfitsioerrorcodes.h"
 #include "../processingInternal/data.h"
 #include "../processingStatus/processingStatus.h"
+#include "../instrumentdata.h"
 #include "wcs.h"
 #include "wcshdr.h"
 
@@ -183,6 +184,20 @@ void MyImage::updateProcInfo(QString text)
 void MyImage::showProcInfo()
 {
     if (*verbosity > 1) emit messageAvailable(chipName + " : " + procInfo, "image");
+}
+
+void MyImage::checkCorrectMaskSize(const instrumentDataType *instData)
+{
+    long n_mask = globalMask.length();
+    long n_data = naxis1*naxis2;
+    if (n_mask > 0 && n_mask != n_data) {
+        QString part1 = "Data: XDIM="+QString::number(naxis1) + " YDIM="+QString::number(naxis2) +"\n" +
+                "Config: XSIZE="+QString::number(instData->sizex[chipNumber]) + " YSIZE="+QString::number(instData->sizey[chipNumber]) +"\n";
+        emit messageAvailable("Inconsistent image size detected between data and instrument configuration"
+                              " (overscan and / or data section) in\n"+instData->nameFullPath+"\n"+part1, "error");
+        emit critical();
+        successProcessing = false;
+    }
 }
 
 void MyImage::readImage(bool determineMode)

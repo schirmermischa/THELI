@@ -60,6 +60,8 @@ public:
     bool alreadyProcessed = false;
     bool MEFpastingFinished = true;
 
+    bool maskSizeWarningShown = false;
+
     float *dateObsIncrementor = nullptr;  // External variable, initialized before constructing the first Splitter object
 
     long memoryUsed = 0;
@@ -300,6 +302,7 @@ private:
     void initAltInstrumentData(QString instrumentNameFullPath);
     void testOverscan(QVector<int> &overscan);
     void to_EN_US(QString &keyName, QString &keyValue);
+    bool checkCorrectMaskSize(const int chip);
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

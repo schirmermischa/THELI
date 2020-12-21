@@ -75,7 +75,7 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
         MASTER_BIAS_NOT_FOUND_shown = true;
         QMessageBox::warning(this, tr("Master BIAS not found"),
                              tr("The following master BIAS or DARK was not found for calibrating science images:")+"\n"+
-                             part1+
+                             part1+"\n"+
                              tr("\nYou must create it first."),
                              QMessageBox::Ok);
     }
@@ -83,7 +83,7 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
         MASTER_FLAT_NOT_FOUND_shown = true;
         QMessageBox::warning(this, tr("Master FLAT not found"),
                              tr("The following master FLAT was not found for calibrating science images:")+"\n"+
-                             part1+
+                             part1+"\n"+
                              tr("\nYou must create it first."),
                              QMessageBox::Ok);
     }
@@ -91,7 +91,7 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
         MASTER_FLATOFF_NOT_FOUND_shown = true;
         QMessageBox::warning(this, tr("Master Calibrator not found"),
                              tr("Master BIAS or FLAT_OFF not found for creation of master FLAT!")+"\n"+
-                             part1+
+                             part1+"\n"+
                              tr("You must create it first."),
                              QMessageBox::Ok);
     }
@@ -99,7 +99,7 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
         MASTER_BIAS_NOT_FOUND_GLOBW_shown = true;
         QMessageBox::warning(this, tr("Master BIAS or FLATOFF not found"),
                              tr("Master BIAS or FLATOFF not found, needed to create the global weight.")+"\n"+
-                             part1+
+                             part1+"\n"+
                              tr("You must create it first."),
                              QMessageBox::Ok);
     }
@@ -107,7 +107,7 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
         MASTER_FLAT_NOT_FOUND_GLOBW_shown = true;
         QMessageBox::warning(this, tr("Master FLAT not found"),
                              tr("Master FLAT not found, needed to create the global weight.")+"\n"+
-                             part1+
+                             part1+"\n"+
                              tr("You must create it first."),
                              QMessageBox::Ok);
     }
@@ -164,7 +164,7 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
         QMessageBox::warning(this, tr("Inconsistent data status detected in ")+part1,
                              part1 + " : " + tr("The FITS files found do not match the recorded status (*") + part2 +".fits).\n"+
                              tr("Either restore the files manually, or use the 'Processing status' menu to reflect the current status. A restart is recommended."),
-                QMessageBox::Ok);
+                             QMessageBox::Ok);
     }
     else if (trigger == "Data::Duplicate_MJDOBS" && !DUPLICATE_MJDOBS_shown) {
         DUPLICATE_MJDOBS_shown = true;
@@ -190,9 +190,9 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
     else if (trigger == "Controller::RESET_REQUESTED") {
         const QMessageBox::StandardButton ret
                 = QMessageBox::warning(this, tr("Clearing error status?"),
-                             tr("The data in ") + part1 + tr(" is in an error state due to an earlier processing failure.")+
-                             tr("<br>Do you want to clear the error state to allow reprocessing (you must re-execute the task)?"),
-                             QMessageBox::Ok | QMessageBox::Cancel);
+                                       tr("The data in ") + part1 + tr(" is in an error state due to an earlier processing failure.")+
+                                       tr("<br>Do you want to clear the error state to allow reprocessing (you must re-execute the task)?"),
+                                       QMessageBox::Ok | QMessageBox::Cancel);
         switch (ret) {
         case QMessageBox::Ok:
             emit resetErrorStatus(part1);
