@@ -212,17 +212,42 @@ void binData(const QVector<float> &data, QVector<float> &dataBinned, const int n
     QVector<float> chunk(bsq,0);
 
     // Do the binning
-    long k;
     for (long j=0; j<mb; ++j) {
         for (long i=0; i<nb; ++i) {
-            k = 0;
+            long k = 0;
             for (int jt=j*binY;jt<(j+1)*binY;++jt) {
                 for (int it=i*binX;it<(i+1)*binX;++it) {
-                    chunk[k++] = data[it+n*jt];
+                    chunk[k] = data[it+n*jt];
+                    ++k;
                 }
             }
             // Median filter
             dataBinned[i+nb*j] = medianMask(chunk);
+        }
+    }
+}
+
+// Calculate binned image (using mean filter)
+void binDataMean(const QVector<float> &data, QVector<float> &dataBinned, const int n,
+             const int nb, const int mb, const int binX, const int binY)
+{
+    long bsq = binX * binY;
+    QVector<float> chunk(bsq,0);
+
+    // Do the binning
+    for (long j=0; j<mb; ++j) {
+        for (long i=0; i<nb; ++i) {
+            long k = 0;
+            for (int jt=j*binY;jt<(j+1)*binY;++jt) {
+                for (int it=i*binX;it<(i+1)*binX;++it) {
+                    if (k>=bsq) qDebug() << "error1" << k << bsq;
+                    if (it+n*jt >= data.length()) qDebug() << "error2" << it << n << jt << it+n*jt << data.length();
+                    chunk[k] = data[it+n*jt];
+                    ++k;
+                }
+            }
+            // Median filter
+            dataBinned[i+nb*j] = meanMask(chunk);
         }
     }
 }

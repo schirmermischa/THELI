@@ -128,6 +128,7 @@ signals:
     void middleMouseModeChanged(QString mode);
     void currentlyDisplayedIndex(int index);
     void updateMagnifyWindow(QGraphicsPixmapItem *magnifyPixmapItem, qreal scaleFactor);
+    void updateMagnifyWindowBinned(QGraphicsPixmapItem *binnedPixmapItem);
 
 private slots:
     void adjustBrightnessContrast(QPointF point);
@@ -158,6 +159,8 @@ private slots:
     void updateCRPIXFITS();
     void updateCDmatrix(double cd11, double cd12, double cd21, double cd22);
     void updateMagnifyWindowReceived(QPointF point);
+    void makeBinnedPixmap();
+
 public slots:
     void autoContrastPushButton_toggled_receiver(bool checked);
     void clearAll();
@@ -209,8 +212,11 @@ private:
     unsigned char *dataIntR;
     unsigned char *dataIntG;
     unsigned char *dataIntB;
-    QGraphicsPixmapItem *pixmapItem;
-    QGraphicsPixmapItem *magnifyPixmapItem;
+    unsigned char *dataBinnedInt;
+    QGraphicsPixmapItem *pixmapItem = nullptr;
+    QGraphicsPixmapItem *magnifyPixmapItem = nullptr;
+    QGraphicsPixmapItem *binnedPixmapItem = nullptr;
+    bool dataBinnedIntSet = false;
     bool dataIntSet = false;
     bool dataIntRSet = false;
     bool dataIntGSet = false;
@@ -243,6 +249,8 @@ private:
 
     bool icdwDefined = false;
     bool scampdwDefined = false;
+
+    bool binnedPixmapUptodate = false;
 
     QVector<float> fitsData;
     QVector<float> fitsDataR;

@@ -456,6 +456,37 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
     }
 }
 
+void IView::makeBinnedPixmap()
+{
+//    if (fitsData.length() == 0) return;
+
+    float binFactorX = naxis1 / icdw->magnify_nx;
+    float binFactorY = naxis2 / icdw->magnify_ny;
+    float binFactor = binFactorX > binFactorY ? binFactorX : binFactorY;
+    int nb = floor(naxis1/binFactor);
+    int mb = floor(naxis2/binFactor);
+    if (dataBinnedIntSet) {
+        delete[] dataBinnedInt;
+        dataBinnedInt = nullptr;
+    }
+    dataBinnedInt = new unsigned char[nb*mb];
+    dataBinnedIntSet = true;
+
+    QVector<float> dataBinned(nb*mb,0);
+    // Bin the image; map it onto the output binned image;
+    binDataMean(fitsData, dataBinned, naxis1, nb, mb, binFactor, binFactor);
+    compressDynrange(dataBinned, dataBinnedInt);
+    dataBinnedIntSet = true;
+    QImage fitsBinnedImage(dataBinnedInt, nb, mb, nb, QImage::Format_Grayscale8);
+    fitsBinnedImage = fitsBinnedImage.mirrored(false, true);
+    // apply transformation if there is one
+    // if(transform) fitsImage = fitsImage.transformed(*transform,Qt::SmoothTransformation);
+    binnedPixmapItem = new QGraphicsPixmapItem(QPixmap::fromImage(fitsBinnedImage));
+    binnedPixmapUptodate = true;
+
+    emit updateMagnifyWindowBinned(binnedPixmapItem);
+}
+
 void IView::loadFromRAMlist(const QModelIndex &index)
 {
     loadFromRAM(myImageList[index.row()], index.column());
@@ -593,7 +624,7 @@ void IView::loadColorFITS(qreal scaleFactor)
 bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMode)
 {
     if (displayMode.contains("SCAMP") || displayMode == "CLEAR") {
-        qDebug() << "IView::loadFitsData(): Invalid mode";
+        qDebug() << __func__ << "Invalid mode";
         return false;
     }
 
@@ -620,7 +651,7 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
     wcsInit = true;
 
     // Move the data from the transient MyImage over to the class member.
-    data.swap(currentMyImage->dataCurrent);
+    data.swap(currentMyImage->dataCurrent);        // 'fitsData' in the rest of the code
 
     // Get the dynamic range
     // Normal viewer mode
@@ -734,7 +765,6 @@ void IView::mapFITS()
     // end additional section
     //**************************************************
 
-
     clearItems();
     if (displayMode == "FITSmonochrome" || displayMode == "MEMview") {
         compressDynrange(fitsData, dataInt);
@@ -742,7 +772,7 @@ void IView::mapFITS()
         fitsImage = fitsImage.mirrored(false, true);
         // apply transformation if there is one
         // if(transform) fitsImage = fitsImage.transformed(*transform,Qt::SmoothTransformation);
-        pixmapItem = new QGraphicsPixmapItem( QPixmap::fromImage(fitsImage));
+        pixmapItem = new QGraphicsPixmapItem(QPixmap::fromImage(fitsImage));
         // while transformation the translations gets lost because the image is cropped to its contents, so we have to translate afterwards
         //  if(transform) pixmapItem->setOffset(transform->m31(), transform->m32());
         //       qDebug() << transform->m11() << transform->m12() << transform->m13();
@@ -758,7 +788,7 @@ void IView::mapFITS()
         compressDynrange(fitsDataG, dataIntG, colordw->colorFactorApplied[1]);
         compressDynrange(fitsDataB, dataIntB, colordw->colorFactorApplied[2]);
 
-        QImage colorFitsImage(naxis1, naxis2, QImage::Format_ARGB32 );
+        QImage colorFitsImage(naxis1, naxis2, QImage::Format_ARGB32);
         for (long i=0; i<naxis1*naxis2; ++i) {
             QRgb argb = qRgba( dataIntR[i], dataIntG[i], dataIntB[i], 255);
             QRgb* rowData = (QRgb*) colorFitsImage.scanLine(i/naxis1);
@@ -768,13 +798,17 @@ void IView::mapFITS()
         // if (transform) colorFitsImage = colorFitsImage.transformed(*transform,Qt::SmoothTransformation);
         // QGraphicsPixmapItem *item = new QGraphicsPixmapItem( QPixmap::fromImage(colorFitsImage));
         // CHECK if that works
-        pixmapItem = new QGraphicsPixmapItem( QPixmap::fromImage(colorFitsImage));
+        pixmapItem = new QGraphicsPixmapItem(QPixmap::fromImage(colorFitsImage));
         // if(transform) pixmapItem->setOffset(transform->m31(), transform->m32());
         scene->clear();
         scene->addItem(pixmapItem);
     }
     else {
-        qDebug() << "IView::mapFITS(): Invalid mode in mapFITS()";
+        qDebug() << __func__ << "Invalid mode in mapFITS()";
+    }
+
+    if (displayMode == "FITSmonochrome" || displayMode == "MEMview" || displayMode == "FITScolor") {
+        if (!binnedPixmapUptodate) makeBinnedPixmap();
     }
 
     /*
@@ -807,14 +841,16 @@ void IView::compressDynrange(const QVector<float> &fitsdata, unsigned char *intd
     float tmpdata;
     // NOT THREADSAFE!
     //#pragma omp parallel for
-    for (long i=0; i<naxis1*naxis2; ++i) {
+    long i=0;
+    for (auto &it : fitsdata) {
         // Truncate dynamic range
-        float fitsdataCorrected = fitsdata.at(i) * colorCorrectionFactor;
+        float fitsdataCorrected = it * colorCorrectionFactor;
         if (fitsdataCorrected > dynRangeMax) tmpdata = dynRangeMax;
         else if (fitsdataCorrected < dynRangeMin) tmpdata = dynRangeMin;
         else tmpdata = fitsdataCorrected;
         // Compress to uchar (not thread safe)
         intdata[i] = (unsigned char) ((tmpdata-dynRangeMin) * rescale);
+        ++i;
     }
 }
 
