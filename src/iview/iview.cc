@@ -467,14 +467,20 @@ void IView::loadFromRAMlist(const QModelIndex &index)
 
 void IView::updateMagnifyWindowReceived(QPointF point)
 {
-    if (displayMode == "FITSmonochrome") {
+    if (displayMode == "FITSmonochrome" || displayMode == "MEMview") {
         QPixmap magnifyPixmap = pixmapItem->pixmap().copy(point.x() - icdw->magnify_nx/2, point.y()-icdw->magnify_nx/2, icdw->magnify_nx, icdw->magnify_ny);
         magnifyPixmapItem = new QGraphicsPixmapItem(magnifyPixmap);
     }
     else if (displayMode == "FITScolor") {
-        QPixmap magnifyPixmap = pixmapItem->pixmap().copy(point.x() - 0.*icdw->magnify_nx, point.y()-0.*icdw->magnify_nx, icdw->magnify_nx, icdw->magnify_ny);
+        double scaleFactor = myGraphicsView->transform().m11();
+        QPixmap magnifyPixmap = pixmapItem->pixmap().copy(point.x() - icdw->magnify_nx/2/scaleFactor/10., point.y() - icdw->magnify_nx/2/scaleFactor/10., icdw->magnify_nx, icdw->magnify_ny);
         magnifyPixmapItem = new QGraphicsPixmapItem(magnifyPixmap);
     }
+    else {
+        // Do not emit signal for PNG mode
+        return;
+    }
+
     emit updateMagnifyWindow(magnifyPixmapItem, icdw->zoom2scale(zoomLevel)*10);
 }
 

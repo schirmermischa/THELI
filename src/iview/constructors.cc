@@ -81,7 +81,7 @@ IView::IView(QWidget *parent) :
 IView::IView(QString mode, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::IView),
-    displayMode(mode)
+    displayMode(mode)         // "MEMview", set externally
 {
     ui->setupUi(this);
     initGUI();
