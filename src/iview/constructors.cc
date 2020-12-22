@@ -516,6 +516,7 @@ void IView::makeConnections()
     connect(myGraphicsView, &MyGraphicsView::mouseEnteredView, icdw, &IvConfDockWidget::mouseEnteredViewReceived);
     connect(myGraphicsView, &MyGraphicsView::mouseLeftView, icdw, &IvConfDockWidget::mouseLeftViewReceived);
     connect(scene, &MyGraphicsScene::itemDeleted, this, &IView::updateSkyCircles);
+    connect(scene, &MyGraphicsScene::mouseLeftScene, icdw, &IvConfDockWidget::mouseLeftViewReceived);
 
     connect(wcsdw, &IvWCSDockWidget::CDmatrixChanged, this, &IView::updateCDmatrix);
     connect(wcsdw, &IvWCSDockWidget::CDmatrixChangedFITS, this, &IView::updateCDmatrixFITS);

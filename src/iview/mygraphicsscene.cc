@@ -43,3 +43,11 @@ void MyGraphicsScene::keyReleaseEvent(QKeyEvent * keyEvent)
         emit itemDeleted();
     }
 }
+
+void MyGraphicsScene::leaveEvent(QEvent *event)
+{
+    if (event->type() == QEvent::Leave) {
+        emit mouseLeftScene();
+        QGraphicsScene::event(event);
+    }
+}

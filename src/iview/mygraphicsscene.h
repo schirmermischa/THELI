@@ -27,11 +27,14 @@ If not, see https://www.gnu.org/licenses/ .
 class MyGraphicsScene : public QGraphicsScene
 {
     Q_OBJECT
+
 public:
     MyGraphicsScene();
+    void leaveEvent(QEvent *event);
 
 signals:
     void itemDeleted();
+    void mouseLeftScene();
 
 protected:
     void keyReleaseEvent(QKeyEvent * keyEvent);

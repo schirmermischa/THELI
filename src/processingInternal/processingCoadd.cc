@@ -1028,8 +1028,8 @@ void Controller::coaddUpdate()
             if (seeing_image < 2.0 && seeing_image > 0. &&
                     (cdw->ui->COAkernelComboBox->currentText() == "LANCZOS3" ||
                      cdw->ui->COAkernelComboBox->currentText() == "LANCZOS4")) {
-                emit messageAvailable("<br>Undersampling detected. The chosen "+cdw->ui->COAkernelComboBox->currentText()
-                                      +" resampling kernel could lead to artifacts in compact sources (stars). The LANCZOS2 kernel likely gives a better result.", "warning");
+                emit messageAvailable("Undersampling detected. The chosen "+cdw->ui->COAkernelComboBox->currentText()
+                                      +" resampling kernel could lead to artifacts in compact sources (stars). In this case, consider the LANCZOS2 kernel.", "warning");
             }
             else {
                 skippedIQ = true;
