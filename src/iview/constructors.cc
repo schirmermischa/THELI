@@ -440,19 +440,31 @@ IView::~IView()
         delete [] dataBinnedInt;
         dataBinnedInt = nullptr;
     }
+    if (dataBinnedIntRSet) {
+        delete [] dataBinnedIntR;
+        dataBinnedIntR = nullptr;
+    }
+    if (dataBinnedIntGSet) {
+        delete [] dataBinnedIntG;
+        dataBinnedIntG = nullptr;
+    }
+    if (dataBinnedIntBSet) {
+        delete [] dataBinnedIntB;
+        dataBinnedIntB = nullptr;
+    }
     // It appears that 'scene' does not take ownership of the pixmapitem.
     // nullptr if e.g. closing the GUI without saving the images. Don't know how that can be related, but here we go ...
     if (pixmapItem != nullptr) {
         delete pixmapItem;
         pixmapItem = nullptr;
     }
-    if (binnedPixmapItem != nullptr) {
-        delete binnedPixmapItem;
-        binnedPixmapItem = nullptr;
-    }
-    if (magnifyPixmapItem != nullptr) {
-        delete magnifyPixmapItem;
-        magnifyPixmapItem = nullptr;
+//    if (binnedPixmapItem != nullptr) {
+//        delete binnedPixmapItem;
+//        binnedPixmapItem = nullptr;
+//    }
+    if (magnifiedPixmapItem != nullptr) {
+        delete magnifiedPixmapItem;
+        magnifiedPixmapItem = nullptr;
     }
     delete ui;
     //    if (icdwDefined) delete icdw;
@@ -501,6 +513,8 @@ void IView::makeConnections()
     connect(myGraphicsView, &MyGraphicsView::middleButtonReleased, this, &IView::appendSkyCircle);
     connect(myGraphicsView, &MyGraphicsView::rightButtonReleased, this, &IView::redrawSkyCirclesAndCats);
     connect(myGraphicsView, &MyGraphicsView::leftButtonReleased, this, &IView::updateSkyCircles);
+    connect(myGraphicsView, &MyGraphicsView::mouseEnteredView, icdw, &IvConfDockWidget::mouseEnteredViewReceived);
+    connect(myGraphicsView, &MyGraphicsView::mouseLeftView, icdw, &IvConfDockWidget::mouseLeftViewReceived);
     connect(scene, &MyGraphicsScene::itemDeleted, this, &IView::updateSkyCircles);
 
     connect(wcsdw, &IvWCSDockWidget::CDmatrixChanged, this, &IView::updateCDmatrix);
@@ -512,8 +526,9 @@ void IView::makeConnections()
 
     connect(this, &IView::middleMouseModeChanged, myGraphicsView, &MyGraphicsView::updateMiddleMouseMode);
 
-    connect(this, &IView::updateMagnifyWindow, icdw, &IvConfDockWidget::updateMagnifyWindowReceived);
-    connect(myGraphicsView, &MyGraphicsView::currentMousePos, this, &IView::updateMagnifyWindowReceived);
+    connect(myGraphicsView, &MyGraphicsView::currentMousePos, this, &IView::updateNavigatorMagnifiedReceived);
+    connect(this, &IView::updateNavigatorMagnified, icdw, &IvConfDockWidget::updateNavigatorMagnifiedReceived);
+    connect(this, &IView::updateNavigatorBinned, icdw, &IvConfDockWidget::updateNavigatorBinnedReceived);
 }
 
 void IView::switchMode(QString mode)

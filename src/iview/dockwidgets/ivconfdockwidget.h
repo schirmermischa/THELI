@@ -20,7 +20,8 @@ If not, see https://www.gnu.org/licenses/ .
 #ifndef IVCONFDOCKWIDGET_H
 #define IVCONFDOCKWIDGET_H
 
-#include "../mygraphicsview.h"
+#include "../mybinnedgraphicsview.h"
+#include "../mymagnifiedgraphicsview.h"
 #include "../mygraphicsscene.h"
 #include <QDockWidget>
 
@@ -41,11 +42,13 @@ public:
 
     IView *iview;
 
-    MyGraphicsView *magnifyGraphicsView;
-    MyGraphicsScene *magnifyScene = new MyGraphicsScene();
+    MyMagnifiedGraphicsView *magnifiedGraphicsView;
+    MyBinnedGraphicsView *binnedGraphicsView;
+    MyGraphicsScene *magnifiedScene = new MyGraphicsScene();
+    MyGraphicsScene *binnedScene = new MyGraphicsScene();
 
-    int magnify_nx = 0;   // the width and height of the magnifyer window;
-    int magnify_ny = 0;
+    int navigator_nx = 0;   // the width and height of the magnifyer window;
+    int navigator_ny = 0;
 
     void switchMode(QString mode);
     double zoom2scale(int zoomlevel);
@@ -62,7 +65,10 @@ public slots:
     void on_zoomFitPushButton_clicked();
     void on_zoomZeroPushButton_clicked();
     void on_filterLineEdit_textChanged(const QString &arg1);
-    void updateMagnifyWindowReceived(QGraphicsPixmapItem *magnifyPixmapItem, int scaleFactor);
+    void updateNavigatorMagnifiedReceived(QGraphicsPixmapItem *magnifiedPixmapItem, qreal magnification);
+    void updateNavigatorBinnedReceived(QGraphicsPixmapItem *binnedPixmapItem);
+    void mouseEnteredViewReceived();
+    void mouseLeftViewReceived();
 
 signals:
     void autoContrastPushButton_toggled(bool checked);

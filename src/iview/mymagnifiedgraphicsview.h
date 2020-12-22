@@ -17,15 +17,15 @@ along with this program in the LICENSE file.
 If not, see https://www.gnu.org/licenses/ .
 */
 
-#ifndef MYGRAPHICSVIEW_H
-#define MYGRAPHICSVIEW_H
+#ifndef MYMAGNIFIEDGRAPHICSVIEW_H
+#define MYMAGNIFIEDGRAPHICSVIEW_H
 
 #include <QGraphicsView>
 #include <QDebug>
 #include <QMouseEvent>
 #include <QScrollBar>
 
-class MyGraphicsView : public QGraphicsView
+class MyMagnifiedGraphicsView : public QGraphicsView
 {
     Q_OBJECT
 
@@ -51,12 +51,10 @@ private:
     QPoint wcsStart;
 
 public:
-    explicit MyGraphicsView();
+    explicit MyMagnifiedGraphicsView();
     void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
-    void leaveEvent(QEvent *event);
-    void enterEvent(QEvent *event);
     QScrollBar *sxbar = nullptr;
     QScrollBar *sybar = nullptr;
     QString middleMouseMode = "DragMode";
@@ -78,11 +76,9 @@ signals:
     void rightButtonReleased();
     void middleButtonReleased();
     void middlePressResetCRPIX();
-    void mouseLeftView();
-    void mouseEnteredView();
 
 public slots:
     void updateMiddleMouseMode(QString mode);
 };
 
-#endif // MYGRAPHICSVIEW_H
+#endif // MYMAGNIFIEDGRAPHICSVIEW_H

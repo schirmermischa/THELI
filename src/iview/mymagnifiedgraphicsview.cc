@@ -17,18 +17,17 @@ along with this program in the LICENSE file.
 If not, see https://www.gnu.org/licenses/ .
 */
 
-#include "mygraphicsview.h"
+#include "mymagnifiedgraphicsview.h"
 #include "iview.h"
-#include <QTest>
 
-MyGraphicsView::MyGraphicsView() : QGraphicsView()
+MyMagnifiedGraphicsView::MyMagnifiedGraphicsView() : QGraphicsView()
 {
     QBrush brush(QColor("#000000"));
     brush.setStyle(Qt::SolidPattern);
     this->setBackgroundBrush(brush);
 }
 
-void MyGraphicsView::mouseMoveEvent(QMouseEvent *event)
+void MyMagnifiedGraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
     QPoint currentPos = event->pos();
     // Display the current pixel coordinates under the cursor
@@ -43,11 +42,7 @@ void MyGraphicsView::mouseMoveEvent(QMouseEvent *event)
     if (middleButtonPressed) {
         //        emit middleDragTravelled(previousMousePoint - currentPos);
         //        emit middleDragTravelled(currentPos);
-        if (middleMouseMode == "SkyMode") {
-            QPointF pointStart = mapToScene(middleDragStartPos.x(), middleDragStartPos.y());
-            emit middleDragTravelled(pointStart, currentPoint);
-        }
-        else if (middleMouseMode == "DragMode") {
+        if (middleMouseMode == "DragMode") {
             if (_pan) {
                 horizontalScrollBar()->setValue(horizontalScrollBar()->value() - 2.*(event->x() - _panStartX));
                 verticalScrollBar()->setValue(verticalScrollBar()->value() - 2.*(event->y() - _panStartY));
@@ -57,10 +52,6 @@ void MyGraphicsView::mouseMoveEvent(QMouseEvent *event)
                 //    return;
             }
         }
-        else if (middleMouseMode == "WCSMode") {
-            QPointF pointStart = mapToScene(wcsStart);
-            emit middleWCSTravelled(pointStart, currentPoint);
-        }
     }
     if (leftButtonPressed) {
         QPointF pointStart = mapToScene(leftDragStartPos.x(), leftDragStartPos.y());
@@ -69,7 +60,7 @@ void MyGraphicsView::mouseMoveEvent(QMouseEvent *event)
     QGraphicsView::mouseMoveEvent(event);
 }
 
-void MyGraphicsView::mousePressEvent(QMouseEvent *event)
+void MyMagnifiedGraphicsView::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::RightButton) {
         rightDragStartPos = event->pos();
@@ -85,12 +76,7 @@ void MyGraphicsView::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::MiddleButton) {
         //        setDragMode(QGraphicsView::ScrollHandDrag);
         //        previousMousePoint = event->pos();
-        if (middleMouseMode == "SkyMode") {
-            middleDragStartPos = event->pos();
-            middleButtonPressed = true;
-            emit middlePress(middleDragStartPos);
-        }
-        else if (middleMouseMode == "DragMode") {
+        if (middleMouseMode == "DragMode") {
             middleButtonPressed = true;
             _pan = true;
             _panStartX = event->x();
@@ -98,17 +84,11 @@ void MyGraphicsView::mousePressEvent(QMouseEvent *event)
             setCursor(Qt::OpenHandCursor);
             //    event->accept();
         }
-        else if (middleMouseMode == "WCSMode") {
-            emit middlePressResetCRPIX();
-            middleButtonPressed = true;
-            wcsStart = event->pos();
-            setCursor(Qt::SizeAllCursor);
-        }
     }
     QGraphicsView::mousePressEvent(event);
 }
 
-void MyGraphicsView::mouseReleaseEvent(QMouseEvent *event)
+void MyMagnifiedGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::RightButton) {
         rightButtonPressed = false;
@@ -120,18 +100,8 @@ void MyGraphicsView::mouseReleaseEvent(QMouseEvent *event)
     }
     if (event->button() == Qt::MiddleButton) {
         middleButtonPressed = false;
-        if (middleMouseMode == "SkyMode") {
-            //        setDragMode(QGraphicsView::NoDrag);
-            emit middleButtonReleased();
-        }
-        else if (middleMouseMode == "DragMode") {
+        if (middleMouseMode == "DragMode") {
             _pan = false;
-            setCursor(Qt::ArrowCursor);
-            //        event->accept();
-            //      return;
-        }
-        else if (middleMouseMode == "WCSMode") {
-            emit middleWCSreleased();
             setCursor(Qt::ArrowCursor);
             //        event->accept();
             //      return;
@@ -140,19 +110,7 @@ void MyGraphicsView::mouseReleaseEvent(QMouseEvent *event)
     QGraphicsView::mouseReleaseEvent(event);
 }
 
-void MyGraphicsView::leaveEvent(QEvent *event)
-{
-    emit mouseLeftView();
-    QGraphicsView::leaveEvent(event);
-}
-
-void MyGraphicsView::enterEvent(QEvent *event)
-{
-    emit mouseEnteredView();
-    QGraphicsView::enterEvent(event);
-}
-
-void MyGraphicsView::updateMiddleMouseMode(QString mode)
+void MyMagnifiedGraphicsView::updateMiddleMouseMode(QString mode)
 {
     middleMouseMode = mode;
 }

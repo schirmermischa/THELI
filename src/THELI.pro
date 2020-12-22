@@ -131,7 +131,9 @@ SOURCES += \
     tools/swarpfilter.cc \
     tools/tools.cc \
     tools/xcorr.cc \
-    validators.cc
+    validators.cc \
+    iview/mybinnedgraphicsview.cc \
+    iview/mymagnifiedgraphicsview.cc
 
 HEADERS += \
     abszp/absphot.h \
@@ -194,7 +196,9 @@ HEADERS += \
     tools/ram.h \
     tools/splitter.h \
     tools/swarpfilter.h \
-    tools/tools.h
+    tools/tools.h \
+    iview/mybinnedgraphicsview.h \
+    iview/mymagnifiedgraphicsview.h
 
 FORMS += \
         mainwindow.ui \

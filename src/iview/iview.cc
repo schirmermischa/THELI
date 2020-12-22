@@ -428,25 +428,8 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
         this->setWindowTitle("iView ---   "+path+"/ ---  "+showName);
         pageLabel->setText(" Image "+QString::number(currentId+1)+" / "+QString::number(numImages));
 
-        // Show the magnified area in the zoom window
-
-        //        if (displayMode == "FITSmonochrome") {
-        QPixmap magnifyPixmap = pixmapItem->pixmap().copy(naxis1/2-icdw->magnify_nx/2,naxis2/2-icdw->magnify_nx/2,icdw->magnify_nx, icdw->magnify_ny);
-        magnifyPixmapItem = new QGraphicsPixmapItem(magnifyPixmap);
-        //        }
-        //        else if (displayMode == "FITScolor") {
-        //           QPixmap magnifyPixmap = pixmapItem->pixmap().copy(naxis1/2,naxis2/2,icdw->magnify_nx, icdw->magnify_ny);
-        //           magnifyPixmapItem = new QGraphicsPixmapItem(magnifyPixmap);
-        //        }
-        //QPixmap magnifyPixmap = QPixmap("/home/mischa/euclid_logo.png");
-        //icdw->zoomGraphicsView->resetMatrix();
-        //QGraphicsPixmapItem *newItem = new QGraphicsPixmapItem(magnifyPixmap);
-        emit updateMagnifyWindow(magnifyPixmapItem, icdw->zoom2scale(zoomLevel)*10);
-
-        //        icdw->zoomScene->clear();
-        //        icdw->zoomScene->addItem(newItem);
-        //        icdw->zoomGraphicsView->setScene(icdw->zoomScene);
-        //        icdw->zoomGraphicsView->show();
+        // Load the binned image to the navigator
+        emit updateNavigatorBinned(binnedPixmapItem);       // binnedPixmapItem created in mapFITS()
     }
     else {
         // At end of file list, or file does not exist anymore.
@@ -456,63 +439,58 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
     }
 }
 
-void IView::makeBinnedPixmap()
+// Receiver for the event when the mouse enters the main graphics view
+void IView::mouseEnteredViewReceived()
 {
-//    if (fitsData.length() == 0) return;
+    icdw->ui->navigatorStackedWidget->setCurrentIndex(1);
+//    emit updateNavigatorBinned(binnedPixmapItem);
+}
 
-    float binFactorX = naxis1 / icdw->magnify_nx;
-    float binFactorY = naxis2 / icdw->magnify_ny;
-    float binFactor = binFactorX > binFactorY ? binFactorX : binFactorY;
-    int nb = floor(naxis1/binFactor);
-    int mb = floor(naxis2/binFactor);
-    if (dataBinnedIntSet) {
-        delete[] dataBinnedInt;
-        dataBinnedInt = nullptr;
-    }
-    dataBinnedInt = new unsigned char[nb*mb];
-    dataBinnedIntSet = true;
-
-    QVector<float> dataBinned(nb*mb,0);
-    // Bin the image; map it onto the output binned image;
-    binDataMean(fitsData, dataBinned, naxis1, nb, mb, binFactor, binFactor);
-    compressDynrange(dataBinned, dataBinnedInt);
-    dataBinnedIntSet = true;
-    QImage fitsBinnedImage(dataBinnedInt, nb, mb, nb, QImage::Format_Grayscale8);
-    fitsBinnedImage = fitsBinnedImage.mirrored(false, true);
-    // apply transformation if there is one
-    // if(transform) fitsImage = fitsImage.transformed(*transform,Qt::SmoothTransformation);
-    binnedPixmapItem = new QGraphicsPixmapItem(QPixmap::fromImage(fitsBinnedImage));
-    binnedPixmapUptodate = true;
-
-    emit updateMagnifyWindowBinned(binnedPixmapItem);
+// Receiver for the event when the mouse leaves the main graphics view
+void IView::mouseLeftViewReceived()
+{
+    icdw->ui->navigatorStackedWidget->setCurrentIndex(0);
+//    emit updateNavigatorBinned(binnedPixmapItem);
 }
 
 void IView::loadFromRAMlist(const QModelIndex &index)
 {
     loadFromRAM(myImageList[index.row()], index.column());
 
-    QPixmap magnifyPixmap = pixmapItem->pixmap().copy(naxis1/2-icdw->magnify_nx/2, naxis2/2-icdw->magnify_nx/2, icdw->magnify_nx, icdw->magnify_ny);
-    magnifyPixmapItem = new QGraphicsPixmapItem(magnifyPixmap);
-    emit updateMagnifyWindow(magnifyPixmapItem, icdw->zoom2scale(zoomLevel)*10);
+    // Get the center image poststamp; copy() refers to the top left corner, and then width and height
+    QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(naxis1/2-icdw->navigator_nx/2,
+                                                        naxis2/2-icdw->navigator_ny/2,
+                                                        icdw->navigator_nx, icdw->navigator_ny);
+    magnifiedPixmapItem = new QGraphicsPixmapItem(magnifiedPixmap);
+
+    // Update the navigator magnified window with the center image poststamp
+    emit updateNavigatorMagnified(magnifiedPixmapItem, icdw->zoom2scale(zoomLevel)*magnify);
 }
 
-void IView::updateMagnifyWindowReceived(QPointF point)
+// Receiver of Navigator currentMousePos Eevent
+void IView::updateNavigatorMagnifiedReceived(QPointF point)
 {
+    // Cap the magnification
+    qreal magnification = icdw->zoom2scale(zoomLevel)*magnify;
+    if (magnification > magnify) magnification = magnify;
+
     if (displayMode == "FITSmonochrome" || displayMode == "MEMview") {
-        QPixmap magnifyPixmap = pixmapItem->pixmap().copy(point.x() - icdw->magnify_nx/2, point.y()-icdw->magnify_nx/2, icdw->magnify_nx, icdw->magnify_ny);
-        magnifyPixmapItem = new QGraphicsPixmapItem(magnifyPixmap);
+        QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(point.x() - icdw->navigator_nx/2/magnification,
+                                                            point.y() - icdw->navigator_ny/2/magnification,
+                                                            icdw->navigator_nx/magnification, icdw->navigator_ny/magnification);
+        magnifiedPixmapItem = new QGraphicsPixmapItem(magnifiedPixmap);
     }
     else if (displayMode == "FITScolor") {
-        double scaleFactor = myGraphicsView->transform().m11();
-        QPixmap magnifyPixmap = pixmapItem->pixmap().copy(point.x() - icdw->magnify_nx/2/scaleFactor/10., point.y() - icdw->magnify_nx/2/scaleFactor/10., icdw->magnify_nx, icdw->magnify_ny);
-        magnifyPixmapItem = new QGraphicsPixmapItem(magnifyPixmap);
+        QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(point.x() - icdw->navigator_nx/2/magnification,
+                                                            point.y() - icdw->navigator_ny/2/magnification,
+                                                            icdw->navigator_nx/magnification, icdw->navigator_ny/magnification);
+        magnifiedPixmapItem = new QGraphicsPixmapItem(magnifiedPixmap);
     }
     else {
         // Do not emit signal for PNG mode
         return;
     }
-
-    emit updateMagnifyWindow(magnifyPixmapItem, icdw->zoom2scale(zoomLevel)*10);
+    emit updateNavigatorMagnified(magnifiedPixmapItem, magnification);
 }
 
 void IView::loadFromRAM(MyImage *it, int indexColumn)
@@ -579,6 +557,9 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     myGraphicsView->setMaximumSize(10000,10000);
 
     currentMyImage = it;   // For later use, in particular when updating CRPIX1/2
+
+    // Update the navigator binned window with the binned poststamp
+    emit updateNavigatorBinned(binnedPixmapItem);
 }
 
 void IView::loadColorFITS(qreal scaleFactor)
@@ -597,7 +578,7 @@ void IView::loadColorFITS(qreal scaleFactor)
     bool testG = loadFITSdata(dirName+'/'+ChannelG, fitsDataG, "greenChannel");
     bool testB = loadFITSdata(dirName+'/'+ChannelB, fitsDataB, "blueChannel");
     if (!testR || !testG || !testB) {
-        qDebug() << "IView::loadColorFits: One or more of the three color channels could not be read!";
+        qDebug() << __func__ << "One or more of the three color channels could not be read!";
         qDebug() << ChannelR << ChannelG << ChannelB;
         return;
     }
@@ -619,6 +600,11 @@ void IView::loadColorFITS(qreal scaleFactor)
     removeLastCharIf(prependPath, '/');
     QString path = getLastWord(prependPath,'/');
     this->setWindowTitle("iView ---   "+path+"/ ---    "+showName);
+
+    icdw->ui->quitPushButton->hide();
+
+    // Update the navigator binned window with the binned poststamp
+    emit updateNavigatorBinned(binnedPixmapItem);
 }
 
 bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMode)
@@ -807,9 +793,7 @@ void IView::mapFITS()
         qDebug() << __func__ << "Invalid mode in mapFITS()";
     }
 
-    if (displayMode == "FITSmonochrome" || displayMode == "MEMview" || displayMode == "FITScolor") {
-        if (!binnedPixmapUptodate) makeBinnedPixmap();
-    }
+    binnedPixmapItem = new QGraphicsPixmapItem(pixmapItem->pixmap().scaled(icdw->navigator_nx, icdw->navigator_ny, Qt::KeepAspectRatio, Qt::FastTransformation));
 
     /*
     if (transform) {

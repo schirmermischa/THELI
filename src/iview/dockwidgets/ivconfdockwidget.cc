@@ -28,25 +28,32 @@ IvConfDockWidget::IvConfDockWidget(IView *parent) :
     ui->setupUi(this);
     iview = parent;
 
-    magnifyGraphicsView = new MyGraphicsView();
+    // Populate the navigator widget
     QPalette backgroundPalette;
     backgroundPalette.setColor(QPalette::Base, QColor("#000000"));
-    magnifyGraphicsView->setPalette(backgroundPalette);
-    magnifyGraphicsView->setMouseTracking(true);
-//    connect(magnifyGraphicsView, &MyGraphicsView::currentMousePos, this, &IvConfDockWidget::showCurrentMousePos);
-//    connect(magnifyGraphicsView, &MyGraphicsView::leftDragTravelled, this, &IView::drawSeparationVector);
-//    connect(magnifyGraphicsView, &MyGraphicsView::leftPress, this, &IView::initSeparationVector);
-//    connect(magnifyGraphicsView, &MyGraphicsView::leftPress, this, &IView::sendStatisticsCenter);
-//    connect(magnifyGraphicsView, &MyGraphicsView::leftButtonReleased, this, &IView::clearSeparationVector);
-//    connect(magnifyGraphicsView, &MyGraphicsView::leftButtonReleased, this, &IView::updateSkyCircles);
+    magnifiedGraphicsView = new MyMagnifiedGraphicsView();
+    magnifiedGraphicsView->setPalette(backgroundPalette);
+    magnifiedGraphicsView->setMouseTracking(true);
+    magnifiedGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    magnifiedGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    binnedGraphicsView = new MyBinnedGraphicsView();
+    binnedGraphicsView->setPalette(backgroundPalette);
+    binnedGraphicsView->setMouseTracking(true);
+    binnedGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    binnedGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->navigatorStackedWidget->setContentsMargins(0,0,0,0);
+    ui->navigatorStackedWidget->insertWidget(0, binnedGraphicsView);
+    ui->navigatorStackedWidget->insertWidget(1, magnifiedGraphicsView);
+    ui->navigatorStackedWidget->setCurrentIndex(0);
+    navigator_nx = ui->navigatorStackedWidget->width();
+    navigator_ny = ui->navigatorStackedWidget->height();
 
-    ui->magnifyFrame->setContentsMargins(0,0,0,0);
-    ui->magnifyLayout->addWidget(magnifyGraphicsView);
-    magnify_nx = ui->magnifyFrame->width();
-    magnify_ny = ui->magnifyFrame->height();
-
-    magnifyGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    magnifyGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+//    connect(magnifyGraphicsView, &MyBinnedGraphicsView::currentMousePos, this, &IvConfDockWidget::showCurrentMousePos);
+//    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftDragTravelled, this, &IView::drawSeparationVector);
+//    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftPress, this, &IView::initSeparationVector);
+//    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftPress, this, &IView::sendStatisticsCenter);
+//    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftButtonReleased, this, &IView::clearSeparationVector);
+//    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftButtonReleased, this, &IView::updateSkyCircles);
 }
 
 IvConfDockWidget::~IvConfDockWidget()
@@ -129,9 +136,9 @@ void IvConfDockWidget::on_minLineEdit_returnPressed()
 
 void IvConfDockWidget::on_maxLineEdit_returnPressed()
 {
-    //QPixmap magnifyPixmap = QPixmap("/home/mischa/euclid_logo.png");
-    //icdw->magnifyGraphicsView->resetMatrix();
-    //QGraphicsPixmapItem *newItem = new QGraphicsPixmapItem(magnifyPixmap);
+    //QPixmap magnifiedPixmap = QPixmap("/home/mischa/euclid_logo.png");
+    //icdw->magnifiedGraphicsView->resetMatrix();
+    //QGraphicsPixmapItem *newItem = new QGraphicsPixmapItem(magnifiedPixmap);
     ui->autocontrastPushButton->setChecked(false);
     emit minmaxLineEdit_returnPressed(ui->minLineEdit->text(), ui->maxLineEdit->text());
 }
@@ -144,9 +151,6 @@ void IvConfDockWidget::on_autocontrastPushButton_toggled(bool checked)
 void IvConfDockWidget::on_filterLineEdit_textChanged(const QString &arg1)
 {
     QString filter = arg1;
-    //QPixmap magnifyPixmap = QPixmap("/home/mischa/euclid_logo.png");
-    //icdw->magnifyGraphicsView->resetMatrix();
-    //QGraphicsPixmapItem *newItem = new QGraphicsPixmapItem(magnifyPixmap);
 
     if (filter.isEmpty()
             || !filter.contains(".fits")
@@ -166,14 +170,37 @@ void IvConfDockWidget::on_quitPushButton_clicked()
     emit closeIview();
 }
 
-void IvConfDockWidget::updateMagnifyWindowReceived(QGraphicsPixmapItem *magnifyPixmapItem, int scaleFactor)
+void IvConfDockWidget::updateNavigatorMagnifiedReceived(QGraphicsPixmapItem *magnifiedPixmapItem, qreal magnification)
 {
-    magnifyGraphicsView->resetMatrix();
+    magnifiedGraphicsView->resetMatrix();
+    magnifiedScene->clear();
+    magnifiedScene->addItem(magnifiedPixmapItem);
+    magnifiedGraphicsView->setScene(magnifiedScene);
+    magnifiedGraphicsView->scale(magnification, magnification);
+    magnifiedGraphicsView->centerOn(magnifiedPixmapItem);
+    magnifiedGraphicsView->show();
+    ui->navigatorStackedWidget->setCurrentIndex(1);
+}
 
-    magnifyScene->clear();
-    magnifyScene->addItem(magnifyPixmapItem);
-    magnifyGraphicsView->setScene(magnifyScene);
-    magnifyScene->update(0,0,150,150);
-    magnifyGraphicsView->scale(scaleFactor, scaleFactor);
-    magnifyGraphicsView->show();
+void IvConfDockWidget::updateNavigatorBinnedReceived(QGraphicsPixmapItem *binnedPixmapItem)
+{
+    binnedGraphicsView->resetMatrix();
+    binnedScene->clear();
+    binnedScene->addItem(binnedPixmapItem);
+    binnedGraphicsView->setScene(binnedScene);
+    magnifiedGraphicsView->centerOn(binnedPixmapItem);
+    binnedGraphicsView->show();
+    ui->navigatorStackedWidget->setCurrentIndex(0);
+}
+
+// Receiver for the event when the mouse enters the main graphics view
+void IvConfDockWidget::mouseEnteredViewReceived()
+{
+    ui->navigatorStackedWidget->setCurrentIndex(1);
+}
+
+// Receiver for the event when the mouse leaves the main graphics view
+void IvConfDockWidget::mouseLeftViewReceived()
+{
+    ui->navigatorStackedWidget->setCurrentIndex(0);
 }

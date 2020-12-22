@@ -6,9 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>180</width>
-    <height>307</height>
+    <width>159</width>
+    <height>272</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>168</width>
+    <height>524287</height>
+   </size>
   </property>
   <property name="features">
    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
@@ -272,7 +284,7 @@
        <string>The reference sources used for color calibration (SDSS: red, PanSTARRS: cyan, APASS: green)</string>
       </property>
       <property name="text">
-       <string>Show G2 References</string>
+       <string>Show G2 Sources</string>
       </property>
       <property name="checkable">
        <bool>true</bool>

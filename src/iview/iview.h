@@ -127,8 +127,8 @@ signals:
     void solutionAcceptanceState(bool state);
     void middleMouseModeChanged(QString mode);
     void currentlyDisplayedIndex(int index);
-    void updateMagnifyWindow(QGraphicsPixmapItem *magnifyPixmapItem, qreal scaleFactor);
-    void updateMagnifyWindowBinned(QGraphicsPixmapItem *binnedPixmapItem);
+    void updateNavigatorMagnified(QGraphicsPixmapItem *magnifiedPixmapItem, qreal scaleFactor);
+    void updateNavigatorBinned(QGraphicsPixmapItem *binnedPixmapItem);
 
 private slots:
     void adjustBrightnessContrast(QPointF point);
@@ -158,8 +158,9 @@ private slots:
     void updateCRPIX(QPointF pointStart, QPointF pointEnd);
     void updateCRPIXFITS();
     void updateCDmatrix(double cd11, double cd12, double cd21, double cd22);
-    void updateMagnifyWindowReceived(QPointF point);
-    void makeBinnedPixmap();
+    void updateNavigatorMagnifiedReceived(QPointF point);
+    void mouseEnteredViewReceived();
+    void mouseLeftViewReceived();
 
 public slots:
     void autoContrastPushButton_toggled_receiver(bool checked);
@@ -213,16 +214,23 @@ private:
     unsigned char *dataIntG;
     unsigned char *dataIntB;
     unsigned char *dataBinnedInt;
+    unsigned char *dataBinnedIntR;
+    unsigned char *dataBinnedIntG;
+    unsigned char *dataBinnedIntB;
     QGraphicsPixmapItem *pixmapItem = nullptr;
-    QGraphicsPixmapItem *magnifyPixmapItem = nullptr;
+    QGraphicsPixmapItem *magnifiedPixmapItem = nullptr;
     QGraphicsPixmapItem *binnedPixmapItem = nullptr;
     bool dataBinnedIntSet = false;
+    bool dataBinnedIntRSet = false;
+    bool dataBinnedIntGSet = false;
+    bool dataBinnedIntBSet = false;
     bool dataIntSet = false;
     bool dataIntRSet = false;
     bool dataIntGSet = false;
     bool dataIntBSet = false;
     int naxis1;
     int naxis2;
+    int magnify = 7;
 
     double rad = 3.1415926535 / 180.;
     bool fromMemory = false;

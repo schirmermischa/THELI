@@ -118,10 +118,10 @@ void IView::showCurrentMousePos(QPointF point)
 
     // Show the magnified area in the magnify window
     // Translate FITS pixel position in the large window to the magnify window
-    icdw->magnifyGraphicsView->mapFromScene(point.x(),point.y());
+    icdw->magnifiedGraphicsView->mapFromScene(point.x(),point.y());
     //magnifyScene->setSceneRect(point.x()-75, point.y()-75, 150, 150);
-    icdw->magnifyGraphicsView->setScene(icdw->magnifyScene);
-    icdw->magnifyGraphicsView->show();
+    icdw->magnifiedGraphicsView->setScene(icdw->magnifiedScene);
+    icdw->magnifiedGraphicsView->show();
 }
 
 void IView::adjustBrightnessContrast(QPointF point)
@@ -163,8 +163,8 @@ void IView::adjustBrightnessContrast(QPointF point)
     myGraphicsView->show();
 
     // Show the magnified area in the magnify window
-    icdw->magnifyGraphicsView->setScene(icdw->magnifyScene);
-    icdw->magnifyGraphicsView->show();
+    icdw->magnifiedGraphicsView->setScene(icdw->magnifiedScene);
+    icdw->magnifiedGraphicsView->show();
 }
 
 double IView::haversine(double x1, double y1, double x2, double y2)
