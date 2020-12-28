@@ -515,6 +515,7 @@ void IView::makeConnections()
     connect(myGraphicsView, &MyGraphicsView::leftButtonReleased, this, &IView::updateSkyCircles);
     connect(myGraphicsView, &MyGraphicsView::mouseEnteredView, icdw, &IvConfDockWidget::mouseEnteredViewReceived);
     connect(myGraphicsView, &MyGraphicsView::mouseLeftView, icdw, &IvConfDockWidget::mouseLeftViewReceived);
+    connect(myGraphicsView, &MyGraphicsView::viewportChanged, this, &IView::viewportChangedReceived);
     connect(scene, &MyGraphicsScene::itemDeleted, this, &IView::updateSkyCircles);
     connect(scene, &MyGraphicsScene::mouseLeftScene, icdw, &IvConfDockWidget::mouseLeftViewReceived);
 
@@ -530,6 +531,8 @@ void IView::makeConnections()
     connect(myGraphicsView, &MyGraphicsView::currentMousePos, this, &IView::updateNavigatorMagnifiedReceived);
     connect(this, &IView::updateNavigatorMagnified, icdw, &IvConfDockWidget::updateNavigatorMagnifiedReceived);
     connect(this, &IView::updateNavigatorBinned, icdw, &IvConfDockWidget::updateNavigatorBinnedReceived);
+
+    connect(this, &IView::updateNavigatorBinnedViewport, icdw, &IvConfDockWidget::updateNavigatorBinnedViewportReceived);
 }
 
 void IView::switchMode(QString mode)

@@ -57,6 +57,7 @@ public:
     void mouseReleaseEvent(QMouseEvent *event);
     void leaveEvent(QEvent *event);
     void enterEvent(QEvent *event);
+    void paintEvent(QPaintEvent *event);
     QScrollBar *sxbar = nullptr;
     QScrollBar *sybar = nullptr;
     QString middleMouseMode = "DragMode";
@@ -80,6 +81,7 @@ signals:
     void middlePressResetCRPIX();
     void mouseLeftView();
     void mouseEnteredView();
+    void viewportChanged(QRect viewport_rect);
 
 public slots:
     void updateMiddleMouseMode(QString mode);

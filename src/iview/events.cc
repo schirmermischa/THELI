@@ -426,6 +426,43 @@ void IView::middlePressResetCRPIXreceived()
     crpix2_start = wcs->crpix[1];
 }
 
+// Receiver for the event when the mouse enters the main graphics view
+void IView::mouseEnteredViewReceived()
+{
+    icdw->ui->navigatorStackedWidget->setCurrentIndex(1);
+    emit updateNavigatorBinned(binnedPixmapItem);
+}
+
+// Receiver for the event when the mouse leaves the main graphics view
+void IView::mouseLeftViewReceived()
+{
+    icdw->ui->navigatorStackedWidget->setCurrentIndex(0);
+    emit updateNavigatorBinned(binnedPixmapItem);
+}
+
+void IView::viewportChangedReceived(QRect viewport_rect)
+{
+    QRectF rect = myGraphicsView->mapToScene(viewport_rect).boundingRect();
+
+    // compute the new coords of this rect in the binned view
+    qreal x1 = 0.;
+    qreal y1 = 0.;
+    qreal x2 = 0.;
+    qreal y2 = 0.;
+    rect.getCoords(&x1, &y1, &x2, &y2);
+    float bin_x = naxis1 / icdw->navigator_nx;
+    float bin_y = naxis2 / icdw->navigator_ny;
+    x1 /= bin_x;
+    x2 /= bin_x;
+    y1 /= bin_y;
+    y2 /= bin_y;
+
+    QRect rectInt;
+    rectInt.setCoords(int(x1), int(y1), int(x2), int(y2));
+
+    // send the new rect to the navigator window
+    emit updateNavigatorBinnedViewport(rectInt);
+}
 void IView::updateCRPIX(QPointF pointStart, QPointF pointEnd)
 {
     if (!wcsInit) return;

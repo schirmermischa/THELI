@@ -129,6 +129,7 @@ signals:
     void currentlyDisplayedIndex(int index);
     void updateNavigatorMagnified(QGraphicsPixmapItem *magnifiedPixmapItem, qreal scaleFactor);
     void updateNavigatorBinned(QGraphicsPixmapItem *binnedPixmapItem);
+    void updateNavigatorBinnedViewport(QRect rect);
 
 private slots:
     void adjustBrightnessContrast(QPointF point);
@@ -181,6 +182,7 @@ public slots:
     void zoomInPushButton_clicked_receiver();
     void zoomOutPushButton_clicked_receiver();
     void zoomZeroPushButton_clicked_receiver();
+    void viewportChangedReceived(QRect viewport_rect);
 
 protected:
     void closeEvent(QCloseEvent *event) override;

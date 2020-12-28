@@ -69,6 +69,7 @@ public slots:
     void updateNavigatorBinnedReceived(QGraphicsPixmapItem *binnedPixmapItem);
     void mouseEnteredViewReceived();
     void mouseLeftViewReceived();
+    void updateNavigatorBinnedViewportReceived(QRect rect);
 
 signals:
     void autoContrastPushButton_toggled(bool checked);

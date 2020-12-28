@@ -114,3 +114,4 @@ void MyBinnedGraphicsView::updateMiddleMouseMode(QString mode)
 {
     middleMouseMode = mode;
 }
+

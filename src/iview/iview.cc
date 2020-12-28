@@ -439,20 +439,6 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
     }
 }
 
-// Receiver for the event when the mouse enters the main graphics view
-void IView::mouseEnteredViewReceived()
-{
-    icdw->ui->navigatorStackedWidget->setCurrentIndex(1);
-//    emit updateNavigatorBinned(binnedPixmapItem);
-}
-
-// Receiver for the event when the mouse leaves the main graphics view
-void IView::mouseLeftViewReceived()
-{
-    icdw->ui->navigatorStackedWidget->setCurrentIndex(0);
-//    emit updateNavigatorBinned(binnedPixmapItem);
-}
-
 void IView::loadFromRAMlist(const QModelIndex &index)
 {
     loadFromRAM(myImageList[index.row()], index.column());

@@ -152,6 +152,13 @@ void MyGraphicsView::enterEvent(QEvent *event)
     QGraphicsView::enterEvent(event);
 }
 
+void MyGraphicsView::paintEvent(QPaintEvent *event)
+{
+    QRect viewport_rect(0, 0, viewport()->width(), viewport()->height());
+    emit viewportChanged(viewport_rect);
+    QGraphicsView::paintEvent(event);
+}
+
 void MyGraphicsView::updateMiddleMouseMode(QString mode)
 {
     middleMouseMode = mode;

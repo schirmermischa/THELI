@@ -143,5 +143,11 @@ void Controller::populateFilterDictionary()
     filterDictionary.insert("BBIclwp_ESO845", "Ic");
     filterDictionary.insert("BBU38_ESO841", "U38");
     filterDictionary.insert("BBU50_ESO877", "U50");
+    //IMACS
+    filterDictionary.insert("Sloan_u", "u");
+    filterDictionary.insert("Sloan_g", "g");
+    filterDictionary.insert("Sloan_r", "r");
+    filterDictionary.insert("Sloan_i", "i");
+    filterDictionary.insert("Sloan_z", "z");
 //    filterDictionary.insert(, );
 }
