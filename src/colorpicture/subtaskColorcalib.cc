@@ -432,6 +432,7 @@ void ColorPicture::colorCalibSegmentImages()
         // Obtain catalog
         //        emit messageAvailable("Detecting sources in " + it->baseName +" ...", "ignore");
         it->maxCPU = maxCPU / croppedList.length();
+        // TODO: introduce a 90% dynrange cutoff to avoid saturated sources
         it->resetObjectMasking();
         it->readImage(it->path + "/" +it->name);
         it->readWeight();

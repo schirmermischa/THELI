@@ -472,6 +472,23 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
         individualFixDone = true;
     }
+    if (instData.name.contains("IMACS")) {     // IMACS has no CD matrix in the header
+        if (!searchKeyValue(QStringList() << "ROTANGLE", positionAngle)) {
+            emit messageAvailable(name + " : Could not find ROTANGLE keyword, set to zero! CD matrix might have wrong orientation.", "warning");
+            emit warning();
+            positionAngle = 0.0;
+        }
+        double cd11 = -1.*instData.pixscale / 3600.;
+        double cd12 = 0.0;
+        double cd21 = 0.0;
+        double cd22 = instData.pixscale / 3600.;
+        rotateCDmatrix(cd11, cd12, cd21, cd22, positionAngle);
+        cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
+        cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
+        cd21_card = "CD2_1   =  "+QString::number(cd21, 'g', 6);
+        cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
+        individualFixDone = true;
+    }
     if (instData.name == "LIRIS@WHT" || instData.name == "LIRIS_POL@WHT") {     // LIRIS has no CD matrix in the header
         if (!searchKeyValue(QStringList() << "ROTSKYPA", positionAngle)) {
             emit messageAvailable(name + " : Could not find ROTSKYPA keyword, set to zero! CD matrix might have wrong orientation.", "warning");

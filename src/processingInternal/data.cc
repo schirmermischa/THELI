@@ -578,6 +578,11 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
         return;
     }
 
+    if (numImages <= 3) {
+        emit messageAvailable("Only two exposures are used to compute the combined master calibration file. More are highly recommended.", "warning");
+        emit warning();
+    }
+
     // Get image geometry from first image in list
     long n = myImageList.at(chip).at(0)->naxis1;
     long m = myImageList.at(chip).at(0)->naxis2;
