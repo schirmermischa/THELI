@@ -473,16 +473,19 @@ bool Splitter::individualFixCDmatrix(int chip)
         individualFixDone = true;
     }
     if (instData.name.contains("IMACS")) {     // IMACS has no CD matrix in the header
-        if (!searchKeyValue(QStringList() << "ROTANGLE", positionAngle)) {
+        if (!searchKeyValue(QStringList() << "ROTATORE", positionAngle)) {
             emit messageAvailable(name + " : Could not find ROTANGLE keyword, set to zero! CD matrix might have wrong orientation.", "warning");
             emit warning();
             positionAngle = 0.0;
         }
-        double cd11 = -1.*instData.pixscale / 3600.;
-        double cd12 = 0.0;
-        double cd21 = 0.0;
-        double cd22 = instData.pixscale / 3600.;
-        rotateCDmatrix(cd11, cd12, cd21, cd22, positionAngle);
+
+        double cd11 = instData.pixscale / 3600.;
+        double cd12 = 0.;
+        double cd21 = 0.;
+        double cd22 = -instData.pixscale / 3600.;
+        // Chips 1-4 are rotated by 180 degrees
+        if (chip >= 4) rotateCDmatrix(cd11, cd12, cd21, cd22, positionAngle);
+        else rotateCDmatrix(cd11, cd12, cd21, cd22, positionAngle+180.);
         cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
         cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
         cd21_card = "CD2_1   =  "+QString::number(cd21, 'g', 6);

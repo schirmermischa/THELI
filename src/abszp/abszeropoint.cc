@@ -525,10 +525,8 @@ void AbsZeroPoint::writeAbsPhotRefcat()
     }
 
     // Write downloaded iView catalog
-    long i = 0;
     for (auto &it : refDat) {
         stream_iview_down << QString::number(it[1], 'f', 9) << " " << QString::number(it[0], 'f', 9) << " " << QString::number(it[2], 'f', 3) << "\n";
-        ++i;
     }
     outcat_iview_down.close();
     outcat_iview_down.setPermissions(QFile::ReadUser | QFile::WriteUser);

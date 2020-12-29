@@ -124,12 +124,13 @@ template<class T1, class T2>
 void matrixMult_T(const T1 a11, const T1 a12, const T1 a21, const T1 a22,
                   T2 &b11, T2 &b12, T2 &b21, T2 &b22)
 {
-    T2 c11, c12, c21, c22;
 
-    c11 = a11 * b11 + a12 * b21;
-    c12 = a11 * b12 + a12 * b22;
-    c21 = a21 * b11 + a22 * b21;
-    c22 = a21 * b12 + a22 * b22;
+//    qDebug() << "rot" << a11 << a12 << a21 << a22;
+    T2 c11 = a11 * b11 + a12 * b21;
+    T2 c12 = a11 * b12 + a12 * b22;
+    T2 c21 = a21 * b11 + a22 * b21;
+    T2 c22 = a21 * b12 + a22 * b22;
+//    qDebug() << a21 << b12 << a22 << b22 << c22;
 
     b11 = c11;
     b12 = c12;
@@ -442,23 +443,6 @@ void smooth_array_T(QVector<T1> &data, T2 sigma)
     //data = tmp;
 }
 
-template<class T1, class T2>
-void matrix_mult_T(const T1 a11, const T1 a12, const T1 a21, const T1 a22,
-                   T2 &b11, T2 &b12, T2 &b21, T2 &b22)
-{
-    T2 c11, c12, c21, c22;
-
-    c11 = a11 * b11 + a12 * b21;
-    c12 = a11 * b12 + a12 * b22;
-    c21 = a21 * b11 + a22 * b21;
-    c22 = a21 * b12 + a22 * b22;
-
-    b11 = c11;
-    b12 = c12;
-    b21 = c21;
-    b22 = c22;
-}
-
 // The following is implemented, but not yet used anywhere
 /*
 Out      :   one element
@@ -481,7 +465,7 @@ T kth_smallest(QVector<T> &data, int k)       // WARNING: modifies input vector
     long n = data.length();
     long m = n - 1;
     while (l < m) {
-        x = data[k] ;
+        x = data[k];
         long i = l;
         long j = m;
         do {

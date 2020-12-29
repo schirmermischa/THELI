@@ -579,7 +579,7 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
     }
 
     if (numImages <= 3) {
-        emit messageAvailable("Only two exposures are used to compute the combined master calibration file. More are highly recommended.", "warning");
+        emit messageAvailable("Only "+QString::number(numImages)+" exposures are used to compute the combined master calibration file. More are recommended.", "warning");
         emit warning();
     }
 

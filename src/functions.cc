@@ -1493,14 +1493,15 @@ void rotateCDmatrix(double &cd11, double &cd12, double &cd21, double &cd22, doub
     double f22 = 1.;
 
     // unflip the matrix
-    matrix_mult_T(f11, f12, f21, f22, cd11, cd12, cd21, cd22);
+    matrixMult_T(f11, f12, f21, f22, cd11, cd12, cd21, cd22);
 
     // rotate the matrix to the new position angle
     double dPA = rad * (PAnew - PAold);
-    matrix_mult_T(cos(dPA), -sin(dPA), sin(dPA), cos(dPA), cd11, cd12, cd21, cd22);
+
+    matrixMult_T(cos(dPA), -sin(dPA), sin(dPA), cos(dPA), cd11, cd12, cd21, cd22);
 
     // flip the matrix
-    matrix_mult_T(f11, f12, f21, f22, cd11, cd12, cd21, cd22);
+    matrixMult_T(f11, f12, f21, f22, cd11, cd12, cd21, cd22);
 }
 
 // Angles are always passed / returned in degrees

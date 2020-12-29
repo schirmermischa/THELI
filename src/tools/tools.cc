@@ -84,6 +84,7 @@ QVector<int> CDmatrixToTransformationMatrix(QVector<double> CD, QString instName
         else if (T[1] == -1 && T[2] == 1) T[1] = 1;
         else if (T[1] == 1 && T[2] == -1) T[2] = 1;
     }
+
     return T;
 }
 
