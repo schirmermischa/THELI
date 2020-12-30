@@ -1637,7 +1637,7 @@ void MainWindow::resetParameters()
     else {
         QMessageBox msgBox;
         msgBox.setModal(true);
-        msgBox.setInformativeText(tr("The parameters in the current project are about to be reset. The project contains\n") +
+        msgBox.setInformativeText(tr("The parameters in the current project are about to be reset.\n") +
                                   tr(" All processing parameters will be reset to their default values. Processing will continue with the FITS files found on disk.\n"));
         QAbstractButton *pButtonOK = msgBox.addButton(tr("OK"), QMessageBox::YesRole);
         QAbstractButton *pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::YesRole);
