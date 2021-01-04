@@ -466,6 +466,7 @@ QString Query::resolveTarget(QString target)
         line = line.simplified();
         if (line.contains("Traceback")) return "Unresolved";
         else {
+            // DEPRECATED. GUI will not launch if python3 cannot be found. The following is kept for reference only.
             // In case python2 is used instead of python3, we have to remove parentheses and commas from the output
             line = line.remove("(");
             line = line.remove(")");

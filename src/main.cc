@@ -115,7 +115,20 @@ void dependencyCheck()
     //    }
 
     if (python.isEmpty()) {
-        pythonDep = "python required (working binary names: 'python3' or 'python').\n";
+        pythonDep = "python v3 required (working binary names: 'python3' or 'python').\n";
+    }
+    else {
+        // Check that we are using python3
+        QString pythonCommand = python + " --version";
+        QString result = read_system_command(pythonCommand);
+        QStringList list = result.split(" ");
+        if (list.length() > 1) {
+            int version = list.at(1).split('.').at(0).toInt();
+            if (version < 3) {
+                pythonDep = "python v3 or later required. Installed version:  " + result + "\n";
+                ++missingDep;
+            }
+        }
     }
 
     if (!anetDep.isEmpty()) {
