@@ -383,7 +383,7 @@ public:
     QString getKeyword(QString key);
     void getMJD();
     void getMeanBackground();
-    void getMode(bool determineMode = true);
+    void getMode(bool determineMode);
     double getPlateScale();
     void illuminationCorrection(int chip, QString thelidir, QString instName, QString filter);
     bool informSwarpfilter(long &naxis1, long &naxis2, double &crpix1, double &crpix2, double &sky, double &fluxscale);

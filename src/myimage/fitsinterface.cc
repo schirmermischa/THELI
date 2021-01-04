@@ -45,7 +45,7 @@ void MyImage::readFILTER(QString loadFileName)
     filter = filterstring.simplified();
 }
 
-// Extract the NAXIS1, NAXIS2, CRPIX1, CRPIX2, SKYVALUE keywords from a yet unopened FITS file for swarpfilter()
+// Extract the NAXIS1, NAXIS2, CRPIX1, CRPIX2, SKYVALUE and FLXSCALE keywords from a yet unopened (resampled) FITS file for swarpfilter()
 bool MyImage::informSwarpfilter(long &naxis1, long &naxis2, double &crpix1, double &crpix2, double &sky, double &fluxscale)
 {
     QString loadFileName = path + "/" + name;
@@ -56,8 +56,18 @@ bool MyImage::informSwarpfilter(long &naxis1, long &naxis2, double &crpix1, doub
     fits_read_key_dbl(fptr, "CRPIX2", &crpix2, NULL, &status);
     fits_read_key_lng(fptr, "NAXIS1", &naxis1, NULL, &status);
     fits_read_key_lng(fptr, "NAXIS2", &naxis2, NULL, &status);
-    fits_read_key_dbl(fptr, "SKYVALUE", &sky, NULL, &status);
     fits_read_key_dbl(fptr, "FLXSCALE", &fluxscale, NULL, &status);
+
+    // get the sky value from the MyImage if not present in the header of the FITS file
+    // (in case the user did not run the calibration step)
+    int preSky = status;
+    fits_read_key_dbl(fptr, "SKYVALUE", &sky, NULL, &status);
+    int postSky = status;
+    if (!preSky && postSky) {
+        sky = skyValue;
+        if (sky != 0.) status = 0;
+        else status = 1;
+    }
     fits_close_file(fptr, &status);
     printCfitsioError("MyImage::informSwarpfilter()", status);
     if (status) return false;

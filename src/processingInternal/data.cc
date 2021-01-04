@@ -534,6 +534,20 @@ void Data::loadCombinedImage(const int chip)
     successProcessing = combinedImage[chip]->successProcessing;
 }
 
+// Usually, the mode / SKYVALUE is computed when applying the master BIAS/FLAT
+// However, a user might skip these steps, and then the mode remains undetermined
+void Data::checkModeIsPresent()
+{
+    if (!successProcessing) return;
+
+#pragma omp parallel for num_threads(maxCPU)
+    for (int chip=0; chip<instData->numChips; ++chip) {
+        for (auto &it : myImageList[chip]) {
+            it->getMode(true);
+        }
+    }
+}
+
 void Data::resetSuccessProcessing()
 {
     successProcessing = true;

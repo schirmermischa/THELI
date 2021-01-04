@@ -61,6 +61,8 @@ void Controller::taskInternalCoaddition()
     mjdEnd = 0.;
     mjdMedian = 0.;
 
+    currentData->checkModeIsPresent();
+
     memoryDecideDeletableStatus(coaddScienceData, false);
     QString coaddSubDir = "coadd_"+filterArg;
     QString coaddUniqueID = cdw->ui->COAuniqueidLineEdit->text();
@@ -823,6 +825,7 @@ void Controller::coaddSwarpfilter()
     swarpFilter.progress = &progress;
     connect(&swarpFilter, &SwarpFilter::messageAvailable, monitor, &Monitor::displayMessage);
     connect(&swarpFilter, &SwarpFilter::progressUpdate, mainGUI, &MainWindow::progressUpdateReceived);
+    connect(&swarpFilter, &SwarpFilter::critical, this, &Controller::criticalReceived);
     swarpFilter.runCosmicFilter();
 
     // TODO: introduce successProcessing to swarpfilter();

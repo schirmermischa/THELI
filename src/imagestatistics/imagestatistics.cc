@@ -85,6 +85,7 @@ void ImageStatistics::init()
             if (instData->badChips.contains(chip)) continue;
             auto &it = myImageList[k][chip];
             it->loadHeader();       // if not yet in memory
+            it->getMode(true);
             allMyImages.append(it);
         }
     }

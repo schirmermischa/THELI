@@ -231,6 +231,7 @@ public:
     void removeCatalogs();
     bool doesCoaddContainRaDec(const QString &refRA, const QString &refDEC);
     void unprotectMemoryForBackground(int chip);
+    void checkModeIsPresent();
 public slots:
     void setMemoryLockReceived(bool locked);
     void setWCSLockReceived(bool locked);

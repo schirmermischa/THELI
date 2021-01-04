@@ -44,6 +44,7 @@ public:
 signals:
     void messageAvailable(QString message, QString type);
     void progressUpdate(float progress);
+    void critical();
 
 private:
 
@@ -51,6 +52,8 @@ private:
     float progressStepSize = 0;
 
     int nthreads = 1;
+
+    bool successProcessing = true;
 
     QVector<MyImage*> images;
     QVector<MyImage*> weights;

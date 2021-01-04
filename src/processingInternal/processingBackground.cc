@@ -76,6 +76,9 @@ void Controller::taskInternalBackground()
         mode = "static";
     }
 
+    scienceData->checkModeIsPresent();
+    skyData->checkModeIsPresent();
+
     // Flag images with bright stars, leave if definitely too few images left
     QList<QVector<double>> brightStarList;
     retrieveBrightStars(skyData, brightStarList);

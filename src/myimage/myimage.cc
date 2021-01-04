@@ -650,6 +650,7 @@ void MyImage::getMode(bool determineMode)
     // Get the mode only if requested, and measure it only if it hasn't been measured already
     // (in which case it is available as the SKYVALUE header keyword)
     if (determineMode && !modeDetermined) {
+        if (!imageInMemory) loadData();
         skyValue = modeMask(dataCurrent, "stable", globalMask)[0];
         modeDetermined = true;
         QString skyvalue = "SKYVALUE= "+QString::number(skyValue);

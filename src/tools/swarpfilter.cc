@@ -115,6 +115,8 @@ void SwarpFilter::freeMemoryBlocks()
 // This does not read the data sections, it just creates MyImage pointers to the resampled images and weights
 void SwarpFilter::getImages()
 {
+    if (!successProcessing) return;
+
     // Fill the list of MyImage types of individual images and master calibration files in this data directory
     QStringList filter;
     filter << "*resamp.fits";
@@ -127,6 +129,7 @@ void SwarpFilter::getImages()
         QFile wgt(coaddDirName+"/"+base+"resamp.weight.fits");
         if (!img.exists() || !wgt.exists()) {
             emit messageAvailable("ERROR: SwarpFilter::getImages(): Image " + base + " resamp.[weight].fits does not exist!", "error");
+            successProcessing = false;
             return;
         }
         // global masks don't apply here because of different image geometry. Hence passing QVector<bool>()
@@ -143,10 +146,13 @@ void SwarpFilter::getImages()
 
 void SwarpFilter::getCoaddInfo()
 {
+    if (!successProcessing) return;
+
     QFile coaddHead(coaddDirName+"/coadd.head");
 
     if (!coaddHead.open(QIODevice::ReadOnly)) {
         emit messageAvailable("ERROR: SwarpFilter::getCoaddInfo(): "+coaddHead.fileName() + " " +coaddHead.errorString(), "error");
+        successProcessing = false;
         return;
     }
 
@@ -165,6 +171,8 @@ void SwarpFilter::getCoaddInfo()
 
 void SwarpFilter::getGeometries()
 {
+    if (!successProcessing) return;
+
     double crpix1tmp = 0.;
     double crpix2tmp = 0.;
     long naxis1tmp = 0;
@@ -178,9 +186,14 @@ void SwarpFilter::getGeometries()
     naxis2.reserve(num_images);
     sky.reserve(num_images);
     fluxscale.reserve(num_images);
+
     for (auto &it : images) {
         if (!it->informSwarpfilter(naxis1tmp, naxis2tmp, crpix1tmp, crpix2tmp, skytmp, fluxscaletmp)) {
-            emit messageAvailable("ERROR: SwarpFilter::loadGeometries(): Could not read the geometries of the resampled images", "error");
+            // TODO: This error does not lead to an abort in the stack of swarp command threads.
+            QString message = "SwarpFilter::loadGeometries(): One or more keywords not found in resampled images:\nNAXIS1, NAXIS2, CRPIX1, CRPIX2, SKYVALUE, FLXSCALE";
+            emit messageAvailable(message, "error");
+            emit critical();
+            successProcessing = false;
             return;
         }
         naxis1.append(naxis1tmp);
@@ -198,6 +211,8 @@ void SwarpFilter::getGeometries()
 // The maximum number of lines that can be read without filling up the RAM
 void SwarpFilter::getBlocksize()
 {
+    if (!successProcessing) return;
+
     long systemRAM = 1024 * get_memory();
 
     // maxmimum memory used: 50% of the available RAM
@@ -219,6 +234,8 @@ void SwarpFilter::getBlocksize()
 
 void SwarpFilter::initStorage()
 {
+    if (!successProcessing) return;
+
     block_coadd_image.resize(num_images);
     block_coadd_index.resize(num_images);
     sky.resize(num_images);
@@ -235,6 +252,8 @@ void SwarpFilter::runCosmicFilter()
 {
     // Doing the init here, so that the signals get heard outside (connections are made after the constructor).
     init();
+
+    if (!successProcessing) return;
 
     progressStepSize = 66. / nblocks;
 
@@ -333,6 +352,8 @@ void SwarpFilter::runCosmicFilter()
 
 void SwarpFilter::updateBadPixelIndex(const QVector<std::pair<long,long>> bpp)
 {
+    if (!successProcessing) return;
+
     for (auto &pair : bpp) {
         badpixindex[pair.first].append(pair.second);
     }
@@ -437,6 +458,8 @@ bool SwarpFilter::get_coaddblock(const int index, const long block, QVector<floa
 void SwarpFilter::identify_bad_pixels(const QVector<float> &gooddata, const QVector<long> &gooddataind,
                                       const long &currentpixel, const long &ngoodweight, QVector<std::pair<long,long>> &bpp)
 {
+    if (!successProcessing) return;
+
     // no rejection if less than 2 pixels contributing to a coadded pixel
     if (ngoodweight < 2 ) return;
 
@@ -516,6 +539,8 @@ void SwarpFilter::identify_bad_pixels(const QVector<float> &gooddata, const QVec
 //***************************************************************************************
 void SwarpFilter::stackfilter_rejectmax(const QVector<float> &gooddata, float &meanval, float &rmsval)
 {
+    if (!successProcessing) return;
+
     float maxval = gooddata[0];
     meanval = 0.;
     rmsval = 0.;
@@ -535,6 +560,8 @@ void SwarpFilter::stackfilter_rejectmax(const QVector<float> &gooddata, float &m
 //***************************************************************************************
 void SwarpFilter::stackfilter_rejectminmax(const QVector<float> &gooddata, float &meanval, float &rmsval)
 {
+    if (!successProcessing) return;
+
     float minval = gooddata[0];
     float maxval = gooddata[0];
     meanval = 0.;
@@ -554,6 +581,7 @@ void SwarpFilter::stackfilter_rejectminmax(const QVector<float> &gooddata, float
 //**************************************************************
 void SwarpFilter::writeWeight()
 {
+    if (!successProcessing) return;
 
     // cout << "This is thread " << args->th << endl;
     emit messageAvailable("Writing updated weight maps ...", "output");

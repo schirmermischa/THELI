@@ -303,6 +303,8 @@ private:
     void testOverscan(QVector<int> &overscan);
     void to_EN_US(QString &keyName, QString &keyValue);
     bool checkCorrectMaskSize(const int chip);
+    QString mjdobsToDATEOBS(double mjd);
+    bool individualFixDATEOBS();
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

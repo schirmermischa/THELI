@@ -664,8 +664,10 @@ void Splitter::buildTheliHeaderDATEOBS()
 {
     if (!successProcessing) return;
 
+    if (individualFixDATEOBS()) return;
+
     bool found = false;
-    // Lopp over all possible dateobs keywords, and break once we found one that is valid.
+    // Loop over all possible dateobs keywords, and break once we found one that is valid.
     // This is different from the general strategy to go over all possible keyword variants and take the first one that exists
     for (auto &keyword : headerDictionary.value("DATE-OBS")) {
         dateObsValue = "";
@@ -709,6 +711,30 @@ void Splitter::buildTheliHeaderDATEOBS()
     QString card = "DATE-OBS= '"+dateObsValue+"'";
     card.resize(80, ' ');
     headerTHELI.append(card);
+}
+
+bool Splitter::individualFixDATEOBS()
+{
+    bool individualFixDone = false;
+
+    if (instData.name == "WHIRC@WIYN") {
+        double mjdValue = 0;
+        bool foundMJDOBS = searchKeyValue(headerDictionary.value("MJD-OBS"), mjdValue);
+        // DATE-OBS has the start time of a sequence
+        if (foundMJDOBS) {
+            dateObsValue = mjdobsToDATEOBS(mjdValue);
+            individualFixDone = true;
+        }
+
+    }
+
+    if (individualFixDone) {
+        QString card = "DATE-OBS= '"+dateObsValue+"'";
+        card.resize(80, ' ');
+        headerTHELI.append(card);
+    }
+
+    return individualFixDone;
 }
 
 // Build the GAIN keyword
@@ -757,6 +783,10 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 1) chipGain = 1.870;
         if (chip == 2) chipGain = 1.735;
         if (chip == 3) chipGain = 2.110;
+        individualFixDone = true;
+    }
+    if (instData.name == "NEWFIRM@KPNO_4m") {    //  https://www.noao.edu/ets/newfirm/documents/ORION_SCA_lab_tests_final.pdf
+        chipGain = 7.6;                          // same for all 4 chips
         individualFixDone = true;
     }
     else if (instData.name == "NIRI@GEMINI") {    // https://www.gemini.edu/sciops/instruments/niri/imaging/detector-array
@@ -976,6 +1006,25 @@ bool Splitter::checkFormatDATEOBS()
     }
 
     return true;
+}
+
+QString Splitter::mjdobsToDATEOBS(double mjd)
+{
+    long jd0 = long(mjd + 2400001.0);
+    long b = long ((jd0 - 1867216.25) / 36524.25);     // Gregorian calendar
+    long c = jd0 + b - (b/4) + 1525;                   // Gregorian calendar
+    long d = long ((c - 122.1) / 365.25);
+    long e = 365 * d + (d/4);
+    long f = long ((c - e) / 30.6001);
+    int day = c - e - long(30.6001 * f);
+    int month = f - 1 - 12 * (f / 14);
+    int year = d - 4715 - ((7 + month) / 10);
+    double hour = 24.0 * (mjd - floor(mjd));
+
+    QString date = QString::number(year)+"-"+QString::number(month)+"-"+QString::number(day)+"T";
+    QString time = decimalToDms(hour);
+
+    return date+time;
 }
 
 double Splitter::dateobsToMJD()
