@@ -650,6 +650,10 @@ void MyImage::writeCatalog(QString minFWHM_string, QString maxFlag_string)
         }
         file.close();
     }
+    else {
+        emit messageAvailable("Could not create IView source catalog: "+path+"/cat/iview/"+chipName+".iview", "error");
+        emit critical();
+    }
 
     // Write anet catalog
     char x[100] = "X";

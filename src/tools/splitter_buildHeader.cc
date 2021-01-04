@@ -1014,6 +1014,15 @@ bool Splitter::checkFormatDATEOBS()
 
 QString Splitter::mjdobsToDATEOBS(double mjd)
 {
+    // Code taken and adjusted from:
+    // https://api.kde.org/4.12-api/kdeedu-apidocs/marble/html/astrolib_8cpp_source.html
+
+    // This program is free software licensed under the GNU LGPL. You can
+    // find a copy of this license in LICENSE.txt in the top directory of
+    // the source code.
+    //
+    // Copyright : Gerhard HOLTKAMP          11-JAN-2012
+
     long jd0 = long(mjd + 2400001.0);
     long b = long ((jd0 - 1867216.25) / 36524.25);     // Gregorian calendar
     long c = jd0 + b - (b/4) + 1525;                   // Gregorian calendar
