@@ -510,12 +510,22 @@ QString findExecutableName(QString program)
     else if (program == "solve-field") {
         for (auto &it : anetlist1) {
             commandname = QStandardPaths::findExecutable(it);
+            if (commandname.isEmpty()) {
+                QStringList paths;
+                paths << "/usr/local/Astrometry/bin/";
+                commandname = QStandardPaths::findExecutable(it, paths);
+            }
             if (!commandname.isEmpty()) break;
         }
     }
     else if (program == "build-astrometry-index") {
         for (auto &it : anetlist2) {
             commandname = QStandardPaths::findExecutable(it);
+            if (commandname.isEmpty()) {
+                QStringList paths;
+                paths << "/usr/local/Astrometry/bin/";
+                commandname = QStandardPaths::findExecutable(it, paths);
+            }
             if (!commandname.isEmpty()) break;
         }
     }
