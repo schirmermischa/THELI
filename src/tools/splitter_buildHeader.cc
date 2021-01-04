@@ -789,6 +789,10 @@ bool Splitter::individualFixGAIN(int chip)
         chipGain = 7.6;                          // same for all 4 chips
         individualFixDone = true;
     }
+    if (instData.name == "WHIRC@WIYN") {         // https://www.noao.edu/kpno/manuals/whirc/whirc.user.html
+        chipGain = 3.4;
+        individualFixDone = true;
+    }
     else if (instData.name == "NIRI@GEMINI") {    // https://www.gemini.edu/sciops/instruments/niri/imaging/detector-array
         chipGain = 12.3;                          // No gain keyword in FITS header
         individualFixDone = true;
