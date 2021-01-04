@@ -14,7 +14,7 @@ libtiff         https://gitlab.com/libtiff/libtiff
 
 On an Ubuntu 18.04 LTS installation, the following command should resolve all dependencies, and also enable the compilation of 'scamp':
 
-sudo apt install g++ build-essential autotools-dev python python-requests libfftw3-dev libtiff-dev curl libcurl4 libcurl4-gnutls-dev qt5-default qt5-qmake libgsl-dev libatlas-base-dev libblas-dev libplplot-dev libcfitsio-dev libwcstools-dev
+sudo apt install g++ build-essential autotools-dev python3 python3-requests libfftw3-dev libtiff-dev curl libcurl4 libcurl4-gnutls-dev qt5-default qt5-qmake libgsl-dev libatlas-base-dev libblas-dev libplplot-dev libcfitsio-dev libwcstools-dev
 
 Your mileage may vary depending on your individual OS and setup. Should the compilation of THELI fail, then you have to install these packages by hand.
 
