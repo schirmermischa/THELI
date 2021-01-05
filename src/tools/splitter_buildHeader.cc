@@ -391,6 +391,38 @@ bool Splitter::individualFixCRPIX(int chip)
         individualFixDone = true;
     }
 
+    if (instData.name == "MOSAIC-II_16@CTIO") {
+        if (chip == 1) crpix1_card = "CRPIX1  = 4219";
+        if (chip == 3) crpix1_card = "CRPIX1  = 2078";
+        if (chip == 5) crpix1_card = "CRPIX1  = -33";
+        if (chip == 7) crpix1_card = "CRPIX1  = -2166";
+        if (chip == 9) crpix1_card = "CRPIX1  = 4221";
+        if (chip == 11) crpix1_card = "CRPIX1  = 2081";
+        if (chip == 13) crpix1_card = "CRPIX1  = -31";
+        if (chip == 15) crpix1_card = "CRPIX1  = -2169";
+        if (chip == 1) crpix2_card = "CRPIX2  = 4148";
+        if (chip == 3) crpix2_card = "CRPIX2  = 4121";
+        if (chip == 5) crpix2_card = "CRPIX2  = 4119";
+        if (chip == 7) crpix2_card = "CRPIX2  = 4136";
+        if (chip == 9) crpix2_card = "CRPIX2  = -34";
+        if (chip == 11) crpix2_card = "CRPIX2  = -24";
+        if (chip == 13) crpix2_card = "CRPIX2  = -26";
+        if (chip == 15) crpix2_card = "CRPIX2  = -56";
+        individualFixDone = true;
+    }
+    if (instData.name == "MOSAIC-III@KPNO_4m") {
+        if (chip == 3) crpix1_card = "CRPIX1  = 4219";
+        if (chip == 7) crpix1_card = "CRPIX1  = 2078";
+        if (chip == 11) crpix1_card = "CRPIX1  = -33";
+        if (chip == 15) crpix1_card = "CRPIX1  = -2166";
+        if (chip == 3) crpix2_card = "CRPIX2  = 4148";
+        if (chip == 7) crpix2_card = "CRPIX2  = 4121";
+        if (chip == 11) crpix2_card = "CRPIX2  = 4119";
+        if (chip == 15) crpix2_card = "CRPIX2  = 4136";
+        individualFixDone = true;
+    }
+
+
     // Append only when all channels of one chip have been read (i.e., 'individualFixDone' == true)
     if (individualFixDone) {
         crpix1_card.resize(80, ' ');
@@ -785,8 +817,12 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 3) chipGain = 2.110;
         individualFixDone = true;
     }
-    if (instData.name == "NEWFIRM@KPNO_4m") {    //  https://www.noao.edu/ets/newfirm/documents/ORION_SCA_lab_tests_final.pdf
+    if (instData.name == "NEWFIRM@KPNO_4m") {    // https://www.noao.edu/ets/newfirm/documents/ORION_SCA_lab_tests_final.pdf
         chipGain = 7.6;                          // same for all 4 chips
+        individualFixDone = true;
+    }
+    if (instData.name == "HDI@KPNO_0.9m") {      // https://www.noao.edu/0.9m/observe/hdi/hdi_manual.html
+        chipGain = 1.3;
         individualFixDone = true;
     }
     if (instData.name == "WHIRC@WIYN") {         // https://www.noao.edu/kpno/manuals/whirc/whirc.user.html
@@ -830,6 +866,14 @@ bool Splitter::individualFixGAIN(int chip)
         individualFixDone = true;
     }
     else if (instData.name.contains("SOI@SOAR")) {
+        chipGain = harmonicGain(multiportGains);
+        individualFixDone = true;
+    }
+    else if (instData.name == "MOSAIC-II_16@CTIO") {
+        chipGain = harmonicGain(multiportGains);
+        individualFixDone = true;
+    }
+    else if (instData.name == "MOSAIC-III@KPNO_4m") {
         chipGain = harmonicGain(multiportGains);
         individualFixDone = true;
     }

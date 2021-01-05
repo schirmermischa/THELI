@@ -205,7 +205,7 @@ void Splitter::getMultiportInformation(int chip)
     }
 
     // All Hamamatsu Gemini GMOS configurations. Single channel in single FITS extension
-    if ( multiChannelMultiExt.contains(instData.name) && instData.name.contains("GMOS")) {
+    if (multiChannelMultiExt.contains(instData.name) && instData.name.contains("GMOS")) {
         int binning = 1;
         QString binString = "";
         searchKeyValue(QStringList() << "CCDSUM", binString);
@@ -233,7 +233,7 @@ void Splitter::getMultiportInformation(int chip)
         //        for (auto &section : multiportChannelSections) {
         //            for (auto &it : section) it /= binning;                              // maapping unbinned pixel space to binned pixel space
         //        }
-        if (chip == 0 || chip == 4 || chip == 8) dataPasted.resize(naxis1 * naxis2);
+        if (chip % numAmpPerChip == 0) dataPasted.resize(naxis1 * naxis2);
 
         float gainValue = 1.0;
         if (instData.name == "GMOS-S-HAM@GEMINI" || instData.name == "GMOS-S-HAM_1x1@GEMINI") {
@@ -287,7 +287,7 @@ void Splitter::getMultiportInformation(int chip)
         individualFixDone = true;
     }
 
-    if ( instData.name == "SOI@SOAR") {
+    if (instData.name == "SOI@SOAR") {
         naxis1 = 1024;
         naxis2 = 2048;
 
@@ -301,7 +301,7 @@ void Splitter::getMultiportInformation(int chip)
         QVector<long> channelSection;
         channelSection << 0 << naxis1channel - 1 << 0 << naxis2channel - 1;
         multiportChannelSections << channelSection;                              // "DETSEC" has the illuminated section in CCD coordinates
-        if (chip == 0 || chip == 2) dataPasted.resize(naxis1 * naxis2);
+        if (chip % numAmpPerChip == 0) dataPasted.resize(naxis1 * naxis2);
 
         float gainValue = 2.0;
         // Accurate amplifier gains are not available in the FITS headers
@@ -310,6 +310,54 @@ void Splitter::getMultiportInformation(int chip)
         else if (chip == 2)  gainValue = 2.0;
         else if (chip == 3)  gainValue = 2.0;
 
+        multiportGains << gainValue;
+        channelGains.clear();
+        channelGains << 1.0;   // dummy;
+        individualFixDone = true;
+    }
+
+    if (instData.name == "MOSAIC-II_16@CTIO") {
+        naxis1 = 2048;
+        naxis2 = 4096;
+
+        int naxis1channel = 0;
+        int naxis2channel = 0;
+        searchKeyValue(QStringList() << "NAXIS1", naxis1channel);
+        searchKeyValue(QStringList() << "NAXIS2", naxis2channel);
+        multiportOverscanDirections << "vertical";
+        multiportOverscanSections << extractVerticesFromKeyword("BIASSEC");      // given in binned units in the header
+        multiportIlluminatedSections << extractVerticesFromKeyword("DATASEC");   // given in binned units in the header
+        QVector<long> channelSection;
+        channelSection << 0 << naxis1channel - 1 << 0 << naxis2channel - 1;
+        multiportChannelSections << channelSection;
+        if (chip % numAmpPerChip == 0) dataPasted.resize(naxis1 * naxis2);
+
+        float gainValue = 1.0;
+        searchKeyValue(QStringList() << "GAIN", gainValue);
+        multiportGains << gainValue;
+        channelGains.clear();
+        channelGains << 1.0;   // dummy;
+        individualFixDone = true;
+    }
+
+    if (instData.name == "MOSAIC-III@KPNO_4m") {
+        naxis1 = 4096;
+        naxis2 = 4096;
+
+        int naxis1channel = 0;
+        int naxis2channel = 0;
+        searchKeyValue(QStringList() << "NAXIS1", naxis1channel);
+        searchKeyValue(QStringList() << "NAXIS2", naxis2channel);
+        multiportOverscanDirections << "vertical";
+        multiportOverscanSections << extractVerticesFromKeyword("BIASSEC");      // given in binned units in the header
+        multiportIlluminatedSections << extractVerticesFromKeyword("DATASEC");   // given in binned units in the header
+        QVector<long> channelSection;
+        channelSection << 0 << naxis1channel - 1 << 0 << naxis2channel - 1;
+        multiportChannelSections << channelSection;
+        if (chip % numAmpPerChip == 0) dataPasted.resize(naxis1 * naxis2);
+
+        float gainValue = 1.0;
+        searchKeyValue(QStringList() << "GAIN", gainValue);
         multiportGains << gainValue;
         channelGains.clear();
         channelGains << 1.0;   // dummy;
@@ -367,45 +415,27 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
             ++channel;
         }
     }
-    // Individual exceptions (currently: GMOS, SOI only)
+    // Individual exceptions (currently: GMOS, SOI, MOSAIC-II only)
     else {
         int channel = 0;
 
-        if (numAmpPerChip == 2) {     // SOI@SOAR
-            for (auto &section : multiportIlluminatedSections) {
-                if (section.length() != 4) continue; // skip wrong vertices, for whatever reason they might be here
-                long offx = (chip % 2) * naxis1 / 2;
-                long offy = 0;
-                pasteSubArea(dataPasted, dataRaw, multiportIlluminatedSections[channel], multiportGains[channel],
-                             offx, offy, naxis1, naxis2, naxis1Raw);
-                ++channel;
-            }
-            if (chip == 1 || chip == 3) {
-                // all channels have been pasted. Transfer the data to dataCurrent.
-                MEFpastingFinished = true;
-                dataCurrent.swap(dataPasted);
-                dataPasted.clear();
-                dataPasted.squeeze();
-                dataCurrent.squeeze();
-            }
+        // detectors where the amps form two or more vertical stripes from left to right
+        // SOI@SOAR, MOSAIC-II_16@CTIO, GMOS
+        for (auto &section : multiportIlluminatedSections) {
+            if (section.length() != 4) continue; // skip wrong vertices, for whatever reason they might be here
+            long offx = (chip % numAmpPerChip) * naxis1 / numAmpPerChip;
+            long offy = 0;
+            pasteSubArea(dataPasted, dataRaw, multiportIlluminatedSections[channel], multiportGains[channel],
+                         offx, offy, naxis1, naxis2, naxis1Raw);
+            ++channel;
         }
-        else if (numAmpPerChip == 4) {     // GMOS
-            for (auto &section : multiportIlluminatedSections) {
-                if (section.length() != 4) continue; // skip wrong vertices, for whatever reason they might be here
-                long offx = (chip % 4) * naxis1 / 4;
-                long offy = 0;
-                pasteSubArea(dataPasted, dataRaw, multiportIlluminatedSections[channel], multiportGains[channel],
-                             offx, offy, naxis1, naxis2, naxis1Raw);
-                ++channel;
-            }
-            if (chip == 3 || chip == 7 || chip == 11) {
-                // all channels have been pasted. Transfer the data to dataCurrent.
-                MEFpastingFinished = true;
-                dataCurrent.swap(dataPasted);
-                dataPasted.clear();
-                dataPasted.squeeze();
-                dataCurrent.squeeze();
-            }
+        if ( (chip+1) % numAmpPerChip == 0) {
+            // all channels have been pasted. Transfer the data to dataCurrent.
+            MEFpastingFinished = true;
+            dataCurrent.swap(dataPasted);
+            dataPasted.clear();
+            dataPasted.squeeze();
+            dataCurrent.squeeze();
         }
     }
 }
@@ -541,10 +571,11 @@ void Splitter::updateMEFpastingStatus(int chip)
     // The following instruments store the multiple readout channels of their detectors in separate FITS extensions, and must be pasted back together:
     // Once the last channel has been read, we can paste the chips together
     if (instData.name.contains("GMOS")) {
-        if (chip == 3 || chip == 7 || chip == 11) MEFpastingFinished = true;
+        if ( (chip + 1) % numAmpPerChip == 0) MEFpastingFinished = true;
+        //        if (chip == 3 || chip == 7 || chip == 11) MEFpastingFinished = true;
     }
-    if (instData.name == "SOI@SOAR") {
-        if (chip == 1 || chip == 3) MEFpastingFinished = true;
+    if (instData.name == "SOI@SOAR"
+            || instData.name == "MOSAIC-II_16@CTIO") {
+        if ( (chip +1) % numAmpPerChip == 0) MEFpastingFinished = true;
     }
-
 }

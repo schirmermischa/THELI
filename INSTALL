@@ -9,20 +9,23 @@ cfitsio         https://heasarc.gsfc.nasa.gov/fitsio/   (MUST BE configured with
 fftw3           http://fftw.org/
 GSL v2.5        https://www.gnu.org/software/gsl/
 wcslib v7.2     https://www.atnf.csiro.au/people/mcalabre/WCS/
-libraw v0.20    https://www.libraw.org/   (backwards compatible to v0.19.5, but v0.20 preferred)
+libraw v0.19.5  https://www.libraw.org/
 libtiff         https://gitlab.com/libtiff/libtiff
 
-On an Ubuntu 18.04 LTS installation, the following command should resolve all dependencies (apart from libraw), and also enable the compilation of 'scamp':
+Starting from Ubuntu 20.10, you can install THELI and all its dependencies from the repository:
 
-sudo apt install g++ build-essential autotools-dev python3 python3-requests libfftw3-dev libtiff-dev curl libcurl4 libcurl4-gnutls-dev qt5-default qt5-qmake libgsl-dev libatlas-base-dev libblas-dev libplplot-dev libcfitsio-dev wcslib-dev
+sudo apt install theli
 
-Your mileage may vary depending on your individual OS and setup. Should the compilation of THELI fail, then you have to install these packages by hand.
+On a fresh Ubuntu 18.04 LTS installation, the following command resolves all dependencies (apart from libraw) and enable the compilation of 'scamp':
+
+sudo apt install g++ build-essential autotools-dev python3-requests python3-astropy libfftw3-dev libtiff-dev curl libcurl4 libcurl4-gnutls-dev qt5-default qt5-qmake libgsl-dev libatlas-base-dev libblas-dev libplplot-dev libcfitsio-dev wcslib-dev locales libcairo2-dev libnetpbm10-dev netpbm libpng-dev libjpeg-dev libpython3-dev python3-dev zlib1g-dev libbz2-dev swig
 
 Dependencies for running THELI
 ==============================
 
 THELI uses a few external packages. The respective binaries and scripts must be present in your $PATH variable.
 THELI will check for their presence upon launch and report any misconfigurations.
+Astrometry.net is also searched for in its default installation path, /usr/local/Astrometry/bin/ .
 
 swarp v2.38              https://github.com/astromatic/swarp
 scamp v2.7               https://github.com/astromatic/scamp

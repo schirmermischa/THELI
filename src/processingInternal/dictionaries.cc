@@ -36,8 +36,8 @@ void Controller::populateHeaderDictionary()
     headerDictionary.insert("CD2_2", {"CD2_2", "J_CD2_2"});
     headerDictionary.insert("CDELT1", {"CDELT1"});
     headerDictionary.insert("CDELT2", {"CDELT2"});
-    headerDictionary.insert("CRVAL1", {"CRVAL1", "RA", "OBJCTRA", "MEANRA", "OBSRA", "CRVAL1A", "RA-D", "RA_DEG", "RA-HOURS"});
-    headerDictionary.insert("CRVAL2", {"CRVAL2", "DEC", "OBJCTDEC", "MEANDEC", "OBSDEC", "CRVAL2A", "DEC-D", "DEC_DEG"});
+    headerDictionary.insert("CRVAL1", {"CRVAL1", "RA", "OBJCTRA", "MEANRA", "OBSRA", "CRVAL1A", "RA-D", "RA_DEG", "RA-HOURS", "RASTRNG"});
+    headerDictionary.insert("CRVAL2", {"CRVAL2", "DEC", "OBJCTDEC", "MEANDEC", "OBSDEC", "CRVAL2A", "DEC-D", "DEC_DEG", "DECSTRNG"});
     headerDictionary.insert("RADESYS", {"RADESYS", "RADECSYS"});
     headerDictionary.insert("OBJECT", {"OBJECT", "QUEUEID", "TARGET", "TARGNAME"});
     headerDictionary.insert("AIRMASS", {"AIRMASS", "AMSTART", "HIERARCH ESO TEL AIRM START", "SECZ", "FZ_MP"});

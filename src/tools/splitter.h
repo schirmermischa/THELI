@@ -125,14 +125,14 @@ private:
     QVector<QVector<long>> overscanY;
     QVector<QVector<long>> dataSection;
     QVector<float> gain;           // gain values per chip in a multichip camera
-    QVector<float> channelGains;   // gain values per readout channel in a detector
+    QVector<float> channelGains;   // gain values per readout channel in a detector; e.g. 4-port readout mode with FORS2 not requiring pasting
     int numReadoutChannels = 1;    // number of readout channels per detector
 
     // The following must have the same first dimension
     QVector<QVector<long>> multiportOverscanSections;    // The sections containing the overscan pixels. Coord system: entire FITS extension
     QVector<QVector<long>> multiportIlluminatedSections; // The sections containing the illuminated pixels. Coord system: entire FITS channel
     QVector<QVector<long>> multiportChannelSections;     // The sections containing the entire readout channel (including overscan). Coord system: entire FITS channel
-    QVector<float> multiportGains;                       // The gain factors for each readout channel
+    QVector<float> multiportGains;                       // The gain factors for each readout channel; e.g. if amplifiers stored in different FITS extensions
     QVector<long> multiportOffsetX;                      // The x-offset of that port's data section from the lower left pixel of the pasted image
     QVector<long> multiportOffsetY;                      // The y-offset of that port's data section from the lower left pixel of the pasted image
     QStringList multiportOverscanDirections;             // Whether the overscan strips are vertical or horizontal

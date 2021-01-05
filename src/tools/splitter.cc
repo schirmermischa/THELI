@@ -247,7 +247,7 @@ void Splitter::extractImages()
     // multiple readout channels in different FITS extensions
     multiChannelMultiExt << "GMOS-N-HAM@GEMINI" << "GMOS-N-HAM_1x1@GEMINI"
                          << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI"
-                         << "SOI@SOAR";
+                         << "MOSAIC-II_16@CTIO" << "MOSAIC-III@KPNO_4m" << "SOI@SOAR";
     if (multiChannelMultiExt.contains(instData.name)) ampInSeparateExt = true;
 
     if (instruments.contains(instData.name)) {
@@ -754,11 +754,19 @@ void Splitter::getNumberOfAmplifiers()
         numAmpPerChip = 2;
         rawStatus = 0;
     }
+    if (instData.name == "MOSAIC-II_16@CTIO") {
+        numAmpPerChip = 2;
+        rawStatus = 0;
+    }
+    if (instData.name == "MOSAIC-III@KPNO_4m") {
+        numAmpPerChip = 4;
+        rawStatus = 0;
+    }
 
     // multiple readout channels in different FITS extensions
     multiChannelMultiExt << "GMOS-N-HAM@GEMINI" <<  "GMOS-N-HAM_1x1@GEMINI"
                          << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI"
-                         << "SOI@SOAR";
+                         << "MOSAIC-II_16@CTIO" << "MOSAIC-III@KPNO_4m" << "SOI@SOAR";
     if (multiChannelMultiExt.contains(instData.name)) ampInSeparateExt = true;
 
     if (numAmpPerChip > 1 && ampInSeparateExt) {
@@ -815,6 +823,22 @@ void Splitter::writeImage(int chipMapped)
         if (instData.name == "SOI@SOAR") {
             if (chipMapped == 1) chipID = 1;
             if (chipMapped == 3) chipID = 2;
+        }
+        if (instData.name == "MOSAIC-II_16@CTIO") {
+            if (chipMapped == 1) chipID = 1;
+            if (chipMapped == 3) chipID = 2;
+            if (chipMapped == 5) chipID = 3;
+            if (chipMapped == 7) chipID = 4;
+            if (chipMapped == 9) chipID = 5;
+            if (chipMapped == 11) chipID = 6;
+            if (chipMapped == 13) chipID = 7;
+            if (chipMapped == 15) chipID = 8;
+        }
+        if (instData.name == "MOSAIC-III@KPNO_4m") {
+            if (chipMapped == 3) chipID = 1;
+            if (chipMapped == 7) chipID = 2;
+            if (chipMapped == 11) chipID = 3;
+            if (chipMapped == 15) chipID = 4;
         }
         MEFpastingFinished = false;
     }
@@ -1235,7 +1259,8 @@ bool Splitter::checkCorrectMaskSize(const int chip)
 {
     long n_mask = mask->globalMask[chip].length();
     long n_data = dataCurrent.length();
-    if (n_mask > 0 && n_mask != n_data) {
+    // detectors with multi-amps (one amp per FITS extension): masked at a later stage (calibration)
+    if (n_mask > 0 && n_data > 0 && n_mask != n_data) {
         if (!maskSizeWarningShown) {
             emit messageAvailable("Inconsistent image size detected between data and instrument configuration"
                                   " (overscan and / or data section) in\n"+instData.nameFullPath, "error");
