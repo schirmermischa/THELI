@@ -415,7 +415,7 @@ void Instrument::on_saveConfigPushButton_clicked()
     }
 
     QMessageBox::information( this, "Restart required",
-                              tr("User-defined instrument configurations can be found at the bottom of the instrument selection menu after restarting THELI.") +
+                              tr("User-defined instrument configurations can be found at the bottom of the instrument selection menu after restarting THELI.\n") +
                               tr("If you edited an existing configuration, you must also restart THELI."));
 }
 

@@ -341,7 +341,7 @@ void Splitter::getMultiportInformation(int chip)
     }
 
     if (instData.name == "MOSAIC-III@KPNO_4m") {
-        naxis1 = 4096;
+        naxis1 = 4112;
         naxis2 = 4096;
 
         int naxis1channel = 0;
@@ -419,12 +419,55 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
     else {
         int channel = 0;
 
-        // detectors where the amps form two or more vertical stripes from left to right
-        // SOI@SOAR, MOSAIC-II_16@CTIO, GMOS
         for (auto &section : multiportIlluminatedSections) {
             if (section.length() != 4) continue; // skip wrong vertices, for whatever reason they might be here
-            long offx = (chip % numAmpPerChip) * naxis1 / numAmpPerChip;
+            long offx = 0;
             long offy = 0;
+            // detectors where the amps form two or more vertical stripes from left to right
+            if (instData.name == "SOI@SOAR"
+                    || instData.name.contains("GMOS")
+                    || instData.name == "MOSAIC-II_16@CTIO") {
+                offx = (chip % numAmpPerChip) * naxis1 / numAmpPerChip;
+                offy = 0;
+            }
+            if (instData.name == "MOSAIC-III@KPNO_4m") {
+                QVector<long> ampsec;
+                ampsec << extractVerticesFromKeyword("CCDSEC");
+                if (chip == 0) {offx = naxis1 / 2; offy = 0;}
+                if (chip == 1) {offx = 0; offy = 0;}
+                if (chip == 2) {offx = naxis1 / 2; offy = naxis2 / 2;}
+                if (chip == 3) {offx = 0; offy = naxis2 / 2;}
+                if (chip == 4) {offx = naxis1 / 2; offy = 0;}
+                if (chip == 5) {offx = 0; offy = 0;}
+                if (chip == 6) {offx = naxis1 / 2; offy = naxis2 / 2;}
+                if (chip == 7) {offx = 0; offy = naxis2 / 2;}
+                if (chip == 8) {offx = 0; offy = naxis2 / 2;}
+                if (chip == 9) {offx = naxis1 / 2; offy = naxis2 / 2;}
+                if (chip == 10) {offx = 0; offy = 0;}
+                if (chip == 11) {offx = naxis1/2; offy = 0;}
+                if (chip == 12) {offx = 0; offy = naxis2 / 2;}
+                if (chip == 13) {offx = naxis1 / 2; offy = naxis2 / 2;}
+                if (chip == 14) {offx = 0; offy = 0;}
+                if (chip == 15) {offx = naxis1 / 2; offy = 0;}
+                /*
+                if (chip % 4 == 0) {
+                    offx = naxis1 / 2;
+                    offy = 0;
+                }
+                if (chip % 4 == 1) {
+                    offx = 0;
+                    offy = 0;
+                }
+                if (chip % 4 == 2) {
+                    offx = 0;
+                    offy = naxis2 / 2;
+                }
+                if (chip % 4 == 3) {
+                    offx = naxis1 / 2;
+                    offy = naxis2 / 2;
+                }
+                */
+            }
             pasteSubArea(dataPasted, dataRaw, multiportIlluminatedSections[channel], multiportGains[channel],
                          offx, offy, naxis1, naxis2, naxis1Raw);
             ++channel;
