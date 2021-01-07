@@ -119,6 +119,7 @@ private:
 
     QMap<QString,QStringList> headerDictionary;
     QMap<QString,QString> filterDictionary;
+    QMap<QString,QString> instrumentDictionary;
 
     int recurseCounter = 0;
 
@@ -471,6 +472,7 @@ public:
     QLineEdit *getDataTreeLineEdit(Data *data);
     void getFieldCenter(Data *data, QString &alphaCenter, QString &deltaCenter);
 
+    void populateInstrumentDictionary();
 signals:
     void loadViewer(QString dirname, QString filter, QString mode);
     void messageAvailable(QString message, QString type);

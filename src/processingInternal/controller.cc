@@ -40,6 +40,8 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QTimer>
 #include <QProgressBar>
 
+#include <unistd.h>
+
 Controller::Controller(const instrumentDataType *instrumentData, QString statusold, ConfDockWidget *confDockWidget,
                        Monitor *processMonitor, MainWindow *parent) :
     QMainWindow(parent),
@@ -515,6 +517,7 @@ void Controller::updateAll()
 // so far called in MainGUIWorker::runTask(); should be done better by signal emission
 void Controller::loadPreferences()
 {
+    // Start with max number of CPUs (updated with user preference below)
     QSettings settings("THELI", "PREFERENCES");
     maxCPU = settings.value("prefCPUSpinBox").toInt();
     maxThreadsIO = settings.value("prefIOthreadsSpinBox").toInt();
@@ -545,7 +548,7 @@ void Controller::loadPreferences()
     // (internal threads in Data class)
     if (maxCPU > instData->numUsedChips) {
         //        maxExternalThreads = instData->numUsedChips;      // NO! The loops skipped for a bad chip will just wait until another CPU becomes available.
-        maxExternalThreads = instData->numChips;            // keep full number of CPUs instead
+        maxExternalThreads = instData->numChips;                    // keep full number of CPUs instead
         maxInternalThreads = maxCPU - maxExternalThreads + 1;
     }
     else {

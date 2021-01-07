@@ -29,6 +29,8 @@ If not, see https://www.gnu.org/licenses/ .
 
 #include "fitsio.h"
 
+#include <unistd.h>
+
 Preferences::Preferences(bool running, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Preferences)
@@ -36,7 +38,7 @@ Preferences::Preferences(bool running, QWidget *parent) :
     ui->setupUi(this);
 
     int maxCPU = QThread::idealThreadCount();
-    if (maxCPU == -1) {
+    if (maxCPU <= 0) {
         emit messageAvailable("Could not determine the number of CPUs for this machine! Max number of CPUs is set to 1.", "warning");
         emit warning();
         maxCPU = 1;
@@ -168,7 +170,7 @@ int Preferences::readSettings()
     ui->prefDiskspacewarnSpinBox->setValue(settings.value("prefDiskspacewarnSpinBox").toInt());
     ui->prefVerbosityComboBox->setCurrentIndex(settings.value("prefVerbosityComboBox").toInt());
     ui->prefServerComboBox->setCurrentText(settings.value("prefServerComboBox").toString());
-    ui->prefCPUSpinBox->setValue(settings.value("prefCPUSpinBox").toInt());
+    ui->prefCPUSpinBox->setValue(settings.value("prefCPUSpinBox", QThread::idealThreadCount()).toInt());
     ui->prefIOthreadsSpinBox->setValue(settings.value("prefIOthreadsSpinBox").toInt());
     ui->prefGPUCheckBox->setChecked(settings.value("prefGPUCheckBox").toBool());
     ui->prefProcessSkyCheckBox->setChecked(settings.value("prefProcessSkyCheckBox").toBool());
