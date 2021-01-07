@@ -259,7 +259,10 @@ macx: {
 }
 
 QMAKE_CXXFLAGS += -Wall
-QMAKE_CXXFLAGS += -O3
+
+CONFIG(release, debug|release) {
+    CONFIG += optimize_full
+}
 
 # suppress a larger number of harmless warnings (because of QMetaObject use which requires identical arguments
 # in the functions it invokes, even though these functions don't need all arguments)
