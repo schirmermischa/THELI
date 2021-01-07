@@ -70,6 +70,11 @@ bool MyImage::informSwarpfilter(long &naxis1, long &naxis2, double &crpix1, doub
     }
     fits_close_file(fptr, &status);
     printCfitsioError("MyImage::informSwarpfilter()", status);
+    if (fluxscale == 0.) {
+        emit messageAvailable(name + ": FLXSCALE = 0 in resampled FITS header. Relative photometry failed or not propagated correctly during scamp run", "error");
+        emit critical();
+        return false;
+    }
     if (status) return false;
     else return true;
 }

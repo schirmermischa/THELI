@@ -403,9 +403,10 @@ bool MyImage::scanAstromHeader(int chip, QString mode)
     while(!in.atEnd()) {
         QString line = in.readLine().simplified();
         if (line.isEmpty()) continue;
-        QStringList list = line.split(" ");
-        if (list.length() < 3) continue;
-        if (line.contains("CRVAL1")) wcs->crval[0] = list[2].toDouble();
+        QStringList list = line.split("=");
+        if (list.length() < 2) continue;
+        QString value = list.at(1).simplified().split(" ").at(0);
+        /*if (line.contains("CRVAL1")) wcs->crval[0] = list[2].toDouble();
         if (line.contains("CRVAL2")) wcs->crval[1] = list[2].toDouble();
         if (line.contains("CRPIX1")) wcs->crpix[0] = list[2].toFloat();
         if (line.contains("CRPIX2")) wcs->crpix[1] = list[2].toFloat();
@@ -415,8 +416,18 @@ bool MyImage::scanAstromHeader(int chip, QString mode)
         if (line.contains("CD2_2")) wcs->cd[3] = list[2].toDouble();
         if (line.contains("FLXSCALE")) FLXSCALE = list[2].toFloat();
         if (line.contains("RZP")) RZP = list[2].toFloat();
+        */
+        if (line.contains("CRVAL1")) wcs->crval[0] = value.toDouble();
+        if (line.contains("CRVAL2")) wcs->crval[1] = value.toDouble();
+        if (line.contains("CRPIX1")) wcs->crpix[0] = value.toFloat();
+        if (line.contains("CRPIX2")) wcs->crpix[1] = value.toFloat();
+        if (line.contains("CD1_1")) wcs->cd[0] = value.toDouble();
+        if (line.contains("CD1_2")) wcs->cd[1] = value.toDouble();
+        if (line.contains("CD2_1")) wcs->cd[2] = value.toDouble();
+        if (line.contains("CD2_2")) wcs->cd[3] = value.toDouble();
+        if (line.contains("FLXSCALE")) FLXSCALE = value.toFloat();
+        if (line.contains("RZP")) RZP = value.toFloat();
     }
-
     file.close();
 
     // Do not update the WCS matrix if it is significantly flawed
@@ -1078,11 +1089,12 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
     fits_update_key_dbl(fptr, "CD2_2", wcs->cd[3], 9, nullptr, &status);
     if (std::isnan(RZP)) {
         RZP = 0.;
-        FLXSCALE = 0.;
-        emit messageAvailable(chipName + " : Scamp could not determine the relative zeropoint. Set to 0!", "warning");
+        FLXSCALE = 0.0;
+        emit messageAvailable(chipName + " : Scamp could not determine the relative zeropoint. Set to 0!", "error");
+        emit critical();
     }
-    fits_update_key_flt(fptr, "RZP", RZP, 3, nullptr, &status);
-    fits_update_key_flt(fptr, "FLXSCALE", FLXSCALE, 3, nullptr, &status);
+    fits_update_key_flt(fptr, "RZP", RZP, 5, nullptr, &status);
+    fits_update_key_flt(fptr, "FLXSCALE", FLXSCALE, 5, nullptr, &status);
     if (updateMode == "restore") {
         fits_update_key_str(fptr, "ZEROHEAD", "NO", "Astrometric header update", &status); // reset the update flag
     }

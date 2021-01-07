@@ -438,7 +438,7 @@ void Controller::copyZeroOrder()
                 continue;
             }
             //            it->backupOrigHeader(chip);            // Create a backup copy of the original FITS headers if it doesn't exist yet
-            if (it->scanAstromHeader(chip, "inHeadersDir")) {    // reads the header, and updates the wcs struct in MyImage class
+            if (it->scanAstromHeader(chip, "inHeadersDir")) {    // reads the header, and updates the wcs struct in MyImage class (i.e. the memory)
                 it->updateZeroOrderOnDrive("update");            // Overwrite 0-th order solution in FITS header (if on drive)
  //               it->updateZeroOrderInMemory();                   // Overwrite 0-th order solution in memory
             }
