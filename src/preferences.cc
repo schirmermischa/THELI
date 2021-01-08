@@ -47,7 +47,6 @@ Preferences::Preferences(bool running, QWidget *parent) :
     if (!fits_is_reentrant()) maxCPU = 1;
 
     ui->prefCPUSpinBox->setMaximum(maxCPU);
-    ui->prefIOthreadsSpinBox->setMaximum(maxCPU);
 
     applyStyleSheets();
 
@@ -70,6 +69,10 @@ Preferences::Preferences(bool running, QWidget *parent) :
         ui->memoryFrame->setEnabled(true);
         ui->prefIntermediateDataComboBox->setEnabled(true);
     }
+
+    ui->prefServerComboBox->hide();
+    ui->prefDataServerLabel->hide();
+    ui->prefProcessSkyCheckBox->hide();
 }
 
 void Preferences::configureMemory()
@@ -153,7 +156,6 @@ int Preferences::writeSettings()
     settings_lastproject.setValue("prefVerbosityComboBox", ui->prefVerbosityComboBox->currentIndex());
     settings_lastproject.setValue("prefDiskspacewarnSpinBox", ui->prefDiskspacewarnSpinBox->value());
     settings_lastproject.setValue("prefCPUSpinBox", ui->prefCPUSpinBox->value());
-    settings_lastproject.setValue("prefIOthreadsSpinBox", ui->prefIOthreadsSpinBox->value());
     settings_lastproject.setValue("prefGPUCheckBox", ui->prefGPUCheckBox->isChecked());
     settings_lastproject.setValue("prefProcessSkyCheckBox", ui->prefProcessSkyCheckBox->isChecked());
     settings_lastproject.setValue("prefMemorySpinBox", ui->prefMemorySpinBox->value());
@@ -167,18 +169,17 @@ int Preferences::writeSettings()
 int Preferences::readSettings()
 {
     QSettings settings("THELI", "PREFERENCES");
-    ui->prefDiskspacewarnSpinBox->setValue(settings.value("prefDiskspacewarnSpinBox").toInt());
-    ui->prefVerbosityComboBox->setCurrentIndex(settings.value("prefVerbosityComboBox").toInt());
+    ui->prefDiskspacewarnSpinBox->setValue(settings.value("prefDiskspacewarnSpinBox", 256).toInt());
+    ui->prefVerbosityComboBox->setCurrentIndex(settings.value("prefVerbosityComboBox", 1).toInt());
     ui->prefServerComboBox->setCurrentText(settings.value("prefServerComboBox").toString());
     ui->prefCPUSpinBox->setValue(settings.value("prefCPUSpinBox", QThread::idealThreadCount()).toInt());
-    ui->prefIOthreadsSpinBox->setValue(settings.value("prefIOthreadsSpinBox").toInt());
-    ui->prefGPUCheckBox->setChecked(settings.value("prefGPUCheckBox").toBool());
-    ui->prefProcessSkyCheckBox->setChecked(settings.value("prefProcessSkyCheckBox").toBool());
+    ui->prefGPUCheckBox->setChecked(settings.value("prefGPUCheckBox", false).toBool());
+    ui->prefProcessSkyCheckBox->setChecked(settings.value("prefProcessSkyCheckBox", false).toBool());
     ui->prefFontsizeSpinBox->setValue(settings.value("prefFontsizeSpinBox").toInt());
     ui->prefMemorySpinBox->setValue(settings.value("prefMemorySpinBox", maxMemoryUsed).toInt());
-    ui->prefSwitchProcessMonitorCheckBox->setChecked(settings.value("prefSwitchProcessMonitorCheckBox").toBool());
-    ui->prefIntermediateDataComboBox->setCurrentText(settings.value("prefIntermediateDataComboBox").toString());
-    ui->prefMemoryCheckBox->setChecked(settings.value("prefMemoryCheckBox").toBool());
+    ui->prefSwitchProcessMonitorCheckBox->setChecked(settings.value("prefSwitchProcessMonitorCheckBox", true).toBool());
+    ui->prefIntermediateDataComboBox->setCurrentText(settings.value("prefIntermediateDataComboBox", "If necessary").toString());
+    ui->prefMemoryCheckBox->setChecked(settings.value("prefMemoryCheckBox", false).toBool());
     this->setFont(settings.value("prefFont").value<QFont>());
     return settings.status();
 }
@@ -219,20 +220,9 @@ void Preferences::on_prefDiskspacewarnSpinBox_valueChanged(int arg1)
     emit diskspacewarnChanged(arg1);
 }
 
-void Preferences::on_prefServerComboBox_activated(const QString &arg1)
-{
-    emit serverChanged(arg1);
-}
-
 void Preferences::on_prefCPUSpinBox_valueChanged(int arg1)
 {
     emit numcpuChanged(arg1);
-}
-
-void Preferences::on_prefIOthreadsSpinBox_valueChanged(int arg1)
-{
-    if (arg1 > 1) ui->prefIOthreadsSpinBox->setSuffix(" I/O threads");
-    else ui->prefIOthreadsSpinBox->setSuffix(" I/O thread");
 }
 
 void Preferences::on_prefMemoryCheckBox_clicked()

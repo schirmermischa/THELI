@@ -519,14 +519,13 @@ void Controller::loadPreferences()
 {
     // Start with max number of CPUs (updated with user preference below)
     QSettings settings("THELI", "PREFERENCES");
-    maxCPU = settings.value("prefCPUSpinBox").toInt();
-    maxThreadsIO = settings.value("prefIOthreadsSpinBox").toInt();
-    useGPU = settings.value("prefGPUCheckBox").toBool();
+    maxCPU = settings.value("prefCPUSpinBox", QThread::idealThreadCount()).toInt();
+    useGPU = settings.value("prefGPUCheckBox", false).toBool();
     maxRAM = 0.75 * settings.value("prefMemorySpinBox").toInt();                   // 75% of RAM
-    verbosity = settings.value("prefVerbosityComboBox").toInt();
-    if (settings.value("prefIntermediateDataComboBox") == "If necessary") alwaysStoreData = false;
+    verbosity = settings.value("prefVerbosityComboBox", 1).toInt();
+    if (settings.value("prefIntermediateDataComboBox", "If necessary") == "If necessary") alwaysStoreData = false;
     else alwaysStoreData = true;
-    minimizeMemoryUsage = settings.value("prefMemoryCheckBox").toBool();
+    minimizeMemoryUsage = settings.value("prefMemoryCheckBox", false).toBool();
 
     availableThreads = maxCPU;
 

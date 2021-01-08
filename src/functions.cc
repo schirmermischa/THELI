@@ -58,8 +58,10 @@ QStringList datadir2StringList(QLineEdit *lineEdit)
 
 QString get_fileparameter(QFile *file, QString parametername, QString warn)
 {
+    if (file->fileName().isEmpty()) return "";  // Suppressing an error when the user launches THELI for the very first time
+
     if(!file->open(QIODevice::ReadOnly)) {
-        qDebug() << "get_fileparameter: "+file->fileName()+" "+file->errorString();
+        qDebug() << __func__ << file->fileName() << file->errorString();
         return "";
     }
 

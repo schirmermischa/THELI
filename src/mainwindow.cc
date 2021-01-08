@@ -131,6 +131,7 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
 
     // NOTE: setting up the controller may take a while (when creating object masks)
     controller = new Controller(&instData, statusOld, cdw, monitor, this);
+
     // LineEdit changes update controller
     for (auto &it : status.listDataDirs) {
         //        connect(it, &QLineEdit::textChanged, controller, &Controller::updateSingle);
@@ -209,6 +210,8 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     startProgressBars(); // must (or should) be done after settings are read and controller is live
 
     estimateBinningFactor();
+
+    setHomeDir();  // mostly first time launch, only
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -690,11 +693,6 @@ void MainWindow::updateDiskspaceWarning(int newLimit)
 {
     diskwarnPreference = newLimit;
     datadiskspace_warned = false;
-}
-
-void MainWindow::updateServer(QString server)
-{
-    downloadServer = server;
 }
 
 void MainWindow::updateNumcpu(int cpu)
@@ -1407,7 +1405,6 @@ void MainWindow::loadPreferences()
     connect(preferences, &Preferences::fontSizeChanged, this, &MainWindow::updateFontSize);
     connect(preferences, &Preferences::fontChanged, this, &MainWindow::updateFont);
     connect(preferences, &Preferences::diskspacewarnChanged, this, &MainWindow::updateDiskspaceWarning);
-    connect(preferences, &Preferences::serverChanged, this, &MainWindow::updateServer);
     connect(preferences, &Preferences::numcpuChanged, this, &MainWindow::updateNumcpu);
     connect(preferences, &Preferences::memoryUsageChanged, controller, &Controller::updateMemoryPreference);
     connect(preferences, &Preferences::switchProcessMonitorChanged, this, &MainWindow::updateSwitchProcessMonitorPreference);
@@ -1905,4 +1902,18 @@ void MainWindow::updateMemoryProgressBarReceived(long memoryUsed)
 void MainWindow::on_setupProjectLineEdit_textChanged(const QString &arg1)
 {
     this->setWindowTitle("THELI "+GUIVERSION+"      Project: "+arg1);
+}
+
+// Used e.g. when user starts the very first time and nothing has been defined yet
+void MainWindow::setHomeDir()
+{
+    if (ui->setupBiasLineEdit->text().isEmpty()
+            && ui->setupDarkLineEdit->text().isEmpty()
+            && ui->setupFlatoffLineEdit->text().isEmpty()
+            && ui->setupFlatLineEdit->text().isEmpty()
+            && ui->setupScienceLineEdit->text().isEmpty()
+            && ui->setupSkyLineEdit->text().isEmpty()
+            && ui->setupStandardLineEdit->text().isEmpty()
+            && ui->setupMainLineEdit->text().isEmpty())
+        ui->setupMainLineEdit->setText(QDir::homePath());
 }

@@ -37,10 +37,8 @@ int MainWindow::readPreferenceSettings(QString &projectname)
     QSettings settings("THELI", "PREFERENCES");
     projectname = settings.value("setupProjectLineEdit","").toString();
     diskwarnPreference = settings.value("prefDiskspacewarnSpinBox",100).toInt();
-    editorPreference = settings.value("prefEditorComboBox").toString();
-    downloadServer = settings.value("prefServerComboBox").toString();
-    switchProcessMonitorPreference = settings.value("prefSwitchProcessMonitorCheckBox").toBool();
-    numCPU = settings.value("prefCPUSpinBox",1).toInt();
+    switchProcessMonitorPreference = settings.value("prefSwitchProcessMonitorCheckBox", true).toBool();
+    numCPU = settings.value("prefCPUSpinBox", QThread::idealThreadCount()).toInt();
     restoreGeometry(settings.value("myWidget/geometry").toByteArray());
     restoreState(settings.value("myWidget/windowState").toByteArray());
     return settings.status();

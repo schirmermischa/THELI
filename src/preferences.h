@@ -55,9 +55,7 @@ private slots:
     void on_prefFontsizeSpinBox_valueChanged(int arg1);
     void on_prefDefaultFontPushButton_clicked();
     void on_prefDiskspacewarnSpinBox_valueChanged(int arg1);
-    void on_prefServerComboBox_activated(const QString &arg1);
     void on_prefCPUSpinBox_valueChanged(int arg1);
-    void on_prefIOthreadsSpinBox_valueChanged(int arg1);
     void on_prefMemoryCheckBox_clicked();
     void on_prefIntermediateDataComboBox_currentTextChanged(const QString &arg1);
     void on_prefVerbosityComboBox_currentIndexChanged(int index);

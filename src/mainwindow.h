@@ -70,18 +70,13 @@ public:
     explicit MainWindow(QString pid, QWidget *parent = nullptr);
     ~MainWindow();
 
+    QString GUIVERSION = "3.0.5";
     QString instrument_dir;
     QString instrument_userDir;
-
-    QString GUIVERSION = "3.0.5";
-
-    QString editorPreference;
-    QString downloadServer;
     QString mainPID;
+
     IView *solutionViewer;
-
     Controller *controller;
-
     ConfDockWidget *cdw;
     Monitor *monitor;
     MemoryViewer *memoryViewer = nullptr;
@@ -187,7 +182,6 @@ private slots:
     void updateFontSize(int index);
     void updateFont(QFont font);
     void updateDiskspaceWarning(int newLimit);
-    void updateServer(QString server);
     void updateNumcpu(int cpu);
     void updateController();
     void updateControllerFunctors(QString text);
@@ -347,6 +341,7 @@ private:
     void printCfitsioError(QString funcName, int status);
     bool checkCatalogUsability(QString mode);
     void startProgressBars();
+    void setHomeDir();
 };
 
 // Subclassing QStringListModel to allow certain entries being shown with different colors
