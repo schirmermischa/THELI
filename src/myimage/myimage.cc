@@ -625,6 +625,11 @@ void MyImage::updateHeaderValue(QString keyName, QString keyValue)
     }
 }
 
+void MyImage::updateHeaderSaturation()
+{
+    updateHeaderValue("SATURATE", saturationValue);
+}
+
 void MyImage::updateHeaderValueInFITS(QString keyName, QString keyValue)
 {
     if (!successProcessing) return;
@@ -735,6 +740,7 @@ void MyImage::subtractBias(const MyImage *biasImage, QString dataType)
     }
 
     saturationValue -= biasImage->skyValue;
+    updateHeaderValue("SATURATE", saturationValue);
 
     QString mode = "";
     if (dataType == "BIAS") mode = "bias subtracted";
@@ -808,6 +814,7 @@ void MyImage::divideFlat(const MyImage *flatImage)
     }
 
     saturationValue /= flatImage->gainNormalization;
+    updateHeaderValue("SATURATE", saturationValue);
 
     if (*verbosity > 1) emit messageAvailable(chipName + " : Flat fielded", "image");
     successProcessing = true;
@@ -832,6 +839,7 @@ void MyImage::applyBackgroundModel(const MyImage *backgroundImage, QString mode,
         }
 
         saturationValue -= backgroundImage->skyValue * rescale;
+        updateHeaderValue("SATURATE", saturationValue);
 
         QString img = " IMG = "+QString::number(skyValue, 'f', 3) + ";";
         QString back = " BACK = "+QString::number(backgroundImage->skyValue, 'f', 3) + ";";
@@ -851,6 +859,7 @@ void MyImage::applyBackgroundModel(const MyImage *backgroundImage, QString mode,
         }
 
         saturationValue /= backgroundImage->skyValue;
+        updateHeaderValue("SATURATE", saturationValue);
 
         QString img = " IMG = "+QString::number(skyValue, 'f', 3) + ";";
         QString back = " BACK = "+QString::number(backgroundImage->skyValue, 'f', 3) + ";";
@@ -1031,16 +1040,18 @@ void MyImage::removeSourceCatalogs()
 
 // This routine is used when reading an external image
 // (and possibly its existing weight in the same directory, such as a pair of coadd.fits and coadd.weight.fits)
+// So far only used for creating astrometric reference catalogs
 void MyImage::setupCoaddMode()
 {
-    readImage();
+    readImage(path+"/"+name);
 
     // Setup an empty dummy globalMask
     //    globalMask = QVector<bool>();
     globalMaskAvailable = false;
 
     // Load a matching weight image, if one exists
-    weightName.append(".fits");
+    // weightName.append(".fits");
+    weightName = baseName + ".weight.fits";
 
     QFile file(path+"/"+weightName);
     if (!file.exists()) return;

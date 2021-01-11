@@ -98,7 +98,9 @@ void Splitter::buildTheliHeaderMJDOBS()
 
     // List of instruments for which MJD-OBS is not reliable and should be constructed from DATE-OBS
     QStringList instruments = {"GSAOI@GEMINI", "GSAOI_CHIP1@GEMINI", "GSAOI_CHIP2@GEMINI", "GSAOI_CHIP3@GEMINI", "GSAOI_CHIP4@GEMINI",
-                               "FLAMINGOS2@GEMINI"};
+                               "FLAMINGOS2@GEMINI",
+                               "SAMI_2x2@SOAR"          // integer
+                              };
     if (instruments.contains(instData.name)) {
         if (!dateObsValue.isEmpty()) {
             mjdobsValue = dateobsToMJD();
@@ -140,6 +142,7 @@ void Splitter::buildTheliHeaderMJDOBS()
     }
 }
 
+// UNUSED
 void Splitter::buildTheliHeaderSATURATION()
 {
     QString card = "SATURATE= " + QString::number(saturationValue, 'f', 6) + " / Saturation level for this image";
@@ -169,6 +172,8 @@ void Splitter::buildTheliHeaderWCS(int chip)
 
 void Splitter::WCSbuildCRPIX(int chip)
 {
+    if (!successProcessing) return;
+
     // Exceptions. Return if successful.
     if (individualFixCRPIX(chip)) return;
 
@@ -188,6 +193,8 @@ void Splitter::WCSbuildCRPIX(int chip)
 // Instrument dependent
 void Splitter::WCSbuildCRVAL()
 {
+    if (!successProcessing) return;
+
     // Exceptions. Return if successful.
     if (individualFixCRVAL()) return;
 
@@ -202,6 +209,8 @@ void Splitter::WCSbuildCRVAL()
 
 void Splitter::WCSbuildCTYPE()
 {
+    if (!successProcessing) return;
+
     QStringList headerWCS;
 
     // CTYPEi are fixed no matter what!
@@ -218,6 +227,8 @@ void Splitter::WCSbuildCTYPE()
 // Instrument dependent
 void Splitter::WCSbuildCDmatrix(int chip)
 {
+    if (!successProcessing) return;
+
     // Exceptions. Return if successful.
     if (individualFixCDmatrix(chip)) return;
 
@@ -261,6 +272,8 @@ void Splitter::WCSbuildCDmatrix(int chip)
 
 void Splitter::WCSbuildRADESYS()
 {
+    if (!successProcessing) return;
+
     QStringList headerWCS;
     QString wcsKey = "RADESYS";
     bool keyFound = searchKey(wcsKey, headerDictionary.value(wcsKey), headerWCS);
@@ -275,6 +288,8 @@ void Splitter::WCSbuildRADESYS()
 
 void Splitter::WCSbuildEQUINOX()
 {
+    if (!successProcessing) return;
+
     QStringList headerWCS;
     QString wcsKey = "EQUINOX";
     bool keyFound = searchKey(wcsKey, headerDictionary.value(wcsKey), headerWCS);
@@ -289,6 +304,8 @@ void Splitter::WCSbuildEQUINOX()
 
 bool Splitter::individualFixCRVAL()
 {
+    if (!successProcessing) return false;
+
     bool individualFixDone = false;
 
     QStringList headerWCS;
@@ -347,6 +364,8 @@ bool Splitter::individualFixCRVAL()
 
 bool Splitter::individualFixCRPIX(int chip)
 {
+    if (!successProcessing) return false;
+
     bool individualFixDone = false;
 
     QStringList headerWCS;
@@ -421,6 +440,14 @@ bool Splitter::individualFixCRPIX(int chip)
         if (chip == 15) crpix2_card = "CRPIX2  = 4136";
         individualFixDone = true;
     }
+    if (instData.name == "SAMI_2x2@SOAR") {
+        if (chip == 3) {
+            crpix1_card = "CRPIX1  = 1024";
+            crpix1_card = "CRPIX1  = 1024";
+        }
+        individualFixDone = true;
+    }
+
 
 
     // Append only when all channels of one chip have been read (i.e., 'individualFixDone' == true)
@@ -437,6 +464,8 @@ bool Splitter::individualFixCRPIX(int chip)
 
 bool Splitter::individualFixCDmatrix(int chip)
 {
+    if (!successProcessing) return false;
+
     bool individualFixDone = false;
 
     QStringList headerWCS;
@@ -802,11 +831,14 @@ void Splitter::buildTheliHeaderGAIN(int chip)
     headerTHELI.append(card1);
     headerTHELI.append(card2);
 
+    gainForSaturation = chipGain;
     gain[chip] = chipGain;   // used to convert the pixel data from ADU to electrons
 }
 
 bool Splitter::individualFixGAIN(int chip)
 {
+    if (!successProcessing) return false;
+
     bool individualFixDone = false;
 
     chipGain = 1.0;
@@ -877,6 +909,10 @@ bool Splitter::individualFixGAIN(int chip)
         chipGain = harmonicGain(multiportGains);
         individualFixDone = true;
     }
+    else if (instData.name == "SAMI_2x2@SOAR") {
+        chipGain = harmonicGain(multiportGains);
+        individualFixDone = true;
+    }
     else if (instData.name == "FORS1_199904-200703@VLT" || instData.name == "FORS2_200004-200203@VLT") {
         // 1-port read mode or 4-port read mode?
         numReadoutChannels = 0;
@@ -911,12 +947,18 @@ bool Splitter::individualFixGAIN(int chip)
         headerTHELI.append(card1);
         headerTHELI.append(card2);
 
-        if (instData.name.contains("GMOS-N-HAM") || instData.name.contains("GMOS-S-HAM")) {
-            gain[chip/4] = chipGain;
+        if (instData.name.contains("GMOS-N-HAM")
+                || instData.name.contains("GMOS-S-HAM")
+                || instData.name.contains("SAMI")
+                || instData.name == "MOSAIC-II_16@CTIO"
+                || instData.name == "MOSAIC-III@KPNO_4m") {
+            gain[chip/numAmpPerChip] = chipGain;
         }
         else {
             gain[chip] = chipGain;        // not applied for e.g. SuprimeCam_200808-201705
         }
+
+        gainForSaturation = chipGain;
     }
 
     return individualFixDone;
@@ -994,11 +1036,12 @@ void Splitter::buildTheliHeaderFILTER()
                             || filterName.contains("clr", Qt::CaseInsensitive)
                             || filterName.contains("csl", Qt::CaseInsensitive)          // MOIRCS
                             || filterName.contains("hole", Qt::CaseInsensitive)         // MOIRCS
+                            || filterName.contains("unavailable", Qt::CaseInsensitive)  // SAMI
                             || filterName.contains("open", Qt::CaseInsensitive)) {
                         clearFound = true;
                         continue;
                     }
-                    // Skip if filter name suggests that the slot was empty
+                    // Skip if filter name suggests that a dark was taken
                     if (filterName.contains("dark", Qt::CaseInsensitive)
                             || filterName.contains("close", Qt::CaseInsensitive)) {
                         darkFound = true;

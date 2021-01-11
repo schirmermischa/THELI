@@ -46,7 +46,7 @@ DetectedObject::DetectedObject(const QList<long> &objectIndices, const QVector<f
     mask(_mask),
     weightInMemory(weightinmemory),
     wcs(wcsImage),
-    saturationValue(satVal),
+    saturationValue(0.98*satVal),    // 98%: some margin against effective saturation, which might occur at slightly lower values already
     gain(gainval)                    // GAIN is 1.0 always as we convert ADU to electrons during HDU reformatting, already. Kept for clarity
 {
     area = objectIndices.length();
@@ -148,8 +148,6 @@ void DetectedObject::computeObjectParams()
     // Applied only when writing catalogs to disk for scamp
     // correctOriginOffset();
     calcSkyCoords();
-
-//    qDebug() << FLAGS;
 }
 
 void DetectedObject::calcFlux()

@@ -72,6 +72,7 @@ void Splitter::correctOverscan()
     }
 
     // Update the saturation value
+//    qDebug() << saturationValue << overscanEffective;
     saturationValue -= overscanEffective;
 }
 
@@ -401,9 +402,8 @@ void Splitter::convertToElectrons(int chip)
 
     if (!MEFpastingFinished) return;
 
-
-    // Update saturation value
-    saturationValue *= gain[chip];
+    // Update saturation value          // done in buildTheliHeaderGAIN(int chip)
+    // saturationValue *= gain[chip];
 
     // cameras with multiple readout channels AND different gain per channel (but no overscan pasted into the data section)
     // WARNING: ASSUMPTIONS: applies to the size defined in camera.ini
@@ -419,21 +419,27 @@ void Splitter::convertToElectrons(int chip)
                     if (i>=1023 && j>=1024) pixel *= channelGains[3];   // upper right quadrant
                 }
             }
+            gainForSaturation = minVec_T(channelGains);    // SATURATE keyword shall reflect lowest number at which saturation occurs
         }
     }
 
     //    if (instData.name == "GROND_NIR@MPGESO") {
     if (instNameFromData == "GROND_NIR@MPGESO") {
         gain[chip] = 1.0;   // Gain is fixed in writeImageIndividual();
+        saturationValue *= gainForSaturation;
         return;
     }
     if (instData.name == "SuprimeCam_200808-201705@SUBARU") {
+        saturationValue *= gainForSaturation;
         return;
     }
     if (multiChannelMultiExt.contains(instData.name)) {
-        // GMOS, SOI, MOSAIC-II_16@CTIO
+        // GMOS, SOI, MOSAIC-II_16@CTIO, etc
+        saturationValue *= gainForSaturation;
         return;
     }
+
+    saturationValue *= gainForSaturation;
 
     for (auto &pixel : dataCurrent) {
         pixel *= gain[chip];

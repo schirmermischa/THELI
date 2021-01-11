@@ -1202,6 +1202,7 @@ void AbsZeroPoint::on_closePushButton_clicked()
 
 void AbsZeroPoint::on_showAbsphotPushButton_clicked()
 {
+    // TODO: show sources that are kept after the fit in yet another color
     if (!iViewOpen) {
         iView = new IView("FITSmonochrome", ui->zpImageLineEdit->text(), this);
         connect(iView, &IView::closed, this, &AbsZeroPoint::iViewClosed);

@@ -113,6 +113,8 @@ private:
 
     double rad = 3.1415926535 / 180.;
 
+    float minCoaddSaturationValue = 1.e12;
+
     QString statusAtDistribute = "";
 
     instrumentDataType altInstData;   // For instruments with e.g. simultaneous optical and NIR detectors requiring different masks during HDU reformatting
@@ -288,6 +290,7 @@ private:
     long makeAnetHeaderList(Data *scienceData);
     bool setupBackgroundList(int chip, Data *skyData, const QString &chipName);
     void combineAllBackgroundUsabilityFlags(const QList<MyImage *> &backgroundList);
+    void getMinimumSaturationValue();
 private slots:
 //    void displayRAMload();
 //    void displayMemoryTotalUsed();

@@ -160,7 +160,7 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
         it->checkWCSsanity();
         it->readWeight();
         it->backgroundModel(256, "interpolate");
-        it->updateSaturation(saturation);
+//        it->updateSaturation(saturation);        // Handled during splitting
         if (it->dataBackground.capacity() == 0) {
             if (successProcessing) emit messageAvailable(it->chipName + " : Background vector has zero capacity!", "error");
             criticalReceived();

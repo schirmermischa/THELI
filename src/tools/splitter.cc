@@ -72,6 +72,7 @@ Splitter::Splitter(const instrumentDataType &instrumentData, const Mask *detecto
 
 void Splitter::backupRawFile()
 {
+    if (!successProcessing) return;
     moveFile(fileName, path, path+"/RAWDATA/");
 }
 
@@ -205,7 +206,6 @@ void Splitter::consistencyChecks()
 
 void Splitter::compileNumericKeys()
 {
-
     numericKeyNames.clear();
     numericKeyNames.append(headerDictionary.value("CRVAL1"));
     numericKeyNames.append(headerDictionary.value("CRVAL2"));
@@ -227,7 +227,6 @@ void Splitter::compileNumericKeys()
     numericKeyNames.append(headerDictionary.value("LST"));
 }
 
-
 void Splitter::extractImages()
 {
     if (!successProcessing) return;
@@ -247,7 +246,7 @@ void Splitter::extractImages()
     // multiple readout channels in different FITS extensions
     multiChannelMultiExt << "GMOS-N-HAM@GEMINI" << "GMOS-N-HAM_1x1@GEMINI"
                          << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI"
-                         << "MOSAIC-II_16@CTIO" << "MOSAIC-III@KPNO_4m" << "SOI@SOAR";
+                         << "MOSAIC-II_16@CTIO" << "MOSAIC-III@KPNO_4m" << "SAMI_2x2@SOAR" << "SOI@SOAR";
     if (multiChannelMultiExt.contains(instData.name)) ampInSeparateExt = true;
 
     if (instruments.contains(instData.name)) {
@@ -277,11 +276,24 @@ void Splitter::extractImagesFITS()
     // is identical to the 'chip' number used throughout the rest of this source code
     readPrimaryHeader();
 
+    // Check if the instrument matches the data
+    // This does NOT catch all inconsistent matches at this point (e.g. we are not comparing detector identification strings),
+    // and the INSTRUME keyword has not been determined for all pre-defined instruments yet. In the altter case, the test is skipped.
+    QString instrument = "";
+    searchKeyValue(headerDictionary.value("INSTRUME"), instrument);
+    if (!checkInstrumentConsistency(instrument)) {
+        if (rawStatus == END_OF_FILE) rawStatus = 0;
+        fits_close_file(rawFptr, &rawStatus);
+        printCfitsioError("extractImagesFITS()", rawStatus);
+        return;
+    }
+
     // FORCE a beginning with the absolute first HDU. If I use 'movrel' then I'm not sure it is going to skip
     // over the first HDU if there is one. To be tested with suitable data. Then we could remove the 'movabs'
     // and make 'movrel' the first command inside 'while () {}'
     fits_movabs_hdu(rawFptr, 1, &hduType, &rawStatus);
     while (rawStatus != END_OF_FILE && successProcessing) {
+
         if (hduType == IMAGE_HDU) {
 
             // some multi-chip cams (FORS, etc) come with separate FITS files. For them, 'chip' would always be zero,
@@ -309,6 +321,11 @@ void Splitter::extractImagesFITS()
 
             // OK, we have either a 2D image or a cube.
 
+            // Saturation handling
+            if (instData.type == "OPT") saturationValue = pow(2,16)-1.;
+            else saturationValue = pow(2,20)-1.;    // HAWAII-2RGs can on-chip coadd exposures, exceeding the usual 16-bit dynamic range
+            if (userSaturationValue != 0) saturationValue = userSaturationValue;
+
             // Build the header. Must clear before processing new chip
             headerTHELI.clear();
             readExtHeader();
@@ -334,6 +351,9 @@ void Splitter::extractImagesFITS()
 
             //            buildTheliHeaderGAIN(chipMapped);
             //            buildTheliHeader();
+
+            // Leave if this image is bad
+            if (!successProcessing) continue;
 
             // 2D image
             if (naxis == 2) {
@@ -762,11 +782,15 @@ void Splitter::getNumberOfAmplifiers()
         numAmpPerChip = 4;
         rawStatus = 0;
     }
+    if (instData.name == "SAMI_2x2@SOAR") {
+        numAmpPerChip = 4;
+        rawStatus = 0;
+    }
 
     // multiple readout channels in different FITS extensions
     multiChannelMultiExt << "GMOS-N-HAM@GEMINI" <<  "GMOS-N-HAM_1x1@GEMINI"
                          << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI"
-                         << "MOSAIC-II_16@CTIO" << "MOSAIC-III@KPNO_4m" << "SOI@SOAR";
+                         << "MOSAIC-II_16@CTIO" << "MOSAIC-III@KPNO_4m" << "SAMI_2x2@SOAR" << "SOI@SOAR";
     if (multiChannelMultiExt.contains(instData.name)) ampInSeparateExt = true;
 
     if (numAmpPerChip > 1 && ampInSeparateExt) {
@@ -839,6 +863,9 @@ void Splitter::writeImage(int chipMapped)
             if (chipMapped == 7) chipID = 2;
             if (chipMapped == 11) chipID = 3;
             if (chipMapped == 15) chipID = 4;
+        }
+        if (instData.name == "SAMI_2x2@SOAR") {
+            if (chipMapped == 3) chipID = 1;
         }
         MEFpastingFinished = false;
     }
@@ -1269,6 +1296,18 @@ bool Splitter::checkCorrectMaskSize(const int chip)
             maskSizeWarningShown = true;
             return false;
         }
+    }
+    return true;
+}
+
+bool Splitter::checkInstrumentConsistency(QString foundInstrumentName)
+{
+    QString expectedInstrumentName = instrumentDictionary.value(instData.name);
+    if (!expectedInstrumentName.isEmpty() && expectedInstrumentName != foundInstrumentName) {
+        emit messageAvailable(fileName + ": Wrong instrument selected: Expected " + instData.name + ", found " + foundInstrumentName, "error");
+        emit critical();
+        successProcessing = false;
+        return false;
     }
     return true;
 }

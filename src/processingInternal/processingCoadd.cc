@@ -90,6 +90,8 @@ void Controller::taskInternalCoaddition()
         }
     }
 
+    getMinimumSaturationValue();
+
     // The various coadd tasks are daisy-chained through signals and slots
     coaddSmoothEdge();
 
@@ -988,6 +990,7 @@ void Controller::coaddUpdate()
         coadd->weightName = "coadd";
         coadd->readWeight();
         coadd->gain = 1.0;
+        coadd->saturationValue = minCoaddSaturationValue;
         maxVal = maxVec_T(coadd->dataCurrent);
         float radius = sqrt(coadd->naxis1*coadd->naxis1 + coadd->naxis2*coadd->naxis2) / 2. * coadd->plateScale / 60.;   // in arcmin
         // Enforce an upper limit to the download catalog (the query also has a built-in limit of # sources < 1e6)
@@ -1085,7 +1088,7 @@ void Controller::coaddUpdate()
     fits_update_key_flt(fptr, "SKYVALUE", coaddSkyvalue, 3, "Effective background value [e-/s]", &status);
     fits_update_key_flt(fptr, "GAIN", coaddGain, 3, "Effective gain", &status);
     fits_update_key_str(fptr, "UNITS", "e-/s", "Pixels are photo-electrons / second", &status);
-    fits_update_key_flt(fptr, "SATURATE", 1000., 3, "Currently undetermined (e-)", &status);
+    fits_update_key_flt(fptr, "SATURATE", minCoaddSaturationValue, 3, "Lowest value at which saturation occurs [e-/s]", &status);
     if (!skippedIQ) {
         fits_update_key_flt(fptr, "FWHM_I", seeing_image, 3, "FWHM (pixel)", &status);
         fits_update_key_flt(fptr, "FWHM_W", seeing_world, 3, "FWHM (arcsec)", &status);
@@ -1111,12 +1114,32 @@ void Controller::coaddUpdate()
     // Finally, do flux calibration if requested
     if (cdw->ui->COAfluxcalibCheckBox->isChecked()) {
         emit messageAvailable("coadd.fits : Loading flux calibration module ...", "image");
-        emit loadAbsZP(coaddDirName+"/coadd.fits", maxVal);
+//        emit loadAbsZP(coaddDirName+"/coadd.fits", maxVal);
+        emit loadAbsZP(coaddDirName+"/coadd.fits", minCoaddSaturationValue);
     }
     else {
         // Now we can quit the first coaddition thread (which spawned all the other threads).
         // This will return control to mainGUI() (i.e. enable the start button again)
         workerThreadPrepare->quit();
+    }
+}
+
+void Controller::getMinimumSaturationValue()
+{
+    minCoaddSaturationValue = 1e12;
+
+    QList<MyImage*> allMyImages;
+    long numMyImages = makeListofAllImages(allMyImages, coaddScienceData);
+
+    // Update minimum saturation value (normalized to exposure time)
+    // TODO: update wrt fluxscaling
+    for (int k=0; k<numMyImages; ++k) {
+        if (abortProcess || !successProcessing) continue;
+        auto &it = allMyImages[k];
+        if (!it->successProcessing) continue;
+        if (it->saturationValue / it->exptime < minCoaddSaturationValue) {
+            minCoaddSaturationValue = it->saturationValue / it->exptime;
+        }
     }
 }
 

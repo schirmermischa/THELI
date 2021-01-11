@@ -38,6 +38,8 @@ typedef struct {
 //    float gain = 1.0;
     float radius = 0.1;   // exposure coverage radius in degrees
     float storage = 0;    // MB used for a single image
+
+
     float storageExposure = 0.; // MB used for the entire (multi-chip) exposure
     int numUsedChips;
     long nGlobal = 1;     // Overall focal plane size in x-direction

@@ -190,6 +190,15 @@ bool Splitter::searchKeyInHeaderCRVAL(const QString searchKey, const QStringList
                         || instData.name == "SITe@TLS") {
                     crval = QString::number(15.*crval.toDouble(), 'f', 12);
                 }
+                // And sometimes it may under- or overrun the [0,360] degree boundary
+                if (searchKey == "CRVAL1") {
+                    if (crval.toDouble() > 360.) crval = QString::number(crval.toDouble()-360., 'f', 12);
+                    else if (crval.toDouble() < 0.) crval = QString::number(crval.toDouble()+360., 'f', 12);
+                }
+                if (searchKey == "CRVAL2") {
+                    if (crval.toDouble() > 90.) crval = "90.0";
+                    else if (crval.toDouble() < -90.) crval = "-90.0";
+                }
 
                 // The William Herschel Telescope has its own funny "apertures" ...
                 if (instData.name.contains("@WHT")) {

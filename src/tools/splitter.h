@@ -64,6 +64,9 @@ public:
 
     float *dateObsIncrementor = nullptr;  // External variable, initialized before constructing the first Splitter object
 
+    float gainForSaturation = 1.0;
+    float minGainValue = 0.0; // unused
+
     long memoryUsed = 0;
 
     // Nonlinearity
@@ -80,11 +83,13 @@ public:
 
     QMap<QString, QStringList> headerDictionary;   // Defined once in the controller, we just link to it; NOPE! Local copy, thread safety!
     QMap<QString, QString> filterDictionary;       // Defined once in the controller, we just link to it
+    QMap<QString, QString> instrumentDictionary;   // Defined once in the controller, we just link to it
     QStringList dummyKeys;                         // Defined once in the controller, we just link to it
 
     QStringList headerTHELI;
 
-    float saturationValue = 1.e9;
+    float saturationValue = pow(2,16)-1.;
+    float userSaturationValue = 0.;
 
     QStringList multiChannelMultiExt;              // Contains all instruments having multiple readout channels, stored in separate FITS extensions
 
@@ -305,6 +310,8 @@ private:
     bool checkCorrectMaskSize(const int chip);
     QString mjdobsToDATEOBS(double mjd);
     bool individualFixDATEOBS();
+    bool checkInstrumentConsistency(QString foundInstrumentName);
+    void updateMinGainValue(float gainValue);
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

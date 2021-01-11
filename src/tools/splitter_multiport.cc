@@ -122,6 +122,7 @@ void Splitter::getMultiportInformation(int chip)
         if (detector == "CCDi") gainValue2 = gainValue1 * 1.00001;
         if (detector == "CCDz") gainValue2 = gainValue1 * 0.88904;
         multiportGains << gainValue1 << gainValue2;
+//        minGainValue = minVec_T(multiportGains);
         individualFixDone = true;
     }
 
@@ -134,6 +135,7 @@ void Splitter::getMultiportInformation(int chip)
         multiportIlluminatedSections << section;
         multiportChannelSections << section;
         multiportGains << 1.0;
+//        minGainValue = minVec_T(multiportGains);
         individualFixDone = true;
     }
 
@@ -188,6 +190,7 @@ void Splitter::getMultiportInformation(int chip)
         searchKeyValue(QStringList() << "S_GAIN3", gainValue3);
         searchKeyValue(QStringList() << "S_GAIN4", gainValue4);
         multiportGains << gainValue1 << gainValue2 << gainValue3 << gainValue4;
+//        minGainValue = minVec_T(multiportGains);
         channelGains.clear();
         channelGains << 1.0 << 1.0 << 1.0 << 1.0;   // dummy; not used anywhere else for SuprimeCam_200808-201705
         individualFixDone = true;
@@ -201,6 +204,7 @@ void Splitter::getMultiportInformation(int chip)
         multiportIlluminatedSections << section;
         multiportChannelSections << section;
         multiportGains << 1.0;
+//        minGainValue = minVec_T(multiportGains);
         individualFixDone = true;
     }
 
@@ -282,6 +286,7 @@ void Splitter::getMultiportInformation(int chip)
             else if (chip == 11) gainValue = 1.65;
         }
         multiportGains << gainValue;
+//        updateMinGainValue(gainValue);
         channelGains.clear();
         channelGains << 1.0;   // dummy;
         individualFixDone = true;
@@ -311,6 +316,7 @@ void Splitter::getMultiportInformation(int chip)
         else if (chip == 3)  gainValue = 2.0;
 
         multiportGains << gainValue;
+//        minGainValue = minVec_T(multiportGains);
         channelGains.clear();
         channelGains << 1.0;   // dummy;
         individualFixDone = true;
@@ -328,6 +334,7 @@ void Splitter::getMultiportInformation(int chip)
         multiportOverscanSections << extractVerticesFromKeyword("BIASSEC");      // given in binned units in the header
         multiportIlluminatedSections << extractVerticesFromKeyword("DATASEC");   // given in binned units in the header
         QVector<long> channelSection;
+//        updateMinGainValue(gainValue);
         channelSection << 0 << naxis1channel - 1 << 0 << naxis2channel - 1;
         multiportChannelSections << channelSection;
         if (chip % numAmpPerChip == 0) dataPasted.resize(naxis1 * naxis2);
@@ -335,6 +342,7 @@ void Splitter::getMultiportInformation(int chip)
         float gainValue = 1.0;
         searchKeyValue(QStringList() << "GAIN", gainValue);
         multiportGains << gainValue;
+//        minGainValue = minVec_T(multiportGains);
         channelGains.clear();
         channelGains << 1.0;   // dummy;
         individualFixDone = true;
@@ -359,6 +367,39 @@ void Splitter::getMultiportInformation(int chip)
         float gainValue = 1.0;
         searchKeyValue(QStringList() << "GAIN", gainValue);
         multiportGains << gainValue;
+//        updateMinGainValue(gainValue);
+        channelGains.clear();
+        channelGains << 1.0;   // dummy;
+        individualFixDone = true;
+    }
+
+    if (instData.name == "SAMI_2x2@SOAR") {
+        naxis1 = 2048;
+        naxis2 = 2056;
+
+        int naxis1channel = 0;
+        int naxis2channel = 0;
+        searchKeyValue(QStringList() << "NAXIS1", naxis1channel);
+        searchKeyValue(QStringList() << "NAXIS2", naxis2channel);
+        multiportOverscanDirections << "vertical";
+        multiportOverscanSections << extractVerticesFromKeyword("BIASSEC");      // given in binned units in the header
+        multiportIlluminatedSections << extractVerticesFromKeyword("DATASEC");   // given in binned units in the header
+        QVector<long> channelSection;
+        channelSection << 0 << naxis1channel - 1 << 0 << naxis2channel - 1;
+        multiportChannelSections << channelSection;
+        if (chip % numAmpPerChip == 0) dataPasted.resize(naxis1 * naxis2);
+
+        float gainValue = 2.1;          // http://www.soartelescope.org/soar/sites/default/files/SAM/archive/sami-manual.pdf
+        searchKeyValue(QStringList() << "GAIN", gainValue);
+        if (gainValue == 0.) {
+            if (chip == 0) gainValue = 2.10000;
+            if (chip == 1) gainValue = 2.20456;
+            if (chip == 2) gainValue = 2.09845;
+            if (chip == 3) gainValue = 2.19494;
+        }
+
+        multiportGains << gainValue;
+//        updateMinGainValue(gainValue);
         channelGains.clear();
         channelGains << 1.0;   // dummy;
         individualFixDone = true;
@@ -374,6 +415,7 @@ void Splitter::getMultiportInformation(int chip)
             emit critical();
             successProcessing = false;
         }
+//        saturationValue *= minGainValue;
     }
     else {
         // What to do for detectors that are not split up by several readout channels and overscans
@@ -400,9 +442,17 @@ void Splitter::getMultiportInformation(int chip)
     }
 }
 
+// UNUSED
+void Splitter::updateMinGainValue(float gainValue)
+{
+    if (gainValue < minGainValue) minGainValue = gainValue;
+}
+
 void Splitter::pasteMultiportIlluminatedSections(int chip)
 {
     if (!successProcessing) return;
+
+    // NOTE: multiportGains[channel] does not contain a Vector, just a scalar. Pasting is done one amp at a time
 
     // Paste the data sections into a single image of dimensions naxis1, naxis2
     if (!multiChannelMultiExt.contains(instData.name)) {
@@ -432,7 +482,7 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
             }
             if (instData.name == "MOSAIC-III@KPNO_4m") {
                 QVector<long> ampsec;
-                ampsec << extractVerticesFromKeyword("CCDSEC");
+                ampsec << extractVerticesFromKeyword("CCDSEC");       // unused
                 if (chip == 0) {offx = naxis1 / 2; offy = 0;}
                 if (chip == 1) {offx = 0; offy = 0;}
                 if (chip == 2) {offx = naxis1 / 2; offy = naxis2 / 2;}
@@ -468,6 +518,14 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
                 }
                 */
             }
+            if (instData.name == "SAMI_2x2@SOAR") {
+                QVector<long> ampsec;
+                ampsec << extractVerticesFromKeyword("CCDSEC");     //unused
+                if (chip == 0) {offx = 0; offy = 0;}
+                if (chip == 1) {offx = naxis1 / 2; offy = 0;}
+                if (chip == 2) {offx = 0; offy = naxis2 / 2;}
+                if (chip == 3) {offx = naxis1 / 2; offy = naxis2 / 2;}
+            }
             pasteSubArea(dataPasted, dataRaw, multiportIlluminatedSections[channel], multiportGains[channel],
                          offx, offy, naxis1, naxis2, naxis1Raw);
             ++channel;
@@ -493,21 +551,32 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
     long jminS = section.at(2);
     long jmaxS = section.at(3);
 
+    long dimS = dataS.length();
+    long dimT = dataT.length();
+
     // The x- and y-offsets for the illuminated sections. Calculated by taking the lower x (or y) value,
     // and checking how many equally sized sections can fit (safe, as we have usually not more than 4 sections, and the overscan areas are comparatively small)
-    long sizex = section.at(1) - section.at(0) + 1;     // section x-size
-    long sizey = section.at(3) - section.at(2) + 1;     // section y-size
-    long nsecx = section.at(0) / sizex;              // number of sections found to the left, using integer division
-    long nsecy = section.at(2) / sizey;              // number of sections found below the botton, using integer division
-    long offx = nsecx * sizex;                    // The offset for the current section in the pasted output geometry
-    long offy = nsecy * sizey;                    // The offset for the current section in the pasted output geometry
+    long sizex = section.at(1) - section.at(0) + 1;   // section x-size
+    long sizey = section.at(3) - section.at(2) + 1;   // section y-size
+    long nsecx = section.at(0) / sizex;               // number of sections found to the left, using integer division
+    long nsecy = section.at(2) / sizey;               // number of sections found below the botton, using integer division
+    long offx = nsecx * sizex;                        // The offset for the current section in the pasted output geometry
+    long offy = nsecy * sizey;                        // The offset for the current section in the pasted output geometry
 
     for (long jS=jminS; jS<=jmaxS; ++jS) {
         for (long iS=iminS; iS<=imaxS; ++iS) {
             long iT = offx+iS-iminS;
             long jT = offy+jS-jminS;
+            long sIndex = iS+nS*jS;
+            long tIndex = iT+nT*jT;
+            if (sIndex >= dimS || tIndex >= dimT) {
+                emit messageAvailable("Inconsistent image geometry. " + instData.name + " was probably not yet tested in THELI v3.", "error");
+                emit critical();
+                successProcessing = false;
+                break;
+            }
             if (iT>=nT || iT<0 || jT>=mT || jT<0) continue;   // don't paste pixels falling outside target area
-            dataT[iT+nT*jT] = dataS[iS+nS*jS] * corrFactor;   // correcting for gain differences
+            dataT[tIndex] = dataS[sIndex] * corrFactor;   // correcting for gain differences
         }
     }
 }
@@ -522,12 +591,23 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
     long jminS = section[2];
     long jmaxS = section[3];
 
+    long dimS = dataS.length();
+    long dimT = dataT.length();
+
     for (long jS=jminS; jS<=jmaxS; ++jS) {
         for (long iS=iminS; iS<=imaxS; ++iS) {
             long iT = offx+iS-iminS;
             long jT = offy+jS-jminS;
             if (iT>=nT || iT<0 || jT>=mT || jT<0) continue;   // don't paste pixels falling outside target area
-            dataT[iT+nT*jT] = dataS[iS+nS*jS] * corrFactor;   // correcting for gain differences
+            long sIndex = iS+nS*jS;
+            long tIndex = iT+nT*jT;
+            if (sIndex >= dimS || tIndex >= dimT) {
+                emit messageAvailable("Inconsistent image geometry. " + instData.name + " was probably not yet tested in THELI v3.", "error");
+                emit critical();
+                successProcessing = false;
+                break;
+            }
+            dataT[tIndex] = dataS[sIndex] * corrFactor;   // correcting for gain differences
         }
     }
 }

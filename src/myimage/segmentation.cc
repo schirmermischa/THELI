@@ -50,13 +50,6 @@ void MyImage::resetObjectMasking()
     objectMask.squeeze();
 }
 
-void MyImage::updateSaturation(QString saturation)
-{
-    if (!saturation.isEmpty()) {
-        saturationValue = saturation.toFloat();
-    }
-}
-
 void MyImage::segmentImage(const QString DTstring, const QString DMINstring, const bool convolution, const bool writeSegImage)
 {
     if (*verbosity > 1) emit messageAvailable(chipName + " : Detecting objects ... ", "image");

@@ -174,6 +174,7 @@ void Controller::skysubPolynomialFit(Data *scienceData)
                 it->freeAll();
             }
             it->saturationValue -= it->meanExposureBackground;
+            it->updateHeaderSaturation();
             emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2) + " e-", "image");
 #pragma omp atomic
             progress += progressStepSize;
@@ -274,6 +275,7 @@ void Controller::skysubConstantFromArea(Data *scienceData)
 
         it->subtract(it->meanExposureBackground);
         it->saturationValue -= it->meanExposureBackground;
+        it->updateHeaderSaturation();
         updateImageAndData(it, scienceData);
 
         // Must write for SWarp!
@@ -401,6 +403,7 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
         }
         it->subtract(it->meanExposureBackground);
         it->saturationValue -= it->meanExposureBackground;
+        it->updateHeaderSaturation();
 
         updateImageAndData(it, scienceData);
 
@@ -505,6 +508,7 @@ void Controller::skysubConstantEachChip(Data *scienceData, QString DT, QString D
         float meanExposureBackground = modeMask(it->dataCurrent, "stable", it->objectMask)[0];
         it->subtract(meanExposureBackground);
         it->saturationValue -= meanExposureBackground;
+        it->updateHeaderSaturation();
 
         updateImageAndData(it, scienceData);
 
@@ -655,6 +659,8 @@ void Controller::skysubModel(Data *scienceData, QString DT, QString DMIN, QStrin
         }
         it->getMeanBackground();
         it->saturationValue -= it->meanExposureBackground;
+        it->updateHeaderSaturation();
+
         if (!isnan(it->meanExposureBackground)) {
             emit messageAvailable(it->chipName + " : &lt;sky&gt; = " + QString::number(it->meanExposureBackground,'f',2) + " e-", "image");
         }

@@ -114,9 +114,11 @@ void MyImage::pushDownToL1(QString backupDir)
     dataBackupL1_deletable = dataCurrent_deletable;
     pathBackupL1 = path+"/"+backupDir;
     baseNameBackupL1 = baseName;
+
+    saturationValueL1 = saturationValue;
 }
 
-// Push dataCurrent to backupL2
+// Push backupL1 to backupL2
 void MyImage::pushDownToL2()
 {
     if (activeState != ACTIVE) return;    // Don't change location of deactivated images
@@ -128,10 +130,12 @@ void MyImage::pushDownToL2()
         pathBackupL2 = pathBackupL1;
         baseNameBackupL2 = baseNameBackupL1;
         dataBackupL2_deletable = dataBackupL1_deletable;
+
+        saturationValueL2 = saturationValueL1;
     }
 }
 
-// Push dataCurrent to backupL3
+// Push backupL2 to backupL3
 void MyImage::pushDownToL3()
 {
     if (activeState != ACTIVE) return;    // Don't change location of deactivated images
@@ -143,10 +147,13 @@ void MyImage::pushDownToL3()
         pathBackupL3 = pathBackupL2;
         baseNameBackupL3 = baseNameBackupL2;
         dataBackupL3_deletable = dataBackupL2_deletable;
+
+        saturationValueL3 = saturationValueL2;
     }
 }
 
 // Pull data up one step from the backup structure
+// UNUSED
 void MyImage::pullUp()
 {
     if (activeState != ACTIVE) return;    // Don't change location of deactivated images
@@ -184,6 +191,8 @@ bool MyImage::makeL1Current()
     imageInMemory = backupL1InMemory;
     imageOnDrive = backupL1OnDrive;
 
+    saturationValue = saturationValueL1;
+
     // MEMORY
     pullUpFromL2();
     pullUpFromL3();
@@ -213,6 +222,8 @@ bool MyImage::makeL2Current()
     baseName = baseNameBackupL2;
     imageInMemory = backupL2InMemory;
     imageOnDrive = backupL2OnDrive;
+
+    saturationValue = saturationValueL2;
 
     // L3 to L2
     pullUpFromL3();
@@ -245,6 +256,8 @@ bool MyImage::makeL3Current()
     imageInMemory = backupL3InMemory;
     imageOnDrive = backupL3OnDrive;
 
+    saturationValue = saturationValueL3;
+
     // wipe L1 and L2
     wipeL1();
     wipeL2();
@@ -266,6 +279,8 @@ void MyImage::pullUpFromL3()
     dataBackupL3_deletable = true;
     dataBackupL3.clear();
     dataBackupL3.squeeze();
+
+    saturationValueL2 = saturationValueL3;
 }
 
 void MyImage::pullUpFromL2()
@@ -278,6 +293,8 @@ void MyImage::pullUpFromL2()
     dataBackupL1_deletable = dataBackupL2_deletable;
     baseNameBackupL1 = baseNameBackupL2;
     backupL1InMemory = backupL2InMemory;
+
+    saturationValueL1 = saturationValueL2;
 }
 
 void MyImage::pullUpFromL1()
@@ -290,6 +307,8 @@ void MyImage::pullUpFromL1()
     dataCurrent_deletable = false;
     baseName = baseNameBackupL1;
     imageInMemory = backupL1InMemory;
+
+    saturationValue = saturationValueL1;
 }
 
 void MyImage::wipeL1()

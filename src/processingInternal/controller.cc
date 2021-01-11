@@ -100,6 +100,7 @@ Controller::Controller(const instrumentDataType *instrumentData, QString statuso
     // Done at top level, so it is not repeated many times by the Splitter class
     populateHeaderDictionary();
     populateFilterDictionary();
+    populateInstrumentDictionary();
 
     // Daisy-chaining scamp, and the coadditions
     connect(this, &Controller::showScampCheckPlots, this, &Controller::showScampCheckPlotsReceived);

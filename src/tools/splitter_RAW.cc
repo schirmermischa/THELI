@@ -112,6 +112,8 @@ void Splitter::importRAW()
 #endif
     isoSpeed = QString::number(int(P2.iso_speed));
 
+    saturationValue = pow(2,12)-1;     // 12 bit
+
     // From RAW data (unreliable, because of potential trimming)
     /*
     bayerPattern = "";

@@ -171,11 +171,11 @@ void Controller::taskInternalGetCatalogFromIMAGE()
     QVector<bool> dummyMask;
     dummyMask.clear();
     MyImage *detectionImage = new MyImage(imagePath, imageName, "", 1, dummyMask, &verbosity);
+    connect(detectionImage, &MyImage::critical, this, &Controller::criticalReceived);
+    connect(detectionImage, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
     detectionImage->setupCoaddMode();    // Read image, add a dummy global mask, and add a weight map if any
     detectionImage->backgroundModel(256, "interpolate");
     detectionImage->segmentImage(DT, DMIN, true);
-    connect(detectionImage, &MyImage::critical, this, &Controller::criticalReceived);
-    connect(detectionImage, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
 
     Query *query = new Query(&verbosity);
     connect(query, &Query::messageAvailable, monitor, &Monitor::displayMessage);

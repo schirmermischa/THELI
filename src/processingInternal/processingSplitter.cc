@@ -56,9 +56,9 @@ void Controller::taskInternalHDUreformat()
     progress = 0.;
 
     // Saturation value
-    float satValue = 1.e9;
+    float userSaturationValue = 0.;
     if (!cdw->ui->saturationLineEdit->text().isEmpty()) {
-        satValue = cdw->ui->saturationLineEdit->text().toFloat();
+        userSaturationValue = cdw->ui->saturationLineEdit->text().toFloat();
     }
 
     // Retrieve nonlinearity information (checks internally if available, otherwise returns empty list)
@@ -107,6 +107,7 @@ void Controller::taskInternalHDUreformat()
         Splitter *splitter = new Splitter(*instData, mask, altMask, data, dataType, cdw, mainDirName, dataDir, fileName, &verbosity);
         splitter->headerDictionary = headerDictionary;
         splitter->filterDictionary = filterDictionary;
+        splitter->instrumentDictionary = instrumentDictionary;
         splitter->dummyKeys = dummyKeys;
         splitter->combineOverscan_ptr = combineOverscan_ptr;       // set by MainWindow::updateControllerFunctors()
         splitter->nonlinearityCoefficients = nonlinearityCoefficients;
@@ -115,7 +116,7 @@ void Controller::taskInternalHDUreformat()
         splitter->genericLock = &genericLock;
         splitter->progress = &progress;
         splitter->dateObsIncrementor = &dateObsIncrementor;
-        splitter->saturationValue = satValue;
+        splitter->userSaturationValue = userSaturationValue;
         splitter->compileNumericKeys();
         connect(splitter, &Splitter::messageAvailable, this, &Controller::messageAvailableReceived);
         connect(splitter, &Splitter::critical, this, &Controller::criticalReceived);

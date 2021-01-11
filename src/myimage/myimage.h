@@ -310,6 +310,9 @@ public:
     //    QVector<uint> mask;
     float maskValue = 0.;
     float saturationValue = 1.e9;
+    float saturationValueL1 = 1.e9;
+    float saturationValueL2 = 1.e9;
+    float saturationValueL3 = 1.e9;
 
     bool allocatedImageFITS = false;
 
@@ -470,7 +473,7 @@ public:
     void updateKeywordInHeader(QString key, QString value);
     void updateMode();
     void updateProcInfo(QString text);
-    void updateSaturation(QString saturation);
+    void updateHeaderSaturation();
     void updateZeroOrderOnDrive(QString updateMode);
     void writeBackgroundModel();
     void writeCatalog(QString minFWHM_string, QString maxFlag_string);
