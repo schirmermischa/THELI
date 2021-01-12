@@ -211,6 +211,17 @@ void Controller::populateFilterDictionary()
     filterDictionary.insert("gblk,r", "r");
     filterDictionary.insert("gblk,i", "i");
     filterDictionary.insert("gblk,z", "z");
+    // GMOS
+    filterDictionary.insert("u_G0308", "u");
+    filterDictionary.insert("u_G0332", "u");
+    filterDictionary.insert("g_G0301", "g");
+    filterDictionary.insert("g_G0325", "g");
+    filterDictionary.insert("r_G0303", "r");
+    filterDictionary.insert("r_G0326", "r");
+    filterDictionary.insert("i_G0302", "i");
+    filterDictionary.insert("i_G0327", "i");
+    filterDictionary.insert("z_G0304", "z");
+    filterDictionary.insert("z_G0328", "z");
 //    filterDictionary.insert(, );
 }
 
