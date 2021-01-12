@@ -965,7 +965,7 @@ void Controller::coaddUpdate()
     bool skippedIQ = true;
     float seeing_world = 0.;
     float seeing_image = 0.;
-    float maxVal = 100.;
+//    float maxVal = 100.;
 
     emit loadViewer(coaddDirName, "coadd.fits", "DragMode");
 
@@ -991,7 +991,7 @@ void Controller::coaddUpdate()
         coadd->readWeight();
         coadd->gain = 1.0;
         coadd->saturationValue = minCoaddSaturationValue;
-        maxVal = maxVec_T(coadd->dataCurrent);
+//        maxVal = maxVec_T(coadd->dataCurrent);
         float radius = sqrt(coadd->naxis1*coadd->naxis1 + coadd->naxis2*coadd->naxis2) / 2. * coadd->plateScale / 60.;   // in arcmin
         // Enforce an upper limit to the download catalog (the query also has a built-in limit of # sources < 1e6)
         if (radius > 60) radius = 60.;

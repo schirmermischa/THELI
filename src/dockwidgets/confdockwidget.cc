@@ -691,7 +691,7 @@ void ConfDockWidget::on_skyAreaPushButton_clicked()
     QMessageBox msgBox;
     msgBox.setText("Use the middle mouse button (click and drag) to select one or more empty sky areas. "
                    "You can use the forward / backward buttons to select other images. Close the viewer when finished.\n\n"
-                   "Alternatively, you can open any astrometrically calibrated image in iView, e.g. a previous coaddition of the same data. "
+                   "Alternatively, you can click on any image in the memory viewer, or open any astrometrically calibrated image in iView, e.g. a previous coaddition of the same data. "
                    "Select the dropper tool at the upper left and then use the middle mouse button as explained above.");
     msgBox.setStandardButtons(QMessageBox::Ok);
     msgBox.exec();

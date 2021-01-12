@@ -141,6 +141,8 @@ void ScampWorker::processExternalStderr()
     errors << "Could not allocate memory";
     errors << "Invalid deprojected coordinates";
     errors << "DISTORT_DEGREES keyword out of range";
+    errors << "WARNING: Not a positive definite matrix in astrometry solver";
+    errors << "Segmentation fault";
 
     QString type = "normal";
     for (auto &warning : warnings) {
@@ -153,6 +155,8 @@ void ScampWorker::processExternalStderr()
         if (stderr.contains(error)) {
             type = "error";
             stderr.remove("Error: ");
+            stderr.remove("WARNING: ");
+            stderr.replace("Segmentation fault", "Scamp ended with a segmentation fault.");
             emit errorFound();
             break;
         }

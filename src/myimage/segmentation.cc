@@ -71,7 +71,7 @@ void MyImage::segmentImage(const QString DTstring, const QString DMINstring, con
     // Noise clipping
     // if this doesn't work, then make controller a member of each myimage
     emit setMemoryLock(true);
-    dataSegmentation.resize(naxis1*naxis2);
+    dataSegmentation.resize(naxis1*naxis2);         // this crashes vor very large images (e.g. coadded omegacam data); likely internal Qvector limitation
     dataMeasure.clear();   // Must clear (if we run the detection twice, e.g. for sky modeling)
   //  dataMeasure.reserve(naxis1*naxis2);
     dataMeasure.resize(naxis1*naxis2);
