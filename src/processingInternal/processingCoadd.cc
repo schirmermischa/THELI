@@ -342,7 +342,7 @@ void Controller::coaddPrepare(QString filterArg)
     connect(workerThreadPrepare, &QThread::started, swarpWorker, &SwarpWorker::runSwarp, Qt::DirectConnection);
     //    connect(workerThreadPrepare, &QThread::finished, workerThreadPrepare, &QThread::deleteLater, Qt::DirectConnection);
     connect(workerThreadPrepare, &QThread::finished, workerThreadPrepare, &QThread::deleteLater);
-    connect(swarpWorker, &SwarpWorker::errorFound, this, &Controller::errorFoundReceived);
+    connect(swarpWorker, &SwarpWorker::errorFound, this, &Controller::swarpErrorFoundReceived);
     connect(swarpWorker, &SwarpWorker::finishedPreparation, this, &Controller::finishedPreparationReceived);
     // MUST NOT connect to quit, otherwise control returns immediately to the controller, which might start another coaddition
     // right away in case of multi-color data
@@ -362,7 +362,7 @@ void Controller::coaddPrepare(QString filterArg)
 }
 
 
-void Controller::errorFoundReceived()
+void Controller::swarpErrorFoundReceived()
 {
     successProcessing = false;
 }
@@ -763,7 +763,7 @@ void Controller::coaddResample()
         }
         connect(workerThreads[i], &QThread::started, swarpWorkers[i], &SwarpWorker::runSwarp);
         connect(workerThreads[i], &QThread::finished, workerThreads[i], &QThread::deleteLater);
-        connect(swarpWorkers[i], &SwarpWorker::errorFound, this, &Controller::errorFoundReceived);
+        connect(swarpWorkers[i], &SwarpWorker::errorFound, this, &Controller::swarpErrorFoundReceived);
         //        connect(workerThreads[i], &QThread::finished, workerThreads[i], &QThread::deleteLater);
         connect(swarpWorkers[i], &SwarpWorker::finishedResampling, this, &Controller::waitForResamplingThreads);
         //       connect(swarpWorkers[i], &SwarpWorker::finished, workerThreads[i], &QThread::quit);
@@ -903,7 +903,7 @@ void Controller::coaddCoaddition()
     connect(swarpWorker, &SwarpWorker::finishedCoaddition, this, &Controller::coaddUpdate, Qt::DirectConnection);
     connect(swarpWorker, &SwarpWorker::finished, workerThreadCoadd, &QThread::quit);
     connect(swarpWorker, &SwarpWorker::finished, swarpWorker, &QObject::deleteLater);
-    connect(swarpWorker, &SwarpWorker::errorFound, this, &Controller::errorFoundReceived);
+    connect(swarpWorker, &SwarpWorker::errorFound, this, &Controller::swarpErrorFoundReceived);
     //connect(swarpWorker, &SwarpWorker::finished, workerThreadCoadd, &QThread::quit);
     //connect(swarpWorker, &SwarpWorker::finished, swarpWorker, &QObject::deleteLater);
     connect(swarpWorker, &SwarpWorker::messageAvailable, monitor, &Monitor::displayMessage);

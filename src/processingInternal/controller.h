@@ -332,7 +332,8 @@ private slots:
     void registerScampSolutionAcceptance(bool scampSolutionAccepted);
     void continueWithCopyZeroOrder();
     void copyZeroOrder();
-    void errorFoundReceived();
+    void swarpErrorFoundReceived();
+    void scampErrorFoundReceived();
     void addToProgressBarReceived(const float differential);
 //    void splitterMemoryReceived(long memoryUsed);
 

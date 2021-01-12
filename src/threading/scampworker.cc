@@ -140,6 +140,7 @@ void ScampWorker::processExternalStderr()
     errors << "buffer overflow detected";
     errors << "Could not allocate memory";
     errors << "Invalid deprojected coordinates";
+    errors << "DISTORT_DEGREES keyword out of range";
 
     QString type = "normal";
     for (auto &warning : warnings) {

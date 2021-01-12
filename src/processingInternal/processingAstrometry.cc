@@ -112,7 +112,7 @@ void Controller::taskInternalAstromphotom()
         // connect(scampWorker, &ScampWorker::finished, workerThread, &QThread::quit, Qt::DirectConnection);
         // connect(scampWorker, &ScampWorker::finished, scampWorker, &QObject::deleteLater, Qt::DirectConnection);
         connect(workerThread, &QThread::finished, workerThread, &QThread::deleteLater);
-        connect(scampWorker, &ScampWorker::errorFound, this, &Controller::errorFoundReceived);
+        connect(scampWorker, &ScampWorker::errorFound, this, &Controller::scampErrorFoundReceived);
         connect(scampWorker, &ScampWorker::finishedScamp, this, &Controller::finishedScampReceived);
         // Need the direct connection if we want the thread to actually return control to the main thread (activating the start button again).
         // But then sky sub would start before checkplots are evaluated.
@@ -162,6 +162,13 @@ void Controller::taskInternalAstromphotom()
     else {
         // No other method yet
     }
+}
+
+void Controller::scampErrorFoundReceived()
+{
+    successProcessing = false;
+    criticalReceived();
+    workerThread->quit();
 }
 
 int Controller::getMaxPhotInst()
