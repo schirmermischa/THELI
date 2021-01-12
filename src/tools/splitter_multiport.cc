@@ -348,7 +348,7 @@ void Splitter::getMultiportInformation(int chip)
         individualFixDone = true;
     }
 
-    if (instData.name == "MOSAIC-III@KPNO_4m") {
+    if (instData.name == "MOSAIC-III_4@KPNO_4m") {
         naxis1 = 4112;
         naxis2 = 4096;
 
@@ -480,7 +480,7 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
                 offx = (chip % numAmpPerChip) * naxis1 / numAmpPerChip;
                 offy = 0;
             }
-            if (instData.name == "MOSAIC-III@KPNO_4m") {
+            if (instData.name == "MOSAIC-III_4@KPNO_4m") {
                 QVector<long> ampsec;
                 ampsec << extractVerticesFromKeyword("CCDSEC");       // unused
                 if (chip == 0) {offx = naxis1 / 2; offy = 0;}

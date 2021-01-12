@@ -246,7 +246,7 @@ void Splitter::extractImages()
     // multiple readout channels in different FITS extensions
     multiChannelMultiExt << "GMOS-N-HAM@GEMINI" << "GMOS-N-HAM_1x1@GEMINI"
                          << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI"
-                         << "MOSAIC-II_16@CTIO" << "MOSAIC-III@KPNO_4m" << "SAMI_2x2@SOAR" << "SOI@SOAR";
+                         << "MOSAIC-II_16@CTIO" << "MOSAIC-III_4@KPNO_4m" << "SAMI_2x2@SOAR" << "SOI@SOAR";
     if (multiChannelMultiExt.contains(instData.name)) ampInSeparateExt = true;
 
     if (instruments.contains(instData.name)) {
@@ -359,6 +359,8 @@ void Splitter::extractImagesFITS()
             if (naxis == 2) {
                 getCurrentExtensionData();              // sets naxis1/2Raw, needed by everything below
                 getMultiportInformation(chipMapped);    // sets naxis1/2. Updates overscan and data sections for nonstandard multiport readouts
+
+                // overrideDetectorSections(chip);      // TESTING of a more autonomous procedure
 
                 // gains must be built after multiport chips are assembled
                 buildTheliHeaderGAIN(chipMapped);
@@ -755,6 +757,21 @@ void Splitter::getDetectorSections()
     }
 }
 
+// TESTING
+void Splitter::overrideDetectorSections(int chip)
+{
+    if (instData.name == "MOSAIC-III@KPNO_4m"
+            || instData.name == "WFC@INT") {
+        multiportOverscanDirections << "vertical";
+        QVector<long> tmp = extractVerticesFromKeyword("BIASSEC");
+        overscanX[chip] << tmp.at(0) << tmp.at(1);
+        dataSection[chip] = extractVerticesFromKeyword("DATASEC");
+        dataSection[chip] = extractVerticesFromKeyword("TRIMSEC");
+        naxis1 = dataSection[chip].at(1) - dataSection[chip].at(0);
+        naxis2 = dataSection[chip].at(3) - dataSection[chip].at(2);
+    }
+}
+
 void Splitter::getNumberOfAmplifiers()
 {
     if (!successProcessing) return;
@@ -778,7 +795,7 @@ void Splitter::getNumberOfAmplifiers()
         numAmpPerChip = 2;
         rawStatus = 0;
     }
-    if (instData.name == "MOSAIC-III@KPNO_4m") {
+    if (instData.name == "MOSAIC-III_4@KPNO_4m") {
         numAmpPerChip = 4;
         rawStatus = 0;
     }
@@ -790,7 +807,7 @@ void Splitter::getNumberOfAmplifiers()
     // multiple readout channels in different FITS extensions
     multiChannelMultiExt << "GMOS-N-HAM@GEMINI" <<  "GMOS-N-HAM_1x1@GEMINI"
                          << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI"
-                         << "MOSAIC-II_16@CTIO" << "MOSAIC-III@KPNO_4m" << "SAMI_2x2@SOAR" << "SOI@SOAR";
+                         << "MOSAIC-II_16@CTIO" << "MOSAIC-III_4@KPNO_4m" << "SAMI_2x2@SOAR" << "SOI@SOAR";
     if (multiChannelMultiExt.contains(instData.name)) ampInSeparateExt = true;
 
     if (numAmpPerChip > 1 && ampInSeparateExt) {
@@ -858,7 +875,7 @@ void Splitter::writeImage(int chipMapped)
             if (chipMapped == 13) chipID = 7;
             if (chipMapped == 15) chipID = 8;
         }
-        if (instData.name == "MOSAIC-III@KPNO_4m") {
+        if (instData.name == "MOSAIC-III_4@KPNO_4m") {
             if (chipMapped == 3) chipID = 1;
             if (chipMapped == 7) chipID = 2;
             if (chipMapped == 11) chipID = 3;

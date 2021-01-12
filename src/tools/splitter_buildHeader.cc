@@ -429,7 +429,7 @@ bool Splitter::individualFixCRPIX(int chip)
         if (chip == 15) crpix2_card = "CRPIX2  = -56";
         individualFixDone = true;
     }
-    if (instData.name == "MOSAIC-III@KPNO_4m") {
+    if (instData.name == "MOSAIC-III_4@KPNO_4m") {
         if (chip == 3) crpix1_card = "CRPIX1  = 4219";
         if (chip == 7) crpix1_card = "CRPIX1  = 2078";
         if (chip == 11) crpix1_card = "CRPIX1  = -33";
@@ -905,7 +905,7 @@ bool Splitter::individualFixGAIN(int chip)
         chipGain = harmonicGain(multiportGains);
         individualFixDone = true;
     }
-    else if (instData.name == "MOSAIC-III@KPNO_4m") {
+    else if (instData.name == "MOSAIC-III_4@KPNO_4m") {
         chipGain = harmonicGain(multiportGains);
         individualFixDone = true;
     }
@@ -951,7 +951,7 @@ bool Splitter::individualFixGAIN(int chip)
                 || instData.name.contains("GMOS-S-HAM")
                 || instData.name.contains("SAMI")
                 || instData.name == "MOSAIC-II_16@CTIO"
-                || instData.name == "MOSAIC-III@KPNO_4m") {
+                || instData.name == "MOSAIC-III_4@KPNO_4m") {
             gain[chip/numAmpPerChip] = chipGain;
         }
         else {

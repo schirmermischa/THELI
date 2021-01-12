@@ -284,6 +284,7 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("MOIRCS_200406-200806@SUBARU", "MOIRCS");
     instrumentDictionary.insert("MOIRCS_200807-201505@SUBARU", "MOIRCS");
     instrumentDictionary.insert("MOIRCS_201512-today@SUBARU", "MOIRCS");
+    instrumentDictionary.insert("MOSAIC-III_4@KPNO_4m", "Mosaic3");
     instrumentDictionary.insert("MOSAIC-III@KPNO_4m", "Mosaic3");
     instrumentDictionary.insert("MOSAIC-II_15@CTIO", "Mosaic2");
     instrumentDictionary.insert("MOSAIC-II_16@CTIO", "Mosaic2");

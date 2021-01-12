@@ -312,6 +312,7 @@ private:
     bool individualFixDATEOBS();
     bool checkInstrumentConsistency(QString foundInstrumentName);
     void updateMinGainValue(float gainValue);
+    void overrideDetectorSections(int chip);
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

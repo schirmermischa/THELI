@@ -920,7 +920,7 @@
             <item row="2" column="4">
              <widget class="QSpinBox" name="numchipSpinBox">
               <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
+               <enum>Qt::WheelFocus</enum>
               </property>
               <property name="statusTip">
                <string>The number of detectors used in this instrument.</string>
@@ -3648,7 +3648,7 @@
      <x>0</x>
      <y>0</y>
      <width>759</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
