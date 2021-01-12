@@ -200,6 +200,17 @@ void Controller::populateFilterDictionary()
     filterDictionary.insert("973BATCk1065", "973_BATC");
     // SAMI
     filterDictionary.insert("s0012rSDSS+s0012", "r");
+    // MEGACAM@LCO
+    filterDictionary.insert("u,gblk", "u");
+    filterDictionary.insert("g,gblk", "g");
+    filterDictionary.insert("r,gblk", "r");
+    filterDictionary.insert("i,gblk", "i");
+    filterDictionary.insert("z,gblk", "z");
+    filterDictionary.insert("gblk,u", "u");
+    filterDictionary.insert("gblk,g", "g");
+    filterDictionary.insert("gblk,r", "r");
+    filterDictionary.insert("gblk,i", "i");
+    filterDictionary.insert("gblk,z", "z");
 //    filterDictionary.insert(, );
 }
 

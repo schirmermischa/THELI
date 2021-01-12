@@ -134,7 +134,7 @@ void Splitter::determineFileFormat()
         QDir unknownFile(path+"/UnknownFormat");
         unknownFile.mkpath(path+"/UnknownFormat/");
         moveFile(fileName, path, path+"/UnknownFormat");
-        emit messageAvailable(fileName+" : Unknown format. Cfitsio error code: "+QString::number(rawStatus) + ". Moved to "+subDirName+"/UnknownFormat/", "warning");
+        emit messageAvailable("File "+fileName+" : Unknown format. Cfitsio error code: "+QString::number(rawStatus) + ". Moved to "+subDirName+"/UnknownFormat/", "warning");
     }
 }
 
