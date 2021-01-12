@@ -298,7 +298,7 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("LIRIS@WHT", "LIRIS");
     instrumentDictionary.insert("LIRIS_POL@WHT", "LIRIS");
     instrumentDictionary.insert("LORRI@NewHorizons", "");
-    instrumentDictionary.insert("MEGACAM_2x2@LCO", "");
+    instrumentDictionary.insert("MEGACAM_2x2@LCO", "megacam");
     instrumentDictionary.insert("MEGAPRIME@CFHT", "");
     instrumentDictionary.insert("MEGAPRIME_ELIXIR@CFHT", "");
     instrumentDictionary.insert("MEROPE@MERCATOR", "");
