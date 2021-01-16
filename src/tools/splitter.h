@@ -88,7 +88,7 @@ public:
 
     QStringList headerTHELI;
 
-    float saturationValue = pow(2,16)-1.;
+    float saturationValue = (float)USHRT_MAX;
     float userSaturationValue = 0.;
 
     QStringList multiChannelMultiExt;              // Contains all instruments having multiple readout channels, stored in separate FITS extensions
