@@ -218,6 +218,23 @@ bool Splitter::searchKeyInHeaderCRVAL(const QString searchKey, const QStringList
                     if (searchKey == "CRVAL2") crval = QString::number(crval.toDouble() + dec_off1 + dec_off2, 'f', 12);
                 }
 
+                // GSAOI must apply offsets, too
+                if (instData.name.contains("GSAOI")) {
+                    double ra_off = 0.;
+                    double dec_off = 0.;
+                    QStringList ra = {"RAOFFSET"};
+                    QStringList dec = {"DECOFFSE"};
+                    searchKeyInHeaderValue(ra, inputHeader, ra_off);
+                    searchKeyInHeaderValue(dec, inputHeader, dec_off);
+                    if (searchKey == "CRVAL1") {
+                        double dec_pointing = 0.;
+                        QStringList decpoint = {"DEC"};
+                        searchKeyInHeaderValue(decpoint, inputHeader, dec_pointing);
+                        crval = QString::number(crval.toDouble() + ra_off / 3600. / cos(dec_pointing*rad), 'f', 12);
+                    }
+                    if (searchKey == "CRVAL2") crval = QString::number(crval.toDouble() + dec_off/3600., 'f', 12);
+                }
+
                 // Construct the key card
                 QString newCard = searchKey;
                 newCard.resize(8, ' ');          // Keyword must be 8 chars long

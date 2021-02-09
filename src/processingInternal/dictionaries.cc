@@ -142,6 +142,7 @@ void Controller::populateFilterDictionary()
     filterDictionary.insert("BBB/123_ESO878", "Bnew");
     filterDictionary.insert("BBI/203_ESO879", "I");
     filterDictionary.insert("BBIclwp_ESO845", "Ic");
+    filterDictionary.insert("BBIcIwp_ESO845", "Ic");
     filterDictionary.insert("BBU38_ESO841", "U38");
     filterDictionary.insert("BBU50_ESO877", "U50");
     //IMACS
@@ -241,7 +242,7 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("EFOSC2@ESO3.6m", "EFOSC");
     instrumentDictionary.insert("EFOSC2@NTT", "EFOSC");
     instrumentDictionary.insert("EFOSC2_2x2@ESO3.6m", "EFOSC");
-    instrumentDictionary.insert("EFOSC2_2x2@NTT", "EFOSCgrep EFOSC");
+    instrumentDictionary.insert("EFOSC2_2x2@NTT", "EFOSC");
     instrumentDictionary.insert("EMIR@GTC", "");
     instrumentDictionary.insert("EMMI_BIMG@NTT", "");
     instrumentDictionary.insert("EMMI_RILD@NTT", "");
