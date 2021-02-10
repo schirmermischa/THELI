@@ -1276,6 +1276,7 @@ void Data::thresholdGlobalWeight(int chip, const Data *comparisonData, const QSt
                 if (compVal < threshMinVal || compVal > threshMaxVal) {
                     jt = 0.;
                 }
+                ++k;
             }
         }
     }
