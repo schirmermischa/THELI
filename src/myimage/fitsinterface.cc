@@ -186,6 +186,14 @@ void MyImage::readDataWeight(fitsfile **fptr, int *status)
     }
     dataWeight.squeeze(); // shed excess memory
 
+    // if the weight image is loaded before the science data,
+    // e.g. the GUI is started and the user goes into the memory viewer to load the weight directly,
+    // then naxis1/2 is not defined, leading to a crash
+    if (naxis1 == 0 && naxis2 == 0) {
+        naxis1 = nax1;
+        naxis2 = nax2;
+    }
+
     delete [] buffer;
     buffer = nullptr;
 }
