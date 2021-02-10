@@ -121,6 +121,7 @@ void IView::showCurrentMousePos(QPointF point)
     icdw->magnifiedGraphicsView->mapFromScene(point.x(),point.y());
     //magnifyScene->setSceneRect(point.x()-75, point.y()-75, 150, 150);
     icdw->magnifiedGraphicsView->setScene(icdw->magnifiedScene);
+    icdw->updateNavigatorMagnifiedViewportReceived();
     icdw->magnifiedGraphicsView->show();
 }
 
@@ -523,7 +524,7 @@ void IView::updateCRPIXFITS()
         if (!currentMyImage->imageOnDrive) currentMyImage->writeImage();
         // Identical way to reconstruct filenames
         // TODO: uniformize
-//        qDebug() << dirName+"/"+currentMyImage->pathExtension+"/"+currentFileName;
+//        qDebug() << currentFileName;
 //        qDebug() << currentMyImage->path+"/"+currentMyImage->chipName+currentMyImage->processingStatus->statusString+".fits";
         fitsfile *fptr = nullptr;
         fits_open_file(&fptr, (dirName+"/"+currentMyImage->pathExtension+"/"+currentFileName).toUtf8().data(), READWRITE, &status);

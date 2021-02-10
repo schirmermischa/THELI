@@ -543,6 +543,7 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     myGraphicsView->setMaximumSize(10000,10000);
 
     currentMyImage = it;   // For later use, in particular when updating CRPIX1/2
+    currentFileName = currentMyImage->baseName+".fits";
 
     // Update the navigator binned window with the binned poststamp
     emit updateNavigatorBinned(binnedPixmapItem);
