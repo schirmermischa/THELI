@@ -1043,7 +1043,8 @@ void Splitter::buildTheliHeaderFILTER()
                     }
                     // Skip if filter name suggests that a dark was taken
                     if (filterName.contains("dark", Qt::CaseInsensitive)
-                            || filterName.contains("close", Qt::CaseInsensitive)) {
+                            || filterName.contains("close", Qt::CaseInsensitive)
+                            || filterName.contains("blocked", Qt::CaseInsensitive)) {
                         darkFound = true;
                         continue;
                     }
