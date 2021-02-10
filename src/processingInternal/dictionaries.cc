@@ -223,6 +223,16 @@ void Controller::populateFilterDictionary()
     filterDictionary.insert("i_G0327", "i");
     filterDictionary.insert("z_G0304", "z");
     filterDictionary.insert("z_G0328", "z");
+    filterDictionary.insert("Ha_G0336", "Ha");
+    filterDictionary.insert("Ha_G0310", "Ha");
+    filterDictionary.insert("HaC_G0337", "HaC");
+    filterDictionary.insert("HaC_G0311", "HaC");
+    filterDictionary.insert("SII_G0335", "SII");
+    filterDictionary.insert("SII_G0317", "SII");
+    filterDictionary.insert("OIII_G0338", "OIII");
+    filterDictionary.insert("OIII_G0318", "OIII");
+    filterDictionary.insert("OIIIC_G0339", "OIIIC");
+    filterDictionary.insert("OIIIC_G0319", "OIIIC");
 //    filterDictionary.insert(, );
 }
 

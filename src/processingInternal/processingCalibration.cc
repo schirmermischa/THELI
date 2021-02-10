@@ -381,14 +381,14 @@ void Controller::taskInternalProcessflat()
             it->checkCorrectMaskSize(instData);
             it->setModeFlag(min, max);                       // Must set mode flags before subtracting dark component (flatoffs can have really high levels in NIR data)
             if (biasData != nullptr && biasData->successProcessing) { // cannot pass nullptr to subtractBias()
-//                it->subtractBias(ref, biasDataType);
+                //                it->subtractBias(ref, biasDataType);
                 it->subtractBias(biasData->combinedImage[chip], biasDataType);
-//                  it->subtractBias(biasData->combinedImage[chip]->dataCurrent, biasDataType);
+                //                  it->subtractBias(biasData->combinedImage[chip]->dataCurrent, biasDataType);
                 it->skyValue -= biasData->combinedImage[chip]->skyValue;
                 it->saturationValue -= biasData->combinedImage[chip]->skyValue;
             }
-//            it->getMode(true);
-//            it->setModeFlag(min, max);
+            //            it->getMode(true);
+            //            it->setModeFlag(min, max);
             if (!it->successProcessing) flatData->successProcessing = false;  // does not need to be threadsafe
 # pragma omp atomic
             progress += progressHalfStepSize;
@@ -548,6 +548,21 @@ void Controller::taskInternalProcessscience()
         doDataFitInRAM(4*numMyImages*instData->numUsedChips, instData->storage);
     }
 
+    if (instData->bayer.isEmpty()) {
+        QStringList filters;
+        for (auto &it : allMyImages) {
+            filters.append(it->filter);
+        }
+        filters.removeDuplicates();
+        if (filters.length() > 1) {
+            QString filtersJoined = filters.join(", ");
+            emit messageAvailable("Files with different FILTER keywords found in "+scienceData->dirName+" :", "error");
+            emit messageAvailable(filtersJoined, "error");
+            emit warningReceived();
+            return;
+        }
+    }
+
     // Must keep track of memory consumption
     scienceData->bayerList.clear();
     scienceData->bayerList.resize(instData->numChips);
@@ -567,18 +582,18 @@ void Controller::taskInternalProcessscience()
         // Don't remember why we need a lock here. I think it had to do with the headers. Will crash otherwise
         // TODO: probably not needed anymore with latest memory scheme
         QString message;
-// #pragma omp critical
-//        {
-            if (biasData != nullptr) {
-                biasData->loadCombinedImage(chip);  // skipped if already in memory
-                message.append(biasData->subDirName);
-            }
-            if (flatData != nullptr) {
-                flatData->loadCombinedImage(chip);  // skipped if already in memory
-                if (message.isEmpty()) message.append(flatData->subDirName);
-                else message.append(" and " + flatData->subDirName);
-            }
-//        }
+        // #pragma omp critical
+        //        {
+        if (biasData != nullptr) {
+            biasData->loadCombinedImage(chip);  // skipped if already in memory
+            message.append(biasData->subDirName);
+        }
+        if (flatData != nullptr) {
+            flatData->loadCombinedImage(chip);  // skipped if already in memory
+            if (message.isEmpty()) message.append(flatData->subDirName);
+            else message.append(" and " + flatData->subDirName);
+        }
+        //        }
         if (verbosity >= 0) {
             if (!message.isEmpty() && instData->bayer.isEmpty()) emit messageAvailable(it->chipName + " : Correcting with "+message, "image");
             if (!message.isEmpty() && !instData->bayer.isEmpty()) emit messageAvailable(it->chipName + " : Correcting with "+message+", debayering", "image");

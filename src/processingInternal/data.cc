@@ -179,6 +179,7 @@ Data::Data(const instrumentDataType *instrumentData, Mask *detectorMask, QString
             if (skip) continue;
             MyImage *myImage = new MyImage(dirName, it, processingStatus->statusString, chip+1, mask->globalMask[chip], verbosity);
             myImage->setParent(this);
+            myImage->readFILTER(dirName+"/"+it);
             myImage->imageOnDrive = true;
             myImage->pathBackupL1 = pathBackupL1;
             myImage->baseNameBackupL1 = myImage->chipName + backupStatus;
@@ -512,7 +513,8 @@ void Data::loadCombinedImage(const int chip)
 
     bool determineMode = false;
 
-    combinedImage[chip]->readImage(determineMode);
+    // Must be threadsafe only if running process science as a first taskafter GUI re-launch
+    combinedImage[chip]->readImageThreadSafe(determineMode);
 
     // Do we have the mode already (i.e. this function was executed previously for this chip)
     if (!combinedImage[chip]->modeDetermined) {
