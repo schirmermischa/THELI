@@ -658,6 +658,28 @@ void ConfDockWidget::on_COAskypaPushButton_clicked()
             && !cd21.isEmpty()
             && !cd22.isEmpty()) {
         double skyPA = getPosAnglefromCD(cd11.toDouble(), cd12.toDouble(), cd21.toDouble(), cd22.toDouble());   // in [deg]
+        skyPA *= -1.;     // it appears I need that, at least for:
+        /*
+         *  these data require a -1 prefactor
+    GSAOI.Ks.2013-05-22T06:50:58.5_1.head:CD1_1   =   2.069880636041E-06 / Linear projection matrix
+    GSAOI.Ks.2013-05-22T06:50:58.5_1.head:CD1_2   =  -5.020554295263E-06 / Linear projection matrix
+    GSAOI.Ks.2013-05-22T06:50:58.5_1.head:CD2_1   =   4.995016509429E-06 / Linear projection matrix
+    GSAOI.Ks.2013-05-22T06:50:58.5_1.head:CD2_2   =   2.197139027629E-06 / Linear projection matrix
+    GSAOI.Ks.2013-05-22T06:50:58.5_2.head:CD1_1   =   2.133359158630E-06 / Linear projection matrix
+    GSAOI.Ks.2013-05-22T06:50:58.5_2.head:CD1_2   =  -5.029786624776E-06 / Linear projection matrix
+    GSAOI.Ks.2013-05-22T06:50:58.5_2.head:CD2_1   =   5.142047608929E-06 / Linear projection matrix
+    GSAOI.Ks.2013-05-22T06:50:58.5_2.head:CD2_2   =   2.185105945141E-06 / Linear projection matrix
+    GSAOI.Ks.2013-05-22T06:50:58.5_3.head:CD1_1   =   2.113575793537E-06 / Linear projection matrix
+    GSAOI.Ks.2013-05-22T06:50:58.5_3.head:CD1_2   =  -5.089493103124E-06 / Linear projection matrix
+    GSAOI.Ks.2013-05-22T06:50:58.5_3.head:CD2_1   =   5.144032585776E-06 / Linear projection matrix
+    GSAOI.Ks.2013-05-22T06:50:58.5_3.head:CD2_2   =   2.028047913328E-06 / Linear projection matrix
+    GSAOI.Ks.2013-05-22T06:50:58.5_4.head:CD1_1   =   2.060624347989E-06 / Linear projection matrix
+    GSAOI.Ks.2013-05-22T06:50:58.5_4.head:CD1_2   =  -5.091430845254E-06 / Linear projection matrix
+    GSAOI.Ks.2013-05-22T06:50:58.5_4.head:CD2_1   =   4.999641460896E-06 / Linear projection matrix
+    GSAOI.Ks.2013-05-22T06:50:58.5_4.head:CD2_2   =   2.040364194243E-06 / Linear projection matrix
+        */
+
+
         // Truncate the result to one digit
         QString skyPAstring = QString::number(skyPA, 'f', 1);
         ui->COAskypaLineEdit->setText(skyPAstring);

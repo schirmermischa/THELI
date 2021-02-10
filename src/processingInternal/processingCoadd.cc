@@ -502,8 +502,8 @@ void Controller::coaddPrepareProjectRotation()
     double cd12 = coaddScienceData->myImageList[0][0]->wcs->cd[1];
     double cd21 = coaddScienceData->myImageList[0][0]->wcs->cd[2];
     double cd22 = coaddScienceData->myImageList[0][0]->wcs->cd[3];
-    double PAold = -1. * getPosAnglefromCD(cd11, cd12, cd21, cd22);      // in [deg]; not sure about the minus here
-    double PAnew = cdw->ui->COAskypaLineEdit->text().toDouble();         // in [deg]; if image is flipped, the angle to get "parallel" axes should be 180 - the automatically determined angle.
+    double PAold = getPosAnglefromCD(cd11, cd12, cd21, cd22);        // in [deg]; not sure about the minus here
+    double PAnew = cdw->ui->COAskypaLineEdit->text().toDouble();     // in [deg]; if image is flipped, the angle to get "parallel" axes should be 180 - the automatically determined angle.
 
     rotateCDmatrix(cd11_coadd, cd12_coadd, cd21_coadd, cd22_coadd, PAnew);
     long naxis1New = 0;
@@ -1086,7 +1086,7 @@ void Controller::coaddUpdate()
     fits_update_key_flt(fptr, "EXPTIME", 1.0, 1, "Exposure time is normalized to 1s", &status);
     fits_update_key_flt(fptr, "TEXPTIME", coaddTexptime, 3, "Total exposure time [s]", &status);
     fits_update_key_flt(fptr, "SKYVALUE", coaddSkyvalue, 3, "Effective background value [e-/s]", &status);
-    fits_update_key_flt(fptr, "GAIN", coaddGain, 3, "Effective gain", &status);
+    fits_update_key_flt(fptr, "GAIN", coaddGain, 3, "Effective gain. This image is already in e-/s!", &status);
     fits_update_key_str(fptr, "UNITS", "e-/s", "Pixels are photo-electrons / second", &status);
     fits_update_key_flt(fptr, "SATURATE", minCoaddSaturationValue, 3, "Lowest value at which saturation occurs [e-/s]", &status);
     if (!skippedIQ) {
