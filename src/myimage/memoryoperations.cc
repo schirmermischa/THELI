@@ -178,9 +178,11 @@ bool MyImage::makeL1Current()
 
     bool success = true;
     // DRIVE
-    success *= deleteFile(baseName+".fits", path);
+    // The following construct gives a compiler warbing with gcc7
+    // success *= deleteFile(baseName+".fits", path);
+    success = success && deleteFile(baseName+".fits", path);
     // restore backup FITS file
-    success *= moveFile(baseNameBackupL1+".fits", pathBackupL1, path, true);
+    success = success && moveFile(baseNameBackupL1+".fits", pathBackupL1, path, true);
 
     // L1 to L0
     dataCurrent = dataBackupL1;
@@ -210,9 +212,9 @@ bool MyImage::makeL2Current()
 
     bool success = true;
     // DRIVE
-    success *= deleteFile(baseName+".fits", path);
+    success = success && deleteFile(baseName+".fits", path);
     // restore backup FITS file
-    success *= moveFile(baseNameBackupL2+".fits", pathBackupL2, path, true);
+    success = success && moveFile(baseNameBackupL2+".fits", pathBackupL2, path, true);
 
     // L2 to L0
     dataCurrent = dataBackupL2;
@@ -243,9 +245,9 @@ bool MyImage::makeL3Current()
 
     bool success = true;
     // DRIVE
-    success *= deleteFile(baseName+".fits", path);
+    success = success && deleteFile(baseName+".fits", path);
     // restore backup FITS file
-    success *= moveFile(baseNameBackupL3+".fits", pathBackupL3, path, true);
+    success = success && moveFile(baseNameBackupL3+".fits", pathBackupL3, path, true);
 
     // L3 to L0
     dataCurrent = dataBackupL3;
