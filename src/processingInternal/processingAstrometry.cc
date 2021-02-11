@@ -73,61 +73,74 @@ void Controller::taskInternalAstromphotom()
             runAnet(scienceData);
         }
 
-        // Prepare scamp directories and perform consistency checks
-        prepareScampRun(scienceData);
-        // Collect scamp input catalogs
-        long totNumObjects = 0;
-        long numCats = prepareScampCats(scienceData, totNumObjects);
-        if (numCats == 0) return;
+        // run scamp and retrieval of point source catalog in parallel
+#pragma omp parallel sections
+        {
+#pragma omp section
+            {
+                // Prepare scamp directories and perform consistency checks
+                prepareScampRun(scienceData);
+                // Collect scamp input catalogs
+                long totNumObjects = 0;
+                long numCats = prepareScampCats(scienceData, totNumObjects);
+                //              if (numCats == 0) return;      // no exiting in openMP construct
+                if (numCats > 0) {
 
-        // Release memory:
-        // 140 bytes per detection
-        // "a few 10 kB" per FITS table
-        //
-        long totBytes = 0;
-        int degrees = cdw->ui->ASTdistortLineEdit->text().toInt();
-        totBytes += totNumObjects * 140 + (2*50000*instData->numChips)*numCats;
-        long Nt = numCats * 1 * (degrees*degrees+2) + numCats*6;
-        totBytes += 8*Nt*Nt;
-        totBytes = 2*totBytes/ 1024. / 1024.;
-        if (verbosity >= 1) emit messageAvailable("Scamp memory estimate: " + QString::number(long(totBytes)) + " MB", "controller");
-        releaseMemory(totBytes, 1);
+                    // Release memory:
+                    // 140 bytes per detection
+                    // "a few 10 kB" per FITS table
+                    //
+                    long totBytes = 0;
+                    int degrees = cdw->ui->ASTdistortLineEdit->text().toInt();
+                    totBytes += totNumObjects * 140 + (2*50000*instData->numChips)*numCats;
+                    long Nt = numCats * 1 * (degrees*degrees+2) + numCats*6;
+                    totBytes += 8*Nt*Nt;
+                    totBytes = 2*totBytes/ 1024. / 1024.;
+                    if (verbosity >= 1) emit messageAvailable("Scamp memory estimate: " + QString::number(long(totBytes)) + " MB", "controller");
+                    releaseMemory(totBytes, 1);
 
-        progress = 0.;
-        progressStepSize = 80. / (float) numCats;  // 80%, leaving some space for distortion solution.
-        // Build the scamp command
-        buildScampCommand(scienceData);
+                    progress = 0.;
+                    progressStepSize = 80. / (float) numCats;  // 80%, leaving some space for distortion solution.
+                    // Build the scamp command
+                    buildScampCommand(scienceData);
 
-        // Run the Scamp command
-        workerThread = new QThread();
-        scampWorker = new ScampWorker(scampCommand, scampDir, instData->shortName);
-        workerInit = true;
-        workerThreadInit = true;
-        scampWorker->moveToThread(workerThread);
+                    // Run the Scamp command
+                    workerThread = new QThread();
+                    scampWorker = new ScampWorker(scampCommand, scampDir, instData->shortName);
+                    workerInit = true;
+                    workerThreadInit = true;
+                    scampWorker->moveToThread(workerThread);
 
-        connect(workerThread, &QThread::started, scampWorker, &ScampWorker::runScamp);
-        // Qt::DirectConnection is bad here, because this task runs in a different thread than the main controller,
-        // meaning that if e.g. sky sub is activated as well it will start immediately even before the scamp checkplots are shown
-        // connect(workerThread, &QThread::finished, workerThread, &QThread::deleteLater, Qt::DirectConnection);
-        // connect(scampWorker, &ScampWorker::finished, workerThread, &QThread::quit, Qt::DirectConnection);
-        // connect(scampWorker, &ScampWorker::finished, scampWorker, &QObject::deleteLater, Qt::DirectConnection);
-        connect(workerThread, &QThread::finished, workerThread, &QThread::deleteLater);
-        connect(scampWorker, &ScampWorker::errorFound, this, &Controller::scampErrorFoundReceived);
-        connect(scampWorker, &ScampWorker::finishedScamp, this, &Controller::finishedScampReceived);
-        // Need the direct connection if we want the thread to actually return control to the main thread (activating the start button again).
-        // But then sky sub would start before checkplots are evaluated.
-        // CORRECT WAY: call workerThread->quit() at the end of the image quality analysis
-        //        connect(scampWorker, &ScampWorker::finished, workerThread, &QThread::quit, Qt::DirectConnection);
-        //       connect(scampWorker, &ScampWorker::finished, workerThread, &QThread::quit);
-        connect(scampWorker, &ScampWorker::finished, scampWorker, &QObject::deleteLater);
-        connect(scampWorker, &ScampWorker::messageAvailable, monitor, &Monitor::displayMessage);
-        connect(scampWorker, &ScampWorker::fieldMatched, this, &Controller::fieldMatchedReceived);
-        workerThread->start();
-        workerThread->wait();
+                    connect(workerThread, &QThread::started, scampWorker, &ScampWorker::runScamp);
+                    // Qt::DirectConnection is bad here, because this task runs in a different thread than the main controller,
+                    // meaning that if e.g. sky sub is activated as well it will start immediately even before the scamp checkplots are shown
+                    // connect(workerThread, &QThread::finished, workerThread, &QThread::deleteLater, Qt::DirectConnection);
+                    // connect(scampWorker, &ScampWorker::finished, workerThread, &QThread::quit, Qt::DirectConnection);
+                    // connect(scampWorker, &ScampWorker::finished, scampWorker, &QObject::deleteLater, Qt::DirectConnection);
+                    connect(workerThread, &QThread::finished, workerThread, &QThread::deleteLater);
+                    connect(scampWorker, &ScampWorker::errorFound, this, &Controller::scampErrorFoundReceived);
+                    connect(scampWorker, &ScampWorker::finishedScamp, this, &Controller::finishedScampReceived);
+                    // Need the direct connection if we want the thread to actually return control to the main thread (activating the start button again).
+                    // But then sky sub would start before checkplots are evaluated.
+                    // CORRECT WAY: call workerThread->quit() at the end of the image quality analysis
+                    //       connect(scampWorker, &ScampWorker::finished, workerThread, &QThread::quit, Qt::DirectConnection);
+                    //       connect(scampWorker, &ScampWorker::finished, workerThread, &QThread::quit);
+                    connect(scampWorker, &ScampWorker::finished, scampWorker, &QObject::deleteLater);
+                    connect(scampWorker, &ScampWorker::messageAvailable, monitor, &Monitor::displayMessage);
+                    connect(scampWorker, &ScampWorker::fieldMatched, this, &Controller::fieldMatchedReceived);
+                    workerThread->start();
+                    workerThread->wait();
+                }
+            }
+#pragma omp section
+            {
+                downloadGaiaCatalog(scampScienceData); // Point sources
+            }
+        }
     }
 
-    // Currently not active, and does not write final headers/*.head files
-    if (cdw->ui->ASTmethodComboBox->currentText() == "astrometry.net") {
+    // Not implemented (greyed out)
+    if (cdw->ui->ASTmethodComboBox->currentText() == "Astrometry.net") {
         QString catDirName = mainDirName + "/" + scienceDir + "/cat/";
         if (!scienceData->hasMatchingPartnerFiles(catDirName, ".anet")) return;
 
@@ -447,7 +460,7 @@ void Controller::copyZeroOrder()
             //            it->backupOrigHeader(chip);            // Create a backup copy of the original FITS headers if it doesn't exist yet
             if (it->scanAstromHeader(chip, "inHeadersDir")) {    // reads the header, and updates the wcs struct in MyImage class (i.e. the memory)
                 it->updateZeroOrderOnDrive("update");            // Overwrite 0-th order solution in FITS header (if on drive)
- //               it->updateZeroOrderInMemory();                   // Overwrite 0-th order solution in memory
+                //               it->updateZeroOrderInMemory();                   // Overwrite 0-th order solution in memory
             }
             // The following is done by scanAstromheader and updateZeroOrderOnDrive
             /*
@@ -608,7 +621,7 @@ void Controller::doImageQualityAnalysis()
     pushBeginMessage("ImageQuality", scampScienceDir);
 
     // Todo: replace with GAIA catalog if that was the reference catalog already!
-    downloadGaiaCatalog(scampScienceData); // Point sources
+    //    downloadGaiaCatalog(scampScienceData); // Point sources
 
     QList<MyImage*> allMyImages;
     long numMyImages = makeListofAllImages(allMyImages, scampScienceData);

@@ -478,7 +478,7 @@ bool Splitter::individualFixCDmatrix(int chip)
     if (instData.name == "DirectCCD@LCO") {
         cd11_card = "CD1_1   =  -1.42886e-7";
         cd12_card = "CD1_2   =  -7.23249e-5";
-        cd12_card = "CD2_1   =  -7.23249e-5";
+        cd21_card = "CD2_1   =  -7.23249e-5";
         cd22_card = "CD2_2   =   1.42886e-7";
         individualFixDone = true;
     }
