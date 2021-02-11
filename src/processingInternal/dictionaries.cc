@@ -233,6 +233,10 @@ void Controller::populateFilterDictionary()
     filterDictionary.insert("OIII_G0318", "OIII");
     filterDictionary.insert("OIIIC_G0339", "OIIIC");
     filterDictionary.insert("OIIIC_G0319", "OIIIC");
+    filterDictionary.insert("OVI_G0345", "OVI");
+    filterDictionary.insert("OVI_G0347", "OVI");
+    filterDictionary.insert("OVIC_G0346", "OVIC");
+    filterDictionary.insert("OVIC_G0348", "OVIC");
 //    filterDictionary.insert(, );
 }
 
