@@ -475,6 +475,13 @@ bool Splitter::individualFixCDmatrix(int chip)
     QString cd21_card = "";
     QString cd22_card = "";
 
+    if (instData.name == "DirectCCD@LCO") {
+        cd11_card = "CD1_1   =  -1.42886e-7";
+        cd12_card = "CD1_2   =  -7.23249e-5";
+        cd12_card = "CD2_1   =  -7.23249e-5";
+        cd22_card = "CD2_2   =   1.42886e-7";
+        individualFixDone = true;
+    }
     if (instData.name == "WFI@MPGESO") {
         cd11_card = "CD1_1   =  -6.611e-5";
         cd12_card = "CD1_2   =  0.0";
