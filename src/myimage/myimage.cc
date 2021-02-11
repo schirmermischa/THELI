@@ -1480,7 +1480,7 @@ void MyImage::mergeObjectWithGlobalMask()
     else {
         long i=0;
         for (auto &pixel : objectMask) {
-            pixel *= globalMask.at(i);
+            pixel = pixel && globalMask.at(i);
             ++i;
         }
     }

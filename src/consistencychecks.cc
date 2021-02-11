@@ -30,12 +30,12 @@ If not, see https://www.gnu.org/licenses/ .
 
 bool MainWindow::areAllPathsValid() {
     bool test = checkPathsLineEdit(ui->setupBiasLineEdit);
-    test *= checkPathsLineEdit(ui->setupDarkLineEdit);
-    test *= checkPathsLineEdit(ui->setupFlatoffLineEdit);
-    test *= checkPathsLineEdit(ui->setupFlatLineEdit);
-    test *= checkPathsLineEdit(ui->setupScienceLineEdit);
-    test *= checkPathsLineEdit(ui->setupSkyLineEdit);
-    test *= checkPathsLineEdit(ui->setupStandardLineEdit);
+    test = test && checkPathsLineEdit(ui->setupDarkLineEdit);
+    test = test && checkPathsLineEdit(ui->setupFlatoffLineEdit);
+    test = test && checkPathsLineEdit(ui->setupFlatLineEdit);
+    test = test && checkPathsLineEdit(ui->setupScienceLineEdit);
+    test = test && checkPathsLineEdit(ui->setupSkyLineEdit);
+    test = test && checkPathsLineEdit(ui->setupStandardLineEdit);
     return test;
 }
 

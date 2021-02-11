@@ -2151,9 +2151,9 @@ void Data::restoreBackupLevel(QString backupDirName)
     bool success = true;
     QString newStatusRAM = "";
 
-    if (d1.absolutePath() == dc.absolutePath()) success *= restoreFromBackupLevel("L1", newStatusRAM);
-    else if (d2.absolutePath() == dc.absolutePath()) success *= restoreFromBackupLevel("L2", newStatusRAM);
-    else if (d3.absolutePath() == dc.absolutePath()) success *= restoreFromBackupLevel("L3", newStatusRAM);
+    if (d1.absolutePath() == dc.absolutePath()) success = success && restoreFromBackupLevel("L1", newStatusRAM);
+    else if (d2.absolutePath() == dc.absolutePath()) success = success && restoreFromBackupLevel("L2", newStatusRAM);
+    else if (d3.absolutePath() == dc.absolutePath()) success = success && restoreFromBackupLevel("L3", newStatusRAM);
 
     //    qDebug() << "success = " << success << newStatusRAM;
 
@@ -2291,9 +2291,9 @@ bool Data::restoreFromBackupLevel(QString level, QString &newStatusRAM)
         if (instData->badChips.contains(chip)) continue;
         for (auto &it: myImageList[chip]) {
             // Continue if no backup data in RAM
-            if (level == "L1") success *= it->makeL1Current();
-            else if (level == "L2") success *= it->makeL2Current();
-            else if (level == "L3") success *= it->makeL3Current();
+            if (level == "L1") success = success && it->makeL1Current();
+            else if (level == "L2") success = success && it->makeL2Current();
+            else if (level == "L3") success = success && it->makeL3Current();
 
             emit it->modelUpdateNeeded(it->chipName);
 

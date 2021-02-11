@@ -769,7 +769,7 @@ bool MainWindow::OSPBC_multipleDirConsistencyCheck()
     for (auto &it : status.listCheckBox) {
         if (it->isChecked()) {
             QString taskBasename = it->objectName().remove("apply").remove("CheckBox");
-            test *= checkMultipledirConsistency(taskBasename);
+            test = test && checkMultipledirConsistency(taskBasename);
         }
         ++i;
         // Don't have to evaluate more checkboxes.
