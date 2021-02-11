@@ -732,8 +732,9 @@ void IView::mapFITS()
     }
 
     // the scene MUST have it's final size BEFORE we add an item
-    if(scene->width() < 1 || scene->height() < 1)
-        scene->setSceneRect( 0, 0, naxis1, naxis2);
+    // WARNING: with some images (large coadds) then these images appear shifted to the right and cannot be viewed completely.
+//    if(scene->width() < 1 || scene->height() < 1)
+//        scene->setSceneRect( 0, 0, naxis1, naxis2);
 
     // end additional section
     //**************************************************
