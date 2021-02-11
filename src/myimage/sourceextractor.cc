@@ -106,7 +106,7 @@ void MyImage::filterSourceExtractorCatalog(QString minFWHM, QString maxFlag)
     fitsfile *fptr;
     int status = 0;
 
-//    QString filterString = "Flag <= "+maxFlag + " && FWHM_IMAGE <= "+minFWHM;
+    //    QString filterString = "Flag <= "+maxFlag + " && FWHM_IMAGE <= "+minFWHM;
     QString filterString = "FLAGS <= "+ maxFlag + " && FWHM_IMAGE >= "+minFWHM;
     QString catName = path+"/cat/"+chipName+".cat";
     fits_open_file(&fptr, catName.toUtf8().data(), READWRITE, &status);
@@ -123,20 +123,26 @@ void MyImage::filterSourceExtractorCatalog(QString minFWHM, QString maxFlag)
     // printCfitsioError("MyImage::filterSourceExtractorCatalog()", status);
 }
 
-void MyImage::calcMedianSeeingEllipticitySex()
+void MyImage::calcMedianSeeingEllipticitySex(QString catName, int extnum)
 {
     if (!successProcessing) return;
 
     fitsfile *fptr;
     int status = 0;
 
-    QString catName = path+"/cat/"+chipName+".cat";
+    if (catName.isEmpty()) catName = path+"/cat/"+chipName+".cat";
     fits_open_file(&fptr, catName.toUtf8().data(), READONLY, &status);
 
     // Move to the LDAC_OBJECTS table
-    char tblname[100] = "LDAC_OBJECTS";
-    int extver = 0;
-    fits_movnam_hdu(fptr, BINARY_TBL, tblname, extver, &status);
+    if (extnum == 0) {       // working on single source extractor catalogs before being merged into scamp catalog
+        char tblname[100] = "LDAC_OBJECTS";
+        int extver = 0;
+        fits_movnam_hdu(fptr, BINARY_TBL, tblname, extver, &status);
+    }
+    else {
+        int hduType = 0;
+        fits_movabs_hdu(fptr, extnum, &hduType, &status);
+    }
 
     long nrows = 0;
     int fwhmColNum = -1;

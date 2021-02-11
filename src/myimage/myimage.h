@@ -353,7 +353,7 @@ public:
     void buildAnetCommand(QString pixscale_maxerr);
     void buildSourceExtractorCommand();
     void calcMedianSeeingEllipticity();
-    void calcMedianSeeingEllipticitySex();
+    void calcMedianSeeingEllipticitySex(QString catName = "", int extnum = 0);
     void checkBrightStars(const QList<QVector<double> > &brightStarList, float safetyDistance, float plateScale);
     void checkCorrectMaskSize(const instrumentDataType *instData);
     void checkTaskRepeatStatus(QString taskBasename);

@@ -276,7 +276,21 @@ void ImageStatistics::readStatisticsData()
         }
         else dataSky.append(it->skyValue);
 
-        // Do we have GAIA seeing?
+        // In case GUI is launched, catalogs are present, and statistics is requested,
+        // we need to fetch the data from the catalogs (or the MyImages)
+        if (it->fwhm == -1.0 || it->ellipticity == -1.0) {
+            if (it->objectList.length() > 0) it->calcMedianSeeingEllipticity();
+            else {
+                QString catName = it->path+"/cat/"+it->rootName+".scamp";
+                QFile cat;
+                cat.setFileName(catName);
+                if (cat.exists()) {
+                    it->calcMedianSeeingEllipticitySex(catName, 2*it->chipNumber + 1);     // LDAC_OBJECTS table in extensions 3, 5, 7, etc
+                }
+            }
+        }
+
+        // Do we have GAIA seeing? we should have, at least if catalogs exist
         if (it->fwhm == -1.0) {
             // No. Do we have median estimate?
             if (it->fwhm_est == -1.0) {
