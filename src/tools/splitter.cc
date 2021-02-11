@@ -1307,10 +1307,11 @@ bool Splitter::checkCorrectMaskSize(const int chip)
     if (n_mask > 0 && n_data > 0 && n_mask != n_data) {
         if (!maskSizeWarningShown) {
             emit messageAvailable("Inconsistent image size detected between data and instrument configuration"
-                                  " (overscan and / or data section) in\n"+instData.nameFullPath, "error");
-            emit critical();
-            successProcessing = false;
-            maskSizeWarningShown = true;
+                                  " (overscan and / or data section) in\n"+instData.nameFullPath+
+                                  " \n. The image will not be processed, please remove it manually.", "warning");
+            emit warning();
+//            successProcessing = false;
+//            maskSizeWarningShown = true;
             return false;
         }
     }

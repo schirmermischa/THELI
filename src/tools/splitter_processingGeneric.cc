@@ -286,7 +286,12 @@ void Splitter::applyMask(int chip)
         chip = chip / numAmpPerChip;
     }
 
-    if (!checkCorrectMaskSize(chip)) return;
+    if (!checkCorrectMaskSize(chip)) {
+//        QDir unknownFile(path+"/InconsistentGeometry");
+//        unknownFile.mkpath(path+"/InconsistentGeometry/");
+//        moveFile(fileName, path, path+"/InconsistentGeometry/");
+        return;
+    }
 
     if (instData.name == "LIRIS_POL@WHT") return;           // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
     //    if (instData.name == "GROND_NIR@MPGESO") return;  // Further cut-outs happen in writeImage(); mask geometry in camera.ini applies only once these have happened.
