@@ -178,6 +178,14 @@ void IvConfDockWidget::updateNavigatorMagnifiedReceived(QGraphicsPixmapItem *mag
     magnifiedGraphicsView->setScene(magnifiedScene);
     magnifiedGraphicsView->scale(magnification, magnification);
     magnifiedGraphicsView->centerOn(magnifiedPixmapItem);
+    QPen pen(QColor("#00ffff"));
+    int x1 = magnifiedScene->width()/2-0.5;
+    int x2 = magnifiedScene->width()/2+0.5;
+    int y1 = magnifiedScene->height()/2-0.5;
+    int y2 = magnifiedScene->height()/2+0.5;
+    QPoint p1 = QPoint(x1, y1);
+    QPoint p2 = QPoint(x2, y2);
+    magnifiedScene->addRect(QRect(p1,p2), pen);
     magnifiedGraphicsView->show();
 //    ui->navigatorStackedWidget->setCurrentIndex(1);
 }
@@ -229,4 +237,27 @@ void IvConfDockWidget::updateNavigatorBinnedViewportReceived(QRect rect)
 
     binnedGraphicsView->setScene(binnedScene);
     binnedGraphicsView->show();
+}
+
+void IvConfDockWidget::updateNavigatorMagnifiedViewportReceived()
+{
+    return;
+
+    // remove old rects
+    QList<QGraphicsItem*> items = magnifiedScene->items();
+    for (auto &it : items) {
+       QGraphicsRectItem *rectcast = qgraphicsitem_cast<QGraphicsRectItem*>(it);
+       if (rectcast) magnifiedScene->removeItem(it);
+    }
+
+    QPen pen(QColor("#00ffff"));
+    int x1 = navigator_nx/2-0.5;
+    int x2 = navigator_nx/2+0.5;
+    int y1 = navigator_ny/2-0.5;
+    int y2 = navigator_ny/2+0.5;
+    QPoint p1 = magnifiedGraphicsView->mapFromScene(QPoint(x1, y1));
+    QPoint p2 = magnifiedGraphicsView->mapFromScene(QPoint(x2, y2));
+    magnifiedScene->addRect(QRect(p1, p2), pen);
+    magnifiedGraphicsView->setScene(magnifiedScene);
+    magnifiedGraphicsView->show();
 }

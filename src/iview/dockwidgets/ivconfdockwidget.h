@@ -70,6 +70,7 @@ public slots:
     void mouseEnteredViewReceived();
     void mouseLeftViewReceived();
     void updateNavigatorBinnedViewportReceived(QRect rect);
+    void updateNavigatorMagnifiedViewportReceived();
 
 signals:
     void autoContrastPushButton_toggled(bool checked);
