@@ -1037,9 +1037,6 @@ void Controller::coaddUpdate()
                 emit messageAvailable("Undersampling detected. The chosen "+cdw->ui->COAkernelComboBox->currentText()
                                       +" resampling kernel could lead to artifacts in compact sources (stars). In this case, consider the LANCZOS2 kernel.", "warning");
             }
-            else {
-                skippedIQ = true;
-            }
             coadd->releaseAllDetectionMemory();
             coadd->releaseBackgroundMemory("entirely");
         }

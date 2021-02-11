@@ -237,6 +237,10 @@ void Controller::populateFilterDictionary()
     filterDictionary.insert("OVI_G0347", "OVI");
     filterDictionary.insert("OVIC_G0346", "OVIC");
     filterDictionary.insert("OVIC_G0348", "OVIC");
+    filterDictionary.insert("HeII_G0320", "HeII");
+    filterDictionary.insert("HeII_G0340", "HeII");
+    filterDictionary.insert("HeIIC_G0321", "HeIIC");
+    filterDictionary.insert("HeIIC_G0341", "HeIIC");
 //    filterDictionary.insert(, );
 }
 
