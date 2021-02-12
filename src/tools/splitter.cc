@@ -237,7 +237,7 @@ void Splitter::extractImages()
 
     // adjust progress step size for multi-chip cameras whose detectors are stored in single extension FITS files
     // (i.e. raw data does not come as a MEF but as separate FITS files)
-    QStringList instruments = {"FORS1_E2V_2x2@VLT", "FORS2_E2V_2x2@VLT", "FORS2_MIT_1x1@VLT", "FORS2_MIT_2x2@VLT", "FourStar@LCO",
+    QStringList instruments = {"Direct_4k_SWOPE@LCO", "FORS1_E2V_2x2@VLT", "FORS2_E2V_2x2@VLT", "FORS2_MIT_1x1@VLT", "FORS2_MIT_2x2@VLT", "FourStar@LCO",
                                "IMACS_F2_NEW@LCO", "IMACS_F2_OLD@LCO", "IMACS_F4_NEW@LCO", "IMACS_F4_OLD@LCO",
                                "MOIRCS_200406-201006@SUBARU", "MOIRCS_201007-201505@SUBARU", "MOIRCS_201512-today@SUBARU",
                                "SPARTAN@SOAR", "SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808-201705@SUBARU",
@@ -504,6 +504,13 @@ int Splitter::inferChipID(int chip)
     else if (instData.name == "VIMOS@VLT") {
         int value = 0;
         searchKeyValue(QStringList() << "HIERARCH ESO OCS CON QUAD", value);    // running from 1 to 4
+        chipID = value;
+        return chipID;
+    }
+
+    else if (instData.name == "Direct_4k_SWOPE@LCO") {
+        int value = 0;
+        searchKeyValue(QStringList() << "OPAMP", value);    // running from 1 to 4
         chipID = value;
         return chipID;
     }
@@ -938,6 +945,11 @@ void Splitter::individualFixOutName(const int chipID)
         uniqueID = uniqueID.simplified();
         individualFixDone = true;
     }
+//    if (instData.name == "Direct_4k_SWOPE@LCO") {
+//        test = searchKeyValue(QStringList() << "FILENAME", uniqueID);
+//        uniqueID = uniqueID.remove(7,2);
+//        individualFixDone = true;
+//    }
     else if (instData.name.contains("MOIRCS")) {
         test = searchKeyValue(QStringList() << "EXP-ID", uniqueID);    // e.g. MCSE00012193
         individualFixDone = true;
@@ -1322,7 +1334,7 @@ bool Splitter::checkInstrumentConsistency(QString foundInstrumentName)
 {
     QString expectedInstrumentName = instrumentDictionary.value(instData.name);
     if (!expectedInstrumentName.isEmpty() && expectedInstrumentName != foundInstrumentName) {
-        emit messageAvailable(fileName + ": Wrong instrument selected: Expected " + instData.name + ", found " + foundInstrumentName, "error");
+        emit messageAvailable(fileName + ": Wrong instrument selected: Expected " + instData.name + ", but \"INSTRUME= " + foundInstrumentName+"\"", "error");
         emit critical();
         successProcessing = false;
         return false;

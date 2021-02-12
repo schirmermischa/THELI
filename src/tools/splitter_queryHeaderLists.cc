@@ -73,7 +73,7 @@ bool Splitter::searchKeyValue(const QStringList &possibleKeyNames, int &value)
 {
     bool inExtHeader = false;
     bool inPrimaryHeader = searchKeyInHeaderValue(possibleKeyNames, primaryHeader, value);
-    if (possibleKeyNames.contains("NAMPS")) qDebug() << fileName << possibleKeyNames << primaryHeader.length() << inPrimaryHeader << value;
+    if (possibleKeyNames.contains("NAMPS")) qDebug() << __func__ << fileName << possibleKeyNames << primaryHeader.length() << inPrimaryHeader << value;
     if (!inPrimaryHeader) inExtHeader = searchKeyInHeaderValue(possibleKeyNames, extHeader, value);
 
     if (!inExtHeader && !inPrimaryHeader) return false;

@@ -482,6 +482,33 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =   1.42886e-7";
         individualFixDone = true;
     }
+    if (instData.name == "Direct_4k_SWOPE@LCO") {
+        if (chip == 0) {
+            cd11_card = "CD1_1   =  8.839493716E-07";
+            cd12_card = "CD1_2   =  -1.209379295E-04";
+            cd21_card = "CD2_1   =  -1.209379295E-04";
+            cd22_card = "CD2_2   =  -8.839493716E-07";
+        }
+        if (chip == 1) {
+            cd11_card = "CD1_1   =  -8.861927404E-07";
+            cd12_card = "CD1_2   =  -1.209344868E-04";
+            cd21_card = "CD2_1   =  1.209344868E-04";
+            cd22_card = "CD2_2   =  -8.861927404E-07";
+        }
+        if (chip == 2) {
+            cd11_card = "CD1_1   =  -7.788683939E-07";
+            cd12_card = "CD1_2   =  1.211132665E-04";
+            cd21_card = "CD2_1   =  1.211132665E-04";
+            cd22_card = "CD2_2   =  7.788683939E-07";
+        }
+        if (chip == 3) {
+            cd11_card = "CD1_1   =  8.755109826E-07";
+            cd12_card = "CD1_2   =  1.208828016E-04";
+            cd21_card = "CD2_1   =  -1.208828016E-04";
+            cd22_card = "CD2_2   =  8.755109826E-07";
+        }
+        individualFixDone = true;
+    }
     if (instData.name == "WFI@MPGESO") {
         cd11_card = "CD1_1   =  -6.611e-5";
         cd12_card = "CD1_2   =  0.0";

@@ -257,6 +257,7 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("CFH12K@CFHT", "");
     instrumentDictionary.insert("CFH12K@CFHT99", "");
     instrumentDictionary.insert("DECam@CTIO", "");
+    instrumentDictionary.insert("Direct_4k_SWOPE@LCO", "Direct_4Kx4K-4");     // must replace a '/' in the INSTRUME keyword with '_'
     instrumentDictionary.insert("EFOSC2@ESO3.6m", "EFOSC");
     instrumentDictionary.insert("EFOSC2@NTT", "EFOSC");
     instrumentDictionary.insert("EFOSC2_2x2@ESO3.6m", "EFOSC");
@@ -374,14 +375,14 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("SuprimeCam_200105-200807@SUBARU", "SuprimeCam");
     instrumentDictionary.insert("SuprimeCam_200808-201705@SUBARU", "SuprimeCam");
     instrumentDictionary.insert("SuprimeCam_200808-201705_SDFRED@SUBARU", "SuprimeCam");
-    instrumentDictionary.insert("TRECS@GEMINI", "");
+    instrumentDictionary.insert("TRECS@GEMINI", "TReCS");
     instrumentDictionary.insert("TRIPOL_1x1@SAAO", "");
     instrumentDictionary.insert("TRIPOL_2x2@SAAO", "");
     instrumentDictionary.insert("Tek2K@CTIO", "");
     instrumentDictionary.insert("VIMOS@VLT", "VIMOS");
     instrumentDictionary.insert("VIRCAM@VISTA", "");
     instrumentDictionary.insert("VISIR@VLT", "");
-    instrumentDictionary.insert("WFC@INT", "");
+    instrumentDictionary.insert("WFC@INT", "WFC");
     instrumentDictionary.insert("WFC_2x2@INT", "WFC");
     instrumentDictionary.insert("WFC_IPHAS@INT", "WFC");
     instrumentDictionary.insert("WFI@AAT", "");
