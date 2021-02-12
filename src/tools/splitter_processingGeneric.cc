@@ -72,7 +72,7 @@ void Splitter::correctOverscan()
     }
 
     // Update the saturation value
-//    qDebug() << saturationValue << overscanEffective;
+    //    qDebug() << saturationValue << overscanEffective;
     saturationValue -= overscanEffective;
 }
 
@@ -287,9 +287,9 @@ void Splitter::applyMask(int chip)
     }
 
     if (!checkCorrectMaskSize(chip)) {
-//        QDir unknownFile(path+"/InconsistentGeometry");
-//        unknownFile.mkpath(path+"/InconsistentGeometry/");
-//        moveFile(fileName, path, path+"/InconsistentGeometry/");
+        //        QDir unknownFile(path+"/InconsistentGeometry");
+        //        unknownFile.mkpath(path+"/InconsistentGeometry/");
+        //        moveFile(fileName, path, path+"/InconsistentGeometry/");
         return;
     }
 
@@ -369,6 +369,14 @@ void Splitter::correctNonlinearity(int chip)
 
     // Extract coefficients for the current chip
     QVector<float> coeffs = nonlinearityCoefficients[chip];
+    // Apply nonlinearity correction
+    for (auto &pixel : dataCurrent) {
+        pixel = polynomialSum(pixel, coeffs);
+    }
+    // Update saturation value
+    saturationValue = polynomialSum(saturationValue, coeffs);
+
+    // Individual implementations
 
     // Average nonlinearity correction
     // http://instrumentation.obs.carnegiescience.edu/FourStar/Documents/FourStar_Documentation.pdf
@@ -391,14 +399,65 @@ void Splitter::correctNonlinearity(int chip)
         for (auto &pixel : dataCurrent) {
             pixel = pixel * (1.+A*pow(pixel,1.5));
         }
+        saturationValue *= (1.+A*pow(saturationValue,1.5));
     }
 
-    for (auto &pixel : dataCurrent) {
-        pixel = polynomialSum(pixel, coeffs);
+    // http://csp2.lco.cl/manuals/dup_dc_linearity.php
+    if (instData.name == "Direct_2k_DUPONT@LCO") {
+        QString speed = "";
+        searchKeyValue(headerDictionary.value("SPEED"), speed);
+
+        float c1 = 1.0;
+        float c2 = 0.0;
+        float c3 = 0.0;
+        float c4 = 0.0;
+        if (speed == "Turbo") {
+            c2 = 0.09907;
+            c3 = -0.06151;
+            c4 = 0.01522;
+        }
+        if (speed == "Fast") {
+            c2 = 0.05022;
+            c3 = -0.02814;
+            c4 = 0.00733;
+        }
+        for (auto &pixel : dataCurrent) {
+            float x = c1 + c2*(pixel/32000.0) + c3*pow(pixel/32000.0,2) + c4*pow(pixel/32000.0,3);
+            pixel /= x;
+        }
+        float x = c1 + c2*(saturationValue/32000.0) + c3*pow(saturationValue/32000.0,2) + c4*pow(saturationValue/32000.0,3);
+        saturationValue /= x;
     }
 
-    // Update saturation value
-    saturationValue = polynomialSum(saturationValue, coeffs);
+    // http://csp2.lco.cl/manuals/swo_nc_linearity.php (using mean values)
+    // NOTE: linearity test page does not specify for which readout mode it applies
+    if (instData.name == "Direct_4k_SWOPE@LCO") {
+        float c1 = 1.0;
+        float c2 = 0.0;
+        float c3 = 0.0;
+        if (chip == 0) {
+            c2 = -0.03443;
+            c3 = 0.006657;
+        }
+        if (chip == 1) {
+            c2 = -0.01557;
+            c3 = 0.003386;
+        }
+        if (chip == 2) {
+            c2 = -0.01329;
+            c3 = 0.003314;
+        }
+        if (chip == 3) {
+            c2 = -0.01971;
+            c3 = 0.004700;
+        }
+        for (auto &pixel : dataCurrent) {
+            float x = c1 + c2*(pixel/32000.0) + c3*pow(pixel/32000.0,2);
+            pixel /= x;
+        }
+        float x = c1 + c2*(saturationValue/32000.0) + c3*pow(saturationValue/32000.0,2);
+        saturationValue /= x;
+    }
 }
 
 void Splitter::convertToElectrons(int chip)
