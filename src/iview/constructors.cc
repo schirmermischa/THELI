@@ -500,6 +500,7 @@ void IView::makeConnections()
     myGraphicsView->setPalette(backgroundPalette);
     myGraphicsView->setMouseTracking(true);
     connect(myGraphicsView, &MyGraphicsView::currentMousePos, this, &IView::showCurrentMousePos);
+    connect(myGraphicsView, &MyGraphicsView::currentMousePos, this, &IView::collectLocalStatisticsSample);
     connect(myGraphicsView, &MyGraphicsView::rightDragTravelled, this, &IView::adjustBrightnessContrast);
     connect(myGraphicsView, &MyGraphicsView::leftDragTravelled, this, &IView::drawSeparationVector);
     connect(myGraphicsView, &MyGraphicsView::middleDragTravelled, this, &IView::drawSkyCircle);
@@ -534,7 +535,9 @@ void IView::makeConnections()
 
     connect(this, &IView::updateNavigatorBinnedViewport, icdw, &IvConfDockWidget::updateNavigatorBinnedViewportReceived);
 
-    connect(filterLineEdit, &QLineEdit::textChanged, this, &IView::on_filterLineEdit_textChanged);
+    connect(this, &IView::statisticsSampleAvailable, statdw, &IvStatisticsDockWidget::statisticsSampleReceiver);
+
+    connect(filterLineEdit, &QLineEdit::textChanged, this, &IView::filterLineEdit_textChanged);
 }
 
 void IView::switchMode(QString mode)

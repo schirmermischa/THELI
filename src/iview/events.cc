@@ -125,6 +125,35 @@ void IView::showCurrentMousePos(QPointF point)
     icdw->magnifiedGraphicsView->show();
 }
 
+void IView::collectLocalStatisticsSample(QPointF point)
+{
+    if (!statdw->isVisible()) return;
+
+    // Pixel index in the 2D image
+    long x = point.x();
+    long y = naxis2 - point.y();
+
+    int s = statdw->statWidth;
+
+    QVector<float> sample;
+    int imin = x-s;
+    int imax = x+s;
+    int jmin = y-s;
+    int jmax = y+s;
+    if (imin < 0) imin = 0;
+    if (imax >= naxis1) imax = naxis1-1;
+    if (jmin < 0) jmin = 0;
+    if (jmax >= naxis2) jmax = naxis2-1;
+    for (int j = jmin; j<=jmax; ++j) {
+        for (int i = imin; i<=imax; ++i) {
+            sample.append(fitsData[i+naxis1*j]);
+        }
+    }
+
+    emit statisticsSampleAvailable(sample);
+
+}
+
 void IView::adjustBrightnessContrast(QPointF point)
 {
     if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;

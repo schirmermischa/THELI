@@ -119,15 +119,16 @@ public:
     float globalMedian = 0.;
     float globalRMS = 0.;
     float globalMean = 0.;
-    float localMedian = 0.;
-    float localRMS = 0.;
-    float localMean = 0.;
 
     QList<MyImage*> myImageList;
 
     MyImage *currentMyImage = nullptr;
     QString currentFileName = "";
 
+    int naxis1 = 0;
+    int naxis2 = 0;
+
+    QVector<float> fitsData;
 signals:
     void abortPlay();
     void colorFactorChanged(QString redFactor, QString blueFactor);
@@ -139,6 +140,7 @@ signals:
     void updateNavigatorMagnified(QGraphicsPixmapItem *magnifiedPixmapItem, qreal scaleFactor);
     void updateNavigatorBinned(QGraphicsPixmapItem *binnedPixmapItem);
     void updateNavigatorBinnedViewport(QRect rect);
+    void statisticsSampleAvailable(const QVector<float> &sample);
 
 private slots:
     void adjustBrightnessContrast(QPointF point);
@@ -172,8 +174,9 @@ private slots:
     void mouseEnteredViewReceived();
     void mouseLeftViewReceived();
     void on_actionImage_statistics_triggered();
-    void on_filterLineEdit_textChanged(const QString &arg1);
+    void filterLineEdit_textChanged(const QString &arg1);
 
+    void collectLocalStatisticsSample(QPointF point);
 public slots:
     void autoContrastPushButton_toggled_receiver(bool checked);
     void clearAll();
@@ -240,8 +243,6 @@ private:
     bool dataIntRSet = false;
     bool dataIntGSet = false;
     bool dataIntBSet = false;
-    int naxis1;
-    int naxis2;
     int magnify = 7;
 
     double rad = 3.1415926535 / 180.;
@@ -274,7 +275,6 @@ private:
 
     bool binnedPixmapUptodate = false;
 
-    QVector<float> fitsData;
     QVector<float> fitsDataR;
     QVector<float> fitsDataG;
     QVector<float> fitsDataB;

@@ -40,8 +40,19 @@ public:
 
     IView *iview;
 
+    int statWidth = 3;
+
     void init();
+public slots:
+    void statisticsSampleReceiver(const QVector<float> &sample);
+private slots:
+    void on_localWindowComboBox_currentIndexChanged(const QString &arg1);
+
 private:
+    float localMedian = 0.;
+    float localSigma = 0.;
+    float localMean = 0.;
+
 };
 
 #endif // IVSTATISTICSDOCKWIDGET_H

@@ -20,7 +20,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "ivstatisticsdockwidget.h"
 #include "ui_ivstatisticsdockwidget.h"
 #include "../iview.h"
-
+#include "../../functions.h"
 #include <math.h>
 
 IvStatisticsDockWidget::IvStatisticsDockWidget(IView *parent) :
@@ -48,8 +48,33 @@ void IvStatisticsDockWidget::init()
     ui->globalRMSLabel->setText(QString::number(iview->globalRMS, 'f', validDigits));
     ui->globalSigmaLabel->setText(sigma + " = ");
 
-    ui->localMedianLabel->setText(QString::number(iview->localMedian, 'f', validDigits));
-    ui->localMeanLabel->setText(QString::number(iview->localMean, 'f', validDigits));
-    ui->localRMSLabel->setText(QString::number(iview->localRMS, 'f', validDigits));
+    ui->localMedianLabel->setText(QString::number(localMedian, 'f', validDigits));
+    ui->localMeanLabel->setText(QString::number(localMean, 'f', validDigits));
+    ui->localRMSLabel->setText(QString::number(localSigma, 'f', validDigits));
     ui->localSigmaLabel->setText(sigma + " = ");
+
+    ui->localWindowComboBox->setCurrentText("9x9");
+}
+
+void IvStatisticsDockWidget::statisticsSampleReceiver(const QVector<float> &sample)
+{
+    if (!this->isVisible()) return;
+
+    localMedian = straightMedian_T(sample);
+    localMean = meanMask_T(sample, QVector<bool>());
+    localSigma = 1.486*madMask_T(sample, QVector<bool>(), "ignoreZeroes");
+
+    int validDigits = 4 - log( fabs(localMedian)) / log(10.);
+    if (validDigits < 0) validDigits = 0;
+
+//    if (iview->displayMode == "FITSmonochrome" || iview->displayMode == "MEMview") {
+        ui->localMedianLabel->setText(QString::number(localMedian, 'f', validDigits));
+        ui->localMeanLabel->setText(QString::number(localMean, 'f', validDigits));
+        ui->localRMSLabel->setText(QString::number(localSigma, 'f', validDigits));
+//    }
+}
+
+void IvStatisticsDockWidget::on_localWindowComboBox_currentIndexChanged(const QString &arg1)
+{
+    statWidth = ui->localWindowComboBox->currentText().split('x').at(0).toInt();
 }

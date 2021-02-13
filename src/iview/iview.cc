@@ -459,7 +459,7 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
     else {
         // At end of file list, or file does not exist anymore.
         // Update file list
-        on_filterLineEdit_textChanged("dummy");
+        filterLineEdit_textChanged("dummy");
         return;
     }
 }
@@ -1371,7 +1371,7 @@ void IView::colorFactorChanged_receiver(QString redFactor, QString blueFactor)
     mapFITS();
 }
 
-void IView::on_filterLineEdit_textChanged(const QString &arg1)
+void IView::filterLineEdit_textChanged(const QString &arg1)
 {
     QString filter = arg1;
 
