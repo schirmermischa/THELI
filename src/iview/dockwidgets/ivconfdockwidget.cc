@@ -148,26 +148,6 @@ void IvConfDockWidget::on_autocontrastPushButton_toggled(bool checked)
     emit autoContrastPushButton_toggled(checked);
 }
 
-void IvConfDockWidget::on_filterLineEdit_textChanged(const QString &arg1)
-{
-    QString filter = arg1;
-
-    if (filter.isEmpty()
-            || !filter.contains(".fits")
-            || !filter.contains("*")) {
-        filter = "*.fits";
-        ui->filterLineEdit->setText(filter);
-    }
-
-    iview->setImageList(filter);
-    iview->numImages = iview->imageList.length();
-
-    iview->pageLabel->setText(" Image ? / "+QString::number(iview->numImages));
-
-    // Rewind
-    iview->startAction_triggered();
-}
-
 void IvConfDockWidget::on_quitPushButton_clicked()
 {
     emit closeIview();

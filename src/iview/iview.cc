@@ -234,10 +234,10 @@ void IView::imageListToChipName()
 void IView::setCurrentId(QString filename)
 {
     // The number of the file in the list of all images (PNG or FITS) in this directory
-    if (filterName.isEmpty() || icdw->ui->filterLineEdit->text().isEmpty()) {
+    if (filterName.isEmpty() || filterLineEdit->text().isEmpty()) {
         if (!displayMode.contains("SCAMP")) filterName = "*.fits";
         else filterName = "*.png";
-        icdw->ui->filterLineEdit->setText(filterName);
+        filterLineEdit->setText(filterName);
     }
     setImageList(filterName);
     currentId = imageList.indexOf(QFileInfo(filename).fileName());
@@ -248,12 +248,12 @@ void IView::setCurrentId(QString filename)
 
 void IView::loadImage()
 {
-    QString filter = icdw->ui->filterLineEdit->text();
+    QString filter = filterLineEdit->text();
     if (filter.isEmpty()
             || !filter.contains(".fit")
             || !filter.contains("*")) {
         filter = "*.fits";
-        icdw->ui->filterLineEdit->setText(filter);
+        filterLineEdit->setText(filter);
     }
 
     if (!QDir(dirName).exists()) dirName = QDir::homePath();
@@ -280,7 +280,7 @@ void IView::loadImage()
 
     // Update the filter string
     filterName = "*."+suffix;
-    icdw->ui->filterLineEdit->setText(filter);
+    filterLineEdit->setText(filter);
 
     if (suffix == "fits") {
         switchMode("FITSmonochrome");
@@ -352,13 +352,13 @@ void IView::loadFITSexternal(QString fileName, QString filter)
     if (!fileName.isEmpty()) {
         switchMode("FITSmonochrome");
         filterName = filter;
-        icdw->ui->filterLineEdit->setText(filterName);
+        filterLineEdit->setText(filterName);
         loadFITS(fileName);
     }
     else {
         switchMode("CLEAR");
         filterName = filter;
-        icdw->ui->filterLineEdit->setText(filterName);
+        filterLineEdit->setText(filterName);
     }
 }
 
@@ -459,7 +459,7 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
     else {
         // At end of file list, or file does not exist anymore.
         // Update file list
-        icdw->on_filterLineEdit_textChanged("dummy");
+        on_filterLineEdit_textChanged("dummy");
         return;
     }
 }
@@ -1371,3 +1371,22 @@ void IView::colorFactorChanged_receiver(QString redFactor, QString blueFactor)
     mapFITS();
 }
 
+void IView::on_filterLineEdit_textChanged(const QString &arg1)
+{
+    QString filter = arg1;
+
+    if (filter.isEmpty()
+            || !filter.contains(".fits")
+            || !filter.contains("*")) {
+        filter = "*.fits";
+        filterLineEdit->setText(filter);
+    }
+
+    setImageList(filter);
+    numImages = imageList.length();
+
+    pageLabel->setText(" Image ? / "+QString::number(numImages));
+
+    // Rewind
+//    iview->startAction_triggered();
+}

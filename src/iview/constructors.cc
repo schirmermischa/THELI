@@ -104,8 +104,8 @@ IView::IView(QString mode, QWidget *parent) :
     fromMemory = true;
 
     // Can't use these in memory mode (ensuring internal consistency, and avoiding very complex code)
-    icdw->ui->filterLabel->hide();
-    icdw->ui->filterLineEdit->hide();
+    // filterLabel->hide();
+    // filterLineEdit->hide();
 }
 
 // MEMview, list of MyImages
@@ -142,8 +142,8 @@ IView::IView(QString mode, QList<MyImage*> &list, QString dirname, QWidget *pare
     initGUIstep2();
 
     // Can't use these in memory mode (ensuring internal consistency, and avoiding very complex code)
-    icdw->ui->filterLabel->hide();
-    icdw->ui->filterLineEdit->hide();
+    // filterLabel->hide();
+    // filterLineEdit->hide();
 }
 
 // FITS viewer, commandline invocation, with or without an argument
@@ -271,7 +271,7 @@ IView::IView(QString mode, QString dirname, QString filter, QWidget *parent) :
     ui->setupUi(this);
 
     initGUI();
-    icdw->ui->filterLineEdit->setText(filterName);
+    filterLineEdit->setText(filterName);
 
     icdw->zoom2scale(zoomLevel);
 
@@ -304,7 +304,7 @@ IView::IView(QString mode, QString dirname, QString fileName, QString filter, QW
 
     // qDebug() << "mode imstatistics 2:" << mode << filterName;
 
-    icdw->ui->filterLineEdit->setText(filterName);
+    filterLineEdit->setText(filterName);
     icdw->zoom2scale(zoomLevel);
 
     // get a list of all FITS files in this directory
@@ -533,6 +533,8 @@ void IView::makeConnections()
     connect(this, &IView::updateNavigatorBinned, icdw, &IvConfDockWidget::updateNavigatorBinnedReceived);
 
     connect(this, &IView::updateNavigatorBinnedViewport, icdw, &IvConfDockWidget::updateNavigatorBinnedViewportReceived);
+
+    connect(filterLineEdit, &QLineEdit::textChanged, this, &IView::on_filterLineEdit_textChanged);
 }
 
 void IView::switchMode(QString mode)
@@ -668,16 +670,22 @@ void IView::initGUIstep2()
     }
 
     if (!displayMode.contains("SCAMP")) {
-        ui->toolBar->addWidget(speedLabel);
-        speedLabel->setText(" Frame rate");
+//        ui->toolBar->addWidget(speedLabel);
+//        speedLabel->setText(" Frame rate");
         ui->toolBar->addWidget(speedSpinBox);
-        ui->toolBar->addSeparator();
         speedSpinBox->setValue(2);
         speedSpinBox->setMinimum(1);
         speedSpinBox->setMaximum(10);
         speedSpinBox->setSuffix(" Hz");
+        speedSpinBox->setToolTip("Frame rate for forward / backward playing");
+
+        ui->toolBar->addWidget(filterLabel);
+        filterLabel->setText("  Filter");
+        ui->toolBar->addWidget(filterLineEdit);
+        filterLineEdit->setStatusTip("Only these images will be selected when using the yellow navigation buttons at the top.");
     }
     ui->toolBar->addWidget(pageLabel);
+    ui->toolBar->addSeparator();
 }
 
 void IView::addDockWidgets()

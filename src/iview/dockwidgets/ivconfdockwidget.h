@@ -64,7 +64,6 @@ private slots:
 public slots:
     void on_zoomFitPushButton_clicked();
     void on_zoomZeroPushButton_clicked();
-    void on_filterLineEdit_textChanged(const QString &arg1);
     void updateNavigatorMagnifiedReceived(QGraphicsPixmapItem *magnifiedPixmapItem, qreal magnification);
     void updateNavigatorBinnedReceived(QGraphicsPixmapItem *binnedPixmapItem);
     void mouseEnteredViewReceived();

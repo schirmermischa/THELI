@@ -172,6 +172,7 @@ private slots:
     void mouseEnteredViewReceived();
     void mouseLeftViewReceived();
     void on_actionImage_statistics_triggered();
+    void on_filterLineEdit_textChanged(const QString &arg1);
 
 public slots:
     void autoContrastPushButton_toggled_receiver(bool checked);
@@ -265,6 +266,8 @@ private:
 
     QLabel *speedLabel = new QLabel(this);
     QSpinBox *speedSpinBox = new QSpinBox(this);
+    QLabel *filterLabel = new QLabel(this);
+    QLineEdit *filterLineEdit = new QLineEdit(this);
 
     bool icdwDefined = false;
     bool scampdwDefined = false;

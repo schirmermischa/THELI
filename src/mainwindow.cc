@@ -1558,7 +1558,7 @@ void MainWindow::loadIView()
 
     if (!QDir(dirName).exists()) dirName = QDir::homePath();
 
-    IView *iView = new IView("FITSmonochrome", dirName, "*.fits *.fit *.FITS *.FIT", this);
+    IView *iView = new IView("FITSmonochrome", dirName, "*.fits", this);
     iView->show();
 }
 
