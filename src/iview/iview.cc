@@ -28,8 +28,10 @@ If not, see https://www.gnu.org/licenses/ .
 #include "dockwidgets/ivscampdockwidget.h"
 #include "dockwidgets/ivcolordockwidget.h"
 #include "dockwidgets/ivwcsdockwidget.h"
+#include "dockwidgets/ivstatisticsdockwidget.h"
 #include "ui_ivconfdockwidget.h"
 #include "ui_ivcolordockwidget.h"
+#include "ui_ivstatisticsdockwidget.h"
 
 #include "../tools/tools.h"
 
@@ -65,6 +67,7 @@ void IView::setMiddleMouseMode(QString mode)
         ui->actionWCSMode->setChecked(false);
         myGraphicsView->middleMouseMode = "SkyMode";
         hideWCSdockWidget();
+        icdw->ui->quitPushButton->show();
     }
     else if (mode == "DragMode") {
         ui->actionDragMode->setChecked(true);
@@ -72,6 +75,7 @@ void IView::setMiddleMouseMode(QString mode)
         ui->actionWCSMode->setChecked(false);
         middleMouseMode = "DragMode";
         hideWCSdockWidget();
+        icdw->ui->quitPushButton->hide();
     }
     else if (mode == "WCSMode") {
         ui->actionWCSMode->setChecked(true);
@@ -79,6 +83,7 @@ void IView::setMiddleMouseMode(QString mode)
         ui->actionDragMode->setChecked(false);
         middleMouseMode = "WCSMode";
         showWCSdockWidget();
+        icdw->ui->quitPushButton->hide();
     }
 }
 
@@ -104,6 +109,26 @@ void IView::hideWCSdockWidget()
     removeDockWidget(wcsdw);
     wcsdw->hide();
 }
+
+/*
+void IView::showStatisticsdockWidget()
+{
+    if (statdw->isVisible()) return;
+
+    statdw->init();
+
+    addDockWidget(Qt::LeftDockWidgetArea, statdw);
+    statdw->setFloating(false);
+    statdw->raise();
+    statdw->show();
+}
+
+void IView::hideStatisticsDockWidget()
+{
+    removeDockWidget(statdw);
+    statdw->hide();
+}
+*/
 
 void IView::resizeEvent(QResizeEvent * event)
 {
@@ -526,7 +551,7 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     // MANUAL
     else {
         // get background statisics (medVal and rmsVal)
-        getImageStatistics();
+        getGlobalImageStatistics();
         dynRangeMin = icdw->ui->minLineEdit->text().toFloat();
         dynRangeMax = icdw->ui->maxLineEdit->text().toFloat();
     }
@@ -644,7 +669,7 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
         // MANUAL
         else {
             // get background statisics (medVal and rmsVal)
-            getImageStatistics();
+            getGlobalImageStatistics();
             dynRangeMin = icdw->ui->minLineEdit->text().toFloat();
             dynRangeMax = icdw->ui->maxLineEdit->text().toFloat();
         }
@@ -1144,7 +1169,7 @@ QString IView::dec2hex(double angle)
     return p+h+":"+m+":"+s;
 }
 
-void IView::getImageStatistics(QString colorMode)
+void IView::getGlobalImageStatistics(QString colorMode)
 {
     // Quasi-random sampling an array at every dim_small pixel
     int ranStep = 2./3.*naxis1 + sqrt(naxis1);
@@ -1164,40 +1189,36 @@ void IView::getImageStatistics(QString colorMode)
         else return;
     }
     else {
-        qDebug() << "IView::getImageStatistics(): Invalid mode";
+        qDebug() << __func__ << ": Invalid mode";
     }
 
-    medVal = medianMask_T(subSample, QVector<bool>(), "ignoreZeroes");
-    rmsVal = madMask_T(subSample, QVector<bool>(), "ignoreZeroes");
-
-    int validDigits = 4-log(fabs(medVal))/log(10);
-    if (validDigits < 0) validDigits = 0;
-    icdw->ui->medianLabel->setText("Median = "+QString::number(medVal, 'f', validDigits));
-    icdw->ui->rmsLabel->setText("stdev  = "+QString::number(rmsVal*1.486, 'f', validDigits));
+    // GLOBAL statistics
+    globalMedian = medianMask_T(subSample, QVector<bool>(), "ignoreZeroes");
+    globalMean = meanMask_T(subSample, QVector<bool>());
+    globalRMS = 1.486*madMask_T(subSample, QVector<bool>(), "ignoreZeroes");
 }
 
 void IView::autoContrast(QString colorMode)
 {
     // set medVal and rmsVal;
-    if (displayMode == "FITSmonochrome" || displayMode == "MEMview") getImageStatistics();
+    if (displayMode == "FITSmonochrome" || displayMode == "MEMview") getGlobalImageStatistics();
     else if (displayMode == "FITScolor") {
         // Must have read the red and green channel already
         if (colorMode == "blueChannel" || allChannelsRead)
-            getImageStatistics(colorMode);
+            getGlobalImageStatistics(colorMode);
         else return;
     }
     else {
-        qDebug() << "IView::autoContrast(): Invalid displayMode:" << displayMode;
+        qDebug() << __func__ << "IView::autoContrast(): Invalid displayMode:" << displayMode;
     }
 
-    dynRangeMin = medVal - 2.*rmsVal;
-    dynRangeMax = medVal + 10.*rmsVal;
+    dynRangeMin = globalMedian - 2.*globalRMS;
+    dynRangeMax = globalMedian + 10.*globalRMS;
     int validDigits = 3-log(fabs(dynRangeMax))/log(10);
     if (validDigits<0) validDigits = 0;
     icdw->ui->minLineEdit->setText(QString::number(dynRangeMin,'f',validDigits));
     icdw->ui->maxLineEdit->setText(QString::number(dynRangeMax,'f',validDigits));
 }
-
 
 void IView::writePreferenceSettings()
 {
@@ -1287,9 +1308,9 @@ void IView::zoomFitPushButton_clicked_receiver(bool checked)
         myGraphicsView->fitInView(scene->items(Qt::AscendingOrder).at(0), Qt::KeepAspectRatio);
         double scale = myGraphicsView->transform().m11();
         QString scaleFactor;
-        if (scale > 1.) scaleFactor = "Zoom level: "+QString::number(scale,'f',2)+":1";
-        else scaleFactor = "Zoom level: 1:"+QString::number(1./scale,'f',2);
-        icdw->ui->zoomLabel->setText(scaleFactor);
+        if (scale > 1.) scaleFactor = QString::number(scale,'f',2)+":1";
+        else scaleFactor = "1:"+QString::number(1./scale,'f',2);
+        icdw->ui->zoomValueLabel->setText(scaleFactor);
     }
 
     replotCatalogAfterZoom();
@@ -1349,3 +1370,4 @@ void IView::colorFactorChanged_receiver(QString redFactor, QString blueFactor)
     // Apply color factors:
     mapFITS();
 }
+

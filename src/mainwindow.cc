@@ -1234,6 +1234,7 @@ void MainWindow::on_setupInstrumentComboBox_clicked()
         ui->BACconfigureToolButton->show();
         cdw->ui->overscanCheckBox->setEnabled(true);
         cdw->ui->overscanMethodComboBox->setEnabled(true);
+        if (cdw->ui->saturationLineEdit->text().isEmpty()) cdw->ui->saturationLineEdit->setText("65535");
     }
 
     cdw->ui->BIPSpinBox->setValue(estimateBinningFactor());

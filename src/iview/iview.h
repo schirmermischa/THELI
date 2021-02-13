@@ -27,6 +27,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "dockwidgets/ivscampdockwidget.h"
 #include "dockwidgets/ivcolordockwidget.h"
 #include "dockwidgets/ivwcsdockwidget.h"
+#include "dockwidgets/ivstatisticsdockwidget.h"
 #include "../myimage/myimage.h"
 
 #include "fitsio2.h"
@@ -81,6 +82,8 @@ public:
     void setImageList(QString filter);
     void redrawSkyCirclesAndCats();
     void clearItems();
+    void updateCDmatrixFITS();
+    void setCatalogOverlaysExternally(bool sourcecatShown, bool refcatShown);
 
     bool weightMode = false;   // whether iview displays the image data or the weight
 
@@ -93,6 +96,7 @@ public:
     IvConfDockWidget *icdw;
     IvScampDockWidget *scampdw;
     IvColorDockWidget *colordw;
+    IvStatisticsDockWidget *statdw = new IvStatisticsDockWidget(this);
     IvWCSDockWidget *wcsdw = new IvWCSDockWidget(this);
 
     MyGraphicsView *myGraphicsView;
@@ -112,13 +116,18 @@ public:
 
     int verbosity = 0;
 
+    float globalMedian = 0.;
+    float globalRMS = 0.;
+    float globalMean = 0.;
+    float localMedian = 0.;
+    float localRMS = 0.;
+    float localMean = 0.;
+
     QList<MyImage*> myImageList;
 
     MyImage *currentMyImage = nullptr;
     QString currentFileName = "";
 
-    void updateCDmatrixFITS();
-    void setCatalogOverlaysExternally(bool sourcecatShown, bool refcatShown);
 signals:
     void abortPlay();
     void colorFactorChanged(QString redFactor, QString blueFactor);
@@ -150,7 +159,7 @@ private slots:
     void on_actionSkyMode_triggered();
     void on_actionWCSMode_triggered();
     void previousAction_triggered();
-    void startAction_triggered();
+//    void startAction_triggered();        // public
     void showCurrentMousePos(QPointF point);
     void sendStatisticsCenter(QPointF point);
     void showSourceCat();
@@ -162,6 +171,7 @@ private slots:
     void updateNavigatorMagnifiedReceived(QPointF point);
     void mouseEnteredViewReceived();
     void mouseLeftViewReceived();
+    void on_actionImage_statistics_triggered();
 
 public slots:
     void autoContrastPushButton_toggled_receiver(bool checked);
@@ -176,6 +186,7 @@ public slots:
     void showG2References(bool checked);
     void showAbsPhotReferences(bool checked);
     void solutionAcceptanceStateReceived(bool state);
+    void startAction_triggered();
     void updateColorViewInternal(float redFactor, float blueFactor);
     void updateColorViewExternal(float redFactor, float blueFactor);
     void zoomFitPushButton_clicked_receiver(bool checked);
@@ -197,13 +208,11 @@ private:
     int screenWidth;
     float dynRangeMinDragStart = 0.;
     float dynRangeMaxDragStart = 0.;
-    float medVal;
-    float rmsVal;
-    double crpix1_start;      // set when the middle mouse button is pressed in wcs mode
-    double crpix2_start;      // set when the middle mouse button is pressed in wcs mode
+    double crpix1_start = 0.;      // set when the middle mouse button is pressed in wcs mode
+    double crpix2_start = 0.;      // set when the middle mouse button is pressed in wcs mode
     double plateScale = 0.;
-    double skyRa;
-    double skyDec;
+    double skyRa = 0.;
+    double skyDec = 0.;
     bool startLeftClickInsideItem = false;
     QString displayMode = "CLEAR";
     int timerId;
@@ -275,7 +284,7 @@ private:
     void compressDynrange(const QVector<float> &fitsdata, unsigned char *intdata, float colorCorrectionFactor = 1.0);
     QString dec2hex(double angle);
     void dumpSkyCircleCoordinates();
-    void getImageStatistics(QString colorMode = "");
+    void getGlobalImageStatistics(QString colorMode = "");
     QString getVectorLabel(double separation);
     void getVectorOffsets(const qreal dx, const qreal dy, qreal &x_yoffset, qreal &y_xoffset, qreal &d_xoffset, qreal &d_yoffset);
     double haversine(double x1, double y1, double x2, double y2);
@@ -297,6 +306,8 @@ private:
     void sky2xy(double ra, double dec, double &x, double &y);
     void writePreferenceSettings();
     void xy2sky(double x, double y, QString button = "");
+//    void showStatisticsdockWidget();
+//    void hideStatisticsDockWidget();
 
     template <typename T> int sgn(T val) {
         return (T(0) < val) - (val < T(0));

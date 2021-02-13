@@ -201,3 +201,17 @@ void IView::endAction_triggered()
 
     emit currentlyDisplayedIndex(currentId);
 }
+
+void IView::on_actionImage_statistics_triggered()
+{
+    if (statdw->isVisible()) {
+        removeDockWidget(statdw);
+        statdw->hide();
+    }
+    else {
+        statdw->init();
+        statdw->setFloating(false);
+        statdw->raise();
+        statdw->show();
+    }
+}

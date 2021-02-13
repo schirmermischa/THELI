@@ -48,6 +48,8 @@ IvConfDockWidget::IvConfDockWidget(IView *parent) :
     navigator_nx = ui->navigatorStackedWidget->width();
     navigator_ny = ui->navigatorStackedWidget->height();
 
+    ui->quitPushButton->hide();
+
 //    connect(magnifyGraphicsView, &MyBinnedGraphicsView::currentMousePos, this, &IvConfDockWidget::showCurrentMousePos);
 //    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftDragTravelled, this, &IView::drawSeparationVector);
 //    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftPress, this, &IView::initSeparationVector);
@@ -79,9 +81,7 @@ void IvConfDockWidget::switchMode(QString mode)
         ui->deltaDecLabel->setText("Dec  = ");
         ui->deltaHexLabel->setText("Dec  = ");
         ui->valueLabel->setText("Value = ");
-        ui->zoomLabel->setText("Zoom level: ");
-        ui->medianLabel->setText("Median = ");
-        ui->rmsLabel->setText("stdev  = ");
+        ui->zoomValueLabel->setText("");
         ui->valueGreenLabel->hide();
         ui->valueBlueLabel->hide();
     }
@@ -92,15 +92,15 @@ double IvConfDockWidget::zoom2scale(int zoomlevel)
     // Translates the integer zoom level to a scaling factor.
     // Update the zoom label
     if (zoomlevel > 0) {
-        ui->zoomLabel->setText("Zoom level: "+QString::number(zoomlevel+1)+":1");
+        ui->zoomValueLabel->setText(QString::number(zoomlevel+1)+":1");
         return zoomlevel+1.;
     }
     else if (zoomlevel == 0) {
-        ui->zoomLabel->setText("Zoom level: 1:1");
+        ui->zoomValueLabel->setText("1:1");
         return 1.;
     }
     else {
-        ui->zoomLabel->setText("Zoom level: 1:"+QString::number(-zoomlevel+1));
+        ui->zoomValueLabel->setText("1:"+QString::number(-zoomlevel+1));
         return 1./(-zoomlevel+1.);
     }
 }
@@ -163,6 +163,9 @@ void IvConfDockWidget::on_filterLineEdit_textChanged(const QString &arg1)
     iview->numImages = iview->imageList.length();
 
     iview->pageLabel->setText(" Image ? / "+QString::number(iview->numImages));
+
+    // Rewind
+    iview->startAction_triggered();
 }
 
 void IvConfDockWidget::on_quitPushButton_clicked()

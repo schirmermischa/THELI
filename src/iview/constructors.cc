@@ -742,5 +742,8 @@ void IView::addDockWidgets()
         connect(icdw, &IvConfDockWidget::zoomZeroPushButton_clicked, this, &IView::zoomZeroPushButton_clicked_receiver);
         connect(icdw, &IvConfDockWidget::closeIview, this, &IView::close);
     }
+
+    addDockWidget(Qt::LeftDockWidgetArea, statdw);
+    statdw->hide();
 }
 
