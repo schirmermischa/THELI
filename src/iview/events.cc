@@ -84,8 +84,8 @@ void IView::showCurrentMousePos(QPointF point)
     float x_cursor;
     float y_cursor;
     // constant offsets required to show same coordinates as in skycat / ds9
-    x_cursor = point.x() + 0.;
-    y_cursor = naxis2 - point.y() + 1.;
+    x_cursor = point.x() + 0.5;
+    y_cursor = naxis2 - point.y() + 0.5;
 
     // Display the information
     QString xpos = QString::number(x_cursor);
@@ -494,6 +494,7 @@ void IView::viewportChangedReceived(QRect viewport_rect)
     // send the new rect to the navigator window
     emit updateNavigatorBinnedViewport(rectInt);
 }
+
 void IView::updateCRPIX(QPointF pointStart, QPointF pointEnd)
 {
     if (!wcsInit) return;

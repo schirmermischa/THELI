@@ -174,7 +174,7 @@ void IvConfDockWidget::updateNavigatorMagnifiedReceived(QGraphicsPixmapItem *mag
     float y2 = magnifiedScene->height()/2.;//+0.5;
     QPoint p1 = QPoint(x1, y1);
     QPoint p2 = QPoint(x2, y2);
-//    qDebug() << x1 << x2 << y1 << y2;
+    qDebug() << x1 << x2 << y1 << y2;
     magnifiedScene->addRect(QRect(p1,p2), pen);
     magnifiedGraphicsView->show();
 //    ui->navigatorStackedWidget->setCurrentIndex(1);

@@ -486,14 +486,14 @@ void IView::updateNavigatorMagnifiedReceived(QPointF point)
     if (magnification > magnify) magnification = magnify;
 
     if (displayMode == "FITSmonochrome" || displayMode == "MEMview") {
-        QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(point.x() - icdw->navigator_nx/2./magnification,
-                                                            point.y() - icdw->navigator_ny/2./magnification,
+        QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(point.x() + 1. - icdw->navigator_nx/2./magnification,
+                                                            point.y() + 1. - icdw->navigator_ny/2./magnification,
                                                             icdw->navigator_nx/magnification, icdw->navigator_ny/magnification);
         magnifiedPixmapItem = new QGraphicsPixmapItem(magnifiedPixmap);
     }
     else if (displayMode == "FITScolor") {
-        QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(point.x() - icdw->navigator_nx/2/magnification,
-                                                            point.y() - icdw->navigator_ny/2/magnification,
+        QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(point.x() + 1. - icdw->navigator_nx/2/magnification,
+                                                            point.y() + 1. - icdw->navigator_ny/2/magnification,
                                                             icdw->navigator_nx/magnification, icdw->navigator_ny/magnification);
         magnifiedPixmapItem = new QGraphicsPixmapItem(magnifiedPixmap);
     }
