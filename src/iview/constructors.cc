@@ -499,6 +499,9 @@ void IView::makeConnections()
     backgroundPalette.setColor(QPalette::Base, QColor("#000000"));
     myGraphicsView->setPalette(backgroundPalette);
     myGraphicsView->setMouseTracking(true);
+
+    ui->graphicsLayout->addWidget(myGraphicsView);
+
     connect(myGraphicsView, &MyGraphicsView::currentMousePos, this, &IView::showCurrentMousePos);
     connect(myGraphicsView, &MyGraphicsView::currentMousePos, this, &IView::collectLocalStatisticsSample);
     connect(myGraphicsView, &MyGraphicsView::rightDragTravelled, this, &IView::adjustBrightnessContrast);
@@ -517,24 +520,23 @@ void IView::makeConnections()
     connect(myGraphicsView, &MyGraphicsView::mouseEnteredView, icdw, &IvConfDockWidget::mouseEnteredViewReceived);
     connect(myGraphicsView, &MyGraphicsView::mouseLeftView, icdw, &IvConfDockWidget::mouseLeftViewReceived);
     connect(myGraphicsView, &MyGraphicsView::viewportChanged, this, &IView::viewportChangedReceived);
+    connect(myGraphicsView, &MyGraphicsView::currentMousePos, this, &IView::updateNavigatorMagnifiedReceived);
+
     connect(scene, &MyGraphicsScene::itemDeleted, this, &IView::updateSkyCircles);
     connect(scene, &MyGraphicsScene::mouseLeftScene, icdw, &IvConfDockWidget::mouseLeftViewReceived);
 
     connect(wcsdw, &IvWCSDockWidget::CDmatrixChanged, this, &IView::updateCDmatrix);
     connect(wcsdw, &IvWCSDockWidget::CDmatrixChangedFITS, this, &IView::updateCDmatrixFITS);
 
-    ui->graphicsLayout->addWidget(myGraphicsView);
+    connect(statdw, &IvStatisticsDockWidget::visibilityChanged, this, &IView::updateStatisticsButton);
+
     connect(timer, &QTimer::timeout, this, &IView::forwardAction_triggered);
     connect(timer, &QTimer::timeout, this, &IView::backAction_triggered);
 
     connect(this, &IView::middleMouseModeChanged, myGraphicsView, &MyGraphicsView::updateMiddleMouseMode);
-
-    connect(myGraphicsView, &MyGraphicsView::currentMousePos, this, &IView::updateNavigatorMagnifiedReceived);
     connect(this, &IView::updateNavigatorMagnified, icdw, &IvConfDockWidget::updateNavigatorMagnifiedReceived);
     connect(this, &IView::updateNavigatorBinned, icdw, &IvConfDockWidget::updateNavigatorBinnedReceived);
-
     connect(this, &IView::updateNavigatorBinnedViewport, icdw, &IvConfDockWidget::updateNavigatorBinnedViewportReceived);
-
     connect(this, &IView::statisticsSampleAvailable, statdw, &IvStatisticsDockWidget::statisticsSampleReceiver);
 
     connect(filterLineEdit, &QLineEdit::textChanged, this, &IView::filterLineEdit_textChanged);
@@ -758,3 +760,8 @@ void IView::addDockWidgets()
     statdw->hide();
 }
 
+void IView::updateStatisticsButton()
+{
+    if (statdw->isVisible()) ui->actionImage_statistics->setChecked(true);
+    else ui->actionImage_statistics->setChecked(false);
+}

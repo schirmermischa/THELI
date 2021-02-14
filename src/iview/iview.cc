@@ -1310,7 +1310,7 @@ void IView::zoomFitPushButton_clicked_receiver(bool checked)
         QString scaleFactor;
         if (scale > 1.) scaleFactor = QString::number(scale,'f',2)+":1";
         else scaleFactor = "1:"+QString::number(1./scale,'f',2);
-        icdw->ui->zoomValueLabel->setText(scaleFactor);
+//        icdw->ui->zoomValueLabel->setText(scaleFactor);
     }
 
     replotCatalogAfterZoom();

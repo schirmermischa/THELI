@@ -41,12 +41,11 @@ IvConfDockWidget::IvConfDockWidget(IView *parent) :
     binnedGraphicsView->setMouseTracking(true);
     binnedGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     binnedGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    ui->navigatorStackedWidget->setContentsMargins(0,0,0,0);
-    ui->navigatorStackedWidget->insertWidget(0, binnedGraphicsView);
-    ui->navigatorStackedWidget->insertWidget(1, magnifiedGraphicsView);
-    ui->navigatorStackedWidget->setCurrentIndex(0);
-    navigator_nx = ui->navigatorStackedWidget->width();
-    navigator_ny = ui->navigatorStackedWidget->height();
+//    ui->navigatorStackedWidget->setContentsMargins(0,0,0,0);
+    ui->binnedGraphicsLayout->insertWidget(0, binnedGraphicsView);
+    ui->magnifiedGraphicsLayout->insertWidget(1, magnifiedGraphicsView);
+    navigator_nx = ui->binnedFrame->width();
+    navigator_ny = ui->binnedFrame->height();
 
     ui->quitPushButton->hide();
 
@@ -81,7 +80,7 @@ void IvConfDockWidget::switchMode(QString mode)
         ui->deltaDecLabel->setText("Dec  = ");
         ui->deltaHexLabel->setText("Dec  = ");
         ui->valueLabel->setText("Value = ");
-        ui->zoomValueLabel->setText("");
+//        ui->zoomValueLabel->setText("");
         ui->valueGreenLabel->hide();
         ui->valueBlueLabel->hide();
     }
@@ -92,15 +91,15 @@ double IvConfDockWidget::zoom2scale(int zoomlevel)
     // Translates the integer zoom level to a scaling factor.
     // Update the zoom label
     if (zoomlevel > 0) {
-        ui->zoomValueLabel->setText(QString::number(zoomlevel+1)+":1");
+//        ui->zoomValueLabel->setText(QString::number(zoomlevel+1)+":1");
         return zoomlevel+1.;
     }
     else if (zoomlevel == 0) {
-        ui->zoomValueLabel->setText("1:1");
+//        ui->zoomValueLabel->setText("1:1");
         return 1.;
     }
     else {
-        ui->zoomValueLabel->setText("1:"+QString::number(-zoomlevel+1));
+//        ui->zoomValueLabel->setText("1:"+QString::number(-zoomlevel+1));
         return 1./(-zoomlevel+1.);
     }
 }
@@ -162,12 +161,16 @@ void IvConfDockWidget::updateNavigatorMagnifiedReceived(QGraphicsPixmapItem *mag
     magnifiedGraphicsView->scale(magnification, magnification);
     magnifiedGraphicsView->centerOn(magnifiedPixmapItem);
     QPen pen(QColor("#00ffff"));
-    int x1 = magnifiedScene->width()/2-0.5;
-    int x2 = magnifiedScene->width()/2+0.5;
-    int y1 = magnifiedScene->height()/2-0.5;
-    int y2 = magnifiedScene->height()/2+0.5;
+    pen.setCosmetic(true);
+//    int x1 = magnifiedScene->width()/2+1;//-0.5;
+//    int x2 = magnifiedScene->width()/2+1;//+0.5;
+    float x1 = magnifiedScene->width()/2.+1.;
+    float x2 = magnifiedScene->width()/2.+1.;
+    float y1 = magnifiedScene->height()/2.+1.;//-0.5;
+    float y2 = magnifiedScene->height()/2.+1.;//+0.5;
     QPoint p1 = QPoint(x1, y1);
     QPoint p2 = QPoint(x2, y2);
+//    qDebug() << x1 << x2 << y1 << y2;
     magnifiedScene->addRect(QRect(p1,p2), pen);
     magnifiedGraphicsView->show();
 //    ui->navigatorStackedWidget->setCurrentIndex(1);
@@ -181,19 +184,19 @@ void IvConfDockWidget::updateNavigatorBinnedReceived(QGraphicsPixmapItem *binned
     binnedGraphicsView->setScene(binnedScene);
     magnifiedGraphicsView->centerOn(binnedPixmapItem);
     binnedGraphicsView->show();
-    ui->navigatorStackedWidget->setCurrentIndex(0);
+//    ui->navigatorStackedWidget->setCurrentIndex(0);
 }
 
 // Receiver for the event when the mouse enters the main graphics view
 void IvConfDockWidget::mouseEnteredViewReceived()
 {
-    ui->navigatorStackedWidget->setCurrentIndex(1);
+//    ui->navigatorStackedWidget->setCurrentIndex(1);
 }
 
 // Receiver for the event when the mouse leaves the main graphics view
 void IvConfDockWidget::mouseLeftViewReceived()
 {
-    ui->navigatorStackedWidget->setCurrentIndex(0);
+//    ui->navigatorStackedWidget->setCurrentIndex(0);
 }
 
 void IvConfDockWidget::updateNavigatorBinnedViewportReceived(QRect rect)
@@ -208,6 +211,8 @@ void IvConfDockWidget::updateNavigatorBinnedViewportReceived(QRect rect)
     }
 
     QPen pen(QColor("#00ffff"));
+    pen.setCosmetic(true);
+    pen.setWidth(0);
     QRect rectNew;
     int x1;
     int x2;
@@ -233,7 +238,9 @@ void IvConfDockWidget::updateNavigatorMagnifiedViewportReceived()
        if (rectcast) magnifiedScene->removeItem(it);
     }
 
-    QPen pen(QColor("#00ffff"));
+    QPen pen(QColor("#aaffff"));
+    pen.setCosmetic(true);
+    pen.setWidth(0);
     int x1 = navigator_nx/2-0.5;
     int x2 = navigator_nx/2+0.5;
     int y1 = navigator_ny/2-0.5;

@@ -121,7 +121,7 @@ void IView::showCurrentMousePos(QPointF point)
     icdw->magnifiedGraphicsView->mapFromScene(point.x(),point.y());
     //magnifyScene->setSceneRect(point.x()-75, point.y()-75, 150, 150);
     icdw->magnifiedGraphicsView->setScene(icdw->magnifiedScene);
-    icdw->updateNavigatorMagnifiedViewportReceived();
+//    icdw->updateNavigatorMagnifiedViewportReceived();
     icdw->magnifiedGraphicsView->show();
 }
 
@@ -459,14 +459,14 @@ void IView::middlePressResetCRPIXreceived()
 // Receiver for the event when the mouse enters the main graphics view
 void IView::mouseEnteredViewReceived()
 {
-    icdw->ui->navigatorStackedWidget->setCurrentIndex(1);
+//    icdw->ui->navigatorStackedWidget->setCurrentIndex(1);
     emit updateNavigatorBinned(binnedPixmapItem);
 }
 
 // Receiver for the event when the mouse leaves the main graphics view
 void IView::mouseLeftViewReceived()
 {
-    icdw->ui->navigatorStackedWidget->setCurrentIndex(0);
+//    icdw->ui->navigatorStackedWidget->setCurrentIndex(0);
     emit updateNavigatorBinned(binnedPixmapItem);
 }
 

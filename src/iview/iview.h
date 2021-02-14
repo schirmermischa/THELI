@@ -175,8 +175,8 @@ private slots:
     void mouseLeftViewReceived();
     void on_actionImage_statistics_triggered();
     void filterLineEdit_textChanged(const QString &arg1);
-
     void collectLocalStatisticsSample(QPointF point);
+    void updateStatisticsButton();
 public slots:
     void autoContrastPushButton_toggled_receiver(bool checked);
     void clearAll();

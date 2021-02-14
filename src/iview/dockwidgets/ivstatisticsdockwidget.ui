@@ -43,6 +43,9 @@
     </item>
     <item row="1" column="0" colspan="3">
      <layout class="QFormLayout" name="formLayout">
+      <property name="labelAlignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
       <property name="horizontalSpacing">
        <number>0</number>
       </property>
@@ -202,6 +205,9 @@
     </item>
     <item row="3" column="0" colspan="3">
      <layout class="QFormLayout" name="formLayout_2">
+      <property name="labelAlignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
       <property name="horizontalSpacing">
        <number>0</number>
       </property>
