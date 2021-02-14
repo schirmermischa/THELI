@@ -85,6 +85,8 @@ public:
     void updateCDmatrixFITS();
     void setCatalogOverlaysExternally(bool sourcecatShown, bool refcatShown);
 
+    void xy2sky(double x, double y, QString button = "");
+
     bool weightMode = false;   // whether iview displays the image data or the weight
 
     bool refcatSourcesShown = false;
@@ -129,6 +131,12 @@ public:
     int naxis2 = 0;
 
     QVector<float> fitsData;
+    void qimageToBinned(qreal qx, qreal qy, qreal &bx, qreal &by);
+    QRect qimageToBinned(const QRectF qrect);
+    QPointF qimageToBinned(const QPointF qpoint);
+    void binnedToQimage(qreal bx, qreal by, qreal &qx, qreal &qy);
+    QPointF binnedToQimage(const QPointF bpoint);
+
 signals:
     void abortPlay();
     void colorFactorChanged(QString redFactor, QString blueFactor);
@@ -308,7 +316,6 @@ private:
     void showWCSdockWidget();
     void sky2xy(double ra, double dec, double &x, double &y);
     void writePreferenceSettings();
-    void xy2sky(double x, double y, QString button = "");
 //    void showStatisticsdockWidget();
 //    void hideStatisticsDockWidget();
 

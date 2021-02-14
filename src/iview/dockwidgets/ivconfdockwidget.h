@@ -47,8 +47,10 @@ public:
     MyGraphicsScene *magnifiedScene = new MyGraphicsScene();
     MyGraphicsScene *binnedScene = new MyGraphicsScene();
 
-    int navigator_nx = 0;   // the width and height of the magnifyer window;
-    int navigator_ny = 0;
+    int navigator_binned_nx = 0;    // the width and height of the binned window;
+    int navigator_binned_ny = 0;
+    int navigator_magnified_nx = 0;   // the width and height of the magnifyer window;
+    int navigator_magnified_ny = 0;
 
     QRect currentFov;       // the currently displayed field of view
     QList<QGraphicsRectItem*> currentFovList;
@@ -63,6 +65,7 @@ private slots:
     void on_maxLineEdit_returnPressed();
     void on_autocontrastPushButton_toggled(bool checked);
     void on_quitPushButton_clicked();
+    void showCurrentMousePosBinned(QPointF currentMousePos);
 
 public slots:
     void on_zoomFitPushButton_clicked();

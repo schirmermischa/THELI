@@ -44,12 +44,14 @@ IvConfDockWidget::IvConfDockWidget(IView *parent) :
     //    ui->navigatorStackedWidget->setContentsMargins(0,0,0,0);
     ui->binnedGraphicsLayout->insertWidget(0, binnedGraphicsView);
     ui->magnifiedGraphicsLayout->insertWidget(1, magnifiedGraphicsView);
-    navigator_nx = ui->binnedFrame->width();
-    navigator_ny = ui->binnedFrame->height();
+    navigator_binned_nx = ui->binnedFrame->width();
+    navigator_binned_ny = ui->binnedFrame->height();
+    navigator_magnified_nx = ui->magnifiedFrame->width();
+    navigator_magnified_ny = ui->magnifiedFrame->height();
 
     ui->quitPushButton->hide();
 
-    //    connect(magnifyGraphicsView, &MyBinnedGraphicsView::currentMousePos, this, &IvConfDockWidget::showCurrentMousePos);
+    connect(binnedGraphicsView, &MyBinnedGraphicsView::currentMousePos, this, &IvConfDockWidget::showCurrentMousePosBinned);
     //    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftDragTravelled, this, &IView::drawSeparationVector);
     //    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftPress, this, &IView::initSeparationVector);
     //    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftPress, this, &IView::sendStatisticsCenter);
@@ -152,6 +154,20 @@ void IvConfDockWidget::on_quitPushButton_clicked()
     emit closeIview();
 }
 
+// receiver from mouse pos hovering in binned view
+void IvConfDockWidget::showCurrentMousePosBinned(QPointF currentMousePos)
+{
+    QPointF qpoint = iview->binnedToQimage(currentMousePos);
+    long i = qpoint.x();
+    long j = iview->naxis2 - qpoint.y();
+    ui->xposLabel->setText("x = "+QString::number(i));
+    ui->yposLabel->setText("y = "+QString::number(j));
+    ui->valueLabel->setText("Value = "+QString::number(iview->fitsData[i+iview->naxis1*j]));
+
+    // display sky coords as well
+    iview->xy2sky(qpoint.x(), iview->naxis2 - qpoint.y());
+}
+
 void IvConfDockWidget::updateNavigatorMagnifiedReceived(QGraphicsPixmapItem *magnifiedPixmapItem, qreal magnification, float dx, float dy)
 {
     magnifiedGraphicsView->resetMatrix();
@@ -160,21 +176,10 @@ void IvConfDockWidget::updateNavigatorMagnifiedReceived(QGraphicsPixmapItem *mag
     magnifiedGraphicsView->setScene(magnifiedScene);
     magnifiedGraphicsView->scale(magnification, magnification);
     magnifiedGraphicsView->centerOn(magnifiedPixmapItem);
-    //    qDebug() << dx << dy;
     QPen pen(QColor("#00ffff"));
     pen.setCosmetic(true);
-    //    int x1 = magnifiedScene->width()/2+1;//-0.5;
-    //    int x2 = magnifiedScene->width()/2+1;//+0.5;
-    //    float x1 = magnifiedScene->width()/2.+1.;
-    //    float x2 = magnifiedScene->width()/2.+1.;
-    //    float y1 = magnifiedScene->height()/2.+1.;//-0.5;
-    //    float y2 = magnifiedScene->height()/2.+1.;//+0.5;
-    //    float x1 = magnifiedScene->width()/2.;
-    //    float y1 = magnifiedScene->height()/2.;
-    //    float x2 = magnifiedScene->width()/2.;
-    //    float y2 = magnifiedScene->height()/2.;
-    float x1 = navigator_nx / magnification / 2.;
-    float y1 = navigator_ny / magnification / 2.;
+    float x1 = navigator_magnified_nx / magnification / 2.;
+    float y1 = navigator_magnified_ny / magnification / 2.;
     QPoint p1 = QPoint(x1, y1);
     QPoint p2 = QPoint(x1, y1);
 
@@ -267,10 +272,10 @@ void IvConfDockWidget::updateNavigatorMagnifiedViewportReceived()
     QPen pen(QColor("#aaffff"));
     pen.setCosmetic(true);
     pen.setWidth(0);
-    int x1 = navigator_nx/2-0.5;
-    int x2 = navigator_nx/2+0.5;
-    int y1 = navigator_ny/2-0.5;
-    int y2 = navigator_ny/2+0.5;
+    int x1 = navigator_magnified_nx/2-0.5;
+    int x2 = navigator_magnified_nx/2+0.5;
+    int y1 = navigator_magnified_ny/2-0.5;
+    int y2 = navigator_magnified_ny/2+0.5;
     QPoint p1 = magnifiedGraphicsView->mapFromScene(QPoint(x1, y1));
     QPoint p2 = magnifiedGraphicsView->mapFromScene(QPoint(x2, y2));
     magnifiedScene->addRect(QRect(p1, p2), pen);

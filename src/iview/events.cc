@@ -196,6 +196,8 @@ void IView::adjustBrightnessContrast(QPointF point)
     // Show the magnified area in the magnify window
     icdw->magnifiedGraphicsView->setScene(icdw->magnifiedScene);
     icdw->magnifiedGraphicsView->show();
+
+    emit updateNavigatorBinned(binnedPixmapItem);
 }
 
 double IView::haversine(double x1, double y1, double x2, double y2)
@@ -475,21 +477,31 @@ void IView::viewportChangedReceived(QRect viewport_rect)
 {
     QRectF rect = myGraphicsView->mapToScene(viewport_rect).boundingRect();
 
+    /*
     // compute the new coords of this rect in the binned view
     qreal x1 = 0.;
     qreal y1 = 0.;
     qreal x2 = 0.;
     qreal y2 = 0.;
     rect.getCoords(&x1, &y1, &x2, &y2);
-//    qDebug() << rect << x1 << x2 << y1 << y2;
+
+    float xb1;
+    float yb1;
+    float xb2;
+    float yb2;
+    qimageToBinned();
+
     float norm = naxis2 >= naxis1 ? naxis2 : naxis1;
-    x1 *= float(icdw->navigator_nx) / norm;
-    x2 *= float(icdw->navigator_nx) / norm;
-    y1 *= float(icdw->navigator_ny) / norm;
-    y2 *= float(icdw->navigator_ny) / norm;
+    x1 *= float(icdw->navigator_binned_nx) / norm;
+    x2 *= float(icdw->navigator_binned_nx) / norm;
+    y1 *= float(icdw->navigator_binned_ny) / norm;
+    y2 *= float(icdw->navigator_binned_ny) / norm;
 
     QRect rectBinned;
     rectBinned.setCoords(int(x1), int(y1), int(x2), int(y2));
+    */
+
+    QRect rectBinned = qimageToBinned(rect);
 
 //    qDebug() << rectBinned;
 

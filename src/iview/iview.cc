@@ -469,9 +469,9 @@ void IView::loadFromRAMlist(const QModelIndex &index)
     loadFromRAM(myImageList[index.row()], index.column());
 
     // Get the center image poststamp; copy() refers to the top left corner, and then width and height
-    QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(naxis1/2.-icdw->navigator_nx/2.,
-                                                        naxis2/2.-icdw->navigator_ny/2.,
-                                                        icdw->navigator_nx, icdw->navigator_ny);
+    QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(naxis1/2.-icdw->navigator_magnified_nx/2.,
+                                                        naxis2/2.-icdw->navigator_magnified_ny/2.,
+                                                        icdw->navigator_magnified_nx, icdw->navigator_magnified_ny);
     magnifiedPixmapItem = new QGraphicsPixmapItem(magnifiedPixmap);
 
     // Update the navigator magnified window with the center image poststamp
@@ -489,20 +489,20 @@ void IView::updateNavigatorMagnifiedReceived(QPointF point)
     float dy = 0.;
 
     if (displayMode == "FITSmonochrome" || displayMode == "MEMview") {
-//        qDebug() << point.x() + 1. - icdw->navigator_nx/2./magnification << point.y() + 1. - icdw->navigator_ny/2./magnification <<
-//                icdw->navigator_nx/magnification << icdw->navigator_ny/magnification;
-        if (point.x() + 1. - icdw->navigator_nx/2./magnification < 0) dx = point.x() + 1. - icdw->navigator_nx/2./magnification;
-        if (point.x() + 1. - icdw->navigator_nx/2./magnification >= naxis1) dx = point.x() + 1. - icdw->navigator_nx/2./magnification;
-        QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(point.x() + 1. - icdw->navigator_nx/2./magnification,
-                                                            point.y() + 1. - icdw->navigator_ny/2./magnification,
-                                                            icdw->navigator_nx/magnification, icdw->navigator_ny/magnification);
+//        qDebug() << point.x() + 1. - icdw->navigator_magnified_nx/2./magnification << point.y() + 1. - icdw->navigator_magnified_ny/2./magnification <<
+//                icdw->navigator_magnified_nx/magnification << icdw->navigator_magnified_ny/magnification;
+        if (point.x() + 1. - icdw->navigator_magnified_nx/2./magnification < 0) dx = point.x() + 1. - icdw->navigator_magnified_nx/2./magnification;
+        if (point.x() + 1. - icdw->navigator_magnified_nx/2./magnification >= naxis1) dx = point.x() + 1. - icdw->navigator_magnified_nx/2./magnification;
+        QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(point.x() + 1. - icdw->navigator_magnified_nx/2./magnification,
+                                                            point.y() + 1. - icdw->navigator_magnified_ny/2./magnification,
+                                                            icdw->navigator_magnified_nx/magnification, icdw->navigator_magnified_ny/magnification);
         magnifiedPixmapItem = new QGraphicsPixmapItem(magnifiedPixmap);
-//        qDebug() << magnifiedPixmap.width() << magnifiedPixmap.height() << icdw->navigator_nx/magnification << icdw->navigator_ny/magnification;
+//        qDebug() << magnifiedPixmap.width() << magnifiedPixmap.height() << icdw->navigator_magnified_nx/magnification << icdw->navigator_magnified_ny/magnification;
     }
     else if (displayMode == "FITScolor") {
-        QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(point.x() + 1. - icdw->navigator_nx/2/magnification,
-                                                            point.y() + 1. - icdw->navigator_ny/2/magnification,
-                                                            icdw->navigator_nx/magnification, icdw->navigator_ny/magnification);
+        QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(point.x() + 1. - icdw->navigator_magnified_nx/2/magnification,
+                                                            point.y() + 1. - icdw->navigator_magnified_ny/2/magnification,
+                                                            icdw->navigator_magnified_nx/magnification, icdw->navigator_magnified_ny/magnification);
         magnifiedPixmapItem = new QGraphicsPixmapItem(magnifiedPixmap);
     }
     else {
@@ -814,7 +814,7 @@ void IView::mapFITS()
         qDebug() << __func__ << "Invalid mode in mapFITS()";
     }
 
-    binnedPixmapItem = new QGraphicsPixmapItem(pixmapItem->pixmap().scaled(icdw->navigator_nx, icdw->navigator_ny, Qt::KeepAspectRatio, Qt::FastTransformation));
+    binnedPixmapItem = new QGraphicsPixmapItem(pixmapItem->pixmap().scaled(icdw->navigator_binned_nx, icdw->navigator_binned_ny, Qt::KeepAspectRatio, Qt::FastTransformation));
 
     /*
     if (transform) {
@@ -1289,6 +1289,8 @@ void IView::autoContrastPushButton_toggled_receiver(bool checked)
         myGraphicsView->setScene(scene);
         myGraphicsView->show();
         redrawSkyCirclesAndCats();
+
+        emit updateNavigatorBinned(binnedPixmapItem);
     }
 }
 
