@@ -83,8 +83,9 @@ void IView::showCurrentMousePos(QPointF point)
 
     float x_cursor;
     float y_cursor;
-    x_cursor = point.x() + 0.5;
-    y_cursor = naxis2 - point.y() + 0.5;
+    // constant offsets required to show same coordinates as in skycat / ds9
+    x_cursor = point.x() + 0.;
+    y_cursor = naxis2 - point.y() + 1.;
 
     // Display the information
     QString xpos = QString::number(x_cursor);

@@ -164,10 +164,14 @@ void IvConfDockWidget::updateNavigatorMagnifiedReceived(QGraphicsPixmapItem *mag
     pen.setCosmetic(true);
 //    int x1 = magnifiedScene->width()/2+1;//-0.5;
 //    int x2 = magnifiedScene->width()/2+1;//+0.5;
-    float x1 = magnifiedScene->width()/2.+1.;
-    float x2 = magnifiedScene->width()/2.+1.;
-    float y1 = magnifiedScene->height()/2.+1.;//-0.5;
-    float y2 = magnifiedScene->height()/2.+1.;//+0.5;
+//    float x1 = magnifiedScene->width()/2.+1.;
+//    float x2 = magnifiedScene->width()/2.+1.;
+//    float y1 = magnifiedScene->height()/2.+1.;//-0.5;
+//    float y2 = magnifiedScene->height()/2.+1.;//+0.5;
+    float x1 = magnifiedScene->width()/2.;
+    float x2 = magnifiedScene->width()/2.;
+    float y1 = magnifiedScene->height()/2.;//-0.5;
+    float y2 = magnifiedScene->height()/2.;//+0.5;
     QPoint p1 = QPoint(x1, y1);
     QPoint p2 = QPoint(x2, y2);
 //    qDebug() << x1 << x2 << y1 << y2;

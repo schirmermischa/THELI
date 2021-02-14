@@ -469,8 +469,8 @@ void IView::loadFromRAMlist(const QModelIndex &index)
     loadFromRAM(myImageList[index.row()], index.column());
 
     // Get the center image poststamp; copy() refers to the top left corner, and then width and height
-    QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(naxis1/2-icdw->navigator_nx/2,
-                                                        naxis2/2-icdw->navigator_ny/2,
+    QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(naxis1/2.-icdw->navigator_nx/2.,
+                                                        naxis2/2.-icdw->navigator_ny/2.,
                                                         icdw->navigator_nx, icdw->navigator_ny);
     magnifiedPixmapItem = new QGraphicsPixmapItem(magnifiedPixmap);
 
@@ -486,8 +486,8 @@ void IView::updateNavigatorMagnifiedReceived(QPointF point)
     if (magnification > magnify) magnification = magnify;
 
     if (displayMode == "FITSmonochrome" || displayMode == "MEMview") {
-        QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(point.x() - icdw->navigator_nx/2/magnification,
-                                                            point.y() - icdw->navigator_ny/2/magnification,
+        QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(point.x() - icdw->navigator_nx/2./magnification,
+                                                            point.y() - icdw->navigator_ny/2./magnification,
                                                             icdw->navigator_nx/magnification, icdw->navigator_ny/magnification);
         magnifiedPixmapItem = new QGraphicsPixmapItem(magnifiedPixmap);
     }
