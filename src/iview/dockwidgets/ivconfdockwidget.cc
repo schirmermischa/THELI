@@ -41,7 +41,7 @@ IvConfDockWidget::IvConfDockWidget(IView *parent) :
     binnedGraphicsView->setMouseTracking(true);
     binnedGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     binnedGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-//    ui->navigatorStackedWidget->setContentsMargins(0,0,0,0);
+    //    ui->navigatorStackedWidget->setContentsMargins(0,0,0,0);
     ui->binnedGraphicsLayout->insertWidget(0, binnedGraphicsView);
     ui->magnifiedGraphicsLayout->insertWidget(1, magnifiedGraphicsView);
     navigator_nx = ui->binnedFrame->width();
@@ -49,12 +49,12 @@ IvConfDockWidget::IvConfDockWidget(IView *parent) :
 
     ui->quitPushButton->hide();
 
-//    connect(magnifyGraphicsView, &MyBinnedGraphicsView::currentMousePos, this, &IvConfDockWidget::showCurrentMousePos);
-//    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftDragTravelled, this, &IView::drawSeparationVector);
-//    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftPress, this, &IView::initSeparationVector);
-//    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftPress, this, &IView::sendStatisticsCenter);
-//    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftButtonReleased, this, &IView::clearSeparationVector);
-//    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftButtonReleased, this, &IView::updateSkyCircles);
+    //    connect(magnifyGraphicsView, &MyBinnedGraphicsView::currentMousePos, this, &IvConfDockWidget::showCurrentMousePos);
+    //    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftDragTravelled, this, &IView::drawSeparationVector);
+    //    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftPress, this, &IView::initSeparationVector);
+    //    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftPress, this, &IView::sendStatisticsCenter);
+    //    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftButtonReleased, this, &IView::clearSeparationVector);
+    //    connect(magnifyGraphicsView, &MyBinnedGraphicsView::leftButtonReleased, this, &IView::updateSkyCircles);
 }
 
 IvConfDockWidget::~IvConfDockWidget()
@@ -80,7 +80,7 @@ void IvConfDockWidget::switchMode(QString mode)
         ui->deltaDecLabel->setText("Dec  = ");
         ui->deltaHexLabel->setText("Dec  = ");
         ui->valueLabel->setText("Value = ");
-//        ui->zoomValueLabel->setText("");
+        //        ui->zoomValueLabel->setText("");
         ui->valueGreenLabel->hide();
         ui->valueBlueLabel->hide();
     }
@@ -91,15 +91,15 @@ double IvConfDockWidget::zoom2scale(int zoomlevel)
     // Translates the integer zoom level to a scaling factor.
     // Update the zoom label
     if (zoomlevel > 0) {
-//        ui->zoomValueLabel->setText(QString::number(zoomlevel+1)+":1");
+        //        ui->zoomValueLabel->setText(QString::number(zoomlevel+1)+":1");
         return zoomlevel+1.;
     }
     else if (zoomlevel == 0) {
-//        ui->zoomValueLabel->setText("1:1");
+        //        ui->zoomValueLabel->setText("1:1");
         return 1.;
     }
     else {
-//        ui->zoomValueLabel->setText("1:"+QString::number(-zoomlevel+1));
+        //        ui->zoomValueLabel->setText("1:"+QString::number(-zoomlevel+1));
         return 1./(-zoomlevel+1.);
     }
 }
@@ -152,7 +152,7 @@ void IvConfDockWidget::on_quitPushButton_clicked()
     emit closeIview();
 }
 
-void IvConfDockWidget::updateNavigatorMagnifiedReceived(QGraphicsPixmapItem *magnifiedPixmapItem, qreal magnification)
+void IvConfDockWidget::updateNavigatorMagnifiedReceived(QGraphicsPixmapItem *magnifiedPixmapItem, qreal magnification, float dx, float dy)
 {
     magnifiedGraphicsView->resetMatrix();
     magnifiedScene->clear();
@@ -160,25 +160,29 @@ void IvConfDockWidget::updateNavigatorMagnifiedReceived(QGraphicsPixmapItem *mag
     magnifiedGraphicsView->setScene(magnifiedScene);
     magnifiedGraphicsView->scale(magnification, magnification);
     magnifiedGraphicsView->centerOn(magnifiedPixmapItem);
+    //    qDebug() << dx << dy;
     QPen pen(QColor("#00ffff"));
     pen.setCosmetic(true);
-//    int x1 = magnifiedScene->width()/2+1;//-0.5;
-//    int x2 = magnifiedScene->width()/2+1;//+0.5;
-//    float x1 = magnifiedScene->width()/2.+1.;
-//    float x2 = magnifiedScene->width()/2.+1.;
-//    float y1 = magnifiedScene->height()/2.+1.;//-0.5;
-//    float y2 = magnifiedScene->height()/2.+1.;//+0.5;
-//    float x1 = magnifiedScene->width()/2.;
-//    float y1 = magnifiedScene->height()/2.;
-//    float x2 = magnifiedScene->width()/2.;
-//    float y2 = magnifiedScene->height()/2.;
+    //    int x1 = magnifiedScene->width()/2+1;//-0.5;
+    //    int x2 = magnifiedScene->width()/2+1;//+0.5;
+    //    float x1 = magnifiedScene->width()/2.+1.;
+    //    float x2 = magnifiedScene->width()/2.+1.;
+    //    float y1 = magnifiedScene->height()/2.+1.;//-0.5;
+    //    float y2 = magnifiedScene->height()/2.+1.;//+0.5;
+    //    float x1 = magnifiedScene->width()/2.;
+    //    float y1 = magnifiedScene->height()/2.;
+    //    float x2 = magnifiedScene->width()/2.;
+    //    float y2 = magnifiedScene->height()/2.;
     float x1 = navigator_nx / magnification / 2.;
     float y1 = navigator_ny / magnification / 2.;
     QPoint p1 = QPoint(x1, y1);
     QPoint p2 = QPoint(x1, y1);
+
+    // dx and dy intended to realign pixmap when cursor moves out of image boundary, but it is not working.
+    //    magnifiedGraphicsView->centerOn(x1+dx, y1+dy);
     magnifiedScene->addRect(QRect(p1,p2), pen);
     magnifiedGraphicsView->show();
-//    ui->navigatorStackedWidget->setCurrentIndex(1);
+    //    ui->navigatorStackedWidget->setCurrentIndex(1);
 }
 
 void IvConfDockWidget::updateNavigatorBinnedReceived(QGraphicsPixmapItem *binnedPixmapItem)
@@ -189,24 +193,30 @@ void IvConfDockWidget::updateNavigatorBinnedReceived(QGraphicsPixmapItem *binned
     binnedGraphicsView->setScene(binnedScene);
     magnifiedGraphicsView->centerOn(binnedPixmapItem);
     binnedGraphicsView->show();
-//    ui->navigatorStackedWidget->setCurrentIndex(0);
+    //    ui->navigatorStackedWidget->setCurrentIndex(0);
 }
 
 // Receiver for the event when the mouse enters the main graphics view
 void IvConfDockWidget::mouseEnteredViewReceived()
 {
-//    ui->navigatorStackedWidget->setCurrentIndex(1);
+    //    ui->navigatorStackedWidget->setCurrentIndex(1);
 }
 
 // Receiver for the event when the mouse leaves the main graphics view
 void IvConfDockWidget::mouseLeftViewReceived()
 {
-//    ui->navigatorStackedWidget->setCurrentIndex(0);
+    //    ui->navigatorStackedWidget->setCurrentIndex(0);
 }
 
 void IvConfDockWidget::updateNavigatorBinnedViewportReceived(QRect rect)
 {
-    return;
+    //    return;
+
+//    qDebug() << rect;
+
+    // remove old rects
+    //    binnedScene->clear();
+    //    binnedScene->addItem(binnedPixmapItem);
 
     // remove old rects
     QList<QGraphicsItem*> items = binnedScene->items();
@@ -215,18 +225,29 @@ void IvConfDockWidget::updateNavigatorBinnedViewportReceived(QRect rect)
        if (rectcast) binnedScene->removeItem(it);
     }
 
+    // remove old rect, add new rect
+    /*
+    if (!currentFovList.isEmpty()) {
+        for (auto &it : currentFovList) {
+            binnedScene->removeItem(it);
+        }
+    }
+    */
+
     QPen pen(QColor("#00ffff"));
     pen.setCosmetic(true);
     pen.setWidth(0);
-    QRect rectNew;
-    int x1;
-    int x2;
-    int y1;
-    int y2;
-    rect.getCoords(&x1, &x2, &y1, &y2);
-    QPoint p1 = binnedGraphicsView->mapFromScene(QPoint(x1, y1));
-    QPoint p2 = binnedGraphicsView->mapFromScene(QPoint(x2, y2));
-    binnedScene->addRect(QRect(p1, p2), pen);
+//    QRect rectNew;
+//    int x1;
+//    int x2;
+//    int y1;
+//    int y2;
+//    rect.getCoords(&x1, &x2, &y1, &y2);
+//    QPoint p1 = binnedGraphicsView->mapFromScene(QPoint(x1, y1));
+//    QPoint p2 = binnedGraphicsView->mapFromScene(QPoint(x2, y2));
+    //currentFovList.append(binnedScene->addRect(rect));
+//    currentFovList.append(binnedScene->addRect(QRect(p1, p2), pen));
+    binnedScene->addRect(rect, pen);
 
     binnedGraphicsView->setScene(binnedScene);
     binnedGraphicsView->show();
@@ -239,8 +260,8 @@ void IvConfDockWidget::updateNavigatorMagnifiedViewportReceived()
     // remove old rects
     QList<QGraphicsItem*> items = magnifiedScene->items();
     for (auto &it : items) {
-       QGraphicsRectItem *rectcast = qgraphicsitem_cast<QGraphicsRectItem*>(it);
-       if (rectcast) magnifiedScene->removeItem(it);
+        QGraphicsRectItem *rectcast = qgraphicsitem_cast<QGraphicsRectItem*>(it);
+        if (rectcast) magnifiedScene->removeItem(it);
     }
 
     QPen pen(QColor("#aaffff"));

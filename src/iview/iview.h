@@ -137,7 +137,7 @@ signals:
     void solutionAcceptanceState(bool state);
     void middleMouseModeChanged(QString mode);
     void currentlyDisplayedIndex(int index);
-    void updateNavigatorMagnified(QGraphicsPixmapItem *magnifiedPixmapItem, qreal scaleFactor);
+    void updateNavigatorMagnified(QGraphicsPixmapItem *magnifiedPixmapItem, qreal scaleFactor, float dx, float dy);
     void updateNavigatorBinned(QGraphicsPixmapItem *binnedPixmapItem);
     void updateNavigatorBinnedViewport(QRect rect);
     void statisticsSampleAvailable(const QVector<float> &sample);

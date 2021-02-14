@@ -50,6 +50,9 @@ public:
     int navigator_nx = 0;   // the width and height of the magnifyer window;
     int navigator_ny = 0;
 
+    QRect currentFov;       // the currently displayed field of view
+    QList<QGraphicsRectItem*> currentFovList;
+
     void switchMode(QString mode);
     double zoom2scale(int zoomlevel);
 
@@ -64,7 +67,7 @@ private slots:
 public slots:
     void on_zoomFitPushButton_clicked();
     void on_zoomZeroPushButton_clicked();
-    void updateNavigatorMagnifiedReceived(QGraphicsPixmapItem *magnifiedPixmapItem, qreal magnification);
+    void updateNavigatorMagnifiedReceived(QGraphicsPixmapItem *magnifiedPixmapItem, qreal magnification, float dx, float dy);
     void updateNavigatorBinnedReceived(QGraphicsPixmapItem *binnedPixmapItem);
     void mouseEnteredViewReceived();
     void mouseLeftViewReceived();

@@ -475,7 +475,7 @@ void IView::loadFromRAMlist(const QModelIndex &index)
     magnifiedPixmapItem = new QGraphicsPixmapItem(magnifiedPixmap);
 
     // Update the navigator magnified window with the center image poststamp
-    emit updateNavigatorMagnified(magnifiedPixmapItem, icdw->zoom2scale(zoomLevel)*magnify);
+    emit updateNavigatorMagnified(magnifiedPixmapItem, icdw->zoom2scale(zoomLevel)*magnify, 0., 0.);
 }
 
 // Receiver of Navigator currentMousePos Eevent
@@ -485,9 +485,14 @@ void IView::updateNavigatorMagnifiedReceived(QPointF point)
     qreal magnification = icdw->zoom2scale(zoomLevel)*magnify;
     if (magnification > magnify) magnification = magnify;
 
+    float dx = 0.;
+    float dy = 0.;
+
     if (displayMode == "FITSmonochrome" || displayMode == "MEMview") {
 //        qDebug() << point.x() + 1. - icdw->navigator_nx/2./magnification << point.y() + 1. - icdw->navigator_ny/2./magnification <<
 //                icdw->navigator_nx/magnification << icdw->navigator_ny/magnification;
+        if (point.x() + 1. - icdw->navigator_nx/2./magnification < 0) dx = point.x() + 1. - icdw->navigator_nx/2./magnification;
+        if (point.x() + 1. - icdw->navigator_nx/2./magnification >= naxis1) dx = point.x() + 1. - icdw->navigator_nx/2./magnification;
         QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(point.x() + 1. - icdw->navigator_nx/2./magnification,
                                                             point.y() + 1. - icdw->navigator_ny/2./magnification,
                                                             icdw->navigator_nx/magnification, icdw->navigator_ny/magnification);
@@ -504,7 +509,7 @@ void IView::updateNavigatorMagnifiedReceived(QPointF point)
         // Do not emit signal for PNG mode
         return;
     }
-    emit updateNavigatorMagnified(magnifiedPixmapItem, magnification);
+    emit updateNavigatorMagnified(magnifiedPixmapItem, magnification, dx, dy);
 }
 
 void IView::loadFromRAM(MyImage *it, int indexColumn)
