@@ -656,7 +656,7 @@ void Instrument::on_readRAWgeometryPushButton_clicked()
 {
 
     QString rawFileName = QFileDialog::getOpenFileName(this, tr("Select a CMOS RAW file"), QDir::homePath(),
-                                                       tr("CMOS RAW files (*.CR2 *.ARW *.DNG *.NEF *.cr2 *.arw *.dng *.nef);; Other (*.*)"));
+                                                       tr("CMOS RAW files (*.CR2 *.ARW *.DNG *.NEF *.PEF *.cr2 *.arw *.dng *.nef *.pef);; Other (*.*)"));
 
     // Try opening as RAW
     LibRaw rawProcessor;
