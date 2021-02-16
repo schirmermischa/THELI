@@ -43,8 +43,11 @@ public:
     int statWidth = 3;
 
     void init();
+
 public slots:
     void statisticsSampleReceiver(const QVector<float> &sample);
+    void statisticsSampleColorReceiver(const QVector<float> &sampleR, const QVector<float> &sampleG, const QVector<float> &sampleB);
+
 private slots:
     void on_localWindowComboBox_currentIndexChanged(const QString &arg1);
 
@@ -52,6 +55,9 @@ private:
     float localMedian = 0.;
     float localSigma = 0.;
     float localMean = 0.;
+    float localMedianR = 0.;
+    float localMedianG = 0.;
+    float localMedianB = 0.;
 
 };
 

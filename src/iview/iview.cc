@@ -455,6 +455,7 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
 
         // Load the binned image to the navigator
         emit updateNavigatorBinned(binnedPixmapItem);       // binnedPixmapItem created in mapFITS()
+        emit updateNavigatorBinnedCDmatrix(wcs->cd);
     }
     else {
         // At end of file list, or file does not exist anymore.
@@ -487,6 +488,11 @@ void IView::updateNavigatorMagnifiedReceived(QPointF point)
 
     float dx = 0.;
     float dy = 0.;
+
+    if (point.x() < 0 || point.x() > naxis1 || point.y() < 0 || point.y() > naxis2) {
+        emit clearMagnifiedScene();
+        return;
+    }
 
     if (displayMode == "FITSmonochrome" || displayMode == "MEMview") {
 //        qDebug() << point.x() + 1. - icdw->navigator_magnified_nx/2./magnification << point.y() + 1. - icdw->navigator_magnified_ny/2./magnification <<
@@ -550,6 +556,7 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     }
     dataInt = new unsigned char[naxis1*naxis2];
     dataIntSet = true;
+    getGlobalImageStatistics();
     // AUTO
     if (icdw->ui->minLineEdit->text().isEmpty()
             || icdw->ui->maxLineEdit->text().isEmpty()
@@ -558,8 +565,7 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     }
     // MANUAL
     else {
-        // get background statisics (medVal and rmsVal)
-        getGlobalImageStatistics();
+        // get background statisics (median and sd)
         dynRangeMin = icdw->ui->minLineEdit->text().toFloat();
         dynRangeMax = icdw->ui->maxLineEdit->text().toFloat();
     }
@@ -625,12 +631,12 @@ void IView::loadColorFITS(qreal scaleFactor)
 
     // Update the navigator binned window with the binned poststamp
     emit updateNavigatorBinned(binnedPixmapItem);
+    emit updateNavigatorBinnedCDmatrix(wcs->cd);
 }
 
 bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMode)
 {
     if (displayMode.contains("SCAMP") || displayMode == "CLEAR") {
-        qDebug() << __func__ << "Invalid mode";
         return false;
     }
 
@@ -668,7 +674,9 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
         }
         dataInt = new unsigned char[naxis1*naxis2];
         dataIntSet = true;
+        // determine best dynamic range for display (not yet applied)
         // AUTO
+        getGlobalImageStatistics();
         if (icdw->ui->minLineEdit->text().isEmpty()
                 || icdw->ui->maxLineEdit->text().isEmpty()
                 || icdw->ui->autocontrastPushButton->isChecked()) {
@@ -677,7 +685,6 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
         // MANUAL
         else {
             // get background statisics (medVal and rmsVal)
-            getGlobalImageStatistics();
             dynRangeMin = icdw->ui->minLineEdit->text().toFloat();
             dynRangeMax = icdw->ui->maxLineEdit->text().toFloat();
         }
@@ -710,7 +717,8 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
         // Loading a color view of the RGB FITS channels
         // (only executes fully once all channels have been read)
         icdw->ui->autocontrastPushButton->setChecked(true);
-        autoContrast(colorMode);
+        getGlobalImageStatistics(colorMode);
+        autoContrast();
     }
     return true;
 }
@@ -1181,33 +1189,46 @@ void IView::getGlobalImageStatistics(QString colorMode)
 {
     // Quasi-random sampling an array at every dim_small pixel
     int ranStep = 2./3.*naxis1 + sqrt(naxis1);
-    QVector<double> subSample;
-    if (displayMode == "FITSmonochrome" || displayMode == "MEMview") get_array_subsample(fitsData, subSample, ranStep);
-    else if (displayMode == "FITScolor") {
-        // Must have read the red and green channel already
-        if (colorMode == "blueChannel") {
-            QVector<float> fitsDataSum(naxis1*naxis2);
-            // NOT THREADSAFE
-            // #pragma omp parallel for
-            for (long i=0; i<naxis1*naxis2; ++i) {
-                fitsDataSum[i] = fitsDataR.at(i) + fitsDataG.at(i) + fitsDataB.at(i);
-            }
-            get_array_subsample(fitsDataSum, subSample, ranStep);
-        }
-        else return;
-    }
-    else {
-        qDebug() << __func__ << ": Invalid mode";
-    }
 
-    // GLOBAL statistics
-    globalMedian = medianMask_T(subSample, QVector<bool>(), "ignoreZeroes");
-    globalMean = meanMask_T(subSample, QVector<bool>());
-    globalRMS = 1.486*madMask_T(subSample, QVector<bool>(), "ignoreZeroes");
+    QVector<double> subSample;
+    if (displayMode == "FITSmonochrome" || displayMode == "MEMview") {
+        get_array_subsample(fitsData, subSample, ranStep);
+        // GLOBAL statistics
+        globalMedian = medianMask_T(subSample, QVector<bool>(), "ignoreZeroes");
+        globalMean = meanMask_T(subSample, QVector<bool>());
+        globalRMS = 1.486*madMask_T(subSample, QVector<bool>(), "ignoreZeroes");
+    }
+    else if (displayMode == "FITScolor") {
+        QVector<double> subSampleR;
+        QVector<double> subSampleG;
+        QVector<double> subSampleB;
+        if (colorMode == "redChannel") {
+            get_array_subsample(fitsDataR, subSampleR, ranStep);
+            globalMedianR = medianMask_T(subSampleR, QVector<bool>(), "ignoreZeroes");
+        }
+        if (colorMode == "greenChannel") {
+            get_array_subsample(fitsDataG, subSampleG, ranStep);
+            globalMedianG = medianMask_T(subSampleG, QVector<bool>(), "ignoreZeroes");
+        }
+        if (colorMode == "blueChannel") {
+            get_array_subsample(fitsDataB, subSampleB, ranStep);
+            globalMedianB = medianMask_T(subSampleB, QVector<bool>(), "ignoreZeroes");
+            // In addition, compute overall statistics across all three bands (once the blue is read, we have all of them available)
+            get_array_subsample(fitsDataR, subSampleR, ranStep);
+            get_array_subsample(fitsDataG, subSampleG, ranStep);
+            for (long i=0; i<subSampleR.length(); ++i) {
+                subSampleR[i] += (subSampleG[i] + subSampleB[i]);
+            }
+            globalMedian = medianMask_T(subSampleR, QVector<bool>(), "ignoreZeroes");
+            globalMean = meanMask_T(subSampleR, QVector<bool>());
+            globalRMS = 1.486*madMask_T(subSampleR, QVector<bool>(), "ignoreZeroes");
+        }
+    }
 }
 
 void IView::autoContrast(QString colorMode)
 {
+    /*
     // set medVal and rmsVal;
     if (displayMode == "FITSmonochrome" || displayMode == "MEMview") getGlobalImageStatistics();
     else if (displayMode == "FITScolor") {
@@ -1216,9 +1237,8 @@ void IView::autoContrast(QString colorMode)
             getGlobalImageStatistics(colorMode);
         else return;
     }
-    else {
-        qDebug() << __func__ << "IView::autoContrast(): Invalid displayMode:" << displayMode;
-    }
+    else return;
+    */
 
     dynRangeMin = globalMedian - 2.*globalRMS;
     dynRangeMax = globalMedian + 10.*globalRMS;
@@ -1399,4 +1419,11 @@ void IView::filterLineEdit_textChanged(const QString &arg1)
 
     // Rewind
 //    iview->startAction_triggered();
+}
+
+void IView::fovCenterChangedReceiver(QPointF newCenter)
+{
+    QPointF center = binnedToQimage(newCenter);
+//    qDebug() << newCenter << center;
+    myGraphicsView->centerOn(center);
 }

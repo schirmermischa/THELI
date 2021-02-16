@@ -119,6 +119,9 @@ public:
     int verbosity = 0;
 
     float globalMedian = 0.;
+    float globalMedianR = 0.;
+    float globalMedianG = 0.;
+    float globalMedianB = 0.;
     float globalRMS = 0.;
     float globalMean = 0.;
 
@@ -131,6 +134,12 @@ public:
     int naxis2 = 0;
 
     QVector<float> fitsData;
+    QVector<float> fitsDataR;
+    QVector<float> fitsDataG;
+    QVector<float> fitsDataB;
+
+    QString displayMode = "CLEAR";
+
     void qimageToBinned(qreal qx, qreal qy, qreal &bx, qreal &by);
     QRect qimageToBinned(const QRectF qrect);
     QPointF qimageToBinned(const QPointF qpoint);
@@ -149,6 +158,9 @@ signals:
     void updateNavigatorBinned(QGraphicsPixmapItem *binnedPixmapItem);
     void updateNavigatorBinnedViewport(QRect rect);
     void statisticsSampleAvailable(const QVector<float> &sample);
+    void statisticsSampleColorAvailable(const QVector<float> &sampleR, const QVector<float> &sampleG, const QVector<float> &sampleB);
+    void updateNavigatorBinnedCDmatrix(double *cd);
+    void clearMagnifiedScene();
 
 private slots:
     void adjustBrightnessContrast(QPointF point);
@@ -185,6 +197,7 @@ private slots:
     void filterLineEdit_textChanged(const QString &arg1);
     void collectLocalStatisticsSample(QPointF point);
     void updateStatisticsButton();
+    void fovCenterChangedReceiver(QPointF newCenter);
 public slots:
     void autoContrastPushButton_toggled_receiver(bool checked);
     void clearAll();
@@ -226,7 +239,6 @@ private:
     double skyRa = 0.;
     double skyDec = 0.;
     bool startLeftClickInsideItem = false;
-    QString displayMode = "CLEAR";
     int timerId;
     QString ChannelR;
     QString ChannelG;
@@ -282,10 +294,6 @@ private:
     bool scampdwDefined = false;
 
     bool binnedPixmapUptodate = false;
-
-    QVector<float> fitsDataR;
-    QVector<float> fitsDataG;
-    QVector<float> fitsDataB;
 
     void addDockWidgets();
     QRect adjustGeometry();

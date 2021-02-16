@@ -56,8 +56,8 @@ If not, see https://www.gnu.org/licenses/ .
 // mode = CLEAR
 IView::IView(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::IView),
-    displayMode("CLEAR")
+    displayMode("CLEAR"),
+    ui(new Ui::IView)
 {
 
     //    qDebug() << "mode 1";
@@ -80,8 +80,8 @@ IView::IView(QWidget *parent) :
 // MEMview, single MyImage
 IView::IView(QString mode, QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::IView),
-    displayMode(mode)         // "MEMview", set externally
+    displayMode(mode),         // "MEMview", set externally
+    ui(new Ui::IView)
 {
     ui->setupUi(this);
     initGUI();
@@ -111,8 +111,8 @@ IView::IView(QString mode, QWidget *parent) :
 // MEMview, list of MyImages
 IView::IView(QString mode, QList<MyImage*> &list, QString dirname, QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::IView),
-    displayMode(mode)
+    displayMode(mode),
+    ui(new Ui::IView)
 {
     ui->setupUi(this);
     initGUI();
@@ -150,8 +150,8 @@ IView::IView(QString mode, QList<MyImage*> &list, QString dirname, QWidget *pare
 // mode == FITSmonochrome
 IView::IView(QString mode, QString name, QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::IView),
-    displayMode(mode)
+    displayMode(mode),
+    ui(new Ui::IView)
 {
     ui->setupUi(this);
     initGUI();
@@ -265,8 +265,8 @@ IView::IView(QString mode, QString dirname, QString filter, QWidget *parent) :
     QMainWindow(parent),
     dirName(dirname),
     filterName(filter),
-    ui(new Ui::IView),
-    displayMode(mode)
+    displayMode(mode),
+    ui(new Ui::IView)
 {
     ui->setupUi(this);
 
@@ -296,8 +296,8 @@ IView::IView(QString mode, QString dirname, QString fileName, QString filter, QW
     dirName(dirname),
     filterName(filter),
     currentFileName(fileName),
-    ui(new Ui::IView),
-    displayMode(mode)
+    displayMode(mode),
+    ui(new Ui::IView)
 {
     ui->setupUi(this);
     initGUI();
@@ -325,8 +325,8 @@ IView::IView(QString mode, QString dirname, QString rChannel, QString gChannel, 
     QMainWindow(parent),
     dirName(dirname),
     filterName("*.fits"),
-    ui(new Ui::IView),
     displayMode(mode),
+    ui(new Ui::IView),
     ChannelR(rChannel),
     ChannelG(gChannel),
     ChannelB(bChannel)
@@ -463,8 +463,8 @@ IView::~IView()
 //        binnedPixmapItem = nullptr;
 //    }
     if (magnifiedPixmapItem != nullptr) {
-        delete magnifiedPixmapItem;
-        magnifiedPixmapItem = nullptr;
+//        delete magnifiedPixmapItem;
+//        magnifiedPixmapItem = nullptr;
     }
     delete ui;
     //    if (icdwDefined) delete icdw;
@@ -538,8 +538,12 @@ void IView::makeConnections()
     connect(this, &IView::updateNavigatorBinned, icdw, &IvConfDockWidget::updateNavigatorBinnedReceived);
     connect(this, &IView::updateNavigatorBinnedViewport, icdw, &IvConfDockWidget::updateNavigatorBinnedViewportReceived);
     connect(this, &IView::statisticsSampleAvailable, statdw, &IvStatisticsDockWidget::statisticsSampleReceiver);
-
+    connect(this, &IView::statisticsSampleColorAvailable, statdw, &IvStatisticsDockWidget::statisticsSampleColorReceiver);
     connect(filterLineEdit, &QLineEdit::textChanged, this, &IView::filterLineEdit_textChanged);
+
+    connect(icdw->binnedGraphicsView, &MyBinnedGraphicsView::fovRectCenterChanged, this, &IView::fovCenterChangedReceiver);
+    connect(this, &IView::updateNavigatorBinnedCDmatrix, icdw, &IvConfDockWidget::receiveCDmatrix);
+    connect(this, &IView::clearMagnifiedScene, icdw, &IvConfDockWidget::clearMagnifiedSceneReceiver);
 }
 
 void IView::switchMode(QString mode)

@@ -52,11 +52,17 @@ public:
     int navigator_magnified_nx = 0;   // the width and height of the magnifyer window;
     int navigator_magnified_ny = 0;
 
+    double cd11 = 0.;
+    double cd12 = 0.;
+    double cd21 = 0.;
+    double cd22 = 0.;
+
     QRect currentFov;       // the currently displayed field of view
     QList<QGraphicsRectItem*> currentFovList;
 
     void switchMode(QString mode);
     double zoom2scale(int zoomlevel);
+    void drawCompass();
 
 private slots:
     void on_zoomOutPushButton_clicked();
@@ -76,6 +82,8 @@ public slots:
     void mouseLeftViewReceived();
     void updateNavigatorBinnedViewportReceived(QRect rect);
     void updateNavigatorMagnifiedViewportReceived();
+    void receiveCDmatrix(double *cd);
+    void clearMagnifiedSceneReceiver();
 
 signals:
     void autoContrastPushButton_toggled(bool checked);

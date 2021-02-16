@@ -80,6 +80,5 @@ QPointF IView::binnedToQimage(const QPointF bpoint)
     QPointF qpoint;
     qpoint.setX(qx);
     qpoint.setY(qy);
-
     return qpoint;
 }

@@ -21,9 +21,12 @@ If not, see https://www.gnu.org/licenses/ .
 #define MYBINNEDGRAPHICSVIEW_H
 
 #include <QGraphicsView>
+#include <QGraphicsRectItem>
 #include <QDebug>
 #include <QMouseEvent>
 #include <QScrollBar>
+
+#include "arrow.h"
 
 class MyBinnedGraphicsView : public QGraphicsView
 {
@@ -59,8 +62,18 @@ public:
     QScrollBar *sybar = nullptr;
     QString middleMouseMode = "DragMode";
 
+    int nx = 0;
+    int ny = 0;
+
+    QGraphicsRectItem *fovRectItem = new QGraphicsRectItem(0.,0.,0.,0.);
+
     int x = 0;
     int y = 0;
+
+    bool fovBeingDragged = false;
+
+    int old_x = 0;
+    int old_y = 0;
 
 signals:
     void currentMousePos(QPointF);
@@ -76,6 +89,7 @@ signals:
     void rightButtonReleased();
     void middleButtonReleased();
     void middlePressResetCRPIX();
+    void fovRectCenterChanged(QPointF point);
 
 public slots:
     void updateMiddleMouseMode(QString mode);

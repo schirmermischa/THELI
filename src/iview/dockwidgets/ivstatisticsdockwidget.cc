@@ -39,19 +39,34 @@ IvStatisticsDockWidget::~IvStatisticsDockWidget()
 
 void IvStatisticsDockWidget::init()
 {
+    QString sigma = QChar(0xc3, 0x03);
     int validDigits = 4 - log( fabs(iview->globalMedian)) / log(10.);
     if (validDigits < 0) validDigits = 0;
-    QString sigma = QChar(0xc3, 0x03);
 
-    ui->globalMedianLabel->setText(QString::number(iview->globalMedian, 'f', validDigits));
-    ui->globalMeanLabel->setText(QString::number(iview->globalMean, 'f', validDigits));
-    ui->globalRMSLabel->setText(QString::number(iview->globalRMS, 'f', validDigits));
-    ui->globalSigmaLabel->setText(sigma + " = ");
-
-    ui->localMedianLabel->setText(QString::number(localMedian, 'f', validDigits));
-    ui->localMeanLabel->setText(QString::number(localMean, 'f', validDigits));
-    ui->localRMSLabel->setText(QString::number(localSigma, 'f', validDigits));
-    ui->localSigmaLabel->setText(sigma + " = ");
+    if (iview->displayMode == "FITSmonochrome" || iview->displayMode == "MEMview") {
+        ui->globalSigmaLeftLabel->setText(sigma + " = ");
+        ui->localSigmaLeftLabel->setText(sigma + " = ");
+        ui->globalMedianLabel->setText(QString::number(iview->globalMedian, 'f', validDigits));
+        ui->globalMeanLabel->setText(QString::number(iview->globalMean, 'f', validDigits));
+        ui->globalSigmaLabel->setText(QString::number(iview->globalRMS, 'f', validDigits));
+        ui->localMedianLabel->clear();
+        ui->localMeanLabel->clear();
+        ui->localSigmaLabel->clear();
+    }
+    if (iview->displayMode == "FITScolor") {
+        ui->globalMedianLeftLabel->setText("Median R = ");
+        ui->globalMeanLeftLabel->setText("Median G = ");
+        ui->globalSigmaLeftLabel->setText("Median B = ");
+        ui->globalMedianLabel->setText(QString::number(iview->globalMedianR, 'f', validDigits));
+        ui->globalMeanLabel->setText(QString::number(iview->globalMedianG, 'f', validDigits));
+        ui->globalSigmaLabel->setText(QString::number(iview->globalMedianB, 'f', validDigits));
+        ui->localMedianLeftLabel->setText("Median R = ");
+        ui->localMeanLeftLabel->setText("Median G = ");
+        ui->localSigmaLeftLabel->setText("Median B = ");
+        ui->localMedianLabel->clear();
+        ui->localMeanLabel->clear();
+        ui->localSigmaLabel->clear();
+    }
 
     ui->localWindowComboBox->setCurrentText("9x9");
 }
@@ -67,11 +82,34 @@ void IvStatisticsDockWidget::statisticsSampleReceiver(const QVector<float> &samp
     int validDigits = 4 - log( fabs(localMedian)) / log(10.);
     if (validDigits < 0) validDigits = 0;
 
-//    if (iview->displayMode == "FITSmonochrome" || iview->displayMode == "MEMview") {
-        ui->localMedianLabel->setText(QString::number(localMedian, 'f', validDigits));
-        ui->localMeanLabel->setText(QString::number(localMean, 'f', validDigits));
-        ui->localRMSLabel->setText(QString::number(localSigma, 'f', validDigits));
-//    }
+    ui->localMedianLabel->setText(QString::number(localMedian, 'f', validDigits));
+    ui->localMeanLabel->setText(QString::number(localMean, 'f', validDigits));
+    ui->localSigmaLabel->setText(QString::number(localSigma, 'f', validDigits));
+}
+
+void IvStatisticsDockWidget::statisticsSampleColorReceiver(const QVector<float> &sampleR, const QVector<float> &sampleG, const QVector<float> &sampleB)
+{
+    if (!this->isVisible()) return;
+
+    localMedianR = straightMedian_T(sampleR);
+    localMedianG = straightMedian_T(sampleG);
+    localMedianB = straightMedian_T(sampleB);
+    /*
+    float localMeanR = meanMask_T(sampleR, QVector<bool>());
+    float localMeanG = meanMask_T(sampleG, QVector<bool>());
+    float localMeanB = meanMask_T(sampleB, QVector<bool>());
+    float localSigmaR = 1.486*madMask_T(sampleR, QVector<bool>(), "ignoreZeroes");
+    float localSigmaG = 1.486*madMask_T(sampleG, QVector<bool>(), "ignoreZeroes");
+    float localSigmaB = 1.486*madMask_T(sampleB, QVector<bool>(), "ignoreZeroes");
+    */
+
+    int validDigits = 4 - log( fabs(localMedianG)) / log(10.);
+    if (validDigits < 0) validDigits = 0;
+
+    // re-purposing default labels:
+    ui->localMedianLabel->setText(QString::number(localMedianR, 'f', validDigits));
+    ui->localMeanLabel->setText(QString::number(localMedianG, 'f', validDigits));
+    ui->localSigmaLabel->setText(QString::number(localMedianB, 'f', validDigits));
 }
 
 void IvStatisticsDockWidget::on_localWindowComboBox_currentIndexChanged(const QString &arg1)

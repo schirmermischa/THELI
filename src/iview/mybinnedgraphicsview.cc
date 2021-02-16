@@ -19,6 +19,7 @@ If not, see https://www.gnu.org/licenses/ .
 
 #include "mybinnedgraphicsview.h"
 #include "iview.h"
+#include "wcs.h"
 
 MyBinnedGraphicsView::MyBinnedGraphicsView() : QGraphicsView()
 {
@@ -34,6 +35,7 @@ void MyBinnedGraphicsView::mouseMoveEvent(QMouseEvent *event)
     QPointF currentPoint = mapToScene(currentPos);
     emit currentMousePos(currentPoint);
 
+    /*
     // Also, if the right mouse button is pressed while moving,
     // adjust brightness and contrast
     if (rightButtonPressed) {
@@ -53,9 +55,44 @@ void MyBinnedGraphicsView::mouseMoveEvent(QMouseEvent *event)
             }
         }
     }
+    */
     if (leftButtonPressed) {
-        QPointF pointStart = mapToScene(leftDragStartPos.x(), leftDragStartPos.y());
-        emit leftDragTravelled(pointStart, currentPoint);
+        /*
+        // center coords by default at graphicsscene center, which has origin in the middle
+        int xcen = 0;
+        int ycen = 0;
+        if (old_x == 0 && old_y == 0) {
+            xcen = fovRectItem->scenePos().x() + nx/2.;
+            ycen = fovRectItem->scenePos().y() + ny/2.;
+//            old_x = xcen;
+//            old_y = ycen;
+        }
+        else {
+            xcen = old_x;
+            ycen = old_y;
+        }
+        //        qDebug() << fovRectItem->scenePos();
+        QPoint rectCenter = QPoint(xcen, ycen);
+        QPointF currentPoint = mapToScene(currentPos);
+        QPointF rectCenterQimage = mapToScene(rectCenter);
+        qDebug() << "RECCENTER" << rectCenterQimage;
+        fovRectItem->rect().width();
+        qDebug() << "RECCEN" <<  xcen << ycen;
+        qreal x1 = xcen - fovRectItem->rect().width()/2.;
+        qreal x2 = xcen + fovRectItem->rect().width()/2.;
+        qreal y1 = ycen - fovRectItem->rect().height()/2.;
+        qreal y2 = ycen + fovRectItem->rect().height()/2.;
+        if (x1 > 0 && x2 < nx-1 && y1 > 0 && y2 < ny-1) {
+            fovBeingDragged = true;
+            fovRectItem->setFlags(QGraphicsEllipseItem::ItemIsMovable);
+            //            emit fovRectCenterChanged(QPointF(xcen,ycen));
+            emit fovRectCenterChanged(rectCenterQimage);
+        }
+        else {
+            //         auto currentFlags = fovRectItem->flags();
+            //          fovRectItem->setFlags(currentFlags & (~QGraphicsEllipseItem::ItemIsMovable));
+        }
+        */
     }
     QGraphicsView::mouseMoveEvent(event);
 }
@@ -96,6 +133,10 @@ void MyBinnedGraphicsView::mouseReleaseEvent(QMouseEvent *event)
     }
     if (event->button() == Qt::LeftButton) {
         leftButtonPressed = false;
+        fovBeingDragged = false;
+//        old_x = fovRectItem->scenePos().x() + nx/2.;
+//        old_y = fovRectItem->scenePos().y() + ny/2.;
+//        qDebug() << "OLD" << old_x << old_y;
         emit leftButtonReleased();
     }
     if (event->button() == Qt::MiddleButton) {
@@ -114,4 +155,3 @@ void MyBinnedGraphicsView::updateMiddleMouseMode(QString mode)
 {
     middleMouseMode = mode;
 }
-

@@ -112,7 +112,14 @@ void IView::showCurrentMousePos(QPointF point)
         }
     }
     else {
-        icdw->ui->valueLabel->setText("Value = ");
+        if (displayMode == "FITSmonochrome" || displayMode == "MEMview") {
+            icdw->ui->valueLabel->setText("Value = ");
+        }
+        else {
+            icdw->ui->valueLabel->setText("Value R = ");
+            icdw->ui->valueGreenLabel->setText("Value G = ");
+            icdw->ui->valueBlueLabel->setText("Value B = ");
+        }
     }
 
     xy2sky(x_cursor, y_cursor);
@@ -122,7 +129,7 @@ void IView::showCurrentMousePos(QPointF point)
     icdw->magnifiedGraphicsView->mapFromScene(point.x(),point.y());
     //magnifyScene->setSceneRect(point.x()-75, point.y()-75, 150, 150);
     icdw->magnifiedGraphicsView->setScene(icdw->magnifiedScene);
-//    icdw->updateNavigatorMagnifiedViewportReceived();
+    //    icdw->updateNavigatorMagnifiedViewportReceived();
     icdw->magnifiedGraphicsView->show();
 }
 
@@ -136,7 +143,6 @@ void IView::collectLocalStatisticsSample(QPointF point)
 
     int s = statdw->statWidth;
 
-    QVector<float> sample;
     int imin = x-s;
     int imax = x+s;
     int jmin = y-s;
@@ -145,14 +151,28 @@ void IView::collectLocalStatisticsSample(QPointF point)
     if (imax >= naxis1) imax = naxis1-1;
     if (jmin < 0) jmin = 0;
     if (jmax >= naxis2) jmax = naxis2-1;
-    for (int j = jmin; j<=jmax; ++j) {
-        for (int i = imin; i<=imax; ++i) {
-            sample.append(fitsData[i+naxis1*j]);
+    if (displayMode == "FITSmonochrome" || displayMode == "MEMview") {
+        QVector<float> sample;
+        for (int j = jmin; j<=jmax; ++j) {
+            for (int i = imin; i<=imax; ++i) {
+                sample.append(fitsData[i+naxis1*j]);
+            }
         }
+        emit statisticsSampleAvailable(sample);
     }
-
-    emit statisticsSampleAvailable(sample);
-
+    else if (displayMode == "FITScolor") {
+        QVector<float> sampleR;
+        QVector<float> sampleG;
+        QVector<float> sampleB;
+        for (int j = jmin; j<=jmax; ++j) {
+            for (int i = imin; i<=imax; ++i) {
+                sampleR.append(fitsDataR[i+naxis1*j]);
+                sampleG.append(fitsDataG[i+naxis1*j]);
+                sampleB.append(fitsDataB[i+naxis1*j]);
+            }
+        }
+        emit statisticsSampleColorAvailable(sampleR, sampleG, sampleB);
+    }
 }
 
 void IView::adjustBrightnessContrast(QPointF point)
@@ -462,14 +482,14 @@ void IView::middlePressResetCRPIXreceived()
 // Receiver for the event when the mouse enters the main graphics view
 void IView::mouseEnteredViewReceived()
 {
-//    icdw->ui->navigatorStackedWidget->setCurrentIndex(1);
+    //    icdw->ui->navigatorStackedWidget->setCurrentIndex(1);
     emit updateNavigatorBinned(binnedPixmapItem);
 }
 
 // Receiver for the event when the mouse leaves the main graphics view
 void IView::mouseLeftViewReceived()
 {
-//    icdw->ui->navigatorStackedWidget->setCurrentIndex(0);
+    //    icdw->ui->navigatorStackedWidget->setCurrentIndex(0);
     emit updateNavigatorBinned(binnedPixmapItem);
 }
 
@@ -477,33 +497,7 @@ void IView::viewportChangedReceived(QRect viewport_rect)
 {
     QRectF rect = myGraphicsView->mapToScene(viewport_rect).boundingRect();
 
-    /*
-    // compute the new coords of this rect in the binned view
-    qreal x1 = 0.;
-    qreal y1 = 0.;
-    qreal x2 = 0.;
-    qreal y2 = 0.;
-    rect.getCoords(&x1, &y1, &x2, &y2);
-
-    float xb1;
-    float yb1;
-    float xb2;
-    float yb2;
-    qimageToBinned();
-
-    float norm = naxis2 >= naxis1 ? naxis2 : naxis1;
-    x1 *= float(icdw->navigator_binned_nx) / norm;
-    x2 *= float(icdw->navigator_binned_nx) / norm;
-    y1 *= float(icdw->navigator_binned_ny) / norm;
-    y2 *= float(icdw->navigator_binned_ny) / norm;
-
-    QRect rectBinned;
-    rectBinned.setCoords(int(x1), int(y1), int(x2), int(y2));
-    */
-
     QRect rectBinned = qimageToBinned(rect);
-
-//    qDebug() << rectBinned;
 
     // send the new rect to the navigator window
     emit updateNavigatorBinnedViewport(rectBinned);
@@ -569,8 +563,8 @@ void IView::updateCRPIXFITS()
         if (!currentMyImage->imageOnDrive) currentMyImage->writeImage();
         // Identical way to reconstruct filenames
         // TODO: uniformize
-//        qDebug() << currentFileName;
-//        qDebug() << currentMyImage->path+"/"+currentMyImage->chipName+currentMyImage->processingStatus->statusString+".fits";
+        //        qDebug() << currentFileName;
+        //        qDebug() << currentMyImage->path+"/"+currentMyImage->chipName+currentMyImage->processingStatus->statusString+".fits";
         fitsfile *fptr = nullptr;
         fits_open_file(&fptr, (dirName+"/"+currentMyImage->pathExtension+"/"+currentFileName).toUtf8().data(), READWRITE, &status);
         fits_update_key_flt(fptr, "CRPIX1", wcs->crpix[0], -5, nullptr, &status);

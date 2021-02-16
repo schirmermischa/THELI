@@ -21,6 +21,8 @@ If not, see https://www.gnu.org/licenses/ .
 #include "ui_ivconfdockwidget.h"
 #include "../iview.h"
 
+#include <math.h>
+
 IvConfDockWidget::IvConfDockWidget(IView *parent) :
     QDockWidget(parent),
     ui(new Ui::IvConfDockWidget)
@@ -48,6 +50,8 @@ IvConfDockWidget::IvConfDockWidget(IView *parent) :
     navigator_binned_ny = ui->binnedFrame->height();
     navigator_magnified_nx = ui->magnifiedFrame->width();
     navigator_magnified_ny = ui->magnifiedFrame->height();
+    binnedGraphicsView->nx = navigator_binned_nx;
+    binnedGraphicsView->ny = navigator_binned_ny;
 
     ui->quitPushButton->hide();
 
@@ -154,7 +158,7 @@ void IvConfDockWidget::on_quitPushButton_clicked()
     emit closeIview();
 }
 
-// receiver from mouse pos hovering in binned view
+// receiver from mouse pos hovering in binned vew
 void IvConfDockWidget::showCurrentMousePosBinned(QPointF currentMousePos)
 {
     QPointF qpoint = iview->binnedToQimage(currentMousePos);
@@ -162,10 +166,30 @@ void IvConfDockWidget::showCurrentMousePosBinned(QPointF currentMousePos)
     long j = iview->naxis2 - qpoint.y();
     ui->xposLabel->setText("x = "+QString::number(i));
     ui->yposLabel->setText("y = "+QString::number(j));
-    ui->valueLabel->setText("Value = "+QString::number(iview->fitsData[i+iview->naxis1*j]));
-
-    // display sky coords as well
+    // display sky coords
     iview->xy2sky(qpoint.x(), iview->naxis2 - qpoint.y());
+
+    // Display pixel values: respect image boundaries
+    if (i<0 || j<0 || i>= iview->naxis1 || j>= iview->naxis2) {
+        if (iview->displayMode == "FITSmonochrome" || iview->displayMode == "MEMview") {
+            ui->valueLabel->setText("Value = ");
+        }
+        else if (iview->displayMode == "FITScolor") {
+            ui->valueLabel->setText("Value R = ");
+            ui->valueGreenLabel->setText("Value G = ");
+            ui->valueBlueLabel->setText("Value B = ");
+        }
+    }
+    else {
+        if (iview->displayMode == "FITSmonochrome" || iview->displayMode == "MEMview") {
+            ui->valueLabel->setText("Value = "+QString::number(iview->fitsData[i+iview->naxis1*j]));
+        }
+        else if (iview->displayMode == "FITScolor") {
+            ui->valueLabel->setText("Value R = "+QString::number(iview->fitsDataR[i+iview->naxis1*j]));
+            ui->valueGreenLabel->setText("Value G = "+QString::number(iview->fitsDataG[i+iview->naxis1*j]));
+            ui->valueBlueLabel->setText("Value B = "+QString::number(iview->fitsDataB[i+iview->naxis1*j]));
+        }
+    }
 }
 
 void IvConfDockWidget::updateNavigatorMagnifiedReceived(QGraphicsPixmapItem *magnifiedPixmapItem, qreal magnification, float dx, float dy)
@@ -190,6 +214,12 @@ void IvConfDockWidget::updateNavigatorMagnifiedReceived(QGraphicsPixmapItem *mag
     //    ui->navigatorStackedWidget->setCurrentIndex(1);
 }
 
+void IvConfDockWidget::clearMagnifiedSceneReceiver()
+{
+    magnifiedScene->clear();
+    magnifiedGraphicsView->show();
+}
+
 void IvConfDockWidget::updateNavigatorBinnedReceived(QGraphicsPixmapItem *binnedPixmapItem)
 {
     binnedGraphicsView->resetMatrix();
@@ -210,49 +240,32 @@ void IvConfDockWidget::mouseEnteredViewReceived()
 // Receiver for the event when the mouse leaves the main graphics view
 void IvConfDockWidget::mouseLeftViewReceived()
 {
+    // when the mouse cursor leaves the scene
+    magnifiedScene->clear();
+    magnifiedGraphicsView->show();
     //    ui->navigatorStackedWidget->setCurrentIndex(0);
 }
 
 void IvConfDockWidget::updateNavigatorBinnedViewportReceived(QRect rect)
 {
-    //    return;
-
-//    qDebug() << rect;
-
-    // remove old rects
-    //    binnedScene->clear();
-    //    binnedScene->addItem(binnedPixmapItem);
+    if (binnedGraphicsView->fovBeingDragged) return;
 
     // remove old rects
     QList<QGraphicsItem*> items = binnedScene->items();
     for (auto &it : items) {
-       QGraphicsRectItem *rectcast = qgraphicsitem_cast<QGraphicsRectItem*>(it);
-       if (rectcast) binnedScene->removeItem(it);
+        QGraphicsRectItem *rectcast = qgraphicsitem_cast<QGraphicsRectItem*>(it);
+        if (rectcast) binnedScene->removeItem(it);
     }
-
-    // remove old rect, add new rect
-    /*
-    if (!currentFovList.isEmpty()) {
-        for (auto &it : currentFovList) {
-            binnedScene->removeItem(it);
-        }
-    }
-    */
 
     QPen pen(QColor("#00ffff"));
     pen.setCosmetic(true);
     pen.setWidth(0);
-//    QRect rectNew;
-//    int x1;
-//    int x2;
-//    int y1;
-//    int y2;
-//    rect.getCoords(&x1, &x2, &y1, &y2);
-//    QPoint p1 = binnedGraphicsView->mapFromScene(QPoint(x1, y1));
-//    QPoint p2 = binnedGraphicsView->mapFromScene(QPoint(x2, y2));
-    //currentFovList.append(binnedScene->addRect(rect));
-//    currentFovList.append(binnedScene->addRect(QRect(p1, p2), pen));
-    binnedScene->addRect(rect, pen);
+    binnedGraphicsView->fovRectItem = binnedScene->addRect(rect, pen);
+
+    // Make movable only if smaller than the fov
+    if (rect.width() < navigator_binned_nx && rect.height() < navigator_binned_ny) {
+        //        binnedGraphicsView->fovRectItem->setFlags(QGraphicsEllipseItem::ItemIsMovable);
+    }
 
     binnedGraphicsView->setScene(binnedScene);
     binnedGraphicsView->show();
@@ -281,4 +294,57 @@ void IvConfDockWidget::updateNavigatorMagnifiedViewportReceived()
     magnifiedScene->addRect(QRect(p1, p2), pen);
     magnifiedGraphicsView->setScene(magnifiedScene);
     magnifiedGraphicsView->show();
+}
+
+void IvConfDockWidget::receiveCDmatrix(double* cd)
+{
+    cd11 = cd[0];
+    cd12 = cd[1];
+    cd21 = cd[2];
+    cd22 = cd[3];
+
+    drawCompass();
+}
+
+void IvConfDockWidget::drawCompass()
+{
+    double norm = sqrt(cd11*cd11+cd12*cd12);
+    double length = navigator_binned_nx / 5.;
+
+    QPointF start = iview->qimageToBinned(QPointF(iview->naxis1/2, iview->naxis2/2));
+
+    QPen pen(QColor("#ffff00"));
+    pen.setCosmetic(true);
+    pen.setWidth(0);
+
+    // Arrows
+    QPointF eastEnd;
+    QPointF northEnd;
+    eastEnd.setX(start.x() + cd11/norm * length);
+    eastEnd.setY(start.y() - cd12/norm * length);    // y axis is inverted in QImage wrt FITS, hence -cd12
+    northEnd.setX(start.x() + cd21/norm * length);
+    northEnd.setY(start.y() - cd22/norm * length);   // y axis is inverted in QImage wrt FITS, hence -cd22
+
+    QLineF eastArrow = QLineF(start, eastEnd);
+    QLineF northArrow = QLineF(start, northEnd);
+    binnedScene->addLine(eastArrow, pen);
+    binnedScene->addLine(northArrow, pen);
+
+    // Labels
+    QGraphicsTextItem *labelEast = binnedScene->addText("E");
+    QGraphicsTextItem *labelNorth = binnedScene->addText("N");
+    labelEast->setDefaultTextColor(QColor("#ffff00"));
+    labelNorth->setDefaultTextColor(QColor("#ffff00"));
+    int exoffset = labelEast->boundingRect().width()/2;
+    int eyoffset = labelEast->boundingRect().height()/2;
+    int nxoffset = labelNorth->boundingRect().width()/2;
+    int nyoffset = labelNorth->boundingRect().height()/2;
+    int exspace = 0.3*(eastEnd.x() - start.x());
+    int eyspace = 0.3*(eastEnd.y() - start.y());
+    int nxspace = 0.3*(northEnd.x() - start.x());
+    int nyspace = 0.3*(northEnd.y() - start.y());
+    labelEast->setPos(eastEnd.x()-exoffset+exspace, eastEnd.y()-eyoffset+eyspace);
+    labelNorth->setPos(northEnd.x()-nxoffset+nxspace, northEnd.y()-nyoffset+nyspace);
+
+    binnedGraphicsView->show();
 }

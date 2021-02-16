@@ -36,20 +36,20 @@ IvColorDockWidget::IvColorDockWidget(IView *parent) :
     ui->redSlider->setMinimum(0);
     ui->redSlider->setMaximum(sliderSteps);
     ui->redSlider->setValue(sliderSteps/2);
-    ui->redSlider->setMinimumWidth(150);
-    ui->redSlider->setMaximumWidth(250);
-    ui->redFactorLineEdit->setMinimumWidth(120);
-    ui->redFactorLineEdit->setMaximumWidth(120);
-    ui->redResetPushButton->setText("Reset red factor");
+//    ui->redSlider->setMinimumWidth(150);
+//    ui->redSlider->setMaximumWidth(250);
+//    ui->redFactorLineEdit->setMinimumWidth(120);
+//    ui->redFactorLineEdit->setMaximumWidth(120);
+//    ui->redResetPushButton->setText("Reset");
 
     ui->blueSlider->setMinimum(0);
     ui->blueSlider->setMaximum(sliderSteps);
     ui->blueSlider->setValue(sliderSteps/2);
-    ui->blueSlider->setMinimumWidth(150);
-    ui->blueSlider->setMaximumWidth(250);
-    ui->blueFactorLineEdit->setMinimumWidth(120);
-    ui->blueFactorLineEdit->setMaximumWidth(120);
-    ui->blueResetPushButton->setText("Reset blue factor");
+//    ui->blueSlider->setMinimumWidth(150);
+//    ui->blueSlider->setMaximumWidth(250);
+//    ui->blueFactorLineEdit->setMinimumWidth(120);
+//    ui->blueFactorLineEdit->setMaximumWidth(120);
+//    ui->blueResetPushButton->setText("Reset");
 
     connect(ui->blueFactorLineEdit, &QLineEdit::textChanged, this, &IvColorDockWidget::validate);
     connect(ui->redFactorLineEdit, &QLineEdit::textChanged, this, &IvColorDockWidget::validate);
