@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui printsupport testlib
+QT       += core gui printsupport testlib widgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -58,6 +58,9 @@ SOURCES += \
     iview/mygraphicsellipseitem.cc \
     iview/mygraphicsscene.cc \
     iview/mygraphicsview.cc \
+    iview/mybinnedgraphicsview.cc \
+    iview/mymagnifiedgraphicsview.cc \
+    iview/dockwidgets/ivstatisticsdockwidget.cc \
     mainwindow.cc \
     myimage/astrometrynet.cc \
     myimage/background.cc \
@@ -132,8 +135,8 @@ SOURCES += \
     tools/tools.cc \
     tools/xcorr.cc \
     validators.cc \
-    iview/mybinnedgraphicsview.cc \
-    iview/mymagnifiedgraphicsview.cc
+    iview/transformations.cc \
+    iview/arrow.cc
 
 HEADERS += \
     abszp/absphot.h \
@@ -157,6 +160,9 @@ HEADERS += \
     iview/mygraphicsellipseitem.h \
     iview/mygraphicsscene.h \
     iview/mygraphicsview.h \
+    iview/mybinnedgraphicsview.h \
+    iview/mymagnifiedgraphicsview.h \
+    iview/dockwidgets/ivstatisticsdockwidget.h \
     mainwindow.h \
     myimage/myimage.h \
     preferences.h \
@@ -197,8 +203,7 @@ HEADERS += \
     tools/splitter.h \
     tools/swarpfilter.h \
     tools/tools.h \
-    iview/mybinnedgraphicsview.h \
-    iview/mymagnifiedgraphicsview.h
+    iview/arrow.h
 
 FORMS += \
         mainwindow.ui \
@@ -214,6 +219,7 @@ FORMS += \
     iview/dockwidgets/ivscampdockwidget.ui \
     iview/dockwidgets/ivcolordockwidget.ui \
     iview/dockwidgets/ivwcsdockwidget.ui \
+    iview/dockwidgets/ivstatisticsdockwidget.ui \
     preferences.ui \
     processingExternal/errordialog.ui \
     readmes/imstatsreadme.ui \
