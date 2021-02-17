@@ -279,10 +279,11 @@ void IView::drawSeparationVector(QPointF pointStart, QPointF pointEnd)
     // don't draw the vector if there is an ellipse underneath
     if (startLeftClickInsideItem) return;
 
-    QPen pen(QColor("#ffaa00"));
-//    QPen pen(QColor("#99ffdd"));
+//    QPen pen(QColor("#ffaa00"));
+    QPen pen(QColor("#35ffff"));
     pen.setWidth(0);
-    QPen penDashed(QColor("#ffaa00"));
+//    QPen penDashed(QColor("#ffaa00"));
+    QPen penDashed(QColor("#35ffff"));
     penDashed.setWidth(0);
     QVector<qreal> dashes;
     dashes << 5 << 5;
@@ -317,12 +318,12 @@ void IView::drawSeparationVector(QPointF pointStart, QPointF pointEnd)
     //labelY->setDefaultTextColor(QColor("#ffff00"));
     //labelD->setDefaultTextColor(QColor("#ffff00"));
     // use an orange background (same as #ffaa00) for the angular distances
-    labelX->setHtml(QString("<div style='background:rgba(153, 255, 221, 50%);'>" + QString("&nbsp;") + sepXString + QString("&nbsp;") + QString("</div>") ));
-    labelY->setHtml(QString("<div style='background:rgba(153, 255, 221, 50%);'>" + QString("&nbsp;") + sepYString + QString("&nbsp;") + QString("</div>") ));
-    labelD->setHtml(QString("<div style='background:rgba(153, 255, 221, 50%);'>" + QString("&nbsp;") + sepDString + QString("&nbsp;") + QString("</div>") ));
-    labelX->setHtml(QString("<div style='background:rgba(255, 170, 0, 100%);'>" + QString("&nbsp;") + sepXString + QString("&nbsp;") + QString("</div>") ));
-    labelY->setHtml(QString("<div style='background:rgba(255, 170, 0, 100%);'>" + QString("&nbsp;") + sepYString + QString("&nbsp;") + QString("</div>") ));
-    labelD->setHtml(QString("<div style='background:rgba(255, 170, 0, 100%);'>" + QString("&nbsp;") + sepDString + QString("&nbsp;") + QString("</div>") ));
+    labelX->setHtml(QString("<div style='background:rgba(53, 255, 255, 50%);'>" + QString("&nbsp;") + sepXString + QString("&nbsp;") + QString("</div>") ));
+    labelY->setHtml(QString("<div style='background:rgba(53, 255, 255, 50%);'>" + QString("&nbsp;") + sepYString + QString("&nbsp;") + QString("</div>") ));
+    labelD->setHtml(QString("<div style='background:rgba(53, 255, 255, 50%);'>" + QString("&nbsp;") + sepDString + QString("&nbsp;") + QString("</div>") ));
+//    labelX->setHtml(QString("<div style='background:rgba(255, 170, 0, 100%);'>" + QString("&nbsp;") + sepXString + QString("&nbsp;") + QString("</div>") ));
+//    labelY->setHtml(QString("<div style='background:rgba(255, 170, 0, 100%);'>" + QString("&nbsp;") + sepYString + QString("&nbsp;") + QString("</div>") ));
+//    labelD->setHtml(QString("<div style='background:rgba(255, 170, 0, 100%);'>" + QString("&nbsp;") + sepDString + QString("&nbsp;") + QString("</div>") ));
     labelX->setDefaultTextColor(QColor("#000000"));
     labelY->setDefaultTextColor(QColor("#000000"));
     labelD->setDefaultTextColor(QColor("#000000"));
