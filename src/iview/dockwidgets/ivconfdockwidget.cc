@@ -76,22 +76,29 @@ void IvConfDockWidget::switchMode(QString mode)
     if (mode == "FITSmonochrome" || mode == "MEMview") {
         ui->valueGreenLabel->hide();
         ui->valueBlueLabel->hide();
+        ui->valueGreenLeftLabel->hide();
+        ui->valueBlueLeftLabel->hide();
     }
     else if (mode == "FITScolor") {
         ui->valueGreenLabel->show();
         ui->valueBlueLabel->show();
+        ui->valueGreenLeftLabel->show();
+        ui->valueBlueLeftLabel->show();
+        ui->valueLeftLabel->setText("R = ");
     }
     else if (mode == "CLEAR") {
-        ui->xposLabel->setText("x = ");
-        ui->yposLabel->setText("y = ");
-        ui->alphaDecLabel->setText("R.A. = ");
-        ui->alphaHexLabel->setText("R.A. = ");
-        ui->deltaDecLabel->setText("Dec  = ");
-        ui->deltaHexLabel->setText("Dec  = ");
-        ui->valueLabel->setText("Value = ");
+        ui->xposLabel->setText("");
+        ui->yposLabel->setText("");
+        ui->alphaDecLabel->setText("");
+        ui->alphaHexLabel->setText("");
+        ui->deltaDecLabel->setText("");
+        ui->deltaHexLabel->setText("");
+        ui->valueLabel->setText("");
         //        ui->zoomValueLabel->setText("");
         ui->valueGreenLabel->hide();
         ui->valueBlueLabel->hide();
+        ui->valueGreenLeftLabel->hide();
+        ui->valueBlueLeftLabel->hide();
     }
 }
 
@@ -167,30 +174,33 @@ void IvConfDockWidget::showCurrentMousePosBinned(QPointF currentMousePos)
     QPointF qpoint = iview->binnedToQimage(currentMousePos);
     long i = qpoint.x();
     long j = iview->naxis2 - qpoint.y();
-    ui->xposLabel->setText("x = "+QString::number(i));
-    ui->yposLabel->setText("y = "+QString::number(j));
+    ui->xposLabel->setText(QString::number(i));
+    ui->yposLabel->setText(QString::number(j));
     // display sky coords
     iview->xy2sky(qpoint.x(), iview->naxis2 - qpoint.y());
 
     // Display pixel values: respect image boundaries
     if (i<0 || j<0 || i>= iview->naxis1 || j>= iview->naxis2) {
         if (iview->displayMode == "FITSmonochrome" || iview->displayMode == "MEMview") {
-            ui->valueLabel->setText("Value = ");
+            ui->valueLeftLabel->setText("Value = ");
+            ui->valueLabel->setText("");
         }
         else if (iview->displayMode == "FITScolor") {
-            ui->valueLabel->setText("Value R = ");
-            ui->valueGreenLabel->setText("Value G = ");
-            ui->valueBlueLabel->setText("Value B = ");
+            ui->valueLeftLabel->setText("R = ");
+            ui->valueLabel->setText("");
+            ui->valueGreenLabel->setText("");
+            ui->valueBlueLabel->setText("");
         }
     }
     else {
         if (iview->displayMode == "FITSmonochrome" || iview->displayMode == "MEMview") {
-            ui->valueLabel->setText("Value = "+QString::number(iview->fitsData[i+iview->naxis1*j]));
+            ui->valueLabel->setText(QString::number(iview->fitsData[i+iview->naxis1*j]));
         }
         else if (iview->displayMode == "FITScolor") {
-            ui->valueLabel->setText("Value R = "+QString::number(iview->fitsDataR[i+iview->naxis1*j]));
-            ui->valueGreenLabel->setText("Value G = "+QString::number(iview->fitsDataG[i+iview->naxis1*j]));
-            ui->valueBlueLabel->setText("Value B = "+QString::number(iview->fitsDataB[i+iview->naxis1*j]));
+            ui->valueLeftLabel->setText("R = "+QString::number(iview->fitsDataR[i+iview->naxis1*j]));
+            ui->valueLabel->setText(QString::number(iview->fitsDataR[i+iview->naxis1*j]));
+            ui->valueGreenLabel->setText(QString::number(iview->fitsDataG[i+iview->naxis1*j]));
+            ui->valueBlueLabel->setText(QString::number(iview->fitsDataB[i+iview->naxis1*j]));
         }
     }
 }

@@ -429,7 +429,7 @@ void IView::loadPNG(QString filename, int currentId)
     removeLastCharIf(prependPath, '/');
     QString path = get2ndLastWord(prependPath,'/')+"/"+getLastWord(prependPath,'/');
     this->setWindowTitle("iView ---   "+path+"/ ---   "+showName);
-    pageLabel->setText(" Image "+QString::number(currentId+1)+" / "+QString::number(numImages));
+    pageLabel->setText(QString::number(currentId+1)+" / "+QString::number(numImages));
 
     //  icdw->zoom2scale(zoomLevel);
     myGraphicsView->resetMatrix();
@@ -473,7 +473,7 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
         removeLastCharIf(prependPath, '/');
         QString path = getLastWord(prependPath,'/');
         this->setWindowTitle("iView ---   "+path+"/ ---  "+showName);
-        pageLabel->setText(" Image "+QString::number(currentId+1)+" / "+QString::number(numImages));
+        pageLabel->setText(QString::number(currentId+1)+" / "+QString::number(numImages));
 
         // Load the binned image to the navigator
         emit updateNavigatorBinned(binnedPixmapItem);       // binnedPixmapItem created in mapFITS()
@@ -1448,7 +1448,7 @@ void IView::filterLineEdit_textChanged(const QString &arg1)
     setImageList(filter);
     numImages = imageList.length();
 
-    pageLabel->setText(" Image ? / "+QString::number(numImages));
+    pageLabel->setText("? / "+QString::number(numImages));
 
     // Rewind
 //    iview->startAction_triggered();

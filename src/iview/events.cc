@@ -90,8 +90,8 @@ void IView::showCurrentMousePos(QPointF point)
     // Display the information
     QString xpos = QString::number(x_cursor);
     QString ypos = QString::number(y_cursor);
-    icdw->ui->xposLabel->setText("x = "+xpos);
-    icdw->ui->yposLabel->setText("y = "+ypos);
+    icdw->ui->xposLabel->setText(xpos);
+    icdw->ui->yposLabel->setText(ypos);
 
     // Pixel index in the 2D image
     long i = x_cursor - 0.5;
@@ -99,26 +99,26 @@ void IView::showCurrentMousePos(QPointF point)
     if (i<naxis1 && i>=0 && j<naxis2 && j>=0) {
         if (displayMode == "FITSmonochrome" || displayMode == "MEMview") {
             QString value = QString::number(fitsData[i+naxis1*j]);
-            icdw->ui->valueLabel->setText("Value = "+value);
+            icdw->ui->valueLabel->setText(value);
         }
         else {
             // Color FITS
             QString rval = QString::number(fitsDataR[i+naxis1*j]);
             QString gval = QString::number(fitsDataG[i+naxis1*j]);
             QString bval = QString::number(fitsDataB[i+naxis1*j]);
-            icdw->ui->valueLabel->setText("Value R = "+rval);
-            icdw->ui->valueGreenLabel->setText("Value G = "+gval);
-            icdw->ui->valueBlueLabel->setText("Value B = "+bval);
+            icdw->ui->valueLabel->setText(rval);
+            icdw->ui->valueGreenLabel->setText(gval);
+            icdw->ui->valueBlueLabel->setText(bval);
         }
     }
     else {
         if (displayMode == "FITSmonochrome" || displayMode == "MEMview") {
-            icdw->ui->valueLabel->setText("Value = ");
+            icdw->ui->valueLabel->setText("");
         }
         else {
-            icdw->ui->valueLabel->setText("Value R = ");
-            icdw->ui->valueGreenLabel->setText("Value G = ");
-            icdw->ui->valueBlueLabel->setText("Value B = ");
+            icdw->ui->valueLabel->setText("");
+            icdw->ui->valueGreenLabel->setText("");
+            icdw->ui->valueBlueLabel->setText("");
         }
     }
 
@@ -279,9 +279,10 @@ void IView::drawSeparationVector(QPointF pointStart, QPointF pointEnd)
     // don't draw the vector if there is an ellipse underneath
     if (startLeftClickInsideItem) return;
 
-    QPen pen(QColor("#ffff00"));
+    QPen pen(QColor("#ffaa00"));
+//    QPen pen(QColor("#99ffdd"));
     pen.setWidth(0);
-    QPen penDashed(QColor("#ffff00"));
+    QPen penDashed(QColor("#ffaa00"));
     penDashed.setWidth(0);
     QVector<qreal> dashes;
     dashes << 5 << 5;
@@ -312,9 +313,19 @@ void IView::drawSeparationVector(QPointF pointStart, QPointF pointEnd)
     labelX->setFont(currentFont);
     labelY->setFont(currentFont);
     labelD->setFont(currentFont);
-    labelX->setDefaultTextColor(QColor("#ffff00"));
-    labelY->setDefaultTextColor(QColor("#ffff00"));
-    labelD->setDefaultTextColor(QColor("#ffff00"));
+    //labelX->setDefaultTextColor(QColor("#ffff00"));
+    //labelY->setDefaultTextColor(QColor("#ffff00"));
+    //labelD->setDefaultTextColor(QColor("#ffff00"));
+    // use an orange background (same as #ffaa00) for the angular distances
+    labelX->setHtml(QString("<div style='background:rgba(153, 255, 221, 50%);'>" + QString("&nbsp;") + sepXString + QString("&nbsp;") + QString("</div>") ));
+    labelY->setHtml(QString("<div style='background:rgba(153, 255, 221, 50%);'>" + QString("&nbsp;") + sepYString + QString("&nbsp;") + QString("</div>") ));
+    labelD->setHtml(QString("<div style='background:rgba(153, 255, 221, 50%);'>" + QString("&nbsp;") + sepDString + QString("&nbsp;") + QString("</div>") ));
+    labelX->setHtml(QString("<div style='background:rgba(255, 170, 0, 100%);'>" + QString("&nbsp;") + sepXString + QString("&nbsp;") + QString("</div>") ));
+    labelY->setHtml(QString("<div style='background:rgba(255, 170, 0, 100%);'>" + QString("&nbsp;") + sepYString + QString("&nbsp;") + QString("</div>") ));
+    labelD->setHtml(QString("<div style='background:rgba(255, 170, 0, 100%);'>" + QString("&nbsp;") + sepDString + QString("&nbsp;") + QString("</div>") ));
+    labelX->setDefaultTextColor(QColor("#000000"));
+    labelY->setDefaultTextColor(QColor("#000000"));
+    labelD->setDefaultTextColor(QColor("#000000"));
     qreal xpos = 0.5*(x1+x2);
     qreal ypos = 0.5*(y1+y2);
     qreal x_yoffset = 0.;
@@ -753,10 +764,10 @@ void IView::xy2sky(double x, double y, QString button)
     QString deltaDec = QString::number(world[1],'f',6);
     QString alphaHex = dec2hex(world[0]/15.).remove("+");
     QString deltaHex = dec2hex(world[1]);
-    icdw->ui->alphaDecLabel->setText("R.A. = "+alphaDec);
-    icdw->ui->alphaHexLabel->setText("R.A. = "+alphaHex);
-    icdw->ui->deltaDecLabel->setText("Dec  = "+deltaDec);
-    icdw->ui->deltaHexLabel->setText("Dec  = "+deltaHex);
+    icdw->ui->alphaDecLabel->setText(alphaDec);
+    icdw->ui->alphaHexLabel->setText(alphaHex);
+    icdw->ui->deltaDecLabel->setText(deltaDec);
+    icdw->ui->deltaHexLabel->setText(deltaHex);
 }
 
 // Unused

@@ -147,7 +147,7 @@ void IvWCSDockWidget::on_plateScaleSlider_sliderMoved(int position)
 void IvWCSDockWidget::on_posAngleSlider_sliderMoved(int position)
 {
     QSlider *slider = qobject_cast<QSlider*>(sender());
-    double oldPA = getPosAnglefromCD(cd11_orig, cd12_orig, cd21_orig, cd22_orig, false);  // in [deg]
+    double oldPA = getPosAnglefromCD(cd11_orig, cd12_orig, cd21_orig, cd22_orig, true);  // in [deg]
     double newPA = oldPA + translatePosAngleSlider(position, slider->maximum());          // in [deg]
     cd11 = cd11_orig;
     cd12 = cd12_orig;

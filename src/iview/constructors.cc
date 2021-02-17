@@ -278,7 +278,7 @@ IView::IView(QString mode, QString dirname, QString filter, QWidget *parent) :
     // get a list of all FITS files in this directory
     setImageList(filterName);
 
-    pageLabel->setText(" Image ? / "+QString::number(numImages));
+    pageLabel->setText("? / "+QString::number(numImages));
     makeConnections();
     switchMode();
 
@@ -309,7 +309,7 @@ IView::IView(QString mode, QString dirname, QString fileName, QString filter, QW
 
     // get a list of all FITS files in this directory
     setImageList(filterName);
-    pageLabel->setText(" Image ? / "+QString::number(numImages));
+    pageLabel->setText("? / "+QString::number(numImages));
 
     makeConnections();
     switchMode();
@@ -694,8 +694,13 @@ void IView::initGUIstep2()
         ui->toolBar->addWidget(filterLineEdit);
         filterLineEdit->setStatusTip("Only these images will be selected when using the yellow navigation buttons at the top.");
     }
+    pageLabel->setMaximumWidth(200);
+    pageLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     ui->toolBar->addWidget(pageLabel);
     ui->toolBar->addSeparator();
+    QWidget* empty = new QWidget();
+    empty->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Preferred);
+    ui->toolBar->addWidget(empty);
 }
 
 void IView::addDockWidgets()
