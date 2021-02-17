@@ -27,7 +27,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QScrollBar>
 
 #include "myqgraphicsrectitem.h"
-#include "arrow.h"
 
 class MyBinnedGraphicsView : public QGraphicsView
 {

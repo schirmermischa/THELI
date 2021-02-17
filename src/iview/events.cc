@@ -548,6 +548,11 @@ void IView::updateCDmatrix(double cd11, double cd12, double cd21, double cd22)
     wcs->cd[2] = cd21;
     wcs->cd[3] = cd22;
     wcs->flag = 0;    // force an update of internal wcs params.
+
+    icdw->cd11 = cd11;
+    icdw->cd12 = cd12;
+    icdw->cd21 = cd21;
+    icdw->cd22 = cd22;
     showReferenceCat();
 }
 

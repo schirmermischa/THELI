@@ -21,6 +21,8 @@ If not, see https://www.gnu.org/licenses/ .
 #include "ui_ivconfdockwidget.h"
 #include "../iview.h"
 
+#include <QPainter>
+
 #include <math.h>
 
 IvConfDockWidget::IvConfDockWidget(IView *parent) :
@@ -43,6 +45,7 @@ IvConfDockWidget::IvConfDockWidget(IView *parent) :
     binnedGraphicsView->setMouseTracking(true);
     binnedGraphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     binnedGraphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+//    binnedGraphicsView->setRenderHint(QPainter::Antialiasing);
     //    ui->navigatorStackedWidget->setContentsMargins(0,0,0,0);
     ui->binnedGraphicsLayout->insertWidget(0, binnedGraphicsView);
     ui->magnifiedGraphicsLayout->insertWidget(1, magnifiedGraphicsView);
@@ -316,6 +319,15 @@ void IvConfDockWidget::receiveCDmatrix(double* cd)
 
 void IvConfDockWidget::drawCompass()
 {
+    // delete old compass elements
+    QList<QGraphicsItem*> items = binnedScene->items();
+    for (auto &it : items) {
+        QGraphicsLineItem *line = qgraphicsitem_cast<QGraphicsLineItem*>(it);
+        if (line) binnedScene->removeItem(it);
+        QGraphicsTextItem *text = qgraphicsitem_cast<QGraphicsTextItem*>(it);
+        if (text) binnedScene->removeItem(it);
+    }
+
     double norm = sqrt(cd11*cd11+cd12*cd12);
     double length = navigator_binned_nx / 5.;
 

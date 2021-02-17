@@ -527,6 +527,7 @@ void IView::makeConnections()
 
     connect(wcsdw, &IvWCSDockWidget::CDmatrixChanged, this, &IView::updateCDmatrix);
     connect(wcsdw, &IvWCSDockWidget::CDmatrixChangedFITS, this, &IView::updateCDmatrixFITS);
+    connect(wcsdw, &IvWCSDockWidget::CDmatrixChanged, icdw, &IvConfDockWidget::drawCompass);
 
     connect(statdw, &IvStatisticsDockWidget::visibilityChanged, this, &IView::updateStatisticsButton);
 

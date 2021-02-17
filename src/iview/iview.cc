@@ -87,21 +87,42 @@ void IView::setMiddleMouseMode(QString mode)
     }
 }
 
-void IView::showWCSdockWidget()
+void IView::sendWCStoWCSdockWidget()
 {
-    if (wcsdw->isVisible()) return;
-
     // Copy the CD matrix to the WCS dock widget and init()
     wcsdw->cd11_orig = wcs->cd[0];
     wcsdw->cd12_orig = wcs->cd[1];
     wcsdw->cd21_orig = wcs->cd[2];
     wcsdw->cd22_orig = wcs->cd[3];
     wcsdw->init();
+}
+
+void IView::showWCSdockWidget()
+{
+    if (wcsdw->isVisible()) return;
+
+    sendWCStoWCSdockWidget();
 
     addDockWidget(Qt::LeftDockWidgetArea, wcsdw);
     wcsdw->setFloating(false);
     wcsdw->raise();
     wcsdw->show();
+
+    if (!ui->actionRefCat->isChecked()) {
+        // otherwise showReferenceCat() exits
+        ui->actionRefCat->setChecked(true);
+    }
+    showReferenceCat();
+    if (refCatItems.isEmpty()) {
+        QMessageBox msgBox;
+        msgBox.setText("No reference sources available");
+        msgBox.setInformativeText("You must retrieve a reference catalog first before using the WCS module.\n\n");
+        msgBox.addButton(tr("Ok"), QMessageBox::YesRole);
+        msgBox.exec();
+        wcsdw->setDisabled(true);
+        ui->actionRefCat->setChecked(false);
+        return;
+    }
 }
 
 void IView::hideWCSdockWidget()
@@ -547,6 +568,7 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     naxis2 = it->naxis2;
     wcs = it->wcs;
     wcsInit = it->wcsInit;
+    sendWCStoWCSdockWidget();
     this->setWindowTitle("iView --- Memory viewer : "+it->chipName);
 
     // Get the dynamic range
@@ -663,6 +685,7 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
     wcs = currentMyImage->wcs;
     (void) wcsset(wcs);
     wcsInit = true;
+    sendWCStoWCSdockWidget();
 
     // Move the data from the transient MyImage over to the class member.
     data.swap(currentMyImage->dataCurrent);        // 'fitsData' in the rest of the code
@@ -1018,9 +1041,16 @@ void IView::showReferenceCat()
             for (auto &it: refCatItems) scene->removeItem(it);
             refCatItems.clear();
         }
+        wcsdw->setDisabled(true);
     }
-    if (!refCatItems.isEmpty()) refcatSourcesShown = true;
-    else refcatSourcesShown = false;
+    if (!refCatItems.isEmpty()) {
+        refcatSourcesShown = true;
+        wcsdw->setEnabled(true);
+    }
+    else {
+        refcatSourcesShown = false;
+        wcsdw->setDisabled(true);
+    }
 
     myGraphicsView->setScene(scene);
     myGraphicsView->show();
