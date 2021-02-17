@@ -26,6 +26,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QMouseEvent>
 #include <QScrollBar>
 
+#include "myqgraphicsrectitem.h"
 #include "arrow.h"
 
 class MyBinnedGraphicsView : public QGraphicsView
@@ -65,7 +66,10 @@ public:
     int nx = 0;
     int ny = 0;
 
-    QGraphicsRectItem *fovRectItem = new QGraphicsRectItem(0.,0.,0.,0.);
+    QRectF binnedSceneRect;
+
+    MyQGraphicsRectItem *fovRectItem = new MyQGraphicsRectItem();
+//    QGraphicsRectItem *fovRectItem = new QGraphicsRectItem();
 
     int x = 0;
     int y = 0;

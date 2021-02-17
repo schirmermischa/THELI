@@ -191,8 +191,8 @@ private slots:
     void updateCRPIXFITS();
     void updateCDmatrix(double cd11, double cd12, double cd21, double cd22);
     void updateNavigatorMagnifiedReceived(QPointF point);
-    void mouseEnteredViewReceived();
-    void mouseLeftViewReceived();
+//    void mouseEnteredViewReceived();
+//    void mouseLeftViewReceived();
     void on_actionImage_statistics_triggered();
     void filterLineEdit_textChanged(const QString &arg1);
     void collectLocalStatisticsSample(QPointF point);
@@ -273,8 +273,6 @@ private:
     char *fullheader = nullptr;
 
     QTimer *timer = new QTimer(this);
-
- //   QGraphicsScene *zoomScene = new QGraphicsScene();
 
     QList<QGraphicsLineItem*> vectorLineItems;
     QList<QGraphicsTextItem*> vectorTextItems;

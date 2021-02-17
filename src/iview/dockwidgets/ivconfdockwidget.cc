@@ -222,13 +222,16 @@ void IvConfDockWidget::clearMagnifiedSceneReceiver()
 
 void IvConfDockWidget::updateNavigatorBinnedReceived(QGraphicsPixmapItem *binnedPixmapItem)
 {
-    binnedGraphicsView->resetMatrix();
+    //    binnedGraphicsView->resetMatrix();
     binnedScene->clear();
     binnedScene->addItem(binnedPixmapItem);
+    // needed to prevent binnedView from scrolling
+    binnedScene->setSceneRect(binnedPixmapItem->boundingRect());
+    // panning movement restricted to fov, half offset, if the following line is commented. Unclear why
+    binnedGraphicsView->binnedSceneRect = binnedScene->sceneRect();
+
     binnedGraphicsView->setScene(binnedScene);
-    magnifiedGraphicsView->centerOn(binnedPixmapItem);
     binnedGraphicsView->show();
-    //    ui->navigatorStackedWidget->setCurrentIndex(0);
 }
 
 // Receiver for the event when the mouse enters the main graphics view
@@ -246,26 +249,29 @@ void IvConfDockWidget::mouseLeftViewReceived()
     //    ui->navigatorStackedWidget->setCurrentIndex(0);
 }
 
+// whenever the user scrolls or zooms in the main window , this slot is invoked
 void IvConfDockWidget::updateNavigatorBinnedViewportReceived(QRect rect)
 {
+    // leave if the user scrolls by dragging the fov rectangle in the binned window
     if (binnedGraphicsView->fovBeingDragged) return;
 
-    // remove old rects
+    // delete the old display of the rect
     QList<QGraphicsItem*> items = binnedScene->items();
     for (auto &it : items) {
-        QGraphicsRectItem *rectcast = qgraphicsitem_cast<QGraphicsRectItem*>(it);
-        if (rectcast) binnedScene->removeItem(it);
+        QGraphicsRectItem *rect = qgraphicsitem_cast<QGraphicsRectItem*>(it);
+        if (rect) binnedScene->removeItem(it);
     }
 
+    // draw the new rect
     QPen pen(QColor("#00ffff"));
     pen.setCosmetic(true);
     pen.setWidth(0);
-    binnedGraphicsView->fovRectItem = binnedScene->addRect(rect, pen);
-
-    // Make movable only if smaller than the fov
-    if (rect.width() < navigator_binned_nx && rect.height() < navigator_binned_ny) {
-        //        binnedGraphicsView->fovRectItem->setFlags(QGraphicsEllipseItem::ItemIsMovable);
-    }
+    binnedGraphicsView->fovRectItem = new MyQGraphicsRectItem(rect, nullptr);
+    binnedGraphicsView->fovRectItem->setPen(pen);
+    binnedGraphicsView->fovRectItem->setFlags(QGraphicsEllipseItem::ItemIsMovable | QGraphicsItem::ItemSendsGeometryChanges);
+    binnedScene->addItem(binnedGraphicsView->fovRectItem);
+//    binnedGraphicsView->fovRectItem->setFlags(QGraphicsEllipseItem::ItemIsMovable | QGraphicsRectItem::ItemSendsGeometryChanges);
+//    binnedGraphicsView->fovRectItem->setFlags(QGraphicsRectItem::ItemSendsGeometryChanges);
 
     binnedGraphicsView->setScene(binnedScene);
     binnedGraphicsView->show();
@@ -302,6 +308,8 @@ void IvConfDockWidget::receiveCDmatrix(double* cd)
     cd12 = cd[1];
     cd21 = cd[2];
     cd22 = cd[3];
+
+    if (cd11 == 0. && cd12 == 0. && cd21 == 0. && cd22 == 0.) return;
 
     drawCompass();
 }

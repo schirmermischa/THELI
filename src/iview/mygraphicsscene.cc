@@ -20,6 +20,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "mygraphicsscene.h"
 
 #include <QGraphicsScene>
+#include <QGraphicsRectItem>
 #include <QGraphicsItem>
 #include <QList>
 

@@ -443,6 +443,7 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
         myGraphicsView->setScene(scene);
         myGraphicsView->scale(scaleFactor, scaleFactor);
         myGraphicsView->setGeometry(geometry);
+//        myGraphicsView->centerOn(pixmapItem);
         myGraphicsView->show();
         myGraphicsView->setMinimumSize(200,200);
         myGraphicsView->setMaximumSize(10000,10000);
@@ -586,6 +587,7 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
 
     // Update the navigator binned window with the binned poststamp
     emit updateNavigatorBinned(binnedPixmapItem);
+    emit updateNavigatorBinnedCDmatrix(wcs->cd);
 }
 
 void IView::loadColorFITS(qreal scaleFactor)
@@ -1311,6 +1313,7 @@ void IView::autoContrastPushButton_toggled_receiver(bool checked)
         redrawSkyCirclesAndCats();
 
         emit updateNavigatorBinned(binnedPixmapItem);
+        emit updateNavigatorBinnedCDmatrix(wcs->cd);
     }
 }
 

@@ -136,7 +136,7 @@ SOURCES += \
     tools/xcorr.cc \
     validators.cc \
     iview/transformations.cc \
-    iview/arrow.cc
+    iview/myqgraphicsrectitem.cc
 
 HEADERS += \
     abszp/absphot.h \
@@ -203,7 +203,7 @@ HEADERS += \
     tools/splitter.h \
     tools/swarpfilter.h \
     tools/tools.h \
-    iview/arrow.h
+    iview/myqgraphicsrectitem.h
 
 FORMS += \
         mainwindow.ui \

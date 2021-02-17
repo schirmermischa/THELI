@@ -127,9 +127,7 @@ void IView::showCurrentMousePos(QPointF point)
     // Show the magnified area in the magnify window
     // Translate FITS pixel position in the large window to the magnify window
     icdw->magnifiedGraphicsView->mapFromScene(point.x(),point.y());
-    //magnifyScene->setSceneRect(point.x()-75, point.y()-75, 150, 150);
     icdw->magnifiedGraphicsView->setScene(icdw->magnifiedScene);
-    //    icdw->updateNavigatorMagnifiedViewportReceived();
     icdw->magnifiedGraphicsView->show();
 }
 
@@ -218,6 +216,7 @@ void IView::adjustBrightnessContrast(QPointF point)
     icdw->magnifiedGraphicsView->show();
 
     emit updateNavigatorBinned(binnedPixmapItem);
+    emit updateNavigatorBinnedCDmatrix(wcs->cd);
 }
 
 double IView::haversine(double x1, double y1, double x2, double y2)
@@ -479,6 +478,7 @@ void IView::middlePressResetCRPIXreceived()
     crpix2_start = wcs->crpix[1];
 }
 
+/*
 // Receiver for the event when the mouse enters the main graphics view
 void IView::mouseEnteredViewReceived()
 {
@@ -492,14 +492,17 @@ void IView::mouseLeftViewReceived()
     //    icdw->ui->navigatorStackedWidget->setCurrentIndex(0);
     emit updateNavigatorBinned(binnedPixmapItem);
 }
+*/
 
 void IView::viewportChangedReceived(QRect viewport_rect)
 {
+    // the currently shown image area, in QImage coordinates
     QRectF rect = myGraphicsView->mapToScene(viewport_rect).boundingRect();
 
+    // the matching area, in QImage coordinates of the binned overview image
     QRect rectBinned = qimageToBinned(rect);
 
-    // send the new rect to the navigator window
+    // send the binned rect to the binned navigator window
     emit updateNavigatorBinnedViewport(rectBinned);
 }
 

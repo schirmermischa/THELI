@@ -35,64 +35,36 @@ void MyBinnedGraphicsView::mouseMoveEvent(QMouseEvent *event)
     QPointF currentPoint = mapToScene(currentPos);
     emit currentMousePos(currentPoint);
 
-    /*
-    // Also, if the right mouse button is pressed while moving,
-    // adjust brightness and contrast
-    if (rightButtonPressed) {
-        emit rightDragTravelled(rightDragStartPos - currentPos);
-    }
-    if (middleButtonPressed) {
-        //        emit middleDragTravelled(previousMousePoint - currentPos);
-        //        emit middleDragTravelled(currentPos);
-        if (middleMouseMode == "DragMode") {
-            if (_pan) {
-                horizontalScrollBar()->setValue(horizontalScrollBar()->value() - 2.*(event->x() - _panStartX));
-                verticalScrollBar()->setValue(verticalScrollBar()->value() - 2.*(event->y() - _panStartY));
-                _panStartX = event->x();
-                _panStartY = event->y();
-                //    event->accept();
-                //    return;
-            }
-        }
-    }
-    */
     if (leftButtonPressed) {
-        /*
-        // center coords by default at graphicsscene center, which has origin in the middle
-        int xcen = 0;
-        int ycen = 0;
-        if (old_x == 0 && old_y == 0) {
-            xcen = fovRectItem->scenePos().x() + nx/2.;
-            ycen = fovRectItem->scenePos().y() + ny/2.;
-//            old_x = xcen;
-//            old_y = ycen;
-        }
-        else {
-            xcen = old_x;
-            ycen = old_y;
-        }
-        //        qDebug() << fovRectItem->scenePos();
-        QPoint rectCenter = QPoint(xcen, ycen);
-        QPointF currentPoint = mapToScene(currentPos);
-        QPointF rectCenterQimage = mapToScene(rectCenter);
-        qDebug() << "RECCENTER" << rectCenterQimage;
-        fovRectItem->rect().width();
-        qDebug() << "RECCEN" <<  xcen << ycen;
-        qreal x1 = xcen - fovRectItem->rect().width()/2.;
-        qreal x2 = xcen + fovRectItem->rect().width()/2.;
-        qreal y1 = ycen - fovRectItem->rect().height()/2.;
-        qreal y2 = ycen + fovRectItem->rect().height()/2.;
-        if (x1 > 0 && x2 < nx-1 && y1 > 0 && y2 < ny-1) {
+        // scroll main view only if rectangle is within binnedPixMap
+        qreal x1;
+        qreal x2;
+        qreal y1;
+        qreal y2;
+        binnedSceneRect.getCoords(&x1, &y1, &x2, &y2);
+
+        qreal halfSceneWidth = (x2-x1) / 2.;
+        qreal halfSceneHeight = (y2-y1) / 2.;
+
+        qreal xcen = fovRectItem->scenePos().x() + nx / 2.;
+        qreal ycen = fovRectItem->scenePos().y() + ny / 2.;
+        qreal xcen1 = fovRectItem->scenePos().x() + halfSceneWidth;
+        qreal ycen1 = fovRectItem->scenePos().y() + halfSceneHeight;
+        qreal xr1 = xcen1 - fovRectItem->rect().width() / 2.;
+        qreal xr2 = xcen1 + fovRectItem->rect().width() / 2.;
+        qreal yr1 = ycen1 - fovRectItem->rect().height() / 2.;
+        qreal yr2 = ycen1 + fovRectItem->rect().height() / 2.;
+        qreal vxmin = x1 <= x2 ? x1 : x2;
+        qreal vxmax = x1 >= x2 ? x1 : x2;
+        qreal vymin = y1 <= y2 ? y1 : y2;
+        qreal vymax = y1 >= y2 ? y1 : y2;
+        if (xr1 > vxmin && xr2 < vxmax && yr1 > vymin && yr2 < vymax) {
             fovBeingDragged = true;
             fovRectItem->setFlags(QGraphicsEllipseItem::ItemIsMovable);
-            //            emit fovRectCenterChanged(QPointF(xcen,ycen));
+            QPoint rectCenter = QPoint(xcen, ycen);
+            QPointF rectCenterQimage = mapToScene(rectCenter);
             emit fovRectCenterChanged(rectCenterQimage);
         }
-        else {
-            //         auto currentFlags = fovRectItem->flags();
-            //          fovRectItem->setFlags(currentFlags & (~QGraphicsEllipseItem::ItemIsMovable));
-        }
-        */
     }
     QGraphicsView::mouseMoveEvent(event);
 }
