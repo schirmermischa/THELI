@@ -45,7 +45,7 @@ void MyGraphicsView::mouseMoveEvent(QMouseEvent *event)
         //        emit middleDragTravelled(currentPos);
         if (middleMouseMode == "SkyMode") {
             QPointF pointStart = mapToScene(middleDragStartPos.x(), middleDragStartPos.y());
-            emit middleDragTravelled(pointStart, currentPoint);
+            emit middleSkyDragTravelled(pointStart, currentPoint);
         }
         else if (middleMouseMode == "DragMode") {
             if (_pan) {
@@ -60,6 +60,10 @@ void MyGraphicsView::mouseMoveEvent(QMouseEvent *event)
         else if (middleMouseMode == "WCSMode") {
             QPointF pointStart = mapToScene(wcsStart);
             emit middleWCSTravelled(pointStart, currentPoint);
+        }
+        else if (middleMouseMode == "MaskingMode") {
+            QPointF pointStart = mapToScene(middleDragStartPos.x(), middleDragStartPos.y());
+            emit middleMaskingDragTravelled(pointStart, currentPoint);
         }
     }
     if (leftButtonPressed) {
@@ -86,6 +90,11 @@ void MyGraphicsView::mousePressEvent(QMouseEvent *event)
         //        setDragMode(QGraphicsView::ScrollHandDrag);
         //        previousMousePoint = event->pos();
         if (middleMouseMode == "SkyMode") {
+            middleDragStartPos = event->pos();
+            middleButtonPressed = true;
+            emit middlePress(middleDragStartPos);
+        }
+        if (middleMouseMode == "MaskingMode") {
             middleDragStartPos = event->pos();
             middleButtonPressed = true;
             emit middlePress(middleDragStartPos);
@@ -122,6 +131,9 @@ void MyGraphicsView::mouseReleaseEvent(QMouseEvent *event)
         middleButtonPressed = false;
         if (middleMouseMode == "SkyMode") {
             //        setDragMode(QGraphicsView::NoDrag);
+            emit middleButtonReleased();
+        }
+        if (middleMouseMode == "MaskingMode") {
             emit middleButtonReleased();
         }
         else if (middleMouseMode == "DragMode") {

@@ -202,6 +202,31 @@ void IView::endAction_triggered()
     emit currentlyDisplayedIndex(currentId);
 }
 
+void IView::on_actionDragMode_triggered()
+{
+    setMiddleMouseMode("DragMode");             // exclusive button group in c'tor does not work!
+    emit middleMouseModeChanged("DragMode");
+}
+
+void IView::on_actionSkyMode_triggered()
+{
+    setMiddleMouseMode("SkyMode");              // exclusive button group in c'tor does not work!
+    emit middleMouseModeChanged("SkyMode");
+}
+
+void IView::on_actionWCSMode_triggered()
+{
+    setMiddleMouseMode("WCSMode");              // exclusive button group in c'tor does not work!
+    emit middleMouseModeChanged("WCSMode");
+}
+
+void IView::on_actionMaskingMode_triggered()
+{
+    setMiddleMouseMode("MaskingMode");              // exclusive button group in c'tor does not work!
+    emit middleMouseModeChanged("MaskingMode");
+}
+
+
 void IView::on_actionImage_statistics_triggered()
 {
     if (statdw->isVisible()) {

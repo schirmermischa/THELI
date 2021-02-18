@@ -68,7 +68,8 @@ public:
 signals:
     void currentMousePos(QPointF);
     void rightDragTravelled(QPointF);
-    void middleDragTravelled(QPointF pointStart, QPointF pointEnd);
+    void middleSkyDragTravelled(QPointF pointStart, QPointF pointEnd);
+    void middleMaskingDragTravelled(QPointF pointStart, QPointF pointEnd);
     void middleWCSTravelled(QPointF pointStart, QPointF pointEnd);
     void middleWCSreleased();
     void leftDragTravelled(QPointF pointStart, QPointF pointEnd);

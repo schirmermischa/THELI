@@ -65,6 +65,7 @@ void IView::setMiddleMouseMode(QString mode)
         ui->actionSkyMode->setChecked(true);
         ui->actionDragMode->setChecked(false);
         ui->actionWCSMode->setChecked(false);
+        ui->actionMaskingMode->setChecked(false);
         myGraphicsView->middleMouseMode = "SkyMode";
         hideWCSdockWidget();
         icdw->ui->quitPushButton->show();
@@ -73,6 +74,7 @@ void IView::setMiddleMouseMode(QString mode)
         ui->actionDragMode->setChecked(true);
         ui->actionSkyMode->setChecked(false);
         ui->actionWCSMode->setChecked(false);
+        ui->actionMaskingMode->setChecked(false);
         middleMouseMode = "DragMode";
         hideWCSdockWidget();
         icdw->ui->quitPushButton->hide();
@@ -81,8 +83,18 @@ void IView::setMiddleMouseMode(QString mode)
         ui->actionWCSMode->setChecked(true);
         ui->actionSkyMode->setChecked(false);
         ui->actionDragMode->setChecked(false);
+        ui->actionMaskingMode->setChecked(false);
         middleMouseMode = "WCSMode";
         showWCSdockWidget();
+        icdw->ui->quitPushButton->hide();
+    }
+    else if (mode == "MaskingMode") {
+        ui->actionMaskingMode->setChecked(true);
+        ui->actionSkyMode->setChecked(false);
+        ui->actionDragMode->setChecked(false);
+        ui->actionWCSMode->setChecked(false);
+        middleMouseMode = "MaskingMode";
+        hideWCSdockWidget();
         icdw->ui->quitPushButton->hide();
     }
 }
@@ -1263,24 +1275,6 @@ void IView::readPreferenceSettings()
         icdw->ui->zoomFitPushButton->setChecked(settings.value("zoomFitPushButton").toBool());
         icdw->ui->autocontrastPushButton->setChecked(settings.value("autocontrastPushButton").toBool());
     }
-}
-
-void IView::on_actionDragMode_triggered()
-{
-    setMiddleMouseMode("DragMode");             // exclusive button group in c'tor does not work!
-    emit middleMouseModeChanged("DragMode");
-}
-
-void IView::on_actionSkyMode_triggered()
-{
-    setMiddleMouseMode("SkyMode");              // exclusive button group in c'tor does not work!
-    emit middleMouseModeChanged("SkyMode");
-}
-
-void IView::on_actionWCSMode_triggered()
-{
-    setMiddleMouseMode("WCSMode");              // exclusive button group in c'tor does not work!
-    emit middleMouseModeChanged("WCSMode");
 }
 
 void IView::solutionAcceptanceStateReceived(bool state)

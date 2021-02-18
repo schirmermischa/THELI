@@ -406,6 +406,22 @@ void IView::clearSkyRectItems()
     }
 }
 
+void IView::clearMaskPolygonItems()
+{
+    if (!maskPolygonItems.isEmpty()) {
+        for (auto &it : maskPolygonItems ) scene->removeItem(it);
+        maskPolygonItems.clear();
+    }
+}
+
+void IView::clearMaskRectItems()
+{
+    if (!maskRectItems.isEmpty()) {
+        for (auto &it : maskRectItems ) scene->removeItem(it);
+        maskRectItems.clear();
+    }
+}
+
 void IView::clearSkyCircleItems()
 {
     if (!skyCircleItems.isEmpty()) {
@@ -647,6 +663,53 @@ void IView::drawSkyCircle(QPointF pointStart, QPointF pointEnd)
     myGraphicsView->setScene(scene);
     myGraphicsView->show();
 }
+
+void IView::drawMaskingPolygon(QPointF pointStart, QPointF pointEnd)
+{
+    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
+    if (displayMode == "FITScolor") return;
+
+    QPen pen(QColor("#00ff00"));
+    pen.setWidth(0);
+    qreal x1 = pointStart.x();
+    qreal y1 = pointStart.y();
+    qreal x2 = pointEnd.x();
+    qreal y2 = pointEnd.y();
+
+    clearMaskRectItems();
+    QRectF rect;
+    QGraphicsRectItem *rectItem = scene->addRect(QRectF(QPoint(x1,y1), QPoint(x2,y2)));
+    rectItem->setPen(pen);
+    rectItem->setFlags(QGraphicsRectItem::ItemIsSelectable | QGraphicsRectItem::ItemIsMovable);
+    maskRectItems.append(rectItem);
+    myGraphicsView->setScene(scene);
+    myGraphicsView->show();
+}
+
+/*
+void IView::drawMaskingPolygon(QPointF pointStart, QPointF pointEnd)
+{
+    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
+    if (displayMode == "FITScolor") return;
+
+    QPen pen(QColor("#00ff00"));
+    pen.setWidth(0);
+    qreal x1 = pointStart.x();
+    qreal y1 = pointStart.y();
+    qreal x2 = pointEnd.x();
+    qreal y2 = pointEnd.y();
+
+    clearMaskPolygonItems();
+    QPolygonF polygon;
+    polygon << QPoint(x1,y1) << QPoint(x2,y2);
+    QGraphicsPolygonItem *polygonItem = scene->addPolygon(polygon);
+    polygonItem->setPen(pen);
+    polygonItem->setFlags(QGraphicsPolygonItem::ItemIsSelectable | QGraphicsPolygonItem::ItemIsMovable);
+    maskPolygonItems.append(polygonItem);
+    myGraphicsView->setScene(scene);
+    myGraphicsView->show();
+}
+*/
 
 void IView::appendSkyCircle()
 {

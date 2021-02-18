@@ -281,6 +281,21 @@
     <string>Display local and global image statistics</string>
    </property>
   </action>
+  <action name="actionMaskingMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/satellite-icon.png</normaloff>:/icons/satellite-icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Masking</string>
+   </property>
+   <property name="toolTip">
+    <string>Mask satellites and other image defects</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../resources.qrc"/>

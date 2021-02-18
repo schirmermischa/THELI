@@ -506,7 +506,8 @@ void IView::makeConnections()
     connect(myGraphicsView, &MyGraphicsView::currentMousePos, this, &IView::collectLocalStatisticsSample);
     connect(myGraphicsView, &MyGraphicsView::rightDragTravelled, this, &IView::adjustBrightnessContrast);
     connect(myGraphicsView, &MyGraphicsView::leftDragTravelled, this, &IView::drawSeparationVector);
-    connect(myGraphicsView, &MyGraphicsView::middleDragTravelled, this, &IView::drawSkyCircle);
+    connect(myGraphicsView, &MyGraphicsView::middleSkyDragTravelled, this, &IView::drawSkyCircle);
+    connect(myGraphicsView, &MyGraphicsView::middleMaskingDragTravelled, this, &IView::drawMaskingPolygon);
     connect(myGraphicsView, &MyGraphicsView::middleWCSTravelled, this, &IView::updateCRPIX);
     connect(myGraphicsView, &MyGraphicsView::middleWCSreleased, this, &IView::updateCRPIXFITS);
     connect(myGraphicsView, &MyGraphicsView::middlePressResetCRPIX, this, &IView::middlePressResetCRPIXreceived);
@@ -649,6 +650,7 @@ void IView::initGUI()
     middleMouseActionGroup->setExclusive(true);
     middleMouseActionGroup->addAction(ui->actionDragMode);
     middleMouseActionGroup->addAction(ui->actionSkyMode);
+    middleMouseActionGroup->addAction(ui->actionMaskingMode);
     middleMouseActionGroup->addAction(ui->actionWCSMode);
     ui->actionDragMode->setChecked(true);
     wcsdw->hide();

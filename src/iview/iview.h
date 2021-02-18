@@ -169,6 +169,7 @@ private slots:
     void clearSeparationVector();
     void drawSeparationVector(QPointF pointStart, QPointF pointEnd);
     void drawSkyCircle(QPointF pointStart, QPointF pointEnd);
+    void drawMaskingPolygon(QPointF pointStart, QPointF pointEnd);
     void drawSkyRectangle(QPointF pointStart, QPointF pointEnd);
     void endAction_triggered();
     void forwardAction_triggered();
@@ -180,6 +181,7 @@ private slots:
     void on_actionDragMode_triggered();
     void on_actionSkyMode_triggered();
     void on_actionWCSMode_triggered();
+    void on_actionMaskingMode_triggered();
     void previousAction_triggered();
 //    void startAction_triggered();        // public
     void showCurrentMousePos(QPointF point);
@@ -198,6 +200,7 @@ private slots:
     void collectLocalStatisticsSample(QPointF point);
     void updateStatisticsButton();
     void fovCenterChangedReceiver(QPointF newCenter);
+
 public slots:
     void autoContrastPushButton_toggled_receiver(bool checked);
     void clearAll();
@@ -282,6 +285,8 @@ private:
     QList<QGraphicsRectItem*> AbsPhotRefCatItems;
     QList<QGraphicsRectItem*> skyRectItems;
     QList<QGraphicsTextItem*> skyTextItems;
+    QList<QGraphicsPolygonItem*> maskPolygonItems;
+    QList<QGraphicsRectItem*> maskRectItems;
 
     QLabel *speedLabel = new QLabel(this);
     QSpinBox *speedSpinBox = new QSpinBox(this);
@@ -297,6 +302,8 @@ private:
     QRect adjustGeometry();
     void clearSkyCircleItems();
     void clearSkyRectItems();
+    void clearMaskPolygonItems();
+    void clearMaskRectItems();
     void clearVectorItems();
     void compressDynrange(const QVector<float> &fitsdata, unsigned char *intdata, float colorCorrectionFactor = 1.0);
     QString dec2hex(double angle);

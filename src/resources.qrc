@@ -52,5 +52,6 @@
         <file>icons/Signal-yield-icon.png</file>
         <file>icons/settings-icon.png</file>
         <file>qss/default.qss</file>
+        <file>icons/satellite-icon.png</file>
     </qresource>
 </RCC>
