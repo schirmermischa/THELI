@@ -78,7 +78,7 @@ public:
     void setMiddleMouseMode(QString mode);
     void switchMode(QString mode = "");
     void loadPNG(QString filename, int currentId = 0);
-    void autoContrast(QString colorMode = "");
+    void autoContrast();
     void setImageList(QString filter);
     void redrawSkyCirclesAndCats();
     void clearItems();
@@ -322,8 +322,6 @@ private:
     void showWCSdockWidget();
     void sky2xy(double ra, double dec, double &x, double &y);
     void writePreferenceSettings();
-//    void showStatisticsdockWidget();
-//    void hideStatisticsDockWidget();
 
     template <typename T> int sgn(T val) {
         return (T(0) < val) - (val < T(0));

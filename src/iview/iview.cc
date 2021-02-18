@@ -131,26 +131,6 @@ void IView::hideWCSdockWidget()
     wcsdw->hide();
 }
 
-/*
-void IView::showStatisticsdockWidget()
-{
-    if (statdw->isVisible()) return;
-
-    statdw->init();
-
-    addDockWidget(Qt::LeftDockWidgetArea, statdw);
-    statdw->setFloating(false);
-    statdw->raise();
-    statdw->show();
-}
-
-void IView::hideStatisticsDockWidget()
-{
-    removeDockWidget(statdw);
-    statdw->hide();
-}
-*/
-
 void IView::resizeEvent(QResizeEvent * event)
 {
     event->accept();
@@ -1258,20 +1238,8 @@ void IView::getGlobalImageStatistics(QString colorMode)
     }
 }
 
-void IView::autoContrast(QString colorMode)
+void IView::autoContrast()
 {
-    /*
-    // set medVal and rmsVal;
-    if (displayMode == "FITSmonochrome" || displayMode == "MEMview") getGlobalImageStatistics();
-    else if (displayMode == "FITScolor") {
-        // Must have read the red and green channel already
-        if (colorMode == "blueChannel" || allChannelsRead)
-            getGlobalImageStatistics(colorMode);
-        else return;
-    }
-    else return;
-    */
-
     dynRangeMin = globalMedian - 2.*globalRMS;
     dynRangeMax = globalMedian + 10.*globalRMS;
     int validDigits = 3-log(fabs(dynRangeMax))/log(10);
