@@ -43,8 +43,8 @@ void Controller::populateHeaderDictionary()
     headerDictionary.insert("AIRMASS", {"AIRMASS", "AMSTART", "HIERARCH ESO TEL AIRM START", "SECZ", "FZ_MP"});
     headerDictionary.insert("EXPTIME", {"EXPTIME", "EXPOSURE", "EXPOS", "EXPOSED", "EXP_TIME"});
     headerDictionary.insert("EQUINOX", {"EQUINOX", "EPOCH", "RADECEQ"});
-    headerDictionary.insert("DATE-OBS", {"DATE-OBS", "DATEOBS", "DATE", "UTSHUT", "TIME"});
-    headerDictionary.insert("MJD-OBS", {"MJD-OBS"});
+    headerDictionary.insert("DATE-OBS", {"DATE-OBS", "DATEOBS", "DATE_OBS", "DATE", "UTSHUT", "TIME"});
+    headerDictionary.insert("MJD-OBS", {"MJD-OBS", "MJD_OBS"});
     headerDictionary.insert("NAMPS", {"NAMPS"});
     headerDictionary.insert("GAIN", {"EGAIN", "GAIN", "HIERARCH ESO DET CHIP GAIN", "HIERARCH ESO DET OUT1 CONAD",
                                      "HIERARCH ESO DET OUT-1 ADU"});  // careful with gain and inverse gain!
