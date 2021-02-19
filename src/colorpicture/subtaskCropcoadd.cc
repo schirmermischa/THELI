@@ -140,6 +140,34 @@ void ColorPicture::taskInternalCropCoadds()
         coaddList.append(myImage);
     }
 
+    // for consistency checks
+    QVector<float> crval1;
+    QVector<float> crval2;
+    QVector<float> cd11;
+    QVector<float> cd12;
+    QVector<float> cd21;
+    QVector<float> cd22;
+    int length = coaddList.length();
+    for (int i=0; i<length; ++i) {
+        auto &it = coaddList[i];
+        crval1 << it->wcs->crval[0];
+        crval2 << it->wcs->crval[1];
+        cd11 << it->wcs->cd[0];
+        cd12 << it->wcs->cd[1];
+        cd21 << it->wcs->cd[2];
+        cd22 << it->wcs->cd[3];
+    }
+    if (numberOfDuplicates_T(crval1) != length - 1
+            || numberOfDuplicates_T(crval2) != length - 1
+            || numberOfDuplicates_T(cd11) != length - 1
+            || numberOfDuplicates_T(cd12) != length - 1
+            || numberOfDuplicates_T(cd21) != length - 1
+            || numberOfDuplicates_T(cd22) != length - 1) {
+        emit messageAvailable("The coadditions do not share the same astrometric projection. You must use identical reference coordinates when creating the coadditions.", "error");
+        emit messageAvailable("Done.", "info");
+        return;
+    }
+
     QVector<float> crpix1;
     QVector<float> crpix2;
     QVector<float> naxis1;

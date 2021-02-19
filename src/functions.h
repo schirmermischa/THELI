@@ -393,6 +393,22 @@ bool hasDuplicates_T(QVector<T> data)
     else return false;
 }
 
+// Count the number of duplicates in a Qvector
+template<class T>
+int numberOfDuplicates_T(QVector<T> data)
+{
+    std::sort(data.begin(), data.end());
+    T old = data[0];
+    long j = 0;
+    long nDuplicates = 0;
+    for (auto &it : data) {
+        if (j>0 && it == old) ++nDuplicates;
+        old = it;
+        ++j;
+    }
+    return nDuplicates;
+}
+
 // The index of the entry with the highest value
 template<class T>
 T maxIndex(const QVector<T> &data)
