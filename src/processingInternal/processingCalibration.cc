@@ -108,6 +108,10 @@ void Controller::taskInternalProcessbias()
 #pragma omp atomic
         progress += progressCombinedStepSize;
     }
+    if (!successProcessing) {
+        emit progressUpdate(100);
+        return;
+    }
     biasData->reportModeCombineImages();
 
     checkSuccessProcessing(biasData);
@@ -186,6 +190,11 @@ void Controller::taskInternalProcessdark()
 #pragma omp atomic
         progress += progressCombinedStepSize;
     }
+    if (!successProcessing) {
+        emit progressUpdate(100);
+        return;
+    }
+
     darkData->reportModeCombineImages();
 
     checkSuccessProcessing(darkData);
@@ -262,6 +271,11 @@ void Controller::taskInternalProcessflatoff()
 #pragma omp atomic
         progress += progressCombinedStepSize;
     }
+    if (!successProcessing) {
+        emit progressUpdate(100);
+        return;
+    }
+
     flatoffData->reportModeCombineImages();
 
     checkSuccessProcessing(flatoffData);
@@ -413,6 +427,11 @@ void Controller::taskInternalProcessflat()
         // Apply illumination correction (if available, e.g. for DECam; does nothing if not available)
         // TODO: can be uncommented once the filter is known (see commented block above)
         // flatData->combinedImage[chip]->illuminationCorrection(chip, thelidir, instData->name, filter);
+    }
+
+    if (!successProcessing) {
+        emit progressUpdate(100);
+        return;
     }
 
     // Obtain gain normalizations. Must be done once all images have been combined.
