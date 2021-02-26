@@ -1413,6 +1413,9 @@ bool readData3D(QString path, QVector<double> &x, QVector<double> &y, QVector<do
 // Angles are always passed / returned in degrees
 double getPosAnglefromCD(double cd11, double cd12, double cd21, double cd22, bool lock)
 {
+    // In case CD matrix is undefined (e.g. binned images)
+    if (cd11 == 0. && cd12 == 0. && cd21 == 0. && cd22 == 0.) return 0.;
+
     // the pixel scale
     double pscale1 = sqrt(cd11 * cd11 + cd21 * cd21);
     double pscale2 = sqrt(cd12 * cd12 + cd22 * cd22);
@@ -1477,7 +1480,7 @@ double getPosAnglefromCD(double cd11, double cd12, double cd21, double cd22, boo
             }
 
             else {
-                qDebug() << "getPosAnglefromCD(): ERROR: Could not determine position angle from CD matrix!";
+                qDebug() << __func__ << "ERROR: Could not determine position angle from CD matrix!";
             }
         }
     }

@@ -241,6 +241,11 @@ void Controller::populateFilterDictionary()
     filterDictionary.insert("HeII_G0340", "HeII");
     filterDictionary.insert("HeIIC_G0321", "HeIIC");
     filterDictionary.insert("HeIIC_G0341", "HeIIC");
+    // LDSS3
+    filterDictionary.insert("g_Sloan", "g");
+    filterDictionary.insert("r_Sloan", "r");
+    filterDictionary.insert("i_Sloan", "i");
+    filterDictionary.insert("z_Sloan", "z");
 //    filterDictionary.insert(, );
 }
 

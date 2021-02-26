@@ -509,12 +509,27 @@ bool Splitter::individualFixCDmatrix(int chip)
         }
         individualFixDone = true;
     }
+    if (instData.name == "LDSS3_from201402@LCO") {
+        if (chip == 0) {
+            cd11_card = "CD1_1   =  -5.213e-5";
+            cd12_card = "CD1_2   =  0.0";
+            cd21_card = "CD2_1   =  0.0";
+            cd22_card = "CD2_2   =  5.213e-5";
+        }
+        if (chip == 1) {
+            cd11_card = "CD1_1   =  5.230e-5";
+            cd12_card = "CD1_2   =  0.0";
+            cd21_card = "CD2_1   =  0.0";
+            cd22_card = "CD2_2   =  5.230e-5";
+        }
+        individualFixDone = true;
+    }
     if (instData.name == "WFI@MPGESO") {
         cd11_card = "CD1_1   =  -6.611e-5";
         cd12_card = "CD1_2   =  0.0";
         cd21_card = "CD2_1   =  0.0";
         cd22_card = "CD2_2   =  6.611e-5";
-        individualFixDone = true;
+        individualFixDone = true;ls *~
     }
     if (instData.name.contains("WFI_2x2") && instData.name.contains("MPGESO") ) {
         cd11_card = "CD1_1   =  -1.322e-4";
