@@ -296,6 +296,9 @@ void Splitter::extractImagesFITS()
 
         if (hduType == IMAGE_HDU) {
 
+            // for MMIRS, we only want to keep the first extension
+            if (instData.name.contains("MMIRS") && chip >= 1) break;
+
             // some multi-chip cams (FORS, etc) come with separate FITS files. For them, 'chip' would always be zero,
             // and thus the correct overscan regions etc not identified correctly.
             // Others such as GROND image simultaneously in different bandpasses on multiple detectors, but they show the
