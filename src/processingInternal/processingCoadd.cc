@@ -72,9 +72,13 @@ void Controller::taskInternalCoaddition()
 
     if (!coaddScienceData->hasMatchingPartnerFiles(headerDirName, ".head")) return;
 
-    if (!coaddScienceData->doesCoaddContainRaDec(cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text())) {
-        emit showMessageBox("Controller::POOR_COORD", cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text());
-        return;
+    // if all chips are stacked, make sure the reference point is within the covered area.
+    // If selected chips are present, then the user might want  the same ref coords for all chip stacks, which might be outside
+    if (cdw->ui->COAchipsLineEdit->text().isEmpty()) {
+        if (!coaddScienceData->doesCoaddContainRaDec(cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text())) {
+            emit showMessageBox("Controller::POOR_COORD", cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text());
+            return;
+        }
     }
 
     //    qDebug() << "taskInternalCoaddition() : " << filterArg;
@@ -254,8 +258,8 @@ void Controller::coaddPrepare(QString filterArg)
         }
     }
     double mjdobsZero = minVec_T(mjdobsData);
-//    mjdStart = mjdobsZero;
-//    mjdEnd = maxVec_T(mjdobsData) + lastExpTime / 86400.;
+    //    mjdStart = mjdobsZero;
+    //    mjdEnd = maxVec_T(mjdobsData) + lastExpTime / 86400.;
     mjdEnd += lastExpTime / 86400.;
     mjdMedian = straightMedian_T(mjdobsData, 0, false);
     bool doPMupdate = false;
@@ -567,7 +571,7 @@ void Controller::coaddPrepareBuildSwarpCommand(QString refRA, QString refDE)
     QString coaddSize = "";
     QString naxis1 = cdw->ui->COAsizexLineEdit->text();
     QString naxis2 = cdw->ui->COAsizeyLineEdit->text();
-    if (!naxis1.isEmpty() && !naxis2.isEmpty()) coaddSize = "-IMAGE_SIZE "+naxis1+","+naxis2;
+    if (!naxis1.isEmpty() && !naxis2.isEmpty()) coaddSize = " -IMAGE_SIZE "+naxis1+","+naxis2;
 
     QString pixelScale = cdw->ui->COApixscaleLineEdit->text();
     if (pixelScale.isEmpty()) pixelScale = QString::number(instData->pixscale, 'f', 9);
@@ -965,7 +969,7 @@ void Controller::coaddUpdate()
     bool skippedIQ = true;
     float seeing_world = 0.;
     float seeing_image = 0.;
-//    float maxVal = 100.;
+    //    float maxVal = 100.;
 
     emit loadViewer(coaddDirName, "coadd.fits", "DragMode");
 
@@ -991,7 +995,7 @@ void Controller::coaddUpdate()
         coadd->readWeight();
         coadd->gain = 1.0;
         coadd->saturationValue = minCoaddSaturationValue;
-//        maxVal = maxVec_T(coadd->dataCurrent);
+        //        maxVal = maxVec_T(coadd->dataCurrent);
         float radius = sqrt(coadd->naxis1*coadd->naxis1 + coadd->naxis2*coadd->naxis2) / 2. * coadd->plateScale / 60.;   // in arcmin
         // Enforce an upper limit to the download catalog (the query also has a built-in limit of # sources < 1e6)
         if (radius > 60) radius = 60.;
@@ -1111,7 +1115,7 @@ void Controller::coaddUpdate()
     // Finally, do flux calibration if requested
     if (cdw->ui->COAfluxcalibCheckBox->isChecked()) {
         emit messageAvailable("coadd.fits : Loading flux calibration module ...", "image");
-//        emit loadAbsZP(coaddDirName+"/coadd.fits", maxVal);
+        //        emit loadAbsZP(coaddDirName+"/coadd.fits", maxVal);
         emit loadAbsZP(coaddDirName+"/coadd.fits", minCoaddSaturationValue);
     }
     else {

@@ -29,9 +29,11 @@ If not, see https://www.gnu.org/licenses/ .
 #include "dockwidgets/ivcolordockwidget.h"
 #include "dockwidgets/ivwcsdockwidget.h"
 #include "dockwidgets/ivstatisticsdockwidget.h"
+#include "dockwidgets/ivfinderdockwidget.h"
 #include "ui_ivconfdockwidget.h"
 #include "ui_ivcolordockwidget.h"
 #include "ui_ivstatisticsdockwidget.h"
+#include "ui_ivfinderdockwidget.h"
 
 #include "../tools/tools.h"
 
@@ -57,7 +59,6 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QScrollBar>
 #include <QTimer>
 #include <QModelIndex>
-
 
 void IView::setMiddleMouseMode(QString mode)
 {
@@ -338,6 +339,7 @@ void IView::clearItems() {
         for (auto &it: acceptedSkyCircleItems) scene->removeItem(it);
         acceptedSkyCircleItems.clear();
     }
+    scene->removeCrosshair();
 }
 
 void IView::setCatalogOverlaysExternally(bool sourcecatShown, bool refcatShown)
@@ -456,7 +458,7 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
         myGraphicsView->setScene(scene);
         myGraphicsView->scale(scaleFactor, scaleFactor);
         myGraphicsView->setGeometry(geometry);
-//        myGraphicsView->centerOn(pixmapItem);
+        //        myGraphicsView->centerOn(pixmapItem);
         myGraphicsView->show();
         myGraphicsView->setMinimumSize(200,200);
         myGraphicsView->setMaximumSize(10000,10000);
@@ -509,15 +511,15 @@ void IView::updateNavigatorMagnifiedReceived(QPointF point)
     }
 
     if (displayMode == "FITSmonochrome" || displayMode == "MEMview") {
-//        qDebug() << point.x() + 1. - icdw->navigator_magnified_nx/2./magnification << point.y() + 1. - icdw->navigator_magnified_ny/2./magnification <<
-//                icdw->navigator_magnified_nx/magnification << icdw->navigator_magnified_ny/magnification;
+        //        qDebug() << point.x() + 1. - icdw->navigator_magnified_nx/2./magnification << point.y() + 1. - icdw->navigator_magnified_ny/2./magnification <<
+        //                icdw->navigator_magnified_nx/magnification << icdw->navigator_magnified_ny/magnification;
         if (point.x() + 1. - icdw->navigator_magnified_nx/2./magnification < 0) dx = point.x() + 1. - icdw->navigator_magnified_nx/2./magnification;
         if (point.x() + 1. - icdw->navigator_magnified_nx/2./magnification >= naxis1) dx = point.x() + 1. - icdw->navigator_magnified_nx/2./magnification;
         QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(point.x() + 1. - icdw->navigator_magnified_nx/2./magnification,
                                                             point.y() + 1. - icdw->navigator_magnified_ny/2./magnification,
                                                             icdw->navigator_magnified_nx/magnification, icdw->navigator_magnified_ny/magnification);
         magnifiedPixmapItem = new QGraphicsPixmapItem(magnifiedPixmap);
-//        qDebug() << magnifiedPixmap.width() << magnifiedPixmap.height() << icdw->navigator_magnified_nx/magnification << icdw->navigator_magnified_ny/magnification;
+        //        qDebug() << magnifiedPixmap.width() << magnifiedPixmap.height() << icdw->navigator_magnified_nx/magnification << icdw->navigator_magnified_ny/magnification;
     }
     else if (displayMode == "FITScolor") {
         QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(point.x() + 1. - icdw->navigator_magnified_nx/2/magnification,
@@ -534,6 +536,8 @@ void IView::updateNavigatorMagnifiedReceived(QPointF point)
 
 void IView::loadFromRAM(MyImage *it, int indexColumn)
 {
+    scene->removeCrosshair();
+
     currentMyImage = it;
     if (indexColumn == 0 || indexColumn == 3) {
         // Load image into memory if not yet present
@@ -560,6 +564,7 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     naxis2 = it->naxis2;
     wcs = it->wcs;
     wcsInit = it->wcsInit;
+    finderdw->dateObs = it->dateobs;
     sendWCStoWCSdockWidget();
     this->setWindowTitle("iView --- Memory viewer : "+it->chipName);
 
@@ -656,6 +661,8 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
         return false;
     }
 
+    scene->removeCrosshair();
+
     if (weightMode) {
         filename.replace(".fits", ".weight.fits");
     }
@@ -675,6 +682,7 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
     naxis2 = currentMyImage->naxis2;
     fullheader = currentMyImage->fullheader;
     wcs = currentMyImage->wcs;
+    finderdw->dateObs = currentMyImage->dateobs;
     (void) wcsset(wcs);
     wcsInit = true;
     sendWCStoWCSdockWidget();
@@ -791,8 +799,8 @@ void IView::mapFITS()
 
     // the scene MUST have it's final size BEFORE we add an item
     // WARNING: with some images (large coadds) then these images appear shifted to the right and cannot be viewed completely.
-//    if(scene->width() < 1 || scene->height() < 1)
-//        scene->setSceneRect( 0, 0, naxis1, naxis2);
+    //    if(scene->width() < 1 || scene->height() < 1)
+    //        scene->setSceneRect( 0, 0, naxis1, naxis2);
 
     // end additional section
     //**************************************************
@@ -863,6 +871,7 @@ void IView::mapFITS()
             showG2References(true);
         }
     }
+    finderdw->bypassResolver();
 }
 
 void IView::compressDynrange(const QVector<float> &fitsdata, unsigned char *intdata, float colorCorrectionFactor)
@@ -1142,7 +1151,7 @@ bool IView::readRaDecCatalog(QString fileName, QList<QGraphicsRectItem*> &items,
             double dec = lineList.at(1).toDouble();
             double x = 0.;
             double y = 0.;
-            sky2xy(ra, dec, x, y);
+            sky2xyQImage(ra, dec, x, y);
             // correct for an offset introduced by where the scene draws the ellipses (or rectangles)
             point.setX(x-0.5*size);
             point.setY(y-0.5*size);
@@ -1168,7 +1177,8 @@ bool IView::readRaDecCatalog(QString fileName, QList<QGraphicsRectItem*> &items,
     }
 }
 
-void IView::sky2xy(double alpha, double delta, double &x, double &y)
+// returns coordinates in QImage system!
+void IView::sky2xyQImage(double alpha, double delta, double &x, double &y)
 {
     if (!wcsInit) return;
 
@@ -1184,6 +1194,25 @@ void IView::sky2xy(double alpha, double delta, double &x, double &y)
     wcss2p(wcs, 1, 2, world, &phi, &theta, imgcrd, pixcrd, stat);
     x = pixcrd[0];
     y = naxis2 - pixcrd[1];
+}
+
+// returns coordinates in FITS
+void IView::sky2xyFITS(double alpha, double delta, double &x, double &y)
+{
+    if (!wcsInit) return;
+
+    double world[2];
+    double phi;
+    double theta;
+    double imgcrd[2];
+    double pixcrd[2];
+    world[0] = alpha;
+    world[1] = delta;
+    int stat[1];
+
+    wcss2p(wcs, 1, 2, world, &phi, &theta, imgcrd, pixcrd, stat);
+    x = pixcrd[0];
+    y = pixcrd[1];
 }
 
 QString IView::dec2hex(double angle)
@@ -1292,6 +1321,7 @@ void IView::autoContrastPushButton_toggled_receiver(bool checked)
     if (checked) {
         autoContrast();
 
+        scene->removeCrosshair();
         // Must clear all items (sky circles) on the scene, then redraw afterwards
         if (!skyCircleItems.isEmpty()) skyCircleItems.clear();
         if (!acceptedSkyCircleItems.isEmpty()) {
@@ -1322,6 +1352,8 @@ void IView::replotCatalogAfterZoom()
         ui->actionRefCat->setChecked(true);
         showReferenceCat();
     }
+    scene->zoomScale = icdw->zoom2scale(zoomLevel);
+    finderdw->bypassResolver();
 }
 
 void IView::zoomFitPushButton_clicked_receiver(bool checked)
@@ -1335,7 +1367,7 @@ void IView::zoomFitPushButton_clicked_receiver(bool checked)
         QString scaleFactor;
         if (scale > 1.) scaleFactor = QString::number(scale,'f',2)+":1";
         else scaleFactor = "1:"+QString::number(1./scale,'f',2);
-//        icdw->ui->zoomValueLabel->setText(scaleFactor);
+        //        icdw->ui->zoomValueLabel->setText(scaleFactor);
     }
 
     replotCatalogAfterZoom();
@@ -1413,12 +1445,36 @@ void IView::filterLineEdit_textChanged(const QString &arg1)
     pageLabel->setText("? / "+QString::number(numImages));
 
     // Rewind
-//    iview->startAction_triggered();
+    //    iview->startAction_triggered();
 }
 
 void IView::fovCenterChangedReceiver(QPointF newCenter)
 {
     QPointF center = binnedToQimage(newCenter);
-//    qDebug() << newCenter << center;
+    //    qDebug() << newCenter << center;
     myGraphicsView->centerOn(center);
+}
+
+void IView::targetResolvedReceived(QString alphaStr, QString deltaStr)
+{
+    if (alphaStr.contains(":")) alphaStr = hmsToDecimal(alphaStr);
+    if (deltaStr.contains(":")) deltaStr = dmsToDecimal(deltaStr);
+
+    double x = 0.;
+    double y = 0.;
+    sky2xyQImage(alphaStr.toDouble(), deltaStr.toDouble(), x, y);
+    if (x > 0. && x < naxis1-1 && y > 0. && y < naxis2-1) {
+        myGraphicsView->centerOn(QPointF(x,y));
+        scene->addCrosshair(x,y);
+    }
+    else {
+/*
+ *         if (sender() == finderdw->ui->targetresolverToolButton) {
+            finderdw->ui->targetNameNonsiderealLineEdit->setText("outside f.o.v");
+        }
+        if (sender() == finderdw->ui->MPCresolverToolButton) {
+            finderdw->ui->targetNameSiderealLineEdit->setText("outside f.o.v");
+        }
+*/
+    }
 }

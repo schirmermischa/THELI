@@ -216,7 +216,7 @@ void Controller::taskInternalGetCatalogFromIMAGE()
     file.close();
 }
 
-void Controller::taskInternalResolveTarget()
+void Controller::taskInternalResolveTargetSidereal()
 {
     cdw->ui->ARCpmRALineEdit->clear();
     cdw->ui->ARCpmDECLineEdit->clear();
@@ -228,7 +228,7 @@ void Controller::taskInternalResolveTarget()
     Query *query = new Query(&verbosity);
     connect(query, &Query::messageAvailable, monitor, &Monitor::displayMessage);
     connect(query, &Query::critical, this, &Controller::criticalReceived);
-    QString check = query->resolveTarget(targetName);
+    QString check = query->resolveTargetSidereal(targetName);
     if (check == "Resolved") emit targetResolved(query->targetAlpha, query->targetDelta);
     else if (check == "Unresolved") emit showMessageBox("Controller::TARGET_UNRESOLVED", cdw->ui->ARCtargetresolverLineEdit->text(), "");
     else {

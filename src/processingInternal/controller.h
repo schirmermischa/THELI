@@ -316,7 +316,7 @@ private slots:
     void taskInternalGetCatalogFromWEB();
     void taskInternalGetCatalogFromIMAGE();
     void taskInternalHDUreformat();
-    void taskInternalResolveTarget();
+    void taskInternalResolveTargetSidereal();
     void taskInternalRestoreHeader();
     //    void taskInternalCopyZeroOrder();
     void taskInternalAstromphotom();

@@ -28,6 +28,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "dockwidgets/ivcolordockwidget.h"
 #include "dockwidgets/ivwcsdockwidget.h"
 #include "dockwidgets/ivstatisticsdockwidget.h"
+#include "dockwidgets/ivfinderdockwidget.h"
 #include "../myimage/myimage.h"
 
 #include "fitsio2.h"
@@ -99,6 +100,7 @@ public:
     IvScampDockWidget *scampdw;
     IvColorDockWidget *colordw;
     IvStatisticsDockWidget *statdw = new IvStatisticsDockWidget(this);
+    IvFinderDockWidget *finderdw = new IvFinderDockWidget(this);
     IvWCSDockWidget *wcsdw = new IvWCSDockWidget(this);
 
     MyGraphicsView *myGraphicsView;
@@ -199,7 +201,9 @@ private slots:
     void filterLineEdit_textChanged(const QString &arg1);
     void collectLocalStatisticsSample(QPointF point);
     void updateStatisticsButton();
+    void updateFinderButton();
     void fovCenterChangedReceiver(QPointF newCenter);
+    void on_actionFinder_triggered();
 
 public slots:
     void autoContrastPushButton_toggled_receiver(bool checked);
@@ -222,6 +226,7 @@ public slots:
     void zoomOutPushButton_clicked_receiver();
     void zoomZeroPushButton_clicked_receiver();
     void viewportChangedReceived(QRect viewport_rect);
+    void targetResolvedReceived(QString alphaStr, QString deltaStr);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -327,13 +332,16 @@ private:
     void setCurrentId(QString filename);
     void setImageListFromMemory();
     void showWCSdockWidget();
-    void sky2xy(double ra, double dec, double &x, double &y);
+    void sky2xyQImage(double ra, double dec, double &x, double &y);
+    void sky2xyFITS(double ra, double dec, double &x, double &y);
     void writePreferenceSettings();
 
     template <typename T> int sgn(T val) {
         return (T(0) < val) - (val < T(0));
     }
     void sendWCStoWCSdockWidget();
+    void checkFinder();
+    void checkFinderBypass();
 };
 
 #endif // IVIEW_H

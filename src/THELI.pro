@@ -136,7 +136,8 @@ SOURCES += \
     tools/xcorr.cc \
     validators.cc \
     iview/transformations.cc \
-    iview/myqgraphicsrectitem.cc
+    iview/myqgraphicsrectitem.cc \
+    iview/dockwidgets/ivfinderdockwidget.cc
 
 HEADERS += \
     abszp/absphot.h \
@@ -203,7 +204,8 @@ HEADERS += \
     tools/splitter.h \
     tools/swarpfilter.h \
     tools/tools.h \
-    iview/myqgraphicsrectitem.h
+    iview/myqgraphicsrectitem.h \
+    iview/dockwidgets/ivfinderdockwidget.h
 
 FORMS += \
         mainwindow.ui \
@@ -227,7 +229,8 @@ FORMS += \
     readmes/scampreadme.ui \
     readmes/swarpreadme.ui \
     readmes/license.ui \
-    readmes/acknowledging.ui
+    readmes/acknowledging.ui \
+    iview/dockwidgets/ivfinderdockwidget.ui
 
 RESOURCES = resources.qrc
 

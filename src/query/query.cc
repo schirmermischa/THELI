@@ -451,11 +451,44 @@ QString Query::filterStringToVizierName(QString filter)
     return "";
 }
 
-QString Query::resolveTarget(QString target)
+QString Query::resolveTargetSidereal(QString target)
 {
     if (!successProcessing) return "Unresolved";
 
     queryCommand = pythonExecutable + " " + thelidir+"/python/resolvetargets.py "+target;
+
+    runCommand(queryCommand);
+
+    QTextStream stream(&byteArray, QIODevice::ReadOnly);
+
+    QString line;
+    while (stream.readLineInto(&line)) {
+        line = line.simplified();
+        if (line.contains("Traceback")) return "Unresolved";
+        else {
+            // DEPRECATED. GUI will not launch if python3 cannot be found. The following is kept for reference only.
+            // In case python2 is used instead of python3, we have to remove parentheses and commas from the output
+            line = line.remove("(");
+            line = line.remove(")");
+            line = line.replace(",", " ");
+            line = line.simplified();
+            QStringList coordList = line.split(' ');
+            targetAlpha = coordList[0];
+            targetDelta = coordList[1];
+            // Convert to HHMMSS and DDMMSS
+            if (!targetAlpha.contains(":")) targetAlpha = decimalToHms(targetAlpha.toDouble());
+            if (!targetDelta.contains(":")) targetDelta = decimalToDms(targetDelta.toDouble());
+            return "Resolved";
+        }
+    }
+    return "Unresolved";
+}
+
+QString Query::resolveTargetNonsidereal(QString target, QString dateobs)
+{
+    if (!successProcessing) return "Unresolved";
+
+    queryCommand = pythonExecutable + " " + thelidir+"/python/mpc_query.py "+target + " " + dateobs;
 
     runCommand(queryCommand);
 

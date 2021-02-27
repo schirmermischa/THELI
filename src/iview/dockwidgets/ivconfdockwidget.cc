@@ -108,14 +108,20 @@ double IvConfDockWidget::zoom2scale(int zoomlevel)
     // Update the zoom label
     if (zoomlevel > 0) {
         //        ui->zoomValueLabel->setText(QString::number(zoomlevel+1)+":1");
+
+        iview->scene->zoomScale = zoomlevel+1.;
         return zoomlevel+1.;
     }
     else if (zoomlevel == 0) {
         //        ui->zoomValueLabel->setText("1:1");
+
+        iview->scene->zoomScale = 1.;
         return 1.;
     }
     else {
         //        ui->zoomValueLabel->setText("1:"+QString::number(-zoomlevel+1));
+
+        iview->scene->zoomScale = 1./(-zoomlevel+1.);
         return 1./(-zoomlevel+1.);
     }
 }

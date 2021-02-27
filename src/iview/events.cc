@@ -68,6 +68,7 @@ void IView::initDynrangeDrag()
             scene->removeItem(it);
         }
     }
+    if (scene->crosshairShown) scene->removeCrosshair();
 }
 
 void IView::showCurrentMousePos(QPointF point)
@@ -544,8 +545,11 @@ void IView::updateCRPIX(QPointF pointStart, QPointF pointEnd)
     // Remove items from display
     for (auto &it: refCatItems) scene->removeItem(it);
     refCatItems.clear();
+    scene->removeCrosshair();
     myGraphicsView->setScene(scene);
     myGraphicsView->show();
+
+    scene->removeCrosshair();
 
     // Recalculate CRPIX offset
     qreal dx = pointEnd.x() - pointStart.x();
@@ -555,6 +559,7 @@ void IView::updateCRPIX(QPointF pointStart, QPointF pointEnd)
     wcs->crpix[1] = crpix2_start + dy;
     wcs->flag = 0;    // force an update of internal wcs params.
     showReferenceCat();
+    checkFinder();
 }
 
 void IView::updateCDmatrix(double cd11, double cd12, double cd21, double cd22)
@@ -567,6 +572,7 @@ void IView::updateCDmatrix(double cd11, double cd12, double cd21, double cd22)
     // Remove items from display
     for (auto &it: refCatItems) scene->removeItem(it);
     refCatItems.clear();
+    scene->removeCrosshair();
     myGraphicsView->setScene(scene);
     myGraphicsView->show();
 
@@ -582,6 +588,7 @@ void IView::updateCDmatrix(double cd11, double cd12, double cd21, double cd22)
     icdw->cd21 = cd21;
     icdw->cd22 = cd22;
     showReferenceCat();
+    checkFinder();
 }
 
 // Called when middle mouse button is released in wcs mode
@@ -753,6 +760,7 @@ void IView::updateSkyCircles()
     dumpSkyCircleCoordinates();
 }
 
+// invoked e.g. when dynamic range is changed
 void IView::redrawSkyCirclesAndCats()
 {
     if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
@@ -766,6 +774,7 @@ void IView::redrawSkyCirclesAndCats()
 
     showSourceCat();
     showReferenceCat();
+    checkFinderBypass();
 }
 
 void IView::dumpSkyCircleCoordinates()

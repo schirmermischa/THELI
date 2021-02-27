@@ -529,7 +529,7 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd12_card = "CD1_2   =  0.0";
         cd21_card = "CD2_1   =  0.0";
         cd22_card = "CD2_2   =  6.611e-5";
-        individualFixDone = true;ls *~
+        individualFixDone = true;
     }
     if (instData.name.contains("WFI_2x2") && instData.name.contains("MPGESO") ) {
         cd11_card = "CD1_1   =  -1.322e-4";

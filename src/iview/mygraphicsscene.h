@@ -23,6 +23,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QObject>
 #include <QGraphicsScene>
 #include <QKeyEvent>
+#include <QGraphicsEllipseItem>
 
 class MyGraphicsScene : public QGraphicsScene
 {
@@ -32,12 +33,26 @@ public:
     MyGraphicsScene();
     void leaveEvent(QEvent *event);
 
+    QGraphicsEllipseItem *crosshairCircleItem = nullptr;
+    QGraphicsEllipseItem *crosshairCircleBlackItem = nullptr;
+    QGraphicsLineItem *crosshairLineNItem = nullptr;
+    QGraphicsLineItem *crosshairLineSItem = nullptr;
+    QGraphicsLineItem *crosshairLineEItem = nullptr;
+    QGraphicsLineItem *crosshairLineWItem = nullptr;
+
+    bool crosshairShown = false;
+    double zoomScale = 1.0;
+
 signals:
     void itemDeleted();
     void mouseLeftScene();
 
 protected:
     void keyReleaseEvent(QKeyEvent * keyEvent);
+
+public slots:
+    void removeCrosshair();
+    void addCrosshair(double x, double y);
 };
 
 #endif // MYGRAPHICSSCENE_H

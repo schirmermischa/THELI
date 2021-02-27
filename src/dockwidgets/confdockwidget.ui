@@ -472,7 +472,7 @@
        <number>1</number>
       </property>
       <property name="currentIndex">
-       <number>6</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="HDUpage">
        <layout class="QGridLayout" name="gridLayout_31">
@@ -22046,7 +22046,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                     <item row="2" column="0">
                      <widget class="QLabel" name="ARCpmRALabel">
                       <property name="text">
-                       <string>Bulk pm in RA</string>
+                       <string>Bulk pm in R.A.</string>
                       </property>
                       <property name="buddy">
                        <cstring>ARCraLineEdit</cstring>
@@ -22109,7 +22109,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                     <item row="3" column="0">
                      <widget class="QLabel" name="ARCpmDECLabel">
                       <property name="text">
-                       <string>Bulk pm in DEC</string>
+                       <string>Bulk pm in Dec</string>
                       </property>
                       <property name="buddy">
                        <cstring>ARCdecLineEdit</cstring>
@@ -22192,7 +22192,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                  <item row="3" column="0">
                   <widget class="QLabel" name="ARCdecLabel">
                    <property name="text">
-                    <string>DEC</string>
+                    <string>Dec</string>
                    </property>
                    <property name="buddy">
                     <cstring>ARCdecLineEdit</cstring>
@@ -22235,6 +22235,9 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                    </property>
                    <property name="statusTip">
                     <string>Lookup the sky coordinates for the given target name (e.g. NGC 1234; only if absent in FITS header)</string>
+                   </property>
+                   <property name="autoFillBackground">
+                    <bool>false</bool>
                    </property>
                    <property name="text">
                     <string>...</string>
@@ -30988,7 +30991,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <item row="1" column="0">
               <widget class="QLabel" name="COAtype2Label">
                <property name="text">
-                <string>DEC</string>
+                <string>Dec</string>
                </property>
                <property name="buddy">
                 <cstring>COAdecLineEdit</cstring>
@@ -31010,7 +31013,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                 </size>
                </property>
                <property name="statusTip">
-                <string>Reference DEC (should be identical if stacks are created for different filters)</string>
+                <string>Reference Declination (should be identical if stacks are created for different filters)</string>
                </property>
               </widget>
              </item>
@@ -33742,7 +33745,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <item row="2" column="0">
               <widget class="QLabel" name="label_63">
                <property name="text">
-                <string>PM in DEC</string>
+                <string>PM in Dec</string>
                </property>
                <property name="buddy">
                 <cstring>COApmdecLineEdit</cstring>
@@ -33764,7 +33767,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                 </size>
                </property>
                <property name="statusTip">
-                <string>Proper motion vector in DEC (coordinate motion). Image coaddition will be with respect to the moving target.</string>
+                <string>Proper motion vector in Dec (coordinate motion). Image coaddition will be with respect to the moving target.</string>
                </property>
               </widget>
              </item>

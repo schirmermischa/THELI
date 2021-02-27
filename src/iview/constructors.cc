@@ -458,13 +458,13 @@ IView::~IView()
         delete pixmapItem;
         pixmapItem = nullptr;
     }
-//    if (binnedPixmapItem != nullptr) {
-//        delete binnedPixmapItem;
-//        binnedPixmapItem = nullptr;
-//    }
+    //    if (binnedPixmapItem != nullptr) {
+    //        delete binnedPixmapItem;
+    //        binnedPixmapItem = nullptr;
+    //    }
     if (magnifiedPixmapItem != nullptr) {
-//        delete magnifiedPixmapItem;
-//        magnifiedPixmapItem = nullptr;
+        //        delete magnifiedPixmapItem;
+        //        magnifiedPixmapItem = nullptr;
     }
     delete ui;
     //    if (icdwDefined) delete icdw;
@@ -493,7 +493,7 @@ void IView::makeConnections()
     connect(ui->actionSourceCat, &QAction::triggered, this, &IView::showSourceCat);
     connect(ui->actionRefCat, &QAction::triggered, this, &IView::showReferenceCat);
 
-//    myGraphicsView = new MyGraphicsView(this);
+    //    myGraphicsView = new MyGraphicsView(this);
     myGraphicsView = new MyGraphicsView();
     QPalette backgroundPalette;
     backgroundPalette.setColor(QPalette::Base, QColor("#000000"));
@@ -531,6 +531,9 @@ void IView::makeConnections()
     connect(wcsdw, &IvWCSDockWidget::CDmatrixChanged, icdw, &IvConfDockWidget::drawCompass);
 
     connect(statdw, &IvStatisticsDockWidget::visibilityChanged, this, &IView::updateStatisticsButton);
+    connect(finderdw, &IvFinderDockWidget::visibilityChanged, this, &IView::updateFinderButton);
+    connect(finderdw, &IvFinderDockWidget::targetResolved, this, &IView::targetResolvedReceived);
+    connect(finderdw, &IvFinderDockWidget::clearTargetResolved, scene, &MyGraphicsScene::removeCrosshair);
 
     connect(timer, &QTimer::timeout, this, &IView::forwardAction_triggered);
     connect(timer, &QTimer::timeout, this, &IView::backAction_triggered);
@@ -641,7 +644,7 @@ void IView::initGUI()
 {
     addDockWidgets();  // Widgets must be alive early on
 
-//    QRect rec = QApplication::desktop()->screenGeometry();  // deprecated in Qt5.14
+    //    QRect rec = QApplication::desktop()->screenGeometry();  // deprecated in Qt5.14
     QScreen *screen = QGuiApplication::screens().at(0);
     QRect rec = screen->geometry();
     screenHeight = rec.height();
@@ -682,8 +685,8 @@ void IView::initGUIstep2()
     }
 
     if (!displayMode.contains("SCAMP")) {
-//        ui->toolBar->addWidget(speedLabel);
-//        speedLabel->setText(" Frame rate");
+        //        ui->toolBar->addWidget(speedLabel);
+        //        speedLabel->setText(" Frame rate");
         ui->toolBar->addWidget(speedSpinBox);
         speedSpinBox->setValue(2);
         speedSpinBox->setMinimum(1);
@@ -768,12 +771,28 @@ void IView::addDockWidgets()
         connect(icdw, &IvConfDockWidget::closeIview, this, &IView::close);
     }
 
-    addDockWidget(Qt::LeftDockWidgetArea, statdw);
-    statdw->hide();
+    if (!displayMode.contains("SCAMP")) {
+        addDockWidget(Qt::LeftDockWidgetArea, statdw);
+        statdw->hide();
+
+        addDockWidget(Qt::LeftDockWidgetArea, finderdw);
+        finderdw->hide();
+    }
 }
 
 void IView::updateStatisticsButton()
 {
     if (statdw->isVisible()) ui->actionImage_statistics->setChecked(true);
     else ui->actionImage_statistics->setChecked(false);
+}
+
+void IView::updateFinderButton()
+{
+    if (finderdw->isVisible()) {
+        ui->actionFinder->setChecked(true);
+    }
+    else {
+        ui->actionFinder->setChecked(false);
+        scene->removeCrosshair();
+    }
 }

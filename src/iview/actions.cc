@@ -19,6 +19,46 @@ If not, see https://www.gnu.org/licenses/ .
 
 #include "iview.h"
 #include "ui_iview.h"
+#include "ui_ivfinderdockwidget.h"
+
+void IView::checkFinder()
+{
+    if (!finderdw->isVisible()) return;
+
+    // Both name fields empty
+    if (finderdw->ui->targetNameSiderealLineEdit->text().isEmpty()
+            && finderdw->ui->targetNameNonsiderealLineEdit->text().isEmpty()
+            && !finderdw->ui->targetAlphaLineEdit->text().isEmpty()
+            && !finderdw->ui->targetDeltaLineEdit->text().isEmpty() ) {
+        finderdw->bypassResolver();
+    }
+
+    // sidereal field empty, nonsidereal not empty
+    if (!finderdw->ui->targetNameNonsiderealLineEdit->text().isEmpty()
+            && finderdw->ui->targetNameSiderealLineEdit->text().isEmpty()) {
+        finderdw->on_MPCresolverToolButton_clicked();
+    }
+
+    // sidereal field not empty, nonsidereal empty, coords empty
+    if (!finderdw->ui->targetNameSiderealLineEdit->text().isEmpty()
+            && finderdw->ui->targetNameNonsiderealLineEdit->text().isEmpty()) {
+        if (finderdw->ui->targetAlphaLineEdit->text().isEmpty()
+                ||finderdw->ui->targetDeltaLineEdit->text().isEmpty()) {
+            finderdw->on_locatePushButton_clicked();
+        }
+        if (!finderdw->ui->targetAlphaLineEdit->text().isEmpty()
+                && !finderdw->ui->targetDeltaLineEdit->text().isEmpty()) {
+            finderdw->bypassResolver();
+        }
+    }
+}
+
+void IView::checkFinderBypass()
+{
+    if (!finderdw->isVisible()) return;
+
+    finderdw->bypassResolver();
+}
 
 void IView::previousAction_triggered()
 {
@@ -49,6 +89,8 @@ void IView::previousAction_triggered()
     ui->actionForward->setChecked(false);
 
     emit currentlyDisplayedIndex(currentId);
+
+    checkFinder();
 }
 
 void IView::nextAction_triggered()
@@ -80,6 +122,8 @@ void IView::nextAction_triggered()
     ui->actionForward->setChecked(false);
 
     emit currentlyDisplayedIndex(currentId);
+
+    checkFinder();
 }
 
 void IView::forwardAction_triggered()
@@ -113,6 +157,8 @@ void IView::forwardAction_triggered()
     showSourceCat();
 
     emit currentlyDisplayedIndex(currentId);
+
+    checkFinder();
 }
 
 void IView::backAction_triggered()
@@ -146,6 +192,8 @@ void IView::backAction_triggered()
     showSourceCat();
 
     emit currentlyDisplayedIndex(currentId);
+
+    checkFinder();
 }
 
 void IView::startAction_triggered()
@@ -173,6 +221,8 @@ void IView::startAction_triggered()
     ui->actionForward->setChecked(false);
 
     emit currentlyDisplayedIndex(currentId);
+
+    checkFinder();
 }
 
 void IView::endAction_triggered()
@@ -200,6 +250,8 @@ void IView::endAction_triggered()
     ui->actionForward->setChecked(false);
 
     emit currentlyDisplayedIndex(currentId);
+
+    checkFinder();
 }
 
 void IView::on_actionDragMode_triggered()
@@ -238,5 +290,19 @@ void IView::on_actionImage_statistics_triggered()
         statdw->setFloating(false);
         statdw->raise();
         statdw->show();
+    }
+}
+
+void IView::on_actionFinder_triggered()
+{
+    if (finderdw->isVisible()) {
+        removeDockWidget(finderdw);
+        finderdw->hide();
+    }
+    else {
+        finderdw->setFloating(false);
+        finderdw->raise();
+        finderdw->show();
+        finderdw->ui->targetNameSiderealLineEdit->setFocus();
     }
 }

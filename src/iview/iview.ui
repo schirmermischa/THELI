@@ -100,6 +100,7 @@
    <addaction name="actionWCSMode"/>
    <addaction name="separator"/>
    <addaction name="actionImage_statistics"/>
+   <addaction name="actionFinder"/>
    <addaction name="separator"/>
    <addaction name="actionSourceCat"/>
    <addaction name="actionRefCat"/>
@@ -294,6 +295,21 @@
    </property>
    <property name="toolTip">
     <string>Mask satellites and other image defects</string>
+   </property>
+  </action>
+  <action name="actionFinder">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/magnifyer.png</normaloff>:/icons/magnifyer.png</iconset>
+   </property>
+   <property name="text">
+    <string>Finder</string>
+   </property>
+   <property name="toolTip">
+    <string>Locate a target in the image</string>
    </property>
   </action>
  </widget>

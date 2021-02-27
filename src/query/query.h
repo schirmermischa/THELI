@@ -96,7 +96,8 @@ public:
     void doPhotomQueryFromWeb();
     void doColorCalibQueryFromWeb();
     void doGaiaQuery();
-    QString resolveTarget(QString target);
+    QString resolveTargetSidereal(QString target);
+    QString resolveTargetNonsidereal(QString target, QString dateobs);
     void writeAstromScamp();
     void writeAstromANET();
     void writeAstromIview();
