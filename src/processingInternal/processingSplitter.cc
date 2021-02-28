@@ -315,7 +315,7 @@ void Controller::resetAltInstrumentData()
     altInstData.shortName = "";
     altInstData.nameFullPath = "";
     altInstData.obslat = 0.;
-    altInstData.obslong = 0.;
+    altInstData.obslon = 0.;
     altInstData.bayer = "";
     altInstData.type = "OPT";
     altInstData.pixscale = 1.0; // in arcsec
@@ -368,7 +368,7 @@ void Controller::initAltInstrumentData(QString instrumentNameFullPath)
             bayerFound = true;
         }
         if (line.contains("OBSLAT=")) altInstData.obslat = line.split("=")[1].toFloat();
-        if (line.contains("OBSLONG=")) altInstData.obslong = line.split("=")[1].toFloat();
+        if (line.contains("OBSLONG=")) altInstData.obslon = line.split("=")[1].toFloat();
         if (line.contains("PIXSCALE=")) altInstData.pixscale = line.split("=")[1].toFloat();
 //        if (line.contains("GAIN=")) altInstData.gain = line.split("=")[1].toFloat();
 

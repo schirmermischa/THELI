@@ -181,6 +181,8 @@ void Splitter::buildHeaderRAW()
     cards.append("AIRMASS = 1.0");
     cards.append("THELIPRO= 1");
     cards.append("BAYER   = '"+bayerPattern+"'");
+    cards.append("GEOLON  = "+QString::number(instData.obslon, 'f', 4));
+    cards.append("GEOLAT  = "+QString::number(instData.obslat, 'f', 4));
     if (sensorTemp > -1000.) cards.append("DET_TEMP= "+QString::number(sensorTemp, 'f', 2));
     if (cameraTemp > -1000.) cards.append("CAM_TEMP= "+QString::number(cameraTemp, 'f', 2));
     if (!isoSpeed.isEmpty()) cards.append("ISOSPEED= "+isoSpeed);

@@ -30,7 +30,7 @@ typedef struct {
     QString shortName = "";
     QString nameFullPath = "";
     float obslat = 0.;
-    float obslong = 0.;
+    float obslon = 0.;
     QString bayer;
     QString type;
     QString flip = "";

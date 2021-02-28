@@ -239,6 +239,8 @@ public:
     double crval1 = 0.;
     double crval2 = 0.;
     double mjdobs = 0;
+    float geolon = 0.0;            // Earth coordinates
+    float geolat = 0.;             // Earth coordinates
     float fwhm = -1.0;             // FWHM estimate based on GAIA point sources
     float fwhm_est = -1.0;         // median FWHM of all detected sources in an image
     float RZP = 0;                 // SCAMP output

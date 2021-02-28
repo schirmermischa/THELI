@@ -69,6 +69,14 @@ void Splitter::buildTheliHeader()
         }
     }
 
+    // Append geographic coordinates
+    QString geolon = "GEOLON  = "+QString::number(instData.obslon, 'f', 4);
+    QString geolat = "GEOLAT  = "+QString::number(instData.obslat, 'f', 4);
+    geolon.resize(80, ' ');
+    geolat.resize(80, ' ');
+    headerTHELI.append(geolon);
+    headerTHELI.append(geolat);
+
     // Instrument-specific optional keys
     bool keyFoundOptional = true;
     QString instSpecificKey = "";
@@ -1314,7 +1322,7 @@ double Splitter::dateobsToLST()
     double dfrac = ut / 24.;
     double d = dwhole + dfrac;
 
-    double lst = 100.46 + 0.985647*d + instData.obslong + 15.*ut;
+    double lst = 100.46 + 0.985647*d + instData.obslon + 15.*ut;
 
     // LST must be between 0 and 360 degrees
     int idummy = (int)(lst/360.);

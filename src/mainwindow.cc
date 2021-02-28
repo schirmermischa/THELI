@@ -894,7 +894,7 @@ void MainWindow::resetInstrumentData()
     instData.shortName = "";
     instData.nameFullPath = "";
     instData.obslat = 0.;
-    instData.obslong = 0.;
+    instData.obslon = 0.;
     instData.bayer = "";
     instData.flip = "";
     instData.type = "OPT";
@@ -949,7 +949,7 @@ void MainWindow::initInstrumentData(QString instrumentNameFullPath)
             bayerFound = true;
         }
         if (line.contains("OBSLAT=")) instData.obslat = line.split("=")[1].toFloat();
-        if (line.contains("OBSLONG=")) instData.obslong = line.split("=")[1].toFloat();
+        if (line.contains("OBSLONG=")) instData.obslon = line.split("=")[1].toFloat();
         if (line.contains("PIXSCALE=")) instData.pixscale = line.split("=")[1].toFloat();
         //        if (line.contains("GAIN=")) instData.gain = line.split("=")[1].toFloat();
 

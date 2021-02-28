@@ -368,6 +368,8 @@ void MyImage::initTHELIheader(int *status)
         extractKeywordInt(it, "BITPIX", bitpix);
         extractKeywordFloat(it, "SKYVALUE", skyValue);
         extractKeywordFloat(it, "AIRMASS", airmass);
+        extractKeywordFloat(it, "GEOLON", geolon);
+        extractKeywordFloat(it, "GEOLAT", geolat);
         extractKeywordFloat(it, "FWHM", fwhm);
         extractKeywordFloat(it, "FWHMEST", fwhm_est);
         extractKeywordFloat(it, "GAIN", gain);
