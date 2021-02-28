@@ -101,7 +101,7 @@ void IvFinderDockWidget::on_MPCresolverToolButton_clicked()
 
     int verbosity = 0;
     Query *query = new Query(&verbosity);
-    QString check = query->resolveTargetNonsidereal(targetName, dateObs);
+    QString check = query->resolveTargetNonsidereal(targetName, dateObs, geoLon, geoLat);
     if (check == "Resolved") emit targetResolved(query->targetAlpha, query->targetDelta);
     else if (check == "Unresolved") {
         QMessageBox::information(this, "THELI: Target unresolved",
@@ -115,9 +115,11 @@ void IvFinderDockWidget::on_MPCresolverToolButton_clicked()
     query = nullptr;
 }
 
-void IvFinderDockWidget::updateDateObs(QString dateobs)
+void IvFinderDockWidget::updateDateObsAndGeo(QString dateobs, float geolon, float geolat)
 {
     dateObs = dateobs;
+    geoLon = geolon;
+    geoLat = geolat;
 }
 
 // just show a crosshair at the coordinates, don't resolve anything

@@ -484,11 +484,13 @@ QString Query::resolveTargetSidereal(QString target)
     return "Unresolved";
 }
 
-QString Query::resolveTargetNonsidereal(QString target, QString dateobs)
+QString Query::resolveTargetNonsidereal(QString target, QString dateobs, float geoLon, float geoLat)
 {
     if (!successProcessing) return "Unresolved";
 
-    queryCommand = pythonExecutable + " " + thelidir+"/python/mpc_query.py "+target + " " + dateobs;
+    QString geolonString = QString::number(geoLon, 'f', 4)+"d";
+    QString geolatString = QString::number(geoLat, 'f', 4)+"d";
+    queryCommand = pythonExecutable + " " + thelidir+"/python/mpc_query.py "+target + " " + dateobs + " " + geolonString + " " + geolatString;
 
     runCommand(queryCommand);
 

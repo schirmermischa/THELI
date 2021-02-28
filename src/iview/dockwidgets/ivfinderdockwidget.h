@@ -17,10 +17,12 @@ public:
     Ui::IvFinderDockWidget *ui;
 
     QString dateObs = "2020-01-01T00:00:00";
+    float geoLon = 0.0;
+    float geoLat = 0.0;
 
     void bypassResolver();
 public slots:
-    void updateDateObs(QString dateobs);
+    void updateDateObsAndGeo(QString dateobs, float geolon, float geolat);
 
     void on_targetresolverToolButton_clicked();
     void on_MPCresolverToolButton_clicked();

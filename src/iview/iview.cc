@@ -565,6 +565,8 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     wcs = it->wcs;
     wcsInit = it->wcsInit;
     finderdw->dateObs = it->dateobs;
+    finderdw->geoLon = it->geolon;
+    finderdw->geoLat = it->geolat;
     sendWCStoWCSdockWidget();
     this->setWindowTitle("iView --- Memory viewer : "+it->chipName);
 
@@ -683,6 +685,8 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
     fullheader = currentMyImage->fullheader;
     wcs = currentMyImage->wcs;
     finderdw->dateObs = currentMyImage->dateobs;
+    finderdw->geoLon = currentMyImage->geolon;
+    finderdw->geoLat = currentMyImage->geolat;
     (void) wcsset(wcs);
     wcsInit = true;
     sendWCStoWCSdockWidget();

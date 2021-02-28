@@ -97,7 +97,7 @@ public:
     void doColorCalibQueryFromWeb();
     void doGaiaQuery();
     QString resolveTargetSidereal(QString target);
-    QString resolveTargetNonsidereal(QString target, QString dateobs);
+    QString resolveTargetNonsidereal(QString target, QString dateobs, float geoLon, float geoLat);
     void writeAstromScamp();
     void writeAstromANET();
     void writeAstromIview();
