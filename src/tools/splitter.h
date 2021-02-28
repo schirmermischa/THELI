@@ -212,7 +212,7 @@ private:
     void retainMandatoryKeywords();
     void buildTheliHeader();
     void buildTheliHeaderWCS(int chip);
-    void buildTheliHeaderFILTER();
+    void buildTheliHeaderFILTER(int chip);
     void buildTheliHeaderEXPTIME();
     void buildTheliHeaderMJDOBS();
     void buildTheliHeaderAIRMASS();
@@ -313,6 +313,7 @@ private:
     bool checkInstrumentConsistency(QString foundInstrumentName);
     void updateMinGainValue(float gainValue);
     void overrideDetectorSections(int chip);
+    bool individualFixFILTER(int chip);
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

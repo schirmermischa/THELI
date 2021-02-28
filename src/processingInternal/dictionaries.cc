@@ -36,13 +36,13 @@ void Controller::populateHeaderDictionary()
     headerDictionary.insert("CD2_2", {"CD2_2", "J_CD2_2"});
     headerDictionary.insert("CDELT1", {"CDELT1"});
     headerDictionary.insert("CDELT2", {"CDELT2"});
-    headerDictionary.insert("CRVAL1", {"CRVAL1", "RA", "OBJCTRA", "MEANRA", "OBSRA", "CRVAL1A", "RA-D", "RA_DEG", "RA-HOURS", "RASTRNG"});
-    headerDictionary.insert("CRVAL2", {"CRVAL2", "DEC", "OBJCTDEC", "MEANDEC", "OBSDEC", "CRVAL2A", "DEC-D", "DEC_DEG", "DECSTRNG"});
+    headerDictionary.insert("CRVAL1", {"CRVAL1", "RA", "OBJCTRA", "MEANRA", "OBSRA", "CRVAL1A", "RA-D", "RA_DEG", "RA-HOURS", "RASTRNG", "TELRA"});
+    headerDictionary.insert("CRVAL2", {"CRVAL2", "DEC", "OBJCTDEC", "MEANDEC", "OBSDEC", "CRVAL2A", "DEC-D", "DEC_DEG", "DECSTRNG", "TELDEC"});
     headerDictionary.insert("RADESYS", {"RADESYS", "RADECSYS"});
     headerDictionary.insert("OBJECT", {"OBJECT", "QUEUEID", "TARGET", "TARGNAME"});
-    headerDictionary.insert("AIRMASS", {"AIRMASS", "AMSTART", "HIERARCH ESO TEL AIRM START", "SECZ", "FZ_MP"});
+    headerDictionary.insert("AIRMASS", {"AIRMASS", "AMSTART", "HIERARCH ESO TEL AIRM START", "SECZ", "FZ_MP", "TELAM"});
     headerDictionary.insert("EXPTIME", {"EXPTIME", "EXPOSURE", "EXPOS", "EXPOSED", "EXP_TIME"});
-    headerDictionary.insert("EQUINOX", {"EQUINOX", "EPOCH", "RADECEQ"});
+    headerDictionary.insert("EQUINOX", {"EQUINOX", "EPOCH", "RADECEQ", "TELEP"});
     headerDictionary.insert("DATE-OBS", {"DATE-OBS", "DATEOBS", "DATE_OBS", "DATE", "UTSHUT", "TIME"});
     headerDictionary.insert("MJD-OBS", {"MJD-OBS", "MJD_OBS"});
     headerDictionary.insert("NAMPS", {"NAMPS"});
@@ -59,7 +59,7 @@ void Controller::populateHeaderDictionary()
     // Other keywords of interest (to calculate others, or preserve information)
     headerDictionary.insert("INSTRUME", {"INSTRUME", "DETECTOR"});
     headerDictionary.insert("DATE", {"DATE", "DATE-OBS", "DATEOBS", "UT-DATE"});
-    headerDictionary.insert("TIME", {"EXPSTART", "TIME", "TIME-OBS", "UT", "UT-TIME", "UTSTART", "UT-STR"});
+    headerDictionary.insert("TIME", {"EXPSTART", "TIME", "TIME-OBS", "UT", "UT-TIME", "UTSTART", "UT-STR", "TELUT"});
     headerDictionary.insert("LST", {"LST", "LST-OBS", "LSTHDR", "LST_OBS", "OBS-LST", "SD_TIME", "ST"});
     headerDictionary.insert("DIT", {"EXP1TIME", "EXPCOADD", "EXPTIME", "HIERARCH ESO DET DIT", "ITIME", "K_DETEP1", "TRUITIME", "DIT"});
     headerDictionary.insert("NDIT", {"COADD", "COADDONE", "COADDS", "COAVERAG", "HIERARCH ESO DET NDIT", "NCOADD", "NDIT"});
@@ -145,7 +145,7 @@ void Controller::populateFilterDictionary()
     filterDictionary.insert("BBIcIwp_ESO845", "Ic");
     filterDictionary.insert("BBU38_ESO841", "U38");
     filterDictionary.insert("BBU50_ESO877", "U50");
-    //IMACS
+    // IMACS
     filterDictionary.insert("Sloan_u", "u");
     filterDictionary.insert("Sloan_g", "g");
     filterDictionary.insert("Sloan_r", "r");

@@ -429,6 +429,17 @@ bool Splitter::individualFixCRPIX(int chip)
         if (chip == 15) crpix2_card = "CRPIX2  = -56";
         individualFixDone = true;
     }
+    if (instData.name == "PISCO@LCO") {
+        if (chip == 1) crpix1_card = "CRPIX1  = 1500";
+        if (chip == 3) crpix1_card = "CRPIX1  = 1500";
+        if (chip == 5) crpix1_card = "CRPIX1  = 1500";
+        if (chip == 7) crpix1_card = "CRPIX1  = 1500";
+        if (chip == 1) crpix2_card = "CRPIX2  = 3000";
+        if (chip == 3) crpix2_card = "CRPIX2  = 3000";
+        if (chip == 5) crpix2_card = "CRPIX2  = 3000";
+        if (chip == 7) crpix2_card = "CRPIX2  = 3000";
+        individualFixDone = true;
+    }
     if (instData.name == "MOSAIC-III_4@KPNO_4m") {
         if (chip == 3) crpix1_card = "CRPIX1  = 4219";
         if (chip == 7) crpix1_card = "CRPIX1  = 2078";
@@ -835,7 +846,30 @@ bool Splitter::individualFixDATEOBS()
             dateObsValue = mjdobsToDATEOBS(mjdValue);
             individualFixDone = true;
         }
+    }
 
+    if (instData.name == "PISCO@LCO") {   // wrong order of DATE and DATEOBS keyword
+        QString dateValue;
+        QString timeValue;
+        bool foundDATE = searchKeyValue(QStringList() << "DATEOBS", dateValue);
+        bool foundTIME = searchKeyValue(QStringList() << "TELUT", timeValue);
+        if (foundDATE && foundTIME) {
+            if (dateValue.contains("-") && timeValue.contains(":")) {
+                dateObsValue = dateValue+"T"+timeValue;
+            }
+            else {
+                // Construct a unique dummy DATE-OBS keyword, incremented by 0.1 seconds.
+#pragma omp critical
+                {
+                    *dateObsIncrementor += 0.1;
+                    QString timeStamp = decimalSecondsToHms(*dateObsIncrementor);
+                    dateObsValue = "2020-01-01T"+timeStamp;
+                }
+                emit messageAvailable(fileName + " : Could not determine keyword: DATE-OBS, set to "+dateObsValue, "warning");
+                emit warning();
+            }
+        }
+        individualFixDone = true;
     }
 
     if (individualFixDone) {
@@ -954,6 +988,10 @@ bool Splitter::individualFixGAIN(int chip)
         chipGain = harmonicGain(multiportGains);
         individualFixDone = true;
     }
+    else if (instData.name == "PISCO@LCO") {
+        chipGain = harmonicGain(multiportGains);
+        individualFixDone = true;
+    }
     else if (instData.name == "MOSAIC-III_4@KPNO_4m") {
         chipGain = harmonicGain(multiportGains);
         individualFixDone = true;
@@ -1000,6 +1038,7 @@ bool Splitter::individualFixGAIN(int chip)
                 || instData.name.contains("GMOS-S-HAM")
                 || instData.name.contains("SAMI")
                 || instData.name == "MOSAIC-II_16@CTIO"
+                || instData.name == "PISCO@LCO"
                 || instData.name == "MOSAIC-III_4@KPNO_4m") {
             gain[chip/numAmpPerChip] = chipGain;
         }
@@ -1041,8 +1080,11 @@ void Splitter::buildTheliHeaderAIRMASS()
     }
 }
 
-void Splitter::buildTheliHeaderFILTER()
+void Splitter::buildTheliHeaderFILTER(int chip)
 {
+    // Exceptions. Return if successful.
+    if (individualFixFILTER(chip)) return;
+
     QStringList filterKeywordList;
     QStringList possibleKeyNames = headerDictionary.value("FILTER");
 
@@ -1125,6 +1167,30 @@ void Splitter::buildTheliHeaderFILTER()
     }
     filterCard.resize(80, ' ');
     headerTHELI.append(filterCard);
+}
+
+bool Splitter::individualFixFILTER(int chip)
+{
+    if (!successProcessing) return false;
+
+    bool individualFixDone = false;
+
+    QString filterCard = "";
+
+    if (instData.name == "PISCO@LCO") {
+        if (chip == 0 || chip == 1) filterCard = "FILTER  = 'g'";
+        if (chip == 2 || chip == 3) filterCard = "FILTER  = 'r'";
+        if (chip == 4 || chip == 5) filterCard = "FILTER  = 'i'";
+        if (chip == 6 || chip == 7) filterCard = "FILTER  = 'z'";
+        individualFixDone = true;
+    }
+
+    if (individualFixDone) {
+        filterCard.resize(80, ' ');
+        headerTHELI.append(filterCard);
+    }
+
+    return individualFixDone;
 }
 
 bool Splitter::checkFormatDATEOBS()

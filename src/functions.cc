@@ -1575,7 +1575,7 @@ int gauss_f(const gsl_vector* x, void* params, gsl_vector* f)
     return GSL_SUCCESS;
 }
 
-int gauss_df (const gsl_vector *x, void *params, gsl_matrix *J)
+int gauss_df(const gsl_vector *x, void *params, gsl_matrix *J)
 {
     size_t nx = ((struct dataGSL *)params)->nx;
     size_t ny = ((struct dataGSL *)params)->ny;
@@ -1599,10 +1599,45 @@ int gauss_df (const gsl_vector *x, void *params, gsl_matrix *J)
     return GSL_SUCCESS;
 }
 
-int gauss_fdf (const gsl_vector *x, void *params, gsl_vector *f, gsl_matrix *J)
+int gauss_fdf(const gsl_vector *x, void *params, gsl_vector *f, gsl_matrix *J)
 {
     gauss_f(x, params, f);
     gauss_df(x, params, J);
 
     return GSL_SUCCESS;
+}
+
+void flip(QVector<float> &data, const QString dir, const int naxis1, const int naxis2)
+{
+    QVector<float> copy;
+    copy.resize(naxis1*naxis2);
+
+    long k = 0;
+    if (dir == "x") {
+        for (int j=0; j<naxis2; ++j) {
+            for (int i=0; i<naxis1; ++i) {
+                copy[k++] = data[naxis1-1-i + naxis1*j];
+            }
+        }
+    }
+    else if (dir == "y") {
+        for (int j=0; j<naxis2; ++j) {
+            for (int i=0; i<naxis1; ++i) {
+                copy[k++] = data[i + naxis1*(naxis2-1-j)];
+            }
+        }
+    }
+    else if (dir == "xy") {
+        for (int j=0; j<naxis2; ++j) {
+            for (int i=0; i<naxis1; ++i) {
+                copy[k++] = data[naxis1-i-1+naxis1*(naxis2-j-1)];
+            }
+        }
+    }
+
+    else {
+        // nothing yet
+    }
+
+    data.swap(copy);
 }

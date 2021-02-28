@@ -348,6 +348,36 @@ void Splitter::getMultiportInformation(int chip)
         individualFixDone = true;
     }
 
+    if (instData.name == "PISCO@LCO") {
+        naxis1 = 3092;
+        naxis2 = 6147;
+
+        int naxis1channel = 0;
+        int naxis2channel = 0;
+        searchKeyValue(QStringList() << "NAXIS1", naxis1channel);
+        searchKeyValue(QStringList() << "NAXIS2", naxis2channel);
+        multiportOverscanDirections << "vertical";
+        QVector<long> oscan;
+        oscan << 1547 << 1577 << 1 << 6147;
+        QVector<long> illum;
+        oscan << 1 << 1546 << 1 << 6147;
+        multiportOverscanSections << oscan;
+        multiportIlluminatedSections << illum;
+        QVector<long> channelSection;
+        //        updateMinGainValue(gainValue);
+        channelSection << 0 << naxis1channel - 1 << 0 << naxis2channel - 1;
+        multiportChannelSections << channelSection;
+        if (chip % numAmpPerChip == 0) dataPasted.resize(naxis1 * naxis2);
+
+        float gainValue = 1.0;
+        searchKeyValue(QStringList() << "GAIN", gainValue);
+        multiportGains << gainValue;
+        //        minGainValue = minVec_T(multiportGains);
+        channelGains.clear();
+        channelGains << 1.0;   // dummy;
+        individualFixDone = true;
+    }
+
     if (instData.name == "MOSAIC-III_4@KPNO_4m") {
         naxis1 = 4112;
         naxis2 = 4096;
@@ -476,7 +506,8 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
             // detectors where the amps form two or more vertical stripes from left to right
             if (instData.name == "SOI@SOAR"
                     || instData.name.contains("GMOS")
-                    || instData.name == "MOSAIC-II_16@CTIO") {
+                    || instData.name == "MOSAIC-II_16@CTIO"
+                    || instData.name == "PISCO@LCO") {
                 offx = (chip % numAmpPerChip) * naxis1 / numAmpPerChip;
                 offy = 0;
             }
@@ -700,7 +731,8 @@ void Splitter::updateMEFpastingStatus(int chip)
         //        if (chip == 3 || chip == 7 || chip == 11) MEFpastingFinished = true;
     }
     if (instData.name == "SOI@SOAR"
-            || instData.name == "MOSAIC-II_16@CTIO") {
-        if ( (chip +1) % numAmpPerChip == 0) MEFpastingFinished = true;
+            || instData.name == "MOSAIC-II_16@CTIO"
+            || instData.name == "PISCO@LCO") {
+        if ( (chip + 1) % numAmpPerChip == 0) MEFpastingFinished = true;
     }
 }

@@ -246,7 +246,8 @@ void Splitter::extractImages()
     // multiple readout channels in different FITS extensions
     multiChannelMultiExt << "GMOS-N-HAM@GEMINI" << "GMOS-N-HAM_1x1@GEMINI"
                          << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI"
-                         << "MOSAIC-II_16@CTIO" << "MOSAIC-III_4@KPNO_4m" << "SAMI_2x2@SOAR" << "SOI@SOAR";
+                         << "MOSAIC-II_16@CTIO" << "MOSAIC-III_4@KPNO_4m"
+                         << "PISCO@LCO" << "SAMI_2x2@SOAR" << "SOI@SOAR";
     if (multiChannelMultiExt.contains(instData.name)) ampInSeparateExt = true;
 
     if (instruments.contains(instData.name)) {
@@ -345,7 +346,7 @@ void Splitter::extractImagesFITS()
             testGROND();                     // GROND data are an oddball and need to be tested here
             updateMEFpastingStatus(chip);    // Some cameras have readout channels in individual FITS extensions, implying skipping e.g. writeImage()
 
-            buildTheliHeaderFILTER();
+            buildTheliHeaderFILTER(chip);
             buildTheliHeaderWCS(chipMapped);
             buildTheliHeaderEXPTIME();
             buildTheliHeaderDATEOBS();  // must be done before MJD-OBS
@@ -375,6 +376,7 @@ void Splitter::extractImagesFITS()
                 //                cropDataSection(dataSection[chipMapped]);
                 pasteMultiportIlluminatedSections(chipMapped);
                 correctXtalk();             // Must maintain original detector geometry for x-talk correction, i.e. do before cropping. Must replace naxisi by naxisiRaw in xtalk methods.
+
                 correctNonlinearity(chipMapped);
                 convertToElectrons(chipMapped);
                 applyMask(chipMapped);
@@ -806,6 +808,10 @@ void Splitter::getNumberOfAmplifiers()
         numAmpPerChip = 2;
         rawStatus = 0;
     }
+    if (instData.name == "PISCO@LCO") {
+        numAmpPerChip = 2;
+        rawStatus = 0;
+    }
     if (instData.name == "MOSAIC-III_4@KPNO_4m") {
         numAmpPerChip = 4;
         rawStatus = 0;
@@ -818,7 +824,8 @@ void Splitter::getNumberOfAmplifiers()
     // multiple readout channels in different FITS extensions
     multiChannelMultiExt << "GMOS-N-HAM@GEMINI" <<  "GMOS-N-HAM_1x1@GEMINI"
                          << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI"
-                         << "MOSAIC-II_16@CTIO" << "MOSAIC-III_4@KPNO_4m" << "SAMI_2x2@SOAR" << "SOI@SOAR";
+                         << "MOSAIC-II_16@CTIO" << "MOSAIC-III_4@KPNO_4m"
+                         << "PISCO@LCO" << "SAMI_2x2@SOAR" << "SOI@SOAR";
     if (multiChannelMultiExt.contains(instData.name)) ampInSeparateExt = true;
 
     if (numAmpPerChip > 1 && ampInSeparateExt) {
@@ -885,6 +892,12 @@ void Splitter::writeImage(int chipMapped)
             if (chipMapped == 11) chipID = 6;
             if (chipMapped == 13) chipID = 7;
             if (chipMapped == 15) chipID = 8;
+        }
+        if (instData.name == "PISCO@LCO") {
+            if (chipMapped == 1) chipID = 1;
+            if (chipMapped == 3) chipID = 1;
+            if (chipMapped == 5) chipID = 1;
+            if (chipMapped == 7) chipID = 1;
         }
         if (instData.name == "MOSAIC-III_4@KPNO_4m") {
             if (chipMapped == 3) chipID = 1;
@@ -1322,7 +1335,7 @@ bool Splitter::checkCorrectMaskSize(const int chip)
     // detectors with multi-amps (one amp per FITS extension): masked at a later stage (calibration)
     if (n_mask > 0 && n_data > 0 && n_mask != n_data) {
         if (!maskSizeWarningShown) {
-            emit messageAvailable("Inconsistent image size detected between data and instrument configuration"
+            emit messageAvailable(fileName + ": Inconsistent image size detected between data and instrument configuration"
                                   " (overscan and / or data section) in\n"+instData.nameFullPath+
                                   " \n. The image will not be processed, please remove it manually.", "warning");
             emit warning();
