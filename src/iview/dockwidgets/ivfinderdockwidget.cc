@@ -97,15 +97,29 @@ void IvFinderDockWidget::on_MPCresolverToolButton_clicked()
 
     QString targetName = ui->targetNameNonsiderealLineEdit->text();
     if (targetName.isEmpty()) return;
-    targetName = targetName.simplified().replace(" ", "_");
+//    targetName = targetName.simplified().replace(" ", "_");
+    targetName = targetName.simplified();
 
     int verbosity = 0;
     Query *query = new Query(&verbosity);
     QString check = query->resolveTargetNonsidereal(targetName, dateObs, geoLon, geoLat);
     if (check == "Resolved") emit targetResolved(query->targetAlpha, query->targetDelta);
     else if (check == "Unresolved") {
-        QMessageBox::information(this, "THELI: Target unresolved",
-                                 "The target " + targetName + " could not be resolved.");
+        // Test if there is a blank in the string, and try without the blank:
+        if (targetName.contains(' ')) {
+            QString targetOrig = targetName;
+            targetName.remove(QChar(' '));
+            QString check = query->resolveTargetNonsidereal(targetName, dateObs, geoLon, geoLat);
+            if (check == "Resolved") emit targetResolved(query->targetAlpha, query->targetDelta);
+            else {
+                QMessageBox::information(this, "THELI: Target unresolved",
+                                 "The target names \"" + targetOrig + "\" and " +"\"" + targetName + "\"" + " could not be resolved.");
+            }
+        }
+        else {
+            QMessageBox::information(this, "THELI: Target unresolved",
+                             "The target name \"" + targetName + "\" could not be resolved.");
+        }
     }
     else {
         // nothing yet.
