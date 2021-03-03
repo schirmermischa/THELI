@@ -102,6 +102,8 @@ void IView::setMiddleMouseMode(QString mode)
 
 void IView::sendWCStoWCSdockWidget()
 {
+    if (!wcsInit) return;
+
     // Copy the CD matrix to the WCS dock widget and init()
     wcsdw->cd11_orig = wcs->cd[0];
     wcsdw->cd12_orig = wcs->cd[1];
@@ -116,6 +118,17 @@ void IView::sendWCStoWCSdockWidget()
 
 void IView::showWCSdockWidget()
 {
+    if (!wcs || ! wcsInit) {
+        QMessageBox msgBox;
+        msgBox.setText("WCS not found");
+        msgBox.setInformativeText("This image does not contain any WCS information. The WCS dialog will not be shown.\n\n");
+        msgBox.addButton(tr("Ok"), QMessageBox::YesRole);
+        msgBox.exec();
+        wcsdw->setDisabled(true);
+        ui->actionWCSMode->setChecked(false);
+        return;
+    }
+
     if (wcsdw->isVisible()) return;
 
     sendWCStoWCSdockWidget();
@@ -475,7 +488,7 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
 
         // Load the binned image to the navigator
         emit updateNavigatorBinned(binnedPixmapItem);       // binnedPixmapItem created in mapFITS()
-        emit updateNavigatorBinnedCDmatrix(wcs->cd);
+        emit updateNavigatorBinnedWCS(wcs, wcsInit);
     }
     else {
         // At end of file list, or file does not exist anymore.
@@ -571,6 +584,7 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     finderdw->dateObs = it->dateobs;
     finderdw->geoLon = it->geolon;
     finderdw->geoLat = it->geolat;
+
     sendWCStoWCSdockWidget();
     this->setWindowTitle("iView --- Memory viewer : "+it->chipName);
 
@@ -614,7 +628,7 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
 
     // Update the navigator binned window with the binned poststamp
     emit updateNavigatorBinned(binnedPixmapItem);
-    emit updateNavigatorBinnedCDmatrix(wcs->cd);
+    emit updateNavigatorBinnedWCS(wcs, wcsInit);
 }
 
 void IView::loadColorFITS(qreal scaleFactor)
@@ -660,7 +674,7 @@ void IView::loadColorFITS(qreal scaleFactor)
 
     // Update the navigator binned window with the binned poststamp
     emit updateNavigatorBinned(binnedPixmapItem);
-    emit updateNavigatorBinnedCDmatrix(wcs->cd);
+    emit updateNavigatorBinnedWCS(wcs, wcsInit);
 }
 
 bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMode)
@@ -1347,7 +1361,7 @@ void IView::autoContrastPushButton_toggled_receiver(bool checked)
         redrawSkyCirclesAndCats();
 
         emit updateNavigatorBinned(binnedPixmapItem);
-        emit updateNavigatorBinnedCDmatrix(wcs->cd);
+        emit updateNavigatorBinnedWCS(wcs, wcsInit);
     }
 }
 
@@ -1494,5 +1508,5 @@ void IView::targetResolvedReceived(QString alphaStr, QString deltaStr)
 void IView::WCSupdatedReceived()
 {
     sendWCStoWCSdockWidget();
-    icdw->receiveCDmatrix(wcs->cd);
+    icdw->receiveWCS(wcs, wcsInit);
 }

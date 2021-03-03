@@ -598,9 +598,6 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
     long offx = nsecx * sizex;                        // The offset for the current section in the pasted output geometry
     long offy = nsecy * sizey;                        // The offset for the current section in the pasted output geometry
 
-    // if the offsets are relatively large, i.e. the detector is very large but only a small part is usually read out, then we need manual resets:
-    if (instData.name == "WFCCD_WF4K_DUPONT@LCO")
-
     for (long jS=jminS; jS<=jmaxS; ++jS) {
         for (long iS=iminS; iS<=imaxS; ++iS) {
             long iT = offx+iS-iminS;

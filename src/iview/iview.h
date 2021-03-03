@@ -161,7 +161,7 @@ signals:
     void updateNavigatorBinnedViewport(QRect rect);
     void statisticsSampleAvailable(const QVector<float> &sample);
     void statisticsSampleColorAvailable(const QVector<float> &sampleR, const QVector<float> &sampleG, const QVector<float> &sampleB);
-    void updateNavigatorBinnedCDmatrix(double *cd);
+    void updateNavigatorBinnedWCS(wcsprm *cd, bool wcsinit);
     void clearMagnifiedScene();
 
 private slots:

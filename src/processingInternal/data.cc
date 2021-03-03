@@ -631,6 +631,8 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
     combinedImage[chip]->naxis2 = m;
     combinedImage[chip]->dataCurrent.resize(dim);
     combinedImage[chip]->dataCurrent.squeeze();    // shed excess memory
+    combinedImage[chip]->wcs = new wcsprm();
+    combinedImage[chip]->initWCS();
 
     // loop over all pixels, and images; rescaling is optional
     QVector<long> goodIndex;
@@ -795,6 +797,8 @@ void Data::combineImages(const int chip, const QString nlowString, const QString
         connect(masterCombined, &MyImage::setMemoryLock, this, &Data::setMemoryLockReceived, Qt::DirectConnection);
         connect(masterCombined, &MyImage::setWCSLock, this, &Data::setWCSLockReceived, Qt::DirectConnection);
         combinedImage[chip] = masterCombined;
+        combinedImage[chip]->wcs = new wcsprm();
+        combinedImage[chip]->wcsInit = true;
     }
     combinedImage[chip]->naxis1 = n;
     combinedImage[chip]->naxis2 = m;

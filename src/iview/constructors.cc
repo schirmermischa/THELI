@@ -547,7 +547,7 @@ void IView::makeConnections()
     connect(filterLineEdit, &QLineEdit::textChanged, this, &IView::filterLineEdit_textChanged);
 
     connect(icdw->binnedGraphicsView, &MyBinnedGraphicsView::fovRectCenterChanged, this, &IView::fovCenterChangedReceiver);
-    connect(this, &IView::updateNavigatorBinnedCDmatrix, icdw, &IvConfDockWidget::receiveCDmatrix);
+    connect(this, &IView::updateNavigatorBinnedWCS, icdw, &IvConfDockWidget::receiveWCS);
     connect(this, &IView::clearMagnifiedScene, icdw, &IvConfDockWidget::clearMagnifiedSceneReceiver);
 }
 
@@ -745,10 +745,14 @@ void IView::addDockWidgets()
         scampdw->setFloating(false);
         icdw->hide();
         scampdw->raise();
+        finderdw->hide();
+        statdw->hide();
     }
     else if (displayMode == "SCAMP_VIEWONLY") {
         icdw = new IvConfDockWidget(this);
         icdw->hide();
+        finderdw->hide();
+        statdw->hide();
     }
 
     // Connections

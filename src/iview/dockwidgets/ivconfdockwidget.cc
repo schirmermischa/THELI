@@ -321,12 +321,16 @@ void IvConfDockWidget::updateNavigatorMagnifiedViewportReceived()
     magnifiedGraphicsView->show();
 }
 
-void IvConfDockWidget::receiveCDmatrix(double* cd)
+void IvConfDockWidget::receiveWCS(wcsprm *WCS, bool wcsinit)
 {
-    cd11 = cd[0];
-    cd12 = cd[1];
-    cd21 = cd[2];
-    cd22 = cd[3];
+    if (!wcsinit) return;
+
+    wcs = WCS;
+
+    cd11 = wcs->cd[0];
+    cd12 = wcs->cd[1];
+    cd21 = wcs->cd[2];
+    cd22 = wcs->cd[3];
 
     if (cd11 == 0. && cd12 == 0. && cd21 == 0. && cd22 == 0.) return;
 

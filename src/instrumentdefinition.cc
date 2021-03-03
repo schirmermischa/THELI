@@ -547,8 +547,12 @@ void Instrument::on_loadConfigPushButton_clicked()
 bool Instrument::compareChipNumbers()
 {
     bool comparison = true;
+    int count = 0;
     for (auto &it: geometryNumList) {
+        // skip the first four entries for overscans for NIR detectors
+        if (ui->instrumentTypeComboBox->currentIndex() != 0 && count < 4) continue;
         if (numChips != it->text().toInt()) comparison = false;
+        ++count;
     }
     return comparison;
 }

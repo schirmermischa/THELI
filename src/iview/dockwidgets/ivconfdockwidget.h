@@ -25,6 +25,9 @@ If not, see https://www.gnu.org/licenses/ .
 #include "../mygraphicsscene.h"
 #include <QDockWidget>
 
+#include "wcs.h"
+#include "wcshdr.h"
+
 namespace Ui {
 class IvConfDockWidget;
 }
@@ -57,6 +60,8 @@ public:
     double cd21 = 0.;
     double cd22 = 0.;
 
+    wcsprm *wcs = nullptr;
+
     QRect currentFov;       // the currently displayed field of view
     QList<QGraphicsRectItem*> currentFovList;
 
@@ -82,7 +87,7 @@ public slots:
     void mouseLeftViewReceived();
     void updateNavigatorBinnedViewportReceived(QRect rect);
     void updateNavigatorMagnifiedViewportReceived();
-    void receiveCDmatrix(double *cd);
+    void receiveWCS(wcsprm *WCS, bool wcsinit);
     void clearMagnifiedSceneReceiver();
 
 signals:

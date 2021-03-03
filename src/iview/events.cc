@@ -217,7 +217,9 @@ void IView::adjustBrightnessContrast(QPointF point)
     icdw->magnifiedGraphicsView->show();
 
     emit updateNavigatorBinned(binnedPixmapItem);
-    emit updateNavigatorBinnedCDmatrix(wcs->cd);
+    if (wcs != nullptr && wcsInit != false) {
+        emit updateNavigatorBinnedWCS(wcs, wcsInit);
+    }
 }
 
 double IView::haversine(double x1, double y1, double x2, double y2)
