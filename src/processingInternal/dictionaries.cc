@@ -263,6 +263,7 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("CFH12K@CFHT99", "");
     instrumentDictionary.insert("DECam@CTIO", "");
     instrumentDictionary.insert("Direct_4k_SWOPE@LCO", "Direct_4Kx4K-4");     // must replace a '/' in the INSTRUME keyword with '_'
+    instrumentDictionary.insert("Direct_2k_DUPONT@LCO", "Direct_SITe2K-1");   // must replace a '/' in the INSTRUME keyword with '_'
     instrumentDictionary.insert("EFOSC2@ESO3.6m", "EFOSC");
     instrumentDictionary.insert("EFOSC2@NTT", "EFOSC");
     instrumentDictionary.insert("EFOSC2_2x2@ESO3.6m", "EFOSC");

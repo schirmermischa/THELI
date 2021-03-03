@@ -314,6 +314,7 @@ private:
     void updateMinGainValue(float gainValue);
     void overrideDetectorSections(int chip);
     bool individualFixFILTER(int chip);
+    bool individualFixEQUINOX();
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

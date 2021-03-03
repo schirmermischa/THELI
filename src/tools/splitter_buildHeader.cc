@@ -298,6 +298,8 @@ void Splitter::WCSbuildEQUINOX()
 {
     if (!successProcessing) return;
 
+    if (individualFixEQUINOX()) return;
+
     QStringList headerWCS;
     QString wcsKey = "EQUINOX";
     bool keyFound = searchKey(wcsKey, headerDictionary.value(wcsKey), headerWCS);
@@ -308,6 +310,29 @@ void Splitter::WCSbuildEQUINOX()
         headerWCS.append(card);
     }
     headerTHELI.append(headerWCS);
+}
+
+bool Splitter::individualFixEQUINOX()
+{
+    if (!successProcessing) return false;
+
+    bool individualFixDone = false;
+
+    QStringList headerWCS;
+    QString equinoxCard = "";
+
+    if (instData.name == "SITe3_SWOPE@LCO") {
+        equinoxCard = equinoxCard = "EQUINOX = 2000.0";            // SITe3_SWOPE@LCO has EPOCH written to EQUINOX, which makes scamp fail since the coords are in J2000.
+        individualFixDone = true;
+    }
+
+    if (individualFixDone) {
+        equinoxCard.resize(80, ' ');
+        headerWCS.append(equinoxCard);
+        headerTHELI.append(headerWCS);
+    }
+
+    return individualFixDone;
 }
 
 bool Splitter::individualFixCRVAL()
@@ -494,11 +519,18 @@ bool Splitter::individualFixCDmatrix(int chip)
     QString cd21_card = "";
     QString cd22_card = "";
 
-    if (instData.name == "DirectCCD@LCO") {
-        cd11_card = "CD1_1   =  -1.42886e-7";
-        cd12_card = "CD1_2   =  -7.23249e-5";
-        cd21_card = "CD2_1   =  -7.23249e-5";
-        cd22_card = "CD2_2   =   1.42886e-7";
+    if (instData.name == "Direct_2k_DUPONT@LCO") {
+        cd11_card = "CD1_1   =  0.0";
+        cd12_card = "CD1_2   =  -7.2273e-5";
+        cd21_card = "CD2_1   =  -7.2273e-5";
+        cd22_card = "CD2_2   =  0.0";
+        individualFixDone = true;
+    }
+    if (instData.name == "SITe3_SWOPE@LCO") {
+        cd11_card = "CD1_1   =  -1.2083e-4";
+        cd12_card = "CD1_2   =  0.0";
+        cd21_card = "CD2_1   =  0.0";
+        cd22_card = "CD2_2   =  -1.2083e-4";
         individualFixDone = true;
     }
     if (instData.name == "Direct_4k_SWOPE@LCO") {
@@ -818,6 +850,7 @@ void Splitter::buildTheliHeaderDATEOBS()
         bool foundDATE = searchKeyValue(headerDictionary.value("DATE"), dateValue);
         bool foundTIME = searchKeyValue(headerDictionary.value("TIME"), timeValue);
         if (foundDATE && foundTIME) {
+            if (timeValue.contains(" ")) timeValue.replace(" ",":");         // E.g. SITe_SWOPE@LCO has a time stamp without colons
             if (dateValue.contains("-") && timeValue.contains(":")) {
                 dateObsValue = dateValue+"T"+timeValue;
             }

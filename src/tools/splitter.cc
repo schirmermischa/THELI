@@ -589,6 +589,7 @@ void Splitter::getCurrentExtensionData()
     // Read the data block
     naxis1Raw = naxis[0];
     naxis2Raw = naxis[1];
+
     long nelements = naxis1Raw*naxis2Raw;
     float *buffer = new float[nelements];
     float nullval = 0.;
