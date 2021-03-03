@@ -499,6 +499,7 @@ signals:
     void critical();
     void warning();
     void errorOccurred();
+    void WCSupdated();
 
 public slots:
     void messageAvailableReceived(QString message, QString type);

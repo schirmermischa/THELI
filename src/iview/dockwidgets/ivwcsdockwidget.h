@@ -34,10 +34,14 @@ public:
     explicit IvWCSDockWidget(QWidget *parent = 0);
     ~IvWCSDockWidget();
 
-    double cd11_orig = 0.0;
-    double cd12_orig = 0.0;
-    double cd21_orig = 0.0;
-    double cd22_orig = 0.0;
+    double cd11_orig = 0.;
+    double cd12_orig = 0.;
+    double cd21_orig = 0.;
+    double cd22_orig = 0.;
+    double crpix1_orig = 0.;
+    double crpix2_orig = 0.;
+    double crval1_orig = 0.;
+    double crval2_orig = 0.;
 
     void init();
 
@@ -57,10 +61,14 @@ private slots:
 private:
     Ui::IvWCSDockWidget *ui;
 
-    double cd11 = 0.0;
-    double cd12 = 0.0;
-    double cd21 = 0.0;
-    double cd22 = 0.0;
+    double cd11 = 0.;
+    double cd12 = 0.;
+    double cd21 = 0.;
+    double cd22 = 0.;
+    double crpix1 = 0.;
+    double crpix2 = 0.;
+    double crval1 = 0.;
+    double crval2 = 0.;
 
     double translateCDmatrixSlider(int position, int maxRange);
     double translatePlateScaleSlider(int position, int maxRange);

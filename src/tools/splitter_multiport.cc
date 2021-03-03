@@ -582,8 +582,8 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
     long jminS = section.at(2);
     long jmaxS = section.at(3);
 
-    long dimS = dataS.length();
-    long dimT = dataT.length();
+    long dimS = dataS.length();      // S = source image
+    long dimT = dataT.length();      // T = target image
 
     // The x- and y-offsets for the illuminated sections. Calculated by taking the lower x (or y) value,
     // and checking how many equally sized sections can fit (safe, as we have usually not more than 4 sections, and the overscan areas are comparatively small)
@@ -591,8 +591,15 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
     long sizey = section.at(3) - section.at(2) + 1;   // section y-size
     long nsecx = section.at(0) / sizex;               // number of sections found to the left, using integer division
     long nsecy = section.at(2) / sizey;               // number of sections found below the botton, using integer division
+
+    // if the offsets are relatively large, i.e. the detector is very large but only a small part is usually read out, then we need manual resets:
+    if (instData.name == "WFCCD_WF4K_DUPONT@LCO") nsecy = 0;
+
     long offx = nsecx * sizex;                        // The offset for the current section in the pasted output geometry
     long offy = nsecy * sizey;                        // The offset for the current section in the pasted output geometry
+
+    // if the offsets are relatively large, i.e. the detector is very large but only a small part is usually read out, then we need manual resets:
+    if (instData.name == "WFCCD_WF4K_DUPONT@LCO")
 
     for (long jS=jminS; jS<=jmaxS; ++jS) {
         for (long iS=iminS; iS<=imaxS; ++iS) {

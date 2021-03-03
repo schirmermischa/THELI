@@ -319,7 +319,8 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("LAICA_2x2@CAHA", "");
     instrumentDictionary.insert("LBC_BLUE@LBT", "");
     instrumentDictionary.insert("LBC_RED@LBT", "");
-    instrumentDictionary.insert("LDSS3@LCO", "");
+    instrumentDictionary.insert("LDSS3_from201402@LCO", "LDSS3-C");
+    instrumentDictionary.insert("LDSS3_2004-201401@LCO", "");
     instrumentDictionary.insert("LIRIS@WHT", "LIRIS");
     instrumentDictionary.insert("LIRIS_POL@WHT", "LIRIS");
     instrumentDictionary.insert("LORRI@NewHorizons", "");
@@ -390,6 +391,7 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("WFC@INT", "WFC");
     instrumentDictionary.insert("WFC_2x2@INT", "WFC");
     instrumentDictionary.insert("WFC_IPHAS@INT", "WFC");
+    instrumentDictionary.insert("WFCCD_WF4K_DUPONT", "WFCCD_WF4K-1");
     instrumentDictionary.insert("WFI@AAT", "");
     instrumentDictionary.insert("WFI@MPGESO", "WFI");
     instrumentDictionary.insert("WFI@SSO_40inch", "");

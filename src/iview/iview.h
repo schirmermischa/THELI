@@ -204,6 +204,7 @@ private slots:
     void updateFinderButton();
     void fovCenterChangedReceiver(QPointF newCenter);
     void on_actionFinder_triggered();
+    void WCSupdatedReceived();
 
 public slots:
     void autoContrastPushButton_toggled_receiver(bool checked);

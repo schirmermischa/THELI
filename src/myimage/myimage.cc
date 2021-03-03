@@ -435,6 +435,7 @@ bool MyImage::scanAstromHeader(int chip, QString mode)
         wcs->flag = 0;  // Trigger recomputation
         cornersToRaDec();
         updateCRVALCRPIXCDinHeader();
+        emit WCSupdated();
         return true;
     }
     else {

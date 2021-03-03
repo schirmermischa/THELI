@@ -107,6 +107,10 @@ void IView::sendWCStoWCSdockWidget()
     wcsdw->cd12_orig = wcs->cd[1];
     wcsdw->cd21_orig = wcs->cd[2];
     wcsdw->cd22_orig = wcs->cd[3];
+    wcsdw->crpix1_orig = wcs->crpix[0];
+    wcsdw->crpix2_orig = wcs->crpix[1];
+    wcsdw->crval1_orig = wcs->crval[0];
+    wcsdw->crval2_orig = wcs->crval[1];
     wcsdw->init();
 }
 
@@ -570,6 +574,8 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     sendWCStoWCSdockWidget();
     this->setWindowTitle("iView --- Memory viewer : "+it->chipName);
 
+    connect(currentMyImage, &MyImage::WCSupdated, this, &IView::WCSupdatedReceived);
+
     // Get the dynamic range
     // Normal viewer mode
     if (dataIntSet) {
@@ -690,6 +696,8 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
     (void) wcsset(wcs);
     wcsInit = true;
     sendWCStoWCSdockWidget();
+
+    connect(currentMyImage, &MyImage::WCSupdated, this, &IView::WCSupdatedReceived);
 
     // Move the data from the transient MyImage over to the class member.
     data.swap(currentMyImage->dataCurrent);        // 'fitsData' in the rest of the code
@@ -1481,4 +1489,10 @@ void IView::targetResolvedReceived(QString alphaStr, QString deltaStr)
         }
 */
     }
+}
+
+void IView::WCSupdatedReceived()
+{
+    sendWCStoWCSdockWidget();
+    icdw->receiveCDmatrix(wcs->cd);
 }
