@@ -305,6 +305,14 @@ public:
     double alpha_ctr = 0.;   // Image center coords
     double delta_ctr = 0.;
 
+    // Transformations for binned mosaics
+    double tcd11 = 0.;
+    double tcd12 = 0.;
+    double tcd21 = 0.;
+    double tcd22 = 0.;
+    double tcrpix1 = 0.;
+    double tcrpix2 = 0.;
+
     // Associated data
     QVector<float> dataWeight;
     QVector<float> dataWeightSmooth;

@@ -296,7 +296,7 @@ void MyImage::initWCS()
         return;
     }
     wcsInit = true;
-    plateScale = sqrt(wcs->cd[0] * wcs->cd[0] + wcs->cd[2] * wcs->cd[2]) * 3600.;       // in arcsec
+    plateScale = sqrt(wcs->cd[0] * wcs->cd[0] + wcs->cd[2] * wcs->cd[2]) * 3600.;       // in arcsec; technically, this is the increment in the x-axis
     if (plateScale == 0.) plateScale = 1.0;
 
     if (*verbosity > 2) {

@@ -238,7 +238,8 @@ void Splitter::extractImages()
     // adjust progress step size for multi-chip cameras whose detectors are stored in single extension FITS files
     // (i.e. raw data does not come as a MEF but as separate FITS files)
     QStringList instruments = {"Direct_4k_SWOPE@LCO", "FORS1_E2V_2x2@VLT", "FORS2_E2V_2x2@VLT", "FORS2_MIT_1x1@VLT", "FORS2_MIT_2x2@VLT", "FourStar@LCO",
-                               "IMACS_F2_NEW@LCO", "IMACS_F2_OLD@LCO", "IMACS_F4_NEW@LCO", "IMACS_F4_OLD@LCO", "LDSS3_2004-201401@LCO", "LDSS3_from201402@LCO",
+                               "LDSS3_2004-201401@LCO", "LDSS3_from201402@LCO",
+                               "IMACS_F2_200404-2008@LCO", "IMACS_F2_2008-today@LCO", "IMACS_F4_200404-2012@LCO", "IMACS_F4_2012-today@LCO", "IMACS_F4_2012-today_2x2@LCO",
                                "MOIRCS_200406-201006@SUBARU", "MOIRCS_201007-201505@SUBARU", "MOIRCS_201512-today@SUBARU",
                                "SPARTAN@SOAR", "SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808-201705@SUBARU",
                                "SuprimeCam_200808-201705_SDFRED@SUBARU", "VIMOS@VLT"};
@@ -544,10 +545,7 @@ int Splitter::inferChipID(int chip)
         return chipID;
     }
 
-    else if (instData.name == "IMACS_F2_NEW@LCO"
-             || instData.name == "IMACS_F2_OLD@LCO"
-             || instData.name == "IMACS_F4_NEW@LCO"
-             || instData.name == "IMACS_F4_OLD@LCO") {
+    else if (instData.name.contains("IMACS")) {
         int value = 0;
         searchKeyValue(QStringList() << "CHIP", value);    // running from 1 to 8
         chipID = value;
