@@ -602,6 +602,13 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  0.0";
         individualFixDone = true;
     }
+    if (instData.name == "ESI@KECK") {
+        cd11_card = "CD1_1   =  -4.28333e-5";
+        cd12_card = "CD1_2   =  0.0";
+        cd21_card = "CD2_1   =  0.0";
+        cd22_card = "CD2_2   =  -4.28333e-5";
+        individualFixDone = true;
+    }
     if (instData.name.contains("WFI_2x2") && instData.name.contains("MPGESO") ) {
         cd11_card = "CD1_1   =  -1.322e-4";
         cd12_card = "CD1_2   =  0.0";

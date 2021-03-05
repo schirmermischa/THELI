@@ -274,6 +274,7 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("EMMI_BIMG@NTT", "");
     instrumentDictionary.insert("EMMI_RILD@NTT", "");
     instrumentDictionary.insert("ENZIAN_CAS@HOLI_1M", "");
+    instrumentDictionary.insert("ESI@KECK", "ESI");
     instrumentDictionary.insert("FL03_LCOGT@CTIO", "");
     instrumentDictionary.insert("FL04_LCOGT@CTIO", "");
     instrumentDictionary.insert("FLAMINGOS2@GEMINI", "F2");
