@@ -580,7 +580,7 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  6.611e-5";
         individualFixDone = true;
     }
-    if (instData.name == "DEIMOS_2x2@KECK") {
+    if (instData.name == "DEIMOS_2AMP@KECK") {
         if (chip %2 == 1) {
             cd11_card = "CD1_1   =  0.0";
             cd12_card = "CD1_2   =  3.29167e-5";
@@ -593,6 +593,13 @@ bool Splitter::individualFixCDmatrix(int chip)
             cd21_card = "CD2_1   =  -3.29167e-5";
             cd22_card = "CD2_2   =  0.0";
         }
+        individualFixDone = true;
+    }
+    if (instData.name == "DEIMOS_1AMP@KECK") {
+        cd11_card = "CD1_1   =  0.0";
+        cd12_card = "CD1_2   =  3.28000e-5";
+        cd21_card = "CD2_1   =  3.28000e-5";
+        cd22_card = "CD2_2   =  0.0";
         individualFixDone = true;
     }
     if (instData.name.contains("WFI_2x2") && instData.name.contains("MPGESO") ) {
@@ -1026,7 +1033,14 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 7) chipGain = 2.03;
         individualFixDone = true;
     }
-    else if (instData.name.contains("DEIMOS")) {  // https://www2.keck.hawaii.edu/inst/obsdata/inst/deimos/www/detector_data/deimos_detector_data.html
+    else if (instData.name == "DEIMOS_1AMP@KECK") {
+        if (chip == 0) chipGain = 1.206;
+        if (chip == 1) chipGain = 1.200;
+        if (chip == 2) chipGain = 1.167;
+        if (chip == 3) chipGain = 1.217;
+        individualFixDone = true;
+    }
+    else if (instData.name == "DEIMOS_2AMP@KECK") {  // https://www2.keck.hawaii.edu/inst/obsdata/inst/deimos/www/detector_data/deimos_detector_data.html
         if (chip == 0) chipGain = 1.206;
         if (chip == 1) chipGain = 1.221;
         if (chip == 2) chipGain = 1.200;
