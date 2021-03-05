@@ -43,7 +43,7 @@ void Controller::populateHeaderDictionary()
     headerDictionary.insert("AIRMASS", {"AIRMASS", "AMSTART", "HIERARCH ESO TEL AIRM START", "SECZ", "FZ_MP", "TELAM"});
     headerDictionary.insert("EXPTIME", {"EXPTIME", "EXPOSURE", "EXPOS", "EXPOSED", "EXP_TIME"});
     headerDictionary.insert("EQUINOX", {"EQUINOX", "EPOCH", "RADECEQ", "TELEP"});
-    headerDictionary.insert("DATE-OBS", {"DATE-OBS", "DATEOBS", "DATE_OBS", "DATE", "UTSHUT", "TIME"});
+    headerDictionary.insert("DATE-OBS", {"DATE-OBS", "DATEOBS", "DATE_OBS", "DATE_BEG", "DATE", "UTSHUT", "TIME"});
     headerDictionary.insert("MJD-OBS", {"MJD-OBS", "MJD_OBS"});
     headerDictionary.insert("NAMPS", {"NAMPS"});
     headerDictionary.insert("GAIN", {"EGAIN", "GAIN", "HIERARCH ESO DET CHIP GAIN", "HIERARCH ESO DET OUT1 CONAD",
@@ -262,7 +262,8 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("CFH12K@CFHT", "");
     instrumentDictionary.insert("CFH12K@CFHT99", "");
     instrumentDictionary.insert("DECam@CTIO", "");
-    instrumentDictionary.insert("Direct_4k_SWOPE@LCO", "Direct_4Kx4K-4");     // must replace a '/' in the INSTRUME keyword with '_'
+    instrumentDictionary.insert("DEIMOS_2x2@KECK", "DEIMOS");
+    instrumentDictionary.insert("Direct_4k_SWOPE@LCO", "Direct_4Kx4K-4");     // must replace a '/' in the INSTRUME keyword with '_
     instrumentDictionary.insert("Direct_2k_DUPONT@LCO", "Direct_SITe2K-1");   // must replace a '/' in the INSTRUME keyword with '_'
     instrumentDictionary.insert("EFOSC2@ESO3.6m", "EFOSC");
     instrumentDictionary.insert("EFOSC2@NTT", "EFOSC");

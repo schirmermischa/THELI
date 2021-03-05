@@ -492,8 +492,6 @@ bool Splitter::individualFixCRPIX(int chip)
         individualFixDone = true;
     }
 
-
-
     // Append only when all channels of one chip have been read (i.e., 'individualFixDone' == true)
     if (individualFixDone) {
         crpix1_card.resize(80, ' ');
@@ -580,6 +578,21 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd12_card = "CD1_2   =  0.0";
         cd21_card = "CD2_1   =  0.0";
         cd22_card = "CD2_2   =  6.611e-5";
+        individualFixDone = true;
+    }
+    if (instData.name == "DEIMOS_2x2@KECK") {
+        if (chip %2 == 1) {
+            cd11_card = "CD1_1   =  0.0";
+            cd12_card = "CD1_2   =  3.29167e-5";
+            cd21_card = "CD2_1   =  3.29167e-5";
+            cd22_card = "CD2_2   =  0.0";
+        }
+        else {
+            cd11_card = "CD1_1   =  0.0";
+            cd12_card = "CD1_2   =  3.29167e-5";
+            cd21_card = "CD2_1   =  -3.29167e-5";
+            cd22_card = "CD2_2   =  0.0";
+        }
         individualFixDone = true;
     }
     if (instData.name.contains("WFI_2x2") && instData.name.contains("MPGESO") ) {
@@ -1011,6 +1024,17 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 5) chipGain = 2.25;
         if (chip == 6) chipGain = 2.16;
         if (chip == 7) chipGain = 2.03;
+        individualFixDone = true;
+    }
+    else if (instData.name.contains("DEIMOS")) {  // https://www2.keck.hawaii.edu/inst/obsdata/inst/deimos/www/detector_data/deimos_detector_data.html
+        if (chip == 0) chipGain = 1.206;
+        if (chip == 1) chipGain = 1.221;
+        if (chip == 2) chipGain = 1.200;
+        if (chip == 3) chipGain = 1.188;
+        if (chip == 4) chipGain = 1.167;
+        if (chip == 5) chipGain = 1.250;
+        if (chip == 6) chipGain = 1.217;
+        if (chip == 7) chipGain = 1.228;
         individualFixDone = true;
     }
     else if (instData.name == "SuprimeCam_200808-201705@SUBARU") {
