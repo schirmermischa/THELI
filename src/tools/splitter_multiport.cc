@@ -322,6 +322,41 @@ void Splitter::getMultiportInformation(int chip)
         individualFixDone = true;
     }
 
+    if (instData.name == "DEIMOS_2AMP@KECK") {
+        naxis1 = 2048;
+        naxis2 = 2601;
+
+        int naxis1channel = 0;
+        int naxis2channel = 0;
+        searchKeyValue(QStringList() << "NAXIS1", naxis1channel);
+        searchKeyValue(QStringList() << "NAXIS2", naxis2channel);
+        multiportOverscanDirections << "vertical";
+        QVector<long> oscan = {1040,1110,1,2601};                                // Bias section not present in header
+        multiportOverscanSections << oscan;
+        multiportIlluminatedSections << extractVerticesFromKeyword("DATASEC");   // given in binned units in the header
+        QVector<long> channelSection;
+        channelSection << 0 << naxis1channel - 1 << 0 << naxis2channel - 1;
+        multiportChannelSections << channelSection;                              // "DETSEC" has the illuminated section in CCD coordinates
+        if (chip % numAmpPerChip == 0) dataPasted.resize(naxis1 * naxis2);
+
+        float gainValue = 1.0;
+        // Accurate amplifier gains are not available in the FITS headers
+        if (chip == 0) gainValue = 1.206;
+        if (chip == 1) gainValue = 1.221;
+        if (chip == 2) gainValue = 1.200;
+        if (chip == 3) gainValue = 1.188;
+        if (chip == 4) gainValue = 1.167;
+        if (chip == 5) gainValue = 1.250;
+        if (chip == 6) gainValue = 1.217;
+        if (chip == 7) gainValue = 1.228;
+
+        multiportGains << gainValue;
+        //        minGainValue = minVec_T(multiportGains);
+        channelGains.clear();
+        channelGains << 1.0;   // dummy;
+        individualFixDone = true;
+    }
+
     if (instData.name == "LRIS_BLUE@KECK") {
         naxis1 = 2048;
         naxis2 = 4096;
@@ -341,11 +376,10 @@ void Splitter::getMultiportInformation(int chip)
 
         float gainValue = 2.0;
         // Accurate amplifier gains are not available in the FITS headers
-        float gain = 1.0;
-        if (chip == 0) searchKeyValue(QStringList() << "CCDGN00", gain);
-        if (chip == 1) searchKeyValue(QStringList() << "CCDGN01", gain);
-        if (chip == 2) searchKeyValue(QStringList() << "CCDGN02", gain);
-        if (chip == 3) searchKeyValue(QStringList() << "CCDGN03", gain);
+        if (chip == 0) searchKeyValue(QStringList() << "CCDGN00", gainValue);
+        if (chip == 1) searchKeyValue(QStringList() << "CCDGN01", gainValue);
+        if (chip == 2) searchKeyValue(QStringList() << "CCDGN02", gainValue);
+        if (chip == 3) searchKeyValue(QStringList() << "CCDGN03", gainValue);
 
         multiportGains << gainValue;
         //        minGainValue = minVec_T(multiportGains);
@@ -381,13 +415,12 @@ void Splitter::getMultiportInformation(int chip)
         multiportChannelSections << channelSection;                              // "DETSEC" has the illuminated section in CCD coordinates
         if (chip % numAmpPerChip == 0) dataPasted.resize(naxis1 * naxis2);
 
-        float gainValue = 2.0;
+        float gainValue = 1.0;
         // Accurate amplifier gains are not available in the FITS headers
-        float gain = 1.0;
-        if (chip == 0) searchKeyValue(QStringList() << "CCDGN01", gain);
-        if (chip == 1) searchKeyValue(QStringList() << "CCDGN02", gain);
-        if (chip == 2) searchKeyValue(QStringList() << "CCDGN03", gain);
-        if (chip == 3) searchKeyValue(QStringList() << "CCDGN04", gain);
+        if (chip == 0) searchKeyValue(QStringList() << "CCDGN01", gainValue);
+        if (chip == 1) searchKeyValue(QStringList() << "CCDGN02", gainValue);
+        if (chip == 2) searchKeyValue(QStringList() << "CCDGN03", gainValue);
+        if (chip == 3) searchKeyValue(QStringList() << "CCDGN04", gainValue);
 
         multiportGains << gainValue;
         //        minGainValue = minVec_T(multiportGains);
@@ -631,6 +664,17 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
                 if (chip == 2) {offx = 0; offy = naxis2 / 2;}
                 if (chip == 3) {offx = naxis1 / 2; offy = naxis2 / 2;}
             }
+            if (instData.name == "DEIMOS_2AMP@KECK") {
+                offy = 0;
+                if (chip % 2 == 0) {
+                    offx = naxis1 / 2;
+                    flipData(dataRaw, "x", naxis1Raw, naxis2Raw);
+                    flipSections(multiportIlluminatedSections[channel], "x", naxis1Raw, naxis2Raw);
+                }
+                if (chip %2 == 1) {
+                    offx = 0;
+                }
+            }
             if (instData.name == "LRIS_BLUE@KECK") {
                 offy = 0;
                 if (chip == 0) {
@@ -849,6 +893,7 @@ void Splitter::updateMEFpastingStatus(int chip)
         //        if (chip == 3 || chip == 7 || chip == 11) MEFpastingFinished = true;
     }
     if (instData.name == "SOI@SOAR"
+            || instData.name == "DEIMOS_2AMP@KECK"
             || instData.name == "LRIS_BLUE@KECK"
             || instData.name == "LRIS_RED@KECK"
             || instData.name == "MOSAIC-II_16@CTIO"

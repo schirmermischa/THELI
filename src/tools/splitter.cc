@@ -245,7 +245,8 @@ void Splitter::extractImages()
                                "SuprimeCam_200808-201705_SDFRED@SUBARU", "VIMOS@VLT"};
 
     // multiple readout channels in different FITS extensions
-    multiChannelMultiExt << "GMOS-N-HAM@GEMINI" << "GMOS-N-HAM_1x1@GEMINI"
+    multiChannelMultiExt << "DEIMOS_2AMP@KECK"
+                         << "GMOS-N-HAM@GEMINI" << "GMOS-N-HAM_1x1@GEMINI"
                          << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI"
                          << "LRIS_BLUE@KECK" << "LRIS_RED@KECK"
                          << "MOSAIC-II_16@CTIO" << "MOSAIC-III_4@KPNO_4m"
@@ -804,6 +805,10 @@ void Splitter::getNumberOfAmplifiers()
         numAmpPerChip = 2;
         rawStatus = 0;
     }
+    if (instData.name == "DEIMOS_2AMP@KECK") {
+        numAmpPerChip = 2;
+        rawStatus = 0;
+    }
     if (instData.name == "LRIS_BLUE@KECK") {
         numAmpPerChip = 2;
         rawStatus = 0;
@@ -830,7 +835,8 @@ void Splitter::getNumberOfAmplifiers()
     }
 
     // multiple readout channels in different FITS extensions
-    multiChannelMultiExt << "GMOS-N-HAM@GEMINI" <<  "GMOS-N-HAM_1x1@GEMINI"
+    multiChannelMultiExt << "DEIMOS_2AMP@KECK"
+                         << "GMOS-N-HAM@GEMINI" <<  "GMOS-N-HAM_1x1@GEMINI"
                          << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI"
                          << "LRIS_BLUE@KECK" << "LRIS_RED@KECK"
                          << "MOSAIC-II_16@CTIO" << "MOSAIC-III_4@KPNO_4m"
@@ -891,6 +897,12 @@ void Splitter::writeImage(int chipMapped)
         if (instData.name == "SOI@SOAR") {
             if (chipMapped == 1) chipID = 1;
             if (chipMapped == 3) chipID = 2;
+        }
+        if (instData.name == "DEIMOS_2AMP@KECK") {
+            if (chipMapped == 1) chipID = 1;
+            if (chipMapped == 3) chipID = 2;
+            if (chipMapped == 5) chipID = 3;
+            if (chipMapped == 7) chipID = 4;
         }
         if (instData.name == "LRIS_BLUE@KECK") {
             if (chipMapped == 1) chipID = 1;

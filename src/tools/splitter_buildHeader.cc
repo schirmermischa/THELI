@@ -443,6 +443,15 @@ bool Splitter::individualFixCRPIX(int chip)
         individualFixDone = true;
     }
 
+    if (instData.name == "DEIMOS_2AMP@KECK") {
+        if (chip == 1) crpix1_card = "CRPIX1  = 4253";
+        if (chip == 3) crpix1_card = "CRPIX1  = 2097";
+        if (chip == 5) crpix1_card = "CRPIX1  = -53";
+        if (chip == 7) crpix1_card = "CRPIX1  = -2200";
+        crpix2_card = "CRPIX2  = 1301";
+        individualFixDone = true;
+    }
+
     if (instData.name == "LRIS_BLUE@KECK") {
         if (chip == 1) crpix1_card = "CRPIX1  = 2099";
         if (chip == 3) crpix1_card = "CRPIX1  = -52";
@@ -594,6 +603,7 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  6.611e-5";
         individualFixDone = true;
     }
+    /*
     if (instData.name == "DEIMOS_2AMP@KECK") {
         if (chip %2 == 1) {
             cd11_card = "CD1_1   =  0.0";
@@ -609,7 +619,15 @@ bool Splitter::individualFixCDmatrix(int chip)
         }
         individualFixDone = true;
     }
+    */
     if (instData.name == "DEIMOS_1AMP@KECK") {
+        cd11_card = "CD1_1   =  0.0";
+        cd12_card = "CD1_2   =  3.28000e-5";
+        cd21_card = "CD2_1   =  3.28000e-5";
+        cd22_card = "CD2_2   =  0.0";
+        individualFixDone = true;
+    }
+    if (instData.name == "DEIMOS_2AMP@KECK") {
         cd11_card = "CD1_1   =  0.0";
         cd12_card = "CD1_2   =  3.28000e-5";
         cd21_card = "CD2_1   =  3.28000e-5";
@@ -1095,6 +1113,10 @@ bool Splitter::individualFixGAIN(int chip)
         individualFixDone = true;
     }
     else if (instData.name.contains("SOI@SOAR")) {
+        chipGain = harmonicGain(multiportGains);
+        individualFixDone = true;
+    }
+    else if (instData.name == "DEIMOS_2AMP@KECK") {
         chipGain = harmonicGain(multiportGains);
         individualFixDone = true;
     }
