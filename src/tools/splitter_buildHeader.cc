@@ -603,31 +603,7 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  6.611e-5";
         individualFixDone = true;
     }
-    /*
-    if (instData.name == "DEIMOS_2AMP@KECK") {
-        if (chip %2 == 1) {
-            cd11_card = "CD1_1   =  0.0";
-            cd12_card = "CD1_2   =  3.29167e-5";
-            cd21_card = "CD2_1   =  3.29167e-5";
-            cd22_card = "CD2_2   =  0.0";
-        }
-        else {
-            cd11_card = "CD1_1   =  0.0";
-            cd12_card = "CD1_2   =  3.29167e-5";
-            cd21_card = "CD2_1   =  -3.29167e-5";
-            cd22_card = "CD2_2   =  0.0";
-        }
-        individualFixDone = true;
-    }
-    */
-    if (instData.name == "DEIMOS_1AMP@KECK") {
-        cd11_card = "CD1_1   =  0.0";
-        cd12_card = "CD1_2   =  3.28000e-5";
-        cd21_card = "CD2_1   =  3.28000e-5";
-        cd22_card = "CD2_2   =  0.0";
-        individualFixDone = true;
-    }
-    if (instData.name == "DEIMOS_2AMP@KECK") {
+    if (instData.name == "DEIMOS_1AMP@KECK" || instData.name == "DEIMOS_1AMP@KECK") {
         cd11_card = "CD1_1   =  0.0";
         cd12_card = "CD1_2   =  3.28000e-5";
         cd21_card = "CD2_1   =  3.28000e-5";
@@ -1093,6 +1069,7 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 3) chipGain = 1.217;
         individualFixDone = true;
     }
+    // multi-amp cameras where the gain is NOT available in the header
     else if (instData.name == "DEIMOS_2AMP@KECK") {  // https://www2.keck.hawaii.edu/inst/obsdata/inst/deimos/www/detector_data/deimos_detector_data.html
         if (chip == 0) chipGain = 1.206;
         if (chip == 1) chipGain = 1.221;
@@ -1102,45 +1079,21 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 5) chipGain = 1.250;
         if (chip == 6) chipGain = 1.217;
         if (chip == 7) chipGain = 1.228;
-        individualFixDone = true;
-    }
-    else if (instData.name == "SuprimeCam_200808-201705@SUBARU") {
         chipGain = harmonicGain(multiportGains);
         individualFixDone = true;
     }
-    else if (instData.name.contains("GMOS-N-HAM") || instData.name.contains("GMOS-S-HAM")) {
-        chipGain = harmonicGain(multiportGains);
-        individualFixDone = true;
-    }
-    else if (instData.name.contains("SOI@SOAR")) {
-        chipGain = harmonicGain(multiportGains);
-        individualFixDone = true;
-    }
-    else if (instData.name == "DEIMOS_2AMP@KECK") {
-        chipGain = harmonicGain(multiportGains);
-        individualFixDone = true;
-    }
-    else if (instData.name == "LRIS_BLUE@KECK") {
-        chipGain = harmonicGain(multiportGains);
-        individualFixDone = true;
-    }
-    else if (instData.name == "LRIS_RED@KECK") {
-        chipGain = harmonicGain(multiportGains);
-        individualFixDone = true;
-    }
-    else if (instData.name == "MOSAIC-II_16@CTIO") {
-        chipGain = harmonicGain(multiportGains);
-        individualFixDone = true;
-    }
-    else if (instData.name == "PISCO@LCO") {
-        chipGain = harmonicGain(multiportGains);
-        individualFixDone = true;
-    }
-    else if (instData.name == "MOSAIC-III_4@KPNO_4m") {
-        chipGain = harmonicGain(multiportGains);
-        individualFixDone = true;
-    }
-    else if (instData.name == "SAMI_2x2@SOAR") {
+    // multi-amp cameras where the gain is available in the header
+    else if (instData.name == "SuprimeCam_200808-201705@SUBARU"
+             || instData.name.contains("GMOS-N-HAM")
+             || instData.name.contains("GMOS-S-HAM")
+             || instData.name.contains("SAMI")          // have not added yet 1x1 confog
+             || instData.name.contains("SOI@SOAR")
+             || instData.name == "LRIS_BLUE@KECK"
+             || instData.name == "LRIS_RED@KECK"
+             || instData.name == "MOSAIC-II_16@CTIO"
+             || instData.name == "MOSAIC-III_4@KPNO_4m"
+             || instData.name == "PISCO@LCO"
+             ) {
         chipGain = harmonicGain(multiportGains);
         individualFixDone = true;
     }
@@ -1181,13 +1134,17 @@ bool Splitter::individualFixGAIN(int chip)
         if (instData.name.contains("GMOS-N-HAM")
                 || instData.name.contains("GMOS-S-HAM")
                 || instData.name.contains("SAMI")
+                || instData.name.contains("SOI@SOAR")
+                || instData.name == "LRIS_BLUE@KECK"
+                || instData.name == "LRIS_RED@KECK"
                 || instData.name == "MOSAIC-II_16@CTIO"
+                || instData.name == "MOSAIC-III_4@KPNO_4m"
                 || instData.name == "PISCO@LCO"
-                || instData.name == "MOSAIC-III_4@KPNO_4m") {
+                ) {
             gain[chip/numAmpPerChip] = chipGain;
         }
         else {
-            gain[chip] = chipGain;        // not applied for e.g. SuprimeCam_200808-201705
+            gain[chip] = chipGain;        // not applied for e.g. SuprimeCam_200808-201705 and the others (why?)
         }
 
         gainForSaturation = chipGain;

@@ -122,7 +122,6 @@ void Splitter::getMultiportInformation(int chip)
         if (detector == "CCDi") gainValue2 = gainValue1 * 1.00001;
         if (detector == "CCDz") gainValue2 = gainValue1 * 0.88904;
         multiportGains << gainValue1 << gainValue2;
-        //        minGainValue = minVec_T(multiportGains);
         individualFixDone = true;
     }
 
@@ -135,7 +134,6 @@ void Splitter::getMultiportInformation(int chip)
         multiportIlluminatedSections << section;
         multiportChannelSections << section;
         multiportGains << 1.0;
-        //        minGainValue = minVec_T(multiportGains);
         individualFixDone = true;
     }
 
@@ -190,7 +188,6 @@ void Splitter::getMultiportInformation(int chip)
         searchKeyValue(QStringList() << "S_GAIN3", gainValue3);
         searchKeyValue(QStringList() << "S_GAIN4", gainValue4);
         multiportGains << gainValue1 << gainValue2 << gainValue3 << gainValue4;
-        //        minGainValue = minVec_T(multiportGains);
         channelGains.clear();
         channelGains << 1.0 << 1.0 << 1.0 << 1.0;   // dummy; not used anywhere else for SuprimeCam_200808-201705
         individualFixDone = true;
@@ -204,7 +201,6 @@ void Splitter::getMultiportInformation(int chip)
         multiportIlluminatedSections << section;
         multiportChannelSections << section;
         multiportGains << 1.0;
-        //        minGainValue = minVec_T(multiportGains);
         individualFixDone = true;
     }
 
@@ -286,7 +282,6 @@ void Splitter::getMultiportInformation(int chip)
             else if (chip == 11) gainValue = 1.65;
         }
         multiportGains << gainValue;
-        //        updateMinGainValue(gainValue);
         channelGains.clear();
         channelGains << 1.0;   // dummy;
         individualFixDone = true;
@@ -316,7 +311,6 @@ void Splitter::getMultiportInformation(int chip)
         else if (chip == 3)  gainValue = 2.0;
 
         multiportGains << gainValue;
-        //        minGainValue = minVec_T(multiportGains);
         channelGains.clear();
         channelGains << 1.0;   // dummy;
         individualFixDone = true;
@@ -351,7 +345,6 @@ void Splitter::getMultiportInformation(int chip)
         if (chip == 7) gainValue = 1.228;
 
         multiportGains << gainValue;
-        //        minGainValue = minVec_T(multiportGains);
         channelGains.clear();
         channelGains << 1.0;   // dummy;
         individualFixDone = true;
@@ -382,7 +375,6 @@ void Splitter::getMultiportInformation(int chip)
         if (chip == 3) searchKeyValue(QStringList() << "CCDGN03", gainValue);
 
         multiportGains << gainValue;
-        //        minGainValue = minVec_T(multiportGains);
         channelGains.clear();
         channelGains << 1.0;   // dummy;
         individualFixDone = true;
@@ -423,7 +415,6 @@ void Splitter::getMultiportInformation(int chip)
         if (chip == 3) searchKeyValue(QStringList() << "CCDGN04", gainValue);
 
         multiportGains << gainValue;
-        //        minGainValue = minVec_T(multiportGains);
         channelGains.clear();
         channelGains << 1.0;   // dummy;
         individualFixDone = true;
@@ -441,7 +432,6 @@ void Splitter::getMultiportInformation(int chip)
         multiportOverscanSections << extractVerticesFromKeyword("BIASSEC");      // given in binned units in the header
         multiportIlluminatedSections << extractVerticesFromKeyword("DATASEC");   // given in binned units in the header
         QVector<long> channelSection;
-        //        updateMinGainValue(gainValue);
         channelSection << 0 << naxis1channel - 1 << 0 << naxis2channel - 1;
         multiportChannelSections << channelSection;
         if (chip % numAmpPerChip == 0) dataPasted.resize(naxis1 * naxis2);
@@ -449,7 +439,6 @@ void Splitter::getMultiportInformation(int chip)
         float gainValue = 1.0;
         searchKeyValue(QStringList() << "GAIN", gainValue);
         multiportGains << gainValue;
-        //        minGainValue = minVec_T(multiportGains);
         channelGains.clear();
         channelGains << 1.0;   // dummy;
         individualFixDone = true;
@@ -471,7 +460,6 @@ void Splitter::getMultiportInformation(int chip)
         multiportOverscanSections << oscan;
         multiportIlluminatedSections << illum;
         QVector<long> channelSection;
-        //        updateMinGainValue(gainValue);
         channelSection << 0 << naxis1channel - 1 << 0 << naxis2channel - 1;
         multiportChannelSections << channelSection;
         if (chip % numAmpPerChip == 0) dataPasted.resize(naxis1 * naxis2);
@@ -479,7 +467,6 @@ void Splitter::getMultiportInformation(int chip)
         float gainValue = 1.0;
         searchKeyValue(QStringList() << "GAIN", gainValue);
         multiportGains << gainValue;
-        //        minGainValue = minVec_T(multiportGains);
         channelGains.clear();
         channelGains << 1.0;   // dummy;
         individualFixDone = true;
@@ -504,7 +491,6 @@ void Splitter::getMultiportInformation(int chip)
         float gainValue = 1.0;
         searchKeyValue(QStringList() << "GAIN", gainValue);
         multiportGains << gainValue;
-        //        updateMinGainValue(gainValue);
         channelGains.clear();
         channelGains << 1.0;   // dummy;
         individualFixDone = true;
@@ -536,7 +522,6 @@ void Splitter::getMultiportInformation(int chip)
         }
 
         multiportGains << gainValue;
-        //        updateMinGainValue(gainValue);
         channelGains.clear();
         channelGains << 1.0;   // dummy;
         individualFixDone = true;
@@ -552,7 +537,6 @@ void Splitter::getMultiportInformation(int chip)
             emit critical();
             successProcessing = false;
         }
-        //        saturationValue *= minGainValue;
     }
     else {
         // What to do for detectors that are not split up by several readout channels and overscans
@@ -577,12 +561,6 @@ void Splitter::getMultiportInformation(int chip)
         multiportChannelSections << channelSection;
         multiportGains << 1.0;       // i.e. leave gain unchanged
     }
-}
-
-// UNUSED
-void Splitter::updateMinGainValue(float gainValue)
-{
-    if (gainValue < minGainValue) minGainValue = gainValue;
 }
 
 void Splitter::pasteMultiportIlluminatedSections(int chip)
@@ -637,24 +615,6 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
                 if (chip == 13) {offx = naxis1 / 2; offy = naxis2 / 2;}
                 if (chip == 14) {offx = 0; offy = 0;}
                 if (chip == 15) {offx = naxis1 / 2; offy = 0;}
-                /*
-                if (chip % 4 == 0) {
-                    offx = naxis1 / 2;
-                    offy = 0;
-                }
-                if (chip % 4 == 1) {
-                    offx = 0;
-                    offy = 0;
-                }
-                if (chip % 4 == 2) {
-                    offx = 0;
-                    offy = naxis2 / 2;
-                }
-                if (chip % 4 == 3) {
-                    offx = naxis1 / 2;
-                    offy = naxis2 / 2;
-                }
-                */
             }
             if (instData.name == "SAMI_2x2@SOAR") {
                 QVector<long> ampsec;
@@ -671,24 +631,16 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
                     flipData(dataRaw, "x", naxis1Raw, naxis2Raw);
                     flipSections(multiportIlluminatedSections[channel], "x", naxis1Raw, naxis2Raw);
                 }
-                if (chip %2 == 1) {
+                if (chip % 2 == 1) {
                     offx = 0;
                 }
             }
             if (instData.name == "LRIS_BLUE@KECK") {
                 offy = 0;
-                if (chip == 0) {
+                if (chip % 2 == 0) {
                     offx = 0;
                 }
-                if (chip == 1) {
-                    offx = naxis1 / 2;
-                    flipData(dataRaw, "x", naxis1Raw, naxis2Raw);
-                    flipSections(multiportIlluminatedSections[channel], "x", naxis1Raw, naxis2Raw);
-                }
-                if (chip == 2) {
-                    offx = 0;
-                }
-                if (chip == 3) {
+                if (chip % 2 == 1) {
                     offx = naxis1 / 2;
                     flipData(dataRaw, "x", naxis1Raw, naxis2Raw);
                     flipSections(multiportIlluminatedSections[channel], "x", naxis1Raw, naxis2Raw);
@@ -696,19 +648,11 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
             }
             if (instData.name == "LRIS_RED@KECK") {
                 offy = 0;
-                if (chip == 0) {
+                if (chip % 2 == 0) {
                     offx = 0;
                 }
-                if (chip == 1) {
-                    offx = 1024;
-                    flipData(dataRaw, "x", naxis1Raw, naxis2Raw);
-                    flipSections(multiportIlluminatedSections[channel], "x", naxis1Raw, naxis2Raw);
-                }
-                if (chip == 2) {
-                    offx = 0;
-                }
-                if (chip == 3) {
-                    offx = 728;
+                if (chip % 2 == 1) {
+                    offx = 1024;       // HARDCODED, because the amplifier sections have unequal sizes!!! (so far, that's the only detector ever I have seen this)
                     flipData(dataRaw, "x", naxis1Raw, naxis2Raw);
                     flipSections(multiportIlluminatedSections[channel], "x", naxis1Raw, naxis2Raw);
                 }
@@ -892,6 +836,7 @@ void Splitter::updateMEFpastingStatus(int chip)
         if ( (chip + 1) % numAmpPerChip == 0) MEFpastingFinished = true;
         //        if (chip == 3 || chip == 7 || chip == 11) MEFpastingFinished = true;
     }
+    // CHECK: I think SAMI and MOSAIC-III are missing here!
     if (instData.name == "SOI@SOAR"
             || instData.name == "DEIMOS_2AMP@KECK"
             || instData.name == "LRIS_BLUE@KECK"

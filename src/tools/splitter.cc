@@ -801,35 +801,19 @@ void Splitter::getNumberOfAmplifiers()
             rawStatus = 0;
         }
     }
-    if (instData.name == "SOI@SOAR") {
+    // 2 amps per detector
+    if (instData.name == "SOI@SOAR"
+            || instData.name == "DEIMOS_2AMP@KECK"
+            || instData.name == "LRIS_BLUE@KECK"
+            || instData.name == "LRIS_RED@KECK"
+            || instData.name == "MOSAIC-II_16@CTIO"
+            || instData.name == "PISCO@LCO") {
         numAmpPerChip = 2;
         rawStatus = 0;
     }
-    if (instData.name == "DEIMOS_2AMP@KECK") {
-        numAmpPerChip = 2;
-        rawStatus = 0;
-    }
-    if (instData.name == "LRIS_BLUE@KECK") {
-        numAmpPerChip = 2;
-        rawStatus = 0;
-    }
-    if (instData.name == "LRIS_RED@KECK") {
-        numAmpPerChip = 2;
-        rawStatus = 0;
-    }
-    if (instData.name == "MOSAIC-II_16@CTIO") {
-        numAmpPerChip = 2;
-        rawStatus = 0;
-    }
-    if (instData.name == "PISCO@LCO") {
-        numAmpPerChip = 2;
-        rawStatus = 0;
-    }
-    if (instData.name == "MOSAIC-III_4@KPNO_4m") {
-        numAmpPerChip = 4;
-        rawStatus = 0;
-    }
-    if (instData.name == "SAMI_2x2@SOAR") {
+    // 4 amps per detector (geometric layout doesn't matter here)
+    if (instData.name == "MOSAIC-III_4@KPNO_4m"
+            || instData.name == "SAMI_2x2@SOAR") {
         numAmpPerChip = 4;
         rawStatus = 0;
     }
@@ -922,7 +906,7 @@ void Splitter::writeImage(int chipMapped)
             if (chipMapped == 13) chipID = 7;
             if (chipMapped == 15) chipID = 8;
         }
-        if (instData.name == "PISCO@LCO") {
+        if (instData.name == "PISCO@LCO") {        // multi-channel imager
             if (chipMapped == 1) chipID = 1;
             if (chipMapped == 3) chipID = 1;
             if (chipMapped == 5) chipID = 1;
