@@ -278,14 +278,15 @@ void mapBinnedData(QVector<float> &dataBinnedGlobal, const QVector<float> &dataB
             if (jBin >= mGlobal) jBin = mGlobal - 1;
             if (iBin < 0) iBin = 0;
             if (jBin < 0) jBin = 0;
-            if (!instName.contains("MOIRCS")) {
-                dataBinnedGlobal[iBin+nGlobal*jBin] = dataBinnedIndividual[i+nInd*j];
-            }
-            else {
+//            if (!instName.contains("MOIRCS")) {
+//                dataBinnedGlobal[iBin+nGlobal*jBin] = dataBinnedIndividual[i+nInd*j];
+//            }
+//            else {
                 // "Adding" instead of replacing. MOIRCS detectors are partially masked and these areas
                 // do overlap because of the beam splitter (masking valid pixels)
+              // And that holds for quite a few other others as well, e.g. LRIS@KECK, so let's do it like this by default
                 dataBinnedGlobal[iBin+nGlobal*jBin] += dataBinnedIndividual[i+nInd*j];
-            }
+//            }
         }
     }
 }

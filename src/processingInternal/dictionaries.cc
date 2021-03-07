@@ -41,7 +41,7 @@ void Controller::populateHeaderDictionary()
     headerDictionary.insert("RADESYS", {"RADESYS", "RADECSYS"});
     headerDictionary.insert("OBJECT", {"OBJECT", "QUEUEID", "TARGET", "TARGNAME"});
     headerDictionary.insert("AIRMASS", {"AIRMASS", "AMSTART", "HIERARCH ESO TEL AIRM START", "SECZ", "FZ_MP", "TELAM"});
-    headerDictionary.insert("EXPTIME", {"EXPTIME", "EXPOSURE", "EXPOS", "EXPOSED", "EXP_TIME"});
+    headerDictionary.insert("EXPTIME", {"EXPTIME", "EXPOSURE", "EXPOS", "EXPOSED", "EXP_TIME", "TTIME"});
     headerDictionary.insert("EQUINOX", {"EQUINOX", "EPOCH", "RADECEQ", "TELEP"});
     headerDictionary.insert("DATE-OBS", {"DATE-OBS", "DATEOBS", "DATE_OBS", "DATE_BEG", "DATE", "UTSHUT", "TIME"});
     headerDictionary.insert("MJD-OBS", {"MJD-OBS", "MJD_OBS"});
@@ -328,6 +328,8 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("LIRIS@WHT", "LIRIS");
     instrumentDictionary.insert("LIRIS_POL@WHT", "LIRIS");
     instrumentDictionary.insert("LORRI@NewHorizons", "");
+    instrumentDictionary.insert("LRIS_BLUE@KECK", "LRISBLUE");
+    instrumentDictionary.insert("LRIS_RED@KECK", "LRIS");
     instrumentDictionary.insert("MEGACAM_2x2@LCO", "megacam");
     instrumentDictionary.insert("MEGAPRIME@CFHT", "");
     instrumentDictionary.insert("MEGAPRIME_ELIXIR@CFHT", "");

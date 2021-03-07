@@ -322,6 +322,80 @@ void Splitter::getMultiportInformation(int chip)
         individualFixDone = true;
     }
 
+    if (instData.name == "LRIS_BLUE@KECK") {
+        naxis1 = 2048;
+        naxis2 = 4096;
+
+        int naxis1channel = 0;
+        int naxis2channel = 0;
+        searchKeyValue(QStringList() << "NAXIS1", naxis1channel);
+        searchKeyValue(QStringList() << "NAXIS2", naxis2channel);
+        multiportOverscanDirections << "vertical";
+        QVector<long> oscan = {1080,1150,1,4096};                                // Bias section not present in header
+        multiportOverscanSections << oscan;
+        multiportIlluminatedSections << extractVerticesFromKeyword("DATASEC");   // given in binned units in the header
+        QVector<long> channelSection;
+        channelSection << 0 << naxis1channel - 1 << 0 << naxis2channel - 1;
+        multiportChannelSections << channelSection;                              // "DETSEC" has the illuminated section in CCD coordinates
+        if (chip % numAmpPerChip == 0) dataPasted.resize(naxis1 * naxis2);
+
+        float gainValue = 2.0;
+        // Accurate amplifier gains are not available in the FITS headers
+        float gain = 1.0;
+        if (chip == 0) searchKeyValue(QStringList() << "CCDGN00", gain);
+        if (chip == 1) searchKeyValue(QStringList() << "CCDGN01", gain);
+        if (chip == 2) searchKeyValue(QStringList() << "CCDGN02", gain);
+        if (chip == 3) searchKeyValue(QStringList() << "CCDGN03", gain);
+
+        multiportGains << gainValue;
+        //        minGainValue = minVec_T(multiportGains);
+        channelGains.clear();
+        channelGains << 1.0;   // dummy;
+        individualFixDone = true;
+    }
+
+    if (instData.name == "LRIS_RED@KECK") {
+        if (chip == 0) {
+           naxis1 = 1648;
+           naxis2 = 2520;
+        }
+        if (chip == 2) {
+           naxis1 = 1752;
+           naxis2 = 2520;
+        }
+
+        int naxis1channel = 0;
+        int naxis2channel = 0;
+        searchKeyValue(QStringList() << "NAXIS1", naxis1channel);
+        searchKeyValue(QStringList() << "NAXIS2", naxis2channel);
+        multiportOverscanDirections << "vertical";
+        QVector<long> oscan;
+        if (chip == 0) oscan = {1040,1100,1,4096};                                // Bias section not present in header
+        if (chip == 1) oscan = {650,710,1,4096};                                  // Bias section not present in header
+        if (chip == 2) oscan = {750,810,1,4096};                                  // Bias section not present in header
+        if (chip == 3) oscan = {1040,1100,1,4096};                                // Bias section not present in header
+        multiportOverscanSections << oscan;
+        multiportIlluminatedSections << extractVerticesFromKeyword("DATASEC");   // given in binned units in the header
+        QVector<long> channelSection;
+        channelSection << 0 << naxis1channel - 1 << 0 << naxis2channel - 1;
+        multiportChannelSections << channelSection;                              // "DETSEC" has the illuminated section in CCD coordinates
+        if (chip % numAmpPerChip == 0) dataPasted.resize(naxis1 * naxis2);
+
+        float gainValue = 2.0;
+        // Accurate amplifier gains are not available in the FITS headers
+        float gain = 1.0;
+        if (chip == 0) searchKeyValue(QStringList() << "CCDGN01", gain);
+        if (chip == 1) searchKeyValue(QStringList() << "CCDGN02", gain);
+        if (chip == 2) searchKeyValue(QStringList() << "CCDGN03", gain);
+        if (chip == 3) searchKeyValue(QStringList() << "CCDGN04", gain);
+
+        multiportGains << gainValue;
+        //        minGainValue = minVec_T(multiportGains);
+        channelGains.clear();
+        channelGains << 1.0;   // dummy;
+        individualFixDone = true;
+    }
+
     if (instData.name == "MOSAIC-II_16@CTIO") {
         naxis1 = 2048;
         naxis2 = 4096;
@@ -557,6 +631,44 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
                 if (chip == 2) {offx = 0; offy = naxis2 / 2;}
                 if (chip == 3) {offx = naxis1 / 2; offy = naxis2 / 2;}
             }
+            if (instData.name == "LRIS_BLUE@KECK") {
+                offy = 0;
+                if (chip == 0) {
+                    offx = 0;
+                }
+                if (chip == 1) {
+                    offx = naxis1 / 2;
+                    flipData(dataRaw, "x", naxis1Raw, naxis2Raw);
+                    flipSections(multiportIlluminatedSections[channel], "x", naxis1Raw, naxis2Raw);
+                }
+                if (chip == 2) {
+                    offx = 0;
+                }
+                if (chip == 3) {
+                    offx = naxis1 / 2;
+                    flipData(dataRaw, "x", naxis1Raw, naxis2Raw);
+                    flipSections(multiportIlluminatedSections[channel], "x", naxis1Raw, naxis2Raw);
+                }
+            }
+            if (instData.name == "LRIS_RED@KECK") {
+                offy = 0;
+                if (chip == 0) {
+                    offx = 0;
+                }
+                if (chip == 1) {
+                    offx = 1024;
+                    flipData(dataRaw, "x", naxis1Raw, naxis2Raw);
+                    flipSections(multiportIlluminatedSections[channel], "x", naxis1Raw, naxis2Raw);
+                }
+                if (chip == 2) {
+                    offx = 0;
+                }
+                if (chip == 3) {
+                    offx = 728;
+                    flipData(dataRaw, "x", naxis1Raw, naxis2Raw);
+                    flipSections(multiportIlluminatedSections[channel], "x", naxis1Raw, naxis2Raw);
+                }
+            }
             pasteSubArea(dataPasted, dataRaw, multiportIlluminatedSections[channel], multiportGains[channel],
                          offx, offy, naxis1, naxis2, naxis1Raw);
             ++channel;
@@ -582,6 +694,7 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
     long jminS = section.at(2);
     long jmaxS = section.at(3);
 
+
     long dimS = dataS.length();      // S = source image
     long dimT = dataT.length();      // T = target image
 
@@ -606,7 +719,7 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
             long tIndex = iT+nT*jT;
             if (!instData.name.contains("GROND")) {
                 if (sIndex >= dimS || tIndex >= dimT) {
-                    emit messageAvailable("Inconsistent image geometry. " + instData.name + " was probably not yet tested in THELI v3.", "error");
+                    emit messageAvailable("Inconsistent image geometry. " + instData.name + " not fully tested in THELI.", "error");
                     emit critical();
                     successProcessing = false;
                     break;
@@ -632,6 +745,7 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
     long dimT = dataT.length();
 
     for (long jS=jminS; jS<=jmaxS; ++jS) {
+        if (!successProcessing) break;
         for (long iS=iminS; iS<=imaxS; ++iS) {
             long iT = offx+iS-iminS;
             long jT = offy+jS-jminS;
@@ -639,7 +753,7 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
             long sIndex = iS+nS*jS;
             long tIndex = iT+nT*jT;
             if (sIndex >= dimS || tIndex >= dimT) {
-                emit messageAvailable("Inconsistent image geometry. " + instData.name + " was probably not yet tested in THELI v3.", "error");
+                emit messageAvailable("Inconsistent image geometry. " + instData.name + " not fully tested in THELI.", "error");
                 emit critical();
                 successProcessing = false;
                 break;
@@ -735,6 +849,8 @@ void Splitter::updateMEFpastingStatus(int chip)
         //        if (chip == 3 || chip == 7 || chip == 11) MEFpastingFinished = true;
     }
     if (instData.name == "SOI@SOAR"
+            || instData.name == "LRIS_BLUE@KECK"
+            || instData.name == "LRIS_RED@KECK"
             || instData.name == "MOSAIC-II_16@CTIO"
             || instData.name == "PISCO@LCO") {
         if ( (chip + 1) % numAmpPerChip == 0) MEFpastingFinished = true;

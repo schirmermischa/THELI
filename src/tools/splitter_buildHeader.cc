@@ -443,6 +443,20 @@ bool Splitter::individualFixCRPIX(int chip)
         individualFixDone = true;
     }
 
+    if (instData.name == "LRIS_BLUE@KECK") {
+        if (chip == 1) crpix1_card = "CRPIX1  = 2099";
+        if (chip == 3) crpix1_card = "CRPIX1  = -52";
+        crpix2_card = "CRPIX2  = 2052";
+        individualFixDone = true;
+    }
+
+    if (instData.name == "LRIS_RED@KECK") {
+        if (chip == 1) crpix1_card = "CRPIX1  = -126";
+        if (chip == 3) crpix1_card = "CRPIX1  = 1835";
+        crpix2_card = "CRPIX2  = 1260";
+        individualFixDone = true;
+    }
+
     if (instData.name == "MOSAIC-II_16@CTIO") {
         if (chip == 1) crpix1_card = "CRPIX1  = 4219";
         if (chip == 3) crpix1_card = "CRPIX1  = 2078";
@@ -600,6 +614,20 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd12_card = "CD1_2   =  3.28000e-5";
         cd21_card = "CD2_1   =  3.28000e-5";
         cd22_card = "CD2_2   =  0.0";
+        individualFixDone = true;
+    }
+    if (instData.name == "LRIS_BLUE@KECK") {
+        cd11_card = "CD1_1   =  0.0";
+        cd12_card = "CD1_2   =  -3.76e-5";
+        cd21_card = "CD2_1   =  3.76e-5";
+        cd22_card = "CD2_2   =  0.0";
+        individualFixDone = true;
+    }
+    if (instData.name == "LRIS_RED@KECK") {
+        cd11_card = "CD1_1   =  -3.76e-5";
+        cd12_card = "CD1_2   =  0.0";
+        cd21_card = "CD2_1   =  0.0";
+        cd22_card = "CD2_2   =  -3.76e-5";
         individualFixDone = true;
     }
     if (instData.name == "ESI@KECK") {
@@ -1070,6 +1098,14 @@ bool Splitter::individualFixGAIN(int chip)
         chipGain = harmonicGain(multiportGains);
         individualFixDone = true;
     }
+    else if (instData.name == "LRIS_BLUE@KECK") {
+        chipGain = harmonicGain(multiportGains);
+        individualFixDone = true;
+    }
+    else if (instData.name == "LRIS_RED@KECK") {
+        chipGain = harmonicGain(multiportGains);
+        individualFixDone = true;
+    }
     else if (instData.name == "MOSAIC-II_16@CTIO") {
         chipGain = harmonicGain(multiportGains);
         individualFixDone = true;
@@ -1264,10 +1300,23 @@ bool Splitter::individualFixFILTER(int chip)
     QString filterCard = "";
 
     if (instData.name == "PISCO@LCO") {
-        if (chip == 0 || chip == 1) filterCard = "FILTER  = 'g'";
-        if (chip == 2 || chip == 3) filterCard = "FILTER  = 'r'";
-        if (chip == 4 || chip == 5) filterCard = "FILTER  = 'i'";
-        if (chip == 6 || chip == 7) filterCard = "FILTER  = 'z'";
+        if (chip == 0 || chip == 1)  filter = "g";
+        if (chip == 2 || chip == 3) filter = "r";
+        if (chip == 4 || chip == 5) filter = "i";
+        if (chip == 6 || chip == 7) filter = "z";
+        filterCard = "FILTER  = '"+filter+"'";
+        individualFixDone = true;
+    }
+
+    if (instData.name == "LRIS_BLUE@KECK") {
+        searchKeyValue(QStringList() << "BLUFILT", filter);
+        filterCard = "FILTER  = '"+filter+"'";
+        individualFixDone = true;
+    }
+
+    if (instData.name == "LRIS_RED@KECK") {
+        searchKeyValue(QStringList() << "REDFILT", filter);
+        filterCard = "FILTER  = '"+filter+"'";
         individualFixDone = true;
     }
 

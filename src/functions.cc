@@ -1607,7 +1607,7 @@ int gauss_fdf(const gsl_vector *x, void *params, gsl_vector *f, gsl_matrix *J)
     return GSL_SUCCESS;
 }
 
-void flip(QVector<float> &data, const QString dir, const int naxis1, const int naxis2)
+void flipData(QVector<float> &data, const QString dir, const int naxis1, const int naxis2)
 {
     QVector<float> copy;
     copy.resize(naxis1*naxis2);
@@ -1640,4 +1640,26 @@ void flip(QVector<float> &data, const QString dir, const int naxis1, const int n
     }
 
     data.swap(copy);
+}
+
+void flipSections(QVector<long> &sections, const QString dir, const int naxis1, const int naxis2)
+{
+    QVector<long> copy = sections;
+
+    if (dir == "x") {
+        copy[1] = naxis1-1-sections[0];
+        copy[0] = naxis1-1-sections[1];
+    }
+    else if (dir == "y") {
+        copy[3] = naxis2-1-sections[2];
+        copy[2] = naxis2-1-sections[3];
+    }
+    else if (dir == "xy") {
+        copy[1] = naxis1-1-sections[0];
+        copy[0] = naxis1-1-sections[1];
+        copy[3] = naxis2-1-sections[2];
+        copy[2] = naxis2-1-sections[3];
+    }
+
+    sections = copy;
 }

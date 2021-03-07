@@ -247,6 +247,7 @@ void Splitter::extractImages()
     // multiple readout channels in different FITS extensions
     multiChannelMultiExt << "GMOS-N-HAM@GEMINI" << "GMOS-N-HAM_1x1@GEMINI"
                          << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI"
+                         << "LRIS_BLUE@KECK" << "LRIS_RED@KECK"
                          << "MOSAIC-II_16@CTIO" << "MOSAIC-III_4@KPNO_4m"
                          << "PISCO@LCO" << "SAMI_2x2@SOAR" << "SOI@SOAR";
     if (multiChannelMultiExt.contains(instData.name)) ampInSeparateExt = true;
@@ -803,6 +804,14 @@ void Splitter::getNumberOfAmplifiers()
         numAmpPerChip = 2;
         rawStatus = 0;
     }
+    if (instData.name == "LRIS_BLUE@KECK") {
+        numAmpPerChip = 2;
+        rawStatus = 0;
+    }
+    if (instData.name == "LRIS_RED@KECK") {
+        numAmpPerChip = 2;
+        rawStatus = 0;
+    }
     if (instData.name == "MOSAIC-II_16@CTIO") {
         numAmpPerChip = 2;
         rawStatus = 0;
@@ -823,6 +832,7 @@ void Splitter::getNumberOfAmplifiers()
     // multiple readout channels in different FITS extensions
     multiChannelMultiExt << "GMOS-N-HAM@GEMINI" <<  "GMOS-N-HAM_1x1@GEMINI"
                          << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI"
+                         << "LRIS_BLUE@KECK" << "LRIS_RED@KECK"
                          << "MOSAIC-II_16@CTIO" << "MOSAIC-III_4@KPNO_4m"
                          << "PISCO@LCO" << "SAMI_2x2@SOAR" << "SOI@SOAR";
     if (multiChannelMultiExt.contains(instData.name)) ampInSeparateExt = true;
@@ -879,6 +889,14 @@ void Splitter::writeImage(int chipMapped)
             if (chipMapped == 11) chipID = 3;
         }
         if (instData.name == "SOI@SOAR") {
+            if (chipMapped == 1) chipID = 1;
+            if (chipMapped == 3) chipID = 2;
+        }
+        if (instData.name == "LRIS_BLUE@KECK") {
+            if (chipMapped == 1) chipID = 1;
+            if (chipMapped == 3) chipID = 2;
+        }
+        if (instData.name == "LRIS_RED@KECK") {
             if (chipMapped == 1) chipID = 1;
             if (chipMapped == 3) chipID = 2;
         }

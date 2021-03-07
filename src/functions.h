@@ -109,7 +109,8 @@ int gauss_f(const gsl_vector *x, void *params, gsl_vector *f);
 int gauss_df(const gsl_vector *x, void *params, gsl_matrix *J);
 int gauss_fdf(const gsl_vector *x, void *params, gsl_vector *f, gsl_matrix *J);
 void mkAbsDir(QString absDirName);
-void flip(QVector<float> &data, const QString dir, const int naxis1, const int naxis2);
+void flipData(QVector<float> &data, const QString dir, const int naxis1, const int naxis2);
+void flipSections(QVector<long> &sections, const QString dir, const int naxis1, const int naxis2);
 
 // template functions end in "_T"
 // This is to distinguish them from the same functions
