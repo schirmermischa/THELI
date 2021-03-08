@@ -50,7 +50,7 @@ void SwarpWorker::runSwarp()
 
 void SwarpWorker::abort()
 {
-    if (extProcess == nullptr) {
+    if (!extProcess) {
         emit finished();
         return;
     }

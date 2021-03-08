@@ -77,6 +77,11 @@ void SourceExtractorWorker::processExternalStderr()
 
 void SourceExtractorWorker::abort()
 {
+    if (!extProcess) {
+        emit finished();
+        return;
+    }
+
     // First, kill the children
     long pid = extProcess->processId();
     killProcessChildren(pid);

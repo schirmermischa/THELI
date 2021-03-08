@@ -223,6 +223,7 @@ void Controller::scampCalcFluxscale()
         successProcessing = false;
         emit messageAvailable("Could not find scamp output headers.", "error");
         criticalReceived();
+        workerThread->quit();
         return;
     }
 

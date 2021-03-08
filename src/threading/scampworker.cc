@@ -68,6 +68,11 @@ void ScampWorker::runScamp()
 
 void ScampWorker::abort()
 {
+    if (!extProcess) {
+        emit finished();
+        return;
+    }
+
     // First, kill the children
     long pid = extProcess->processId();
     killProcessChildren(pid);
@@ -140,7 +145,7 @@ void ScampWorker::processExternalStderr()
     errors << "buffer overflow detected";
     errors << "Could not allocate memory";
     errors << "Invalid deprojected coordinates";
-    errors << "DISTORT_DEGREES keyword out of range";
+    errors << "keyword out of range";
     errors << "WARNING: Not a positive definite matrix in astrometry solver";
     errors << "Segmentation fault";
 

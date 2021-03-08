@@ -96,6 +96,11 @@ void AnetWorker::processExternalStderr()
 
 void AnetWorker::abort()
 {
+    if (!extProcess) {
+        emit finished();
+        return;
+    }
+
     // First, kill the children
     long pid = extProcess->processId();
     killProcessChildren(pid);
