@@ -325,7 +325,7 @@ void Splitter::getMultiportInformation(int chip)
         searchKeyValue(QStringList() << "NAXIS1", naxis1channel);
         searchKeyValue(QStringList() << "NAXIS2", naxis2channel);
         multiportOverscanDirections << "vertical";
-        QVector<long> oscan = {1040,1110,1,2601};                                // Bias section not present in header
+        QVector<long> oscan = {1040,1110,0,2600};                                // Bias section not present in header
         multiportOverscanSections << oscan;
         multiportIlluminatedSections << extractVerticesFromKeyword("DATASEC");   // given in binned units in the header
         QVector<long> channelSection;
@@ -359,7 +359,7 @@ void Splitter::getMultiportInformation(int chip)
         searchKeyValue(QStringList() << "NAXIS1", naxis1channel);
         searchKeyValue(QStringList() << "NAXIS2", naxis2channel);
         multiportOverscanDirections << "vertical";
-        QVector<long> oscan = {1080,1150,1,4096};                                // Bias section not present in header
+        QVector<long> oscan = {1080,1150,0,4095};                                // Bias section not present in header; Must respect 0-indexing explicitly
         multiportOverscanSections << oscan;
         multiportIlluminatedSections << extractVerticesFromKeyword("DATASEC");   // given in binned units in the header
         QVector<long> channelSection;
@@ -382,12 +382,12 @@ void Splitter::getMultiportInformation(int chip)
 
     if (instData.name == "LRIS_RED@KECK") {
         if (chip == 0) {
-           naxis1 = 1648;
-           naxis2 = 2520;
+            naxis1 = 1648;
+            naxis2 = 2520;
         }
         if (chip == 2) {
-           naxis1 = 1752;
-           naxis2 = 2520;
+            naxis1 = 1752;
+            naxis2 = 2520;
         }
 
         int naxis1channel = 0;
@@ -396,10 +396,10 @@ void Splitter::getMultiportInformation(int chip)
         searchKeyValue(QStringList() << "NAXIS2", naxis2channel);
         multiportOverscanDirections << "vertical";
         QVector<long> oscan;
-        if (chip == 0) oscan = {1040,1100,1,4096};                                // Bias section not present in header
-        if (chip == 1) oscan = {650,710,1,4096};                                  // Bias section not present in header
-        if (chip == 2) oscan = {750,810,1,4096};                                  // Bias section not present in header
-        if (chip == 3) oscan = {1040,1100,1,4096};                                // Bias section not present in header
+        if (chip == 0) oscan = {1040,1100,0,4095};              // Bias section not present in header
+        if (chip == 1) oscan = {650,710,0,4095};                // Bias section not present in header
+        if (chip == 2) oscan = {750,810,0,4095};                // Bias section not present in header
+        if (chip == 3) oscan = {1040,1100,0,4095};              // Bias section not present in header
         multiportOverscanSections << oscan;
         multiportIlluminatedSections << extractVerticesFromKeyword("DATASEC");   // given in binned units in the header
         QVector<long> channelSection;
@@ -454,9 +454,9 @@ void Splitter::getMultiportInformation(int chip)
         searchKeyValue(QStringList() << "NAXIS2", naxis2channel);
         multiportOverscanDirections << "vertical";
         QVector<long> oscan;
-        oscan << 1547 << 1577 << 1 << 6147;
+        oscan << 1547 << 1577 << 0 << 6146;
         QVector<long> illum;
-        oscan << 1 << 1546 << 1 << 6147;
+        illum << 0 << 1545 << 0 << 6146;
         multiportOverscanSections << oscan;
         multiportIlluminatedSections << illum;
         QVector<long> channelSection;
@@ -465,7 +465,7 @@ void Splitter::getMultiportInformation(int chip)
         if (chip % numAmpPerChip == 0) dataPasted.resize(naxis1 * naxis2);
 
         float gainValue = 1.0;
-        searchKeyValue(QStringList() << "GAIN", gainValue);
+        searchKeyValue(QStringList() << "EGAIN", gainValue);
         multiportGains << gainValue;
         channelGains.clear();
         channelGains << 1.0;   // dummy;
@@ -583,7 +583,6 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
     // Individual exceptions (currently: GMOS, SOI, MOSAIC-II only)
     else {
         int channel = 0;
-
         for (auto &section : multiportIlluminatedSections) {
             if (section.length() != 4) continue; // skip wrong vertices, for whatever reason they might be here
             long offx = 0;
@@ -591,8 +590,7 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
             // detectors where the amps form two or more vertical stripes from left to right
             if (instData.name == "SOI@SOAR"
                     || instData.name.contains("GMOS")
-                    || instData.name == "MOSAIC-II_16@CTIO"
-                    || instData.name == "PISCO@LCO") {
+                    || instData.name == "MOSAIC-II_16@CTIO") {
                 offx = (chip % numAmpPerChip) * naxis1 / numAmpPerChip;
                 offy = 0;
             }
@@ -657,6 +655,52 @@ void Splitter::pasteMultiportIlluminatedSections(int chip)
                     flipSections(multiportIlluminatedSections[channel], "x", naxis1Raw, naxis2Raw);
                 }
             }
+            if (instData.name == "PISCO@LCO") {
+                if (chip == 0) {
+                    offx = 0;
+                    offy = 0;
+                }
+                if (chip == 1) {
+                    offx = naxis1 / 2;
+                    offy = 0;
+                    flipData(dataRaw, "x", naxis1Raw, naxis2Raw);
+                    flipSections(multiportIlluminatedSections[channel], "x", naxis1Raw, naxis2Raw);
+                }
+                if (chip == 2) {
+                    offx = naxis1 / 2;
+                    offy = -172;
+                    flipData(dataRaw, "x", naxis1Raw, naxis2Raw);
+                    flipSections(multiportIlluminatedSections[channel], "x", naxis1Raw, naxis2Raw);
+                }
+                if (chip == 3) {
+                    offx = 0;
+                    offy = -172;
+                }
+                if (chip == 4) {
+                    offx = 0;
+                    offy = 150;
+                    flipData(dataRaw, "y", naxis1Raw, naxis2Raw);
+                    flipSections(multiportIlluminatedSections[channel], "y", naxis1Raw, naxis2Raw);
+                }
+                if (chip == 5) {
+                    offx = naxis1 / 2;
+                    offy = 150;
+                    flipData(dataRaw, "xy", naxis1Raw, naxis2Raw);
+                    flipSections(multiportIlluminatedSections[channel], "xy", naxis1Raw, naxis2Raw);
+                }
+                if (chip == 6) {
+                    offx = naxis1 / 2;
+                    offy = -70;
+                    flipData(dataRaw, "xy", naxis1Raw, naxis2Raw);
+                    flipSections(multiportIlluminatedSections[channel], "xy", naxis1Raw, naxis2Raw);
+                }
+                if (chip == 7) {
+                    offx = 0;
+                    offy = -70;
+                    flipData(dataRaw, "y", naxis1Raw, naxis2Raw);
+                    flipSections(multiportIlluminatedSections[channel], "y", naxis1Raw, naxis2Raw);
+                }
+            }
             pasteSubArea(dataPasted, dataRaw, multiportIlluminatedSections[channel], multiportGains[channel],
                          offx, offy, naxis1, naxis2, naxis1Raw);
             ++channel;
@@ -681,7 +725,6 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
     long imaxS = section.at(1);
     long jminS = section.at(2);
     long jmaxS = section.at(3);
-
 
     long dimS = dataS.length();      // S = source image
     long dimT = dataT.length();      // T = target image
@@ -740,12 +783,12 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
             if (iT>=nT || iT<0 || jT>=mT || jT<0) continue;   // don't paste pixels falling outside target area
             long sIndex = iS+nS*jS;
             long tIndex = iT+nT*jT;
-            if (sIndex >= dimS || tIndex >= dimT) {
-                emit messageAvailable("Inconsistent image geometry. " + instData.name + " not fully tested in THELI.", "error");
-                emit critical();
-                successProcessing = false;
-                break;
-            }
+                if (sIndex >= dimS || tIndex >= dimT) {
+                    emit messageAvailable("Inconsistent image geometry. " + instData.name + " not fully tested in THELI.", "error");
+                    emit critical();
+                    successProcessing = false;
+                    break;
+                }
             dataT[tIndex] = dataS[sIndex] * corrFactor;   // correcting for gain differences
         }
     }

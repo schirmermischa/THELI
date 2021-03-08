@@ -348,7 +348,7 @@ bool Splitter::individualFixCRVAL()
     QString crval2 = "";
 
     // List of instruments that we have to consider
-    QStringList list = {"WFC@INT", "SUSI1@NTT"};
+    QStringList list = {"WFC@INT", "SUSI1@NTT", "PISCO@LCO"};
 
     // Leave if no individual fix is required.
     if (!list.contains(instData.name)) return false;
@@ -379,6 +379,15 @@ bool Splitter::individualFixCRVAL()
     if (instData.name == "SUSI1@NTT") {
         searchKeyValue(QStringList() << "RA", crval1);
         searchKeyValue(QStringList() << "DEC", crval2);
+        crval1_card = "CRVAL1  = "+crval1;
+        crval2_card = "CRVAL2  = "+crval2;
+        individualFixDone = true;
+    }
+    if (instData.name == "PISCO@LCO") {
+        searchKeyValue(QStringList() << "TELRA", crval1);    // CRVALij in FITS extensions are highly inaccurate
+        searchKeyValue(QStringList() << "TELDC", crval2);
+        if (crval1.contains(":")) crval1 = hmsToDecimal(crval1);
+        if (crval2.contains(":")) crval2 = dmsToDecimal(crval2);
         crval1_card = "CRVAL1  = "+crval1;
         crval2_card = "CRVAL2  = "+crval2;
         individualFixDone = true;
@@ -535,6 +544,11 @@ bool Splitter::individualFixCDmatrix(int chip)
 
     QStringList headerWCS;
 
+    double cd11 = 0.;
+    double cd12 = 0.;
+    double cd21 = 0.;
+    double cd22 = 0.;
+
     QString cd11_card = "";
     QString cd12_card = "";
     QString cd21_card = "";
@@ -671,10 +685,10 @@ bool Splitter::individualFixCDmatrix(int chip)
             emit warning();
             positionAngle = 0.0;
         }
-        double cd11 = -1.*instData.pixscale / 3600.;
-        double cd12 = 0.0;
-        double cd21 = 0.0;
-        double cd22 = instData.pixscale / 3600.;
+        cd11 = -1.*instData.pixscale / 3600.;
+        cd12 = 0.0;
+        cd21 = 0.0;
+        cd22 = instData.pixscale / 3600.;
         rotateCDmatrix(cd11, cd12, cd21, cd22, positionAngle);
         cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
         cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
@@ -689,10 +703,10 @@ bool Splitter::individualFixCDmatrix(int chip)
             positionAngle = 0.0;
         }
 
-        double cd11 = instData.pixscale / 3600.;
-        double cd12 = 0.;
-        double cd21 = 0.;
-        double cd22 = -instData.pixscale / 3600.;
+        cd11 = instData.pixscale / 3600.;
+        cd12 = 0.;
+        cd21 = 0.;
+        cd22 = -instData.pixscale / 3600.;
         // Chips 1-4 are rotated by 180 degrees
         if (chip >= 4) rotateCDmatrix(cd11, cd12, cd21, cd22, positionAngle);
         else rotateCDmatrix(cd11, cd12, cd21, cd22, positionAngle+180.);
@@ -708,10 +722,10 @@ bool Splitter::individualFixCDmatrix(int chip)
             emit warning();
             positionAngle = 0.0;
         }
-        double cd11 = -1.*instData.pixscale / 3600.;
-        double cd12 = 0.0;
-        double cd21 = 0.0;
-        double cd22 = instData.pixscale / 3600.;
+        cd11 = -1.*instData.pixscale / 3600.;
+        cd12 = 0.0;
+        cd21 = 0.0;
+        cd22 = instData.pixscale / 3600.;
         rotateCDmatrix(cd11, cd12, cd21, cd22, positionAngle);
         cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
         cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
@@ -720,21 +734,20 @@ bool Splitter::individualFixCDmatrix(int chip)
         individualFixDone = true;
     }
     if (instData.name == "SUSI1@NTT") {
-        double cd11 = -3.611e-5;
-        double cd12 = 0.;
-        double cd21 = 0.;
-        double cd22 = 3.611e-5;
+        cd11 = -3.611e-5;
+        cd12 = 0.;
+        cd21 = 0.;
+        cd22 = 3.611e-5;
         cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
         cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
         cd21_card = "CD2_1   =  "+QString::number(cd21, 'g', 6);
         cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
         individualFixDone = true;
     }
-    if (instNameFromData == "GROND_OPT@MPGESO") {                 // GROND optical data has both the NIR and OPT CD matrices in the header.
-        double cd11 = 0.;                                         // With the current scheme, the NIR matrix in the HDU gets picked over
-        double cd12 = 0.;                                         // OPT matrix in the extension
-        double cd21 = 0.;
-        double cd22 = 0.;
+    if (instNameFromData == "GROND_OPT@MPGESO") {
+        // GROND optical data has both the NIR and OPT CD matrices in the header.
+        // With the current scheme, the NIR matrix in the HDU gets picked over
+        // OPT matrix in the extension
         searchKeyValue(QStringList() << "CD1_1", cd11);
         searchKeyValue(QStringList() << "CD1_2", cd12);
         searchKeyValue(QStringList() << "CD2_1", cd21);
@@ -746,10 +759,6 @@ bool Splitter::individualFixCDmatrix(int chip)
         individualFixDone = true;
     }
     if (instNameFromData == "GROND_NIR@MPGESO") {                 // just double tapping
-        double cd11 = 0.;
-        double cd12 = 0.;
-        double cd21 = 0.;
-        double cd22 = 0.;
         searchKeyValue(QStringList() << "J_CD1_1", cd11);
         searchKeyValue(QStringList() << "J_CD1_2", cd12);
         searchKeyValue(QStringList() << "J_CD2_1", cd21);
@@ -761,10 +770,32 @@ bool Splitter::individualFixCDmatrix(int chip)
         individualFixDone = true;
     }
     if (instData.name == "PFC_old@WHT") {
-        double cd11 = 6.55e-5;
-        double cd12 = 5.0e-7;
-        double cd21 = 5.0e-7;
-        double cd22 = -6.55e-5;
+        cd11 = 6.55e-5;
+        cd12 = 5.0e-7;
+        cd21 = 5.0e-7;
+        cd22 = -6.55e-5;
+        cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
+        cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
+        cd21_card = "CD2_1   =  "+QString::number(cd21, 'g', 6);
+        cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
+        individualFixDone = true;
+    }
+    if (instData.name == "PISCO@LCO") {
+        cd11 = -instData.pixscale / 3600.;
+        cd12 = 0.;
+        cd21 = 0.;
+        cd22 = -instData.pixscale / 3600.;
+        // headers appear unreliable (pixel scale wrong by a factor of two)
+        /*
+        searchKeyValue(QStringList() << "CD1_1", cd11);
+        searchKeyValue(QStringList() << "CD1_2", cd12);
+        searchKeyValue(QStringList() << "CD2_1", cd21);
+        searchKeyValue(QStringList() << "CD2_2", cd22);
+        // readout amplifiers are flipped, depending on chip
+        if (chip == 1 || chip == 2) {cd11 *= -1.; cd21 *= -1.;}
+        if (chip == 4 || chip == 7) {cd12 *= -1.; cd22 *= -1.;}
+        if (chip == 5 || chip == 6) {cd11 *= -1.; cd21 *= -1.; cd12 *= -1.; cd22 *= -1.;}
+        */
         cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
         cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
         cd21_card = "CD2_1   =  "+QString::number(cd21, 'g', 6);
@@ -1139,9 +1170,13 @@ bool Splitter::individualFixGAIN(int chip)
                 || instData.name == "LRIS_RED@KECK"
                 || instData.name == "MOSAIC-II_16@CTIO"
                 || instData.name == "MOSAIC-III_4@KPNO_4m"
-                || instData.name == "PISCO@LCO"
                 ) {
             gain[chip/numAmpPerChip] = chipGain;
+        }
+        // multichannel imagers have less chips than gain.length() ('chip' counts higher than gain.length() )
+        else if (instData.name == "PISCO@LCO") {
+            gain[0] = chipGain;
+            gain[1] = chipGain;
         }
         else {
             gain[chip] = chipGain;        // not applied for e.g. SuprimeCam_200808-201705 and the others (why?)
@@ -1279,7 +1314,7 @@ bool Splitter::individualFixFILTER(int chip)
     QString filterCard = "";
 
     if (instData.name == "PISCO@LCO") {
-        if (chip == 0 || chip == 1)  filter = "g";
+        if (chip == 0 || chip == 1) filter = "g";
         if (chip == 2 || chip == 3) filter = "r";
         if (chip == 4 || chip == 5) filter = "i";
         if (chip == 6 || chip == 7) filter = "z";

@@ -251,6 +251,14 @@ bool Controller::updateDataDirs(Data *data)
         le = getDataTreeLineEdit(data);
     }
 
+    if (instData->name == "PISCO@LCO") {
+        newDirs = d+"_g ";
+        newDirs.append(d+"_r ");
+        newDirs.append(d+"_i ");
+        newDirs.append(d+"_z ");
+        le = getDataTreeLineEdit(data);
+    }
+
     if (le != nullptr) {
         le->clear();
         le->setText(newDirs);

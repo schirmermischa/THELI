@@ -487,6 +487,7 @@ bool Splitter::isImageUsable(int &chipMapped)
 int Splitter::inferChipID(int chip)
 {
     // Data from some cameras, such as SuprimeCam and FORS, come in separate FITS files instead of a MEF file.
+    // Multichannel imagers also need to be treated here
     // We need to identify the chip number correctly:
     int chipID = chip + 1;    // external counting starts with zero; 'chipID' is the number we return for most instruments
 
@@ -568,7 +569,11 @@ int Splitter::inferChipID(int chip)
         return chipID;
     }
 
-    else if (instData.name == "GROND_OPT@MPGESO" || instData.name == "GROND_NIR@MPGESO") {
+    // Multichannel imagers: have just one (so far) detector number per channel, and the camera.ini specifies just 1 chip
+    // Otherwise chipID runs to values larger than 1 which crashes queries of the Mask class
+    else if (instData.name == "GROND_OPT@MPGESO"
+             || instData.name == "GROND_NIR@MPGESO") {
+//             || instData.name == "PISCO@LCO") {            // must maintain chip id because of chip-dependent pasting
         // Simultaneous observations in multiple bands, but just a single detector per band
         return 1;   // (reduced by -1 in caller)
     }
@@ -984,8 +989,10 @@ void Splitter::individualFixOutName(const int chipID)
         test = searchKeyValue(QStringList() << "EXP-ID", uniqueID);    // e.g. MCSE00012193
         individualFixDone = true;
     }
-    //    else if (instData.name == "GROND_OPT@MPGESO") {
     else if (instNameFromData == "GROND_OPT@MPGESO") {
+        individualFixDone = true;
+    }
+    else if (instData.name == "PISCO@LCO") {
         individualFixDone = true;
     }
 
@@ -996,8 +1003,13 @@ void Splitter::individualFixOutName(const int chipID)
             successProcessing = false;
         }
         else {
-            //if (instData.name == "GROND_OPT@MPGESO") {
             if (instNameFromData == "GROND_OPT@MPGESO") {
+                QString newPath = path+"_"+filter;
+                QDir newDir(newPath);
+                newDir.mkpath(newPath);
+                splitFileName = "!"+newPath+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
+            }
+            else if (instData.name == "PISCO@LCO") {
                 QString newPath = path+"_"+filter;
                 QDir newDir(newPath);
                 newDir.mkpath(newPath);
@@ -1096,8 +1108,7 @@ bool Splitter::individualFixWriteImage(int chipMapped)
         individualFixDone = true;
     }
 
-    //    if (instData.name == "GROND_NIR@MPGESO") {    // Write the three channels as separate FITS files
-    if (instNameFromData == "GROND_NIR@MPGESO") {    // Write the three channels as separate FITS files
+    if (instNameFromData == "GROND_NIR@MPGESO") {       // Write the three channels as separate FITS files
         for (int channel=0; channel<=2; ++channel) {
             fitsfile *fptr;
             int status = 0;

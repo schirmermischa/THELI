@@ -286,6 +286,8 @@ void Splitter::applyMask(int chip)
         chip = chip / numAmpPerChip;
     }
 
+    // Override: PISCO chip can be different than zero (other than grond) because we had to maintain its chip id for the chip-dependent pasting
+    if (instData.name == "PISCO@LCO") chip = 0;       // (single detector, effectively)
     if (!checkCorrectMaskSize(chip)) {
         //        QDir unknownFile(path+"/InconsistentGeometry");
         //        unknownFile.mkpath(path+"/InconsistentGeometry/");

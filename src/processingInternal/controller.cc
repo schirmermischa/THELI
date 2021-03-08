@@ -508,7 +508,7 @@ void Controller::updateAll()
     mask->instData = instData;
     mask->initMasks();
 
-    // Fro GROND (and in the future, other multi-channel instruments)
+    // For GROND (and other multi-channel instruments)
     provideAlternativeMask();
 
     // instData member is a pointer and does not need updating when a new instrument is selected (true? must check!)

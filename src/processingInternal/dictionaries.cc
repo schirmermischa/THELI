@@ -373,6 +373,7 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("PFC_old@WHT", "Prime Imaging");
     instrumentDictionary.insert("PICCD@WISE", "");
     instrumentDictionary.insert("PISCES@LBT", "");
+    instrumentDictionary.insert("PISCO@LCO", "PISCO");
     instrumentDictionary.insert("RetroCam_SWOPE@LCO", "RetroCam");
     instrumentDictionary.insert("RetroCam_DUPONT@LCO", "RetroCam");
     instrumentDictionary.insert("SAMI_2x2@SOAR", "SAM");
