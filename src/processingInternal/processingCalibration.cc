@@ -93,7 +93,13 @@ void Controller::taskInternalProcessbias()
             progress += progressHalfStepSize;
         }
 
-        // Commented to avoid crash depending on tests
+        if (biasData->myImageList[chip].length() == 0) {
+            biasData->successProcessing = false;
+            successProcessing = false;
+            emit messageAvailable("Could not find data for chip "+QString::number(chip+1)+ " in "+biasData->subDirName, "error");
+            emit criticalReceived();
+            continue;
+        }
         biasData->combineImagesCalib(chip, combineBias_ptr, nlow, nhigh, dataDirName, dataSubDirName, dataDataType);  // Combine images
         biasData->getModeCombineImages(chip);
         biasData->writeCombinedImage(chip);
@@ -179,6 +185,13 @@ void Controller::taskInternalProcessdark()
 #pragma omp atomic
             progress += progressHalfStepSize;
         }
+        if (darkData->myImageList[chip].length() == 0) {
+            darkData->successProcessing = false;
+            successProcessing = false;
+            emit messageAvailable("Could not find data for chip "+QString::number(chip+1)+ " in "+darkData->subDirName, "error");
+            emit criticalReceived();
+            continue;
+        }
         darkData->combineImagesCalib(chip, combineDark_ptr, nlow, nhigh, dataDirName, dataSubDirName, dataDataType);
         darkData->getModeCombineImages(chip);
         darkData->writeCombinedImage(chip);
@@ -259,6 +272,13 @@ void Controller::taskInternalProcessflatoff()
             it->setModeFlag(min, max);
 #pragma omp atomic
             progress += progressHalfStepSize;
+        }
+        if (flatoffData->myImageList[chip].length() == 0) {
+            flatoffData->successProcessing = false;
+            successProcessing = false;
+            emit messageAvailable("Could not find data for chip "+QString::number(chip+1)+ " in "+flatoffData->subDirName, "error");
+            emit criticalReceived();
+            continue;
         }
         flatoffData->combineImagesCalib(chip, combineFlatoff_ptr, nlow, nhigh, dataDirName, dataSubDirName, dataDataType);
         flatoffData->getModeCombineImages(chip);
@@ -408,6 +428,13 @@ void Controller::taskInternalProcessflat()
             progress += progressHalfStepSize;
         }
         if (biasData != nullptr) biasData->unprotectMemory(chip);
+        if (flatData->myImageList[chip].length() == 0) {
+            flatData->successProcessing = false;
+            successProcessing = false;
+            emit messageAvailable("Could not find data for chip "+QString::number(chip+1)+ " in "+flatData->subDirName, "error");
+            emit criticalReceived();
+            continue;
+        }
         flatData->combineImagesCalib(chip, combineFlat_ptr, nlow, nhigh, dataDirName, dataSubDirName, dataDataType);
         // Remove Bayer intensity variations within a 2x2 superpixel
         if (!instData->bayer.isEmpty()) equalizeBayerFlat(flatData->combinedImage[chip]);
