@@ -617,7 +617,7 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  6.611e-5";
         individualFixDone = true;
     }
-    if (instData.name == "DEIMOS_1AMP@KECK" || instData.name == "DEIMOS_1AMP@KECK") {
+    if (instData.name == "DEIMOS_1AMP@KECK" || instData.name == "DEIMOS_2AMP@KECK") {
         cd11_card = "CD1_1   =  0.0";
         cd12_card = "CD1_2   =  3.28000e-5";
         cd21_card = "CD2_1   =  3.28000e-5";
