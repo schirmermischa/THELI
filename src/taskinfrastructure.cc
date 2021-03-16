@@ -184,7 +184,7 @@ QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList
 
     // Loop over all directories found for the current task
     for (auto &it : goodDirList) {
-        if (taskBasename != "ResolveTarget") datadir.setPaths(it);   // triggers  qdebug() message if just resolving a target
+        if (taskBasename != "ResolveTargetSidereal") datadir.setPaths(it);   // triggers  qdebug() message if just resolving a target
         // Now call a consistency check by the function's string representation.
         // The function name is "check_task<taskBasename>()"
         // and it simply updates the 'stop' and 'skip' flags
@@ -224,7 +224,7 @@ QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList
                 || taskBasename == "Globalweight"
                 || taskBasename == "Individualweight"
                 || taskBasename == "Skysub"
-                || taskBasename == "ResolveTarget"
+                || taskBasename == "ResolveTargetSidereal"
                 || taskBasename == "GetCatalogFromIMAGE"
                 || taskBasename == "RestoreHeader"
                 || taskBasename == "Separate") {
@@ -539,9 +539,9 @@ void MainWindow::on_startPushButton_clicked()
     }
 
     // Check if all data Dirs are valid. If there is a single one that isn't, abort!
-    // Exception: mode = ResolveTarget does not require any data directories
+    // Exception: mode = ResolveTargetSidereal does not require any data directories
     if (! areAllPathsValid()
-            && (mode != "ResolveTarget")
+            && (mode != "ResolveTargetSidereal")
             && !doingInitialLaunch) {
         message(ui->plainTextEdit, "STOP: Nonexistent entries were found in the data directory tree. "
                                    "They must be fixed or removed.");
@@ -560,7 +560,7 @@ void MainWindow::on_startPushButton_clicked()
     // Process commands from other buttons than the "start" button
     if (mode == "GetCatalogFromWEB"
             || mode == "GetCatalogFromIMAGE"
-            || mode == "ResolveTarget"
+            || mode == "ResolveTargetSidereal"
             || mode == "RestoreHeader") {
         taskBasename = mode;
         if (!OSPBC_addCommandBlock(taskBasename, mode, stop)) return;   // updates totalCommandList
@@ -589,7 +589,7 @@ void MainWindow::on_startPushButton_clicked()
         // Leave if no normal task is checked (apart from special buttons)
         if (mode != "GetCatalogFromWEB"
                 && mode != "GetCatalogFromIMAGE"
-                && mode != "ResolveTarget"
+                && mode != "ResolveTargetSidereal"
                 && mode != "RestoreHeader"
                 && !anythingChecked) {
             return;
@@ -629,7 +629,7 @@ void MainWindow::on_startPushButton_clicked()
         workerThread->start();
 
         // show the process monitor, for normal processing tasks, only
-        if (taskBasename != "ResolveTarget") {
+        if (taskBasename != "ResolveTargetSidereal") {
             if (switchProcessMonitorPreference) monitor->raise();
             ui->processProgressBar->setValue(0);
         }
@@ -750,7 +750,7 @@ QString MainWindow::OSPBC_determineExecutionMode(QObject *sender)
         if (cdw->ui->ARCimageRadioButton->isChecked()) mode = "GetCatalogFromIMAGE";
     }
     else if (sender == cdw->ui->restoreHeaderPushButton) mode = "RestoreHeader";
-    else if (sender == cdw->ui->ARCtargetresolverToolButton) mode = "ResolveTarget";
+    else if (sender == cdw->ui->ARCtargetresolverToolButton) mode = "ResolveTargetSidereal";
     else {
         mode = "simulate";
         ui->plainTextEdit->clear();

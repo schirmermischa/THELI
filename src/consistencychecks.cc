@@ -324,7 +324,7 @@ void MainWindow::check_taskRestoreHeader(DataDir *datadir, bool &stop, bool &ski
     // Check that original headers exist
 }
 
-void MainWindow::check_taskResolveTarget(DataDir *datadir, bool &stop, bool &skip, const QString mode)
+void MainWindow::check_taskResolveTargetSidereal(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
     QString target = cdw->ui->ARCtargetresolverLineEdit->text();
     if (target.isEmpty()) {

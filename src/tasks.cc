@@ -387,9 +387,9 @@ QStringList MainWindow::taskCoaddition(bool &stop, const QString mode)
 }
 
 // TODO: go through these tasks and clean up those we don't need anymore, or info therein we don't need
-QStringList MainWindow::taskResolveTarget(bool &stop, const QString mode)
+QStringList MainWindow::taskResolveTargetSidereal(bool &stop, const QString mode)
 {
-    QString taskBasename = "ResolveTarget";
+    QString taskBasename = "ResolveTargetSidereal";
     QStringList goodDirList;
     // Replace blanks by underscores, and push the target name onto 'gooddirlist', which carries no other information
     QString target = cdw->ui->ARCtargetresolverLineEdit->text();

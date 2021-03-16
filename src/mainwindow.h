@@ -212,7 +212,7 @@ private slots:
     QStringList taskRestoreHeader(bool &stop, const QString mode);
     QStringList taskSkysub(bool &stop, const QString mode);
     QStringList taskCoaddition(bool &stop, const QString mode);
-    QStringList taskResolveTarget(bool &stop, const QString mode);
+    QStringList taskResolveTargetSidereal(bool &stop, const QString mode);
 
     void check_taskHDUreformat(DataDir *datadir, bool &stop, bool &skip, const QString mode);
     void check_taskProcessbias(DataDir *datadir, bool &stop, bool &skip, const QString mode);
@@ -235,7 +235,7 @@ private slots:
     void check_taskRestoreHeader(DataDir *datadir, bool &stop, bool &skip, const QString mode);
     void check_taskSkysub(DataDir *datadir, bool &stop, bool &skip, const QString mode);
     void check_taskCoaddition(DataDir *datadir, bool &stop, bool &skip, const QString mode);
-    void check_taskResolveTarget(DataDir *datadir, bool &stop, bool &skip, const QString mode);
+    void check_taskResolveTargetSidereal(DataDir *datadir, bool &stop, bool &skip, const QString mode);
     void restoreOriginalData();
     void emitEditingFinished(const QString &arg1);
     void on_actionLicense_triggered();
