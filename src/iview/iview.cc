@@ -1101,6 +1101,7 @@ void IView::showG2References(bool checked)
             if (it.contains("SDSS")) readRaDecCatalog(G2referencePathName+it, G2refCatItems, 29, width, QColor("#ee0000"));
             if (it.contains("PANSTARRS")) readRaDecCatalog(G2referencePathName+it, G2refCatItems, 24, width, QColor("#00eeee"));
             if (it.contains("APASS")) readRaDecCatalog(G2referencePathName+it, G2refCatItems, 19, width, QColor("#00ee00"));
+            if (it.contains("SKYMAPPER")) readRaDecCatalog(G2referencePathName+it, G2refCatItems, 29, width, QColor("#eeee00"));
         }
     }
     else {
