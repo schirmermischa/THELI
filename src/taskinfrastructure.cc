@@ -1017,7 +1017,7 @@ QStringList MainWindow::displayCoaddFilterChoice(QString dirname, QString &filte
         fits_open_file(&fptr, (dirname+"/"+fits).toUtf8().data(), READONLY, &status);
         fits_read_key_str(fptr, "FILTER", filter, NULL, &status);
         fits_close_file(fptr, &status);
-        printCfitsioError(fits+" : MainWindow::displayCoaddFilterChoice()", status);
+        printCfitsioError(fits+" : " + __func__, status);
         QString filterString(filter);
         filterString = filterString.simplified();
         if (!filterList.contains(filterString)) filterList.append(filterString);
@@ -1066,7 +1066,6 @@ QStringList MainWindow::displayCoaddFilterChoice(QString dirname, QString &filte
 void MainWindow::printCfitsioError(QString funcName, int status)
 {
     if (status) {
-        qDebug() << status;
         CfitsioErrorCodes *errorCodes = new CfitsioErrorCodes(this);
         emit messageAvailable(funcName+":<br>" + errorCodes->errorKeyMap.value(status), "error");
     }

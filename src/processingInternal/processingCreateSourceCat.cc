@@ -389,7 +389,7 @@ void Controller::mergeInternal(Data *scienceData, QString minFWHM, QString maxFl
 
         fits_close_file(fptr, &status);
 
-        printCfitsioError("mergeInternal()", status);
+        printCfitsioError(__func__, status);
 
 #pragma omp atomic
         progress += progressStepSize;
@@ -427,7 +427,7 @@ void Controller::mergeSourceExtractor(Data *scienceData)
         }
         fits_close_file(fptr, &status);
 
-        printCfitsioError("mergeSourceExtractor()", status);
+        printCfitsioError(__func__, status);
 
 #pragma omp atomic
         progress += progressStepSize;

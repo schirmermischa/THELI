@@ -1102,7 +1102,7 @@ void Controller::coaddUpdate()
     fits_update_key_str(fptr, "THELIRUN", mainGUI->ui->setupProjectLineEdit->text().toUtf8().data(), "THELI project name", &status);
     fits_close_file(fptr, &status);
 
-    printCfitsioError("coaddUpdate():", status);
+    printCfitsioError(__func__, status);
 
     emit progressUpdate(100);
 

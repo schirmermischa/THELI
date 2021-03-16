@@ -209,7 +209,7 @@ void Controller::uniformMJDOBS(QDir &dir)
                 fits_update_key_dbl(fptr, "MJD-OBS", mjdObsChip1, -13, nullptr, &status);
             }
             fits_close_file(fptr, &status);
-            printCfitsioError("uniformMJDOBS()", status);
+            printCfitsioError(__func__, status);
 
             // Rename image file to THELI standard
             QString dateObsString(dateObsChip1);

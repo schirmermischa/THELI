@@ -1301,7 +1301,7 @@ void Query::writeAstromScamp()
     //    fits_write_col(fptr, TSHORT, 8, firstrow, firstelem, nrows, fieldpos, &status);
     fits_close_file(fptr, &status);
 
-    printCfitsioError("writeAstromScamp()", status);
+    printCfitsioError(__func__, status);
 
     QFile file(filename);
     file.setPermissions(QFile::ReadUser | QFile::WriteUser);
@@ -1362,7 +1362,7 @@ void Query::writeAstromANET()
     fits_write_col(fptr, TFLOAT, 3, firstrow, firstelem, nrows, mag_arr, &status);
     fits_close_file(fptr, &status);
 
-    printCfitsioError("writeAstromANET()", status);
+    printCfitsioError(__func__, status);
 
     // STEP 2: build the anet index
 

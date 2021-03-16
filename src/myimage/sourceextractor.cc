@@ -116,11 +116,11 @@ void MyImage::filterSourceExtractorCatalog(QString minFWHM, QString maxFlag)
     fits_select_rows(fptr, fptr, filterString.toUtf8().data(), &status);
     fits_close_file(fptr, &status);
 
-    printCfitsioError("MyImage::filterSourceExtractorCatalog()", status);
+    printCfitsioError(__func__, status);
 
     // Cannot do that, creating a child for a parent in a different thread;
     // should push the message directly to monitor instead;
-    // printCfitsioError("MyImage::filterSourceExtractorCatalog()", status);
+    // printCfitsioError(__func__, status);
 }
 
 void MyImage::calcMedianSeeingEllipticitySex(QString catName, int extnum)
@@ -163,7 +163,7 @@ void MyImage::calcMedianSeeingEllipticitySex(QString catName, int extnum)
     fits_read_col(fptr, TDOUBLE, ellColNum, firstrow, firstelem, nrows, NULL, ell, &anynul, &status);
     fits_close_file(fptr, &status);
 
-    printCfitsioError("MyImage::calcMedianSeeingEllipticitySex()", status);
+    printCfitsioError(__func__, status);
 
     // Put into a vector so we can do calculations
     QVector<double> fwhmVec(nrows);
@@ -233,7 +233,7 @@ void MyImage::sourceExtractorCatToIview()
     fits_read_col(fptr, TFLOAT, thetawinColNum, firstrow, firstelem, nrows, NULL, thetawin, &anynul, &status);
     fits_close_file(fptr, &status);
 
-    printCfitsioError("MyImage::sourceExtractorCatToIview())", status);
+    printCfitsioError(__func__, status);
 
     QString iviewName = path+"/cat/iview/"+chipName+".iview";
     QFile file(iviewName);
@@ -282,7 +282,7 @@ void MyImage::appendToScampCatalogSourceExtractor(fitsfile *fptr)
     fits_movabs_hdu(fptrSex, 3, &hduType, &status);
     fits_copy_hdu(fptrSex, fptr, 0, &status);
     fits_close_file(fptrSex, &status);
-    printCfitsioError("MyImage::appendToScampCatalogSourceExtractor()", status);
+    printCfitsioError(__func__, status);
 }
 
 void MyImage::sourceExtractorCatToAnet()
@@ -327,8 +327,8 @@ void MyImage::sourceExtractorCatToAnet()
     fits_copy_col(fptrSex, fptrAnet, yColNum, 2, FALSE, &statusSex);
     fits_copy_col(fptrSex, fptrAnet, magColNum, 3, FALSE, &statusSex);
     fits_close_file(fptrSex, &statusSex);
-    printCfitsioError("MyImage::sourceExtractorCatToAnet()", statusSex);
+    printCfitsioError(__func__, statusSex);
 
     fits_close_file(fptrAnet, &statusAnet);
-    printCfitsioError("MyImage::sourceExtractorCatToAnet()", statusAnet);
+    printCfitsioError(__func__, statusAnet);
 }

@@ -214,13 +214,10 @@ void MyImage::readImage(bool determineMode)
     else {
         if (loadData()) {
             getMode(determineMode);
-            imageInMemory = true;
             imageOnDrive = true;
             successProcessing = true;
-            headerInfoProvided = true;
             updateProcInfo("Loaded");
             if (*verbosity > 2) emit messageAvailable(chipName+" : Loaded", "image");
-
         }
         else {
             emit messageAvailable("MyImage::readImage(): Could not load " + baseName + ".fits", "error");
@@ -246,10 +243,8 @@ void MyImage::readImageThreadSafe(bool determineMode)
     else {
         if (loadDataThreadSafe()) {
             getMode(determineMode);
-            imageInMemory = true;
             imageOnDrive = true;
             successProcessing = true;
-            headerInfoProvided = true;
             updateProcInfo("Loaded");
             if (*verbosity > 2) emit messageAvailable(chipName+" : Loaded", "image");
 
@@ -278,10 +273,8 @@ void MyImage::readImage(QString loadFileName)
     }
     else {
         if (loadData(loadFileName)) {
-            imageInMemory = true;
             imageOnDrive = true;
             successProcessing = true;
-            headerInfoProvided = true;
             updateProcInfo("Loaded");
             if (*verbosity > 2) emit messageAvailable(chipName+" : Loaded", "image");
         }
@@ -306,11 +299,9 @@ void MyImage::readImageBackupL1Launch()
         bool determineMode = true;
         getMode(determineMode);
         dataBackupL1 = dataCurrent;
-        imageInMemory = true;
         backupL1OnDrive = true;
         backupL1InMemory = true;
         successProcessing = true;
-        headerInfoProvided = true;
         updateProcInfo("Loaded");
         if (*verbosity > 2) emit messageAvailable(baseNameBackupL1+" : Loaded", "image");
     }
@@ -355,7 +346,7 @@ void MyImage::readImageBackupL1()
         fits_open_file(&fptr, backupName.toUtf8().data(), READONLY, &status);
         fits_read_img(fptr, TFLOAT, fpixel, nelements, &nullval, buffer, &anynull, &status);
         fits_close_file(fptr, &status);
-        printCfitsioError("readImageBackupL1()", status);
+        printCfitsioError(__func__, status);
 
         dataBackupL1.resize(nelements);
         for (long i=0; i<nelements; ++i) {
@@ -499,7 +490,7 @@ void MyImage::backupOrigHeader(int chip)
     }
     if (status == END_OF_FILE) status = 0;
     else {
-        printCfitsioError("backupOrigHeader()", status);
+        printCfitsioError(__func__, status);
     }
     fits_close_file(fptr, &status);
     file.close();
@@ -644,7 +635,7 @@ void MyImage::updateHeaderValueInFITS(QString keyName, QString keyValue)
     fits_open_file(&fptr, (path+"/"+name).toUtf8().data(), READWRITE, &status);
     fits_update_key_str(fptr, keyName.toUtf8().data(), keyValue.toUtf8().data(), nullptr, &status);
     fits_close_file(fptr, &status);
-    printCfitsioError("updateHeaderValueInFITS", status);
+    printCfitsioError(__func__, status);
 }
 
 double MyImage::getPlateScale()
@@ -1116,7 +1107,7 @@ void MyImage::updateZeroOrderOnDrive(QString updateMode)
     }
 
     fits_close_file(fptr, &status);
-    printCfitsioError("updateZeroOrderOnDrive()", status);
+    printCfitsioError(__func__, status);
 }
 
 /*
@@ -1190,7 +1181,7 @@ void MyImage::updateCRVALinHeaderOnDrive()
     fits_update_key_dbl(fptr, "CRVAL1", wcs->crval[0], 6, nullptr, &status);
     fits_update_key_dbl(fptr, "CRVAL2", wcs->crval[1], 6, nullptr, &status);
     fits_close_file(fptr, &status);
-    printCfitsioError("updateCRVALinHeaderOnDrive()", status);
+    printCfitsioError(__func__, status);
 }
 
 void MyImage::updateCRVALCDinHeaderOnDrive()
@@ -1210,7 +1201,7 @@ void MyImage::updateCRVALCDinHeaderOnDrive()
     fits_update_key_flt(fptr, "CD2_1", wcs->cd[2], 6, nullptr, &status);
     fits_update_key_flt(fptr, "CD2_2", wcs->cd[3], 6, nullptr, &status);
     fits_close_file(fptr, &status);
-    printCfitsioError("updateCRVALCDinHeaderOnDrive()", status);
+    printCfitsioError(__func__, status);
 }
 
 void MyImage::updateInactivePath()

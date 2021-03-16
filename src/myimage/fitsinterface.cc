@@ -40,7 +40,7 @@ void MyImage::readFILTER(QString loadFileName)
     fits_read_key_str(fptr, "FILTER", filterchar, NULL, &status);
     fits_close_file(fptr, &status);
     QString filterstring(filterchar);
-    printCfitsioError("MyImage::readFILTER()", status);
+    printCfitsioError(__func__, status);
 
     filter = filterstring.simplified();
 }
@@ -69,7 +69,7 @@ bool MyImage::informSwarpfilter(long &naxis1, long &naxis2, double &crpix1, doub
         else status = 1;
     }
     fits_close_file(fptr, &status);
-    printCfitsioError("MyImage::informSwarpfilter()", status);
+    printCfitsioError(__func__, status);
     if (fluxscale == 0.) {
         emit messageAvailable(name + ": FLXSCALE = 0 in resampled FITS header. Relative photometry failed or not propagated correctly during scamp run", "error");
         emit critical();
@@ -151,6 +151,7 @@ void MyImage::readData(fitsfile **fptr, int *status)
             // else data[i] = buffer[i];
             dataCurrent[i] = buffer[i];
         }
+        imageInMemory = true;
     }
     dataCurrent.squeeze(); // shed excess memory
 
@@ -216,7 +217,7 @@ bool MyImage::loadData(QString loadFileName)
     cornersToRaDec();
     fits_close_file(fptr, &status);
 
-    printCfitsioError("MyImage::loadData()", status);
+    printCfitsioError(__func__, status);
 
     if (!status) headerInfoProvided = true;
     else headerInfoProvided = false;
@@ -243,7 +244,7 @@ bool MyImage::loadDataThreadSafe(QString loadFileName)
         cornersToRaDec();
         fits_close_file(fptr, &status);
 
-        printCfitsioError("MyImage::loadData()", status);
+        printCfitsioError(__func__, status);
 
         if (!status) headerInfoProvided = true;
         else headerInfoProvided = false;
@@ -329,7 +330,7 @@ void MyImage::loadHeader(QString loadFileName)
 
     fits_close_file(fptr, &status);
 
-    printCfitsioError("MyImage::loadHeader()", status);
+    printCfitsioError(__func__, status);
 
     if (!status) headerInfoProvided = true;
     else headerInfoProvided = false;
@@ -348,7 +349,7 @@ void MyImage::getMJD()
     fits_read_key_dbl(fptr, "MJD-OBS", &mjdobs, NULL, &status);
     fits_close_file(fptr, &status);
 
-    printCfitsioError("getMJD()", status);
+    printCfitsioError(__func__, status);
     if (status) hasMJDread = false;
     else hasMJDread = true;
 }
@@ -528,6 +529,6 @@ void MyImage::loadDataSection(long xmin, long xmax, long ymin, long ymax, float 
     fits_read_subset(fptr, TFLOAT, fpixel, lpixel, strides, &nullval, dataSect, &anynull, &status);
     fits_close_file(fptr, &status);
 
-    printCfitsioError("MyImage::stayWithinBounds()", status);
+    printCfitsioError(__func__, status);
 }
 

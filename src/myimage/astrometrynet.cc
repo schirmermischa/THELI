@@ -131,7 +131,7 @@ QString MyImage::extractAnetOutput()
     header.append("END\n");
 
     if (status == END_OF_FILE) status = 0;
-    else printCfitsioError("MyImage::reformatAnetOutput()", status);
+    else printCfitsioError(__func__, status);
     fits_close_file(fptr, &status);
 
     return header;

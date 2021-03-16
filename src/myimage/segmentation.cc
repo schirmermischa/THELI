@@ -694,7 +694,7 @@ void MyImage::writeCatalog(QString minFWHM_string, QString maxFlag_string)
     fits_write_col(fptr, TFLOAT, 3, firstrow, firstelem, nrows, mag_arr, &status);
     fits_close_file(fptr, &status);
 
-    printCfitsioError("MyImage::writeCatalog()", status);
+    printCfitsioError(__func__, status);
 }
 
 void MyImage::makeXcorrData()
@@ -858,5 +858,5 @@ void MyImage::appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_strin
 
     messageAvailable(rootName + " : " + QString::number(nrows) + " sources after filtering..." +detStatus, level);
 
-    printCfitsioError("MyImage::appendToScampCatalogInternal())", status);
+    printCfitsioError(__func__, status);
 }

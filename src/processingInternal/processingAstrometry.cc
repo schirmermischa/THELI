@@ -897,7 +897,9 @@ long Controller::getNumObjectsScampCat(QString cat)
     }
     fits_close_file(fptr, &status);
 
-    printCfitsioError("getNumObjectsScampCat():<br>" + cat, status);
+    QString out = __func__;
+    out.append( " :<br> " +cat);
+    printCfitsioError(out, status);
 
     return nobj;
 }
@@ -944,7 +946,7 @@ long Controller::getNumObjectsSourceExtractorCat(QString cat)
     fits_get_num_rows(fptr, &nrows, &status);
     fits_close_file(fptr, &status);
 
-    printCfitsioError("getNumObjectsSourceExtractorCat():", status);
+    printCfitsioError(__func__, status);
 
     return nrows;
 }

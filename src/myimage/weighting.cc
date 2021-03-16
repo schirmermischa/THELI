@@ -42,7 +42,7 @@ void MyImage::readWeight()
         fits_close_file(fptr, &status);
 
         if (status) {
-            printCfitsioError("MyImage::readWeight()", status);
+            printCfitsioError(__func__, status);
             successProcessing = false;
             weightInMemory = false;
         }
@@ -72,6 +72,7 @@ void MyImage::initWeightfromGlobalWeight(const QList<MyImage*> &gwList)
         }
         if (gw->filter == filter) {
             if (!gw->imageInMemory) gw->readImageThreadSafe();
+//            if (!gw->imageInMemory) gw->readImage();
             dataWeight = gw->dataCurrent;
             loadSuccess = true;
             weightInMemory = true;

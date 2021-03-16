@@ -212,7 +212,7 @@ bool MyImage::write(QString fileName, const QVector<float> &data, const float ex
     array = nullptr;
 
     if (status) {
-        printCfitsioError("MyImage::write()", status);
+        printCfitsioError(__func__, status);
         successProcessing = false;
         return false;
     }
@@ -230,7 +230,7 @@ bool MyImage::write(QString fileName, const QVector<float> &data, const float ex
         fits_open_file(&reference_fptr, headerRef.toUtf8().data(), READONLY, &status_ref);
         fits_copy_header(reference_fptr, fptr, &status_ref);
         fits_close_file(reference_fptr, &status_ref);
-        printCfitsioError("MyImage::write()", status_ref);
+        printCfitsioError(__func__, status_ref);
     }
     */
 }
@@ -263,7 +263,7 @@ void MyImage::writeSegmentation(QString fileName)
     delete [] array;
     array = nullptr;
 
-    printCfitsioError("MyImage::writeSegmentation()", status);
+    printCfitsioError(__func__, status);
 }
 
 void MyImage::writeObjectMask(QString fileName)
@@ -294,7 +294,7 @@ void MyImage::writeObjectMask(QString fileName)
     delete [] array;
     array = nullptr;
 
-    printCfitsioError("MyImage::writeObjectMask()", status);
+    printCfitsioError(__func__, status);
 }
 
 
@@ -345,7 +345,7 @@ void MyImage::writeConstImage(QString fileName, float constValue, const QVector<
     delete [] array;
     array = nullptr;
 
-    printCfitsioError("MyImage::writeConstImage()", status);
+    printCfitsioError(__func__, status);
 }
 
 /*
@@ -400,7 +400,7 @@ bool MyImage::writeDebayer(QString fileName, const float exptime, const QString 
     array = nullptr;
 
     if (status) {
-        printCfitsioError("MyImage::writeDebayer()", status);
+        printCfitsioError(__func__, status);
         successProcessing = false;
         return false;
     }

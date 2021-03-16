@@ -165,13 +165,13 @@ void Splitter::uncompress()
             fits_open_file(&rawFptr, name.toUtf8().data(), READONLY, &rawStatus);
             if (rawStatus) {
                 emit messageAvailable(baseName + " : Could not open uncompressed FITS file!", "error");
-                printCfitsioError("uncompress()", rawStatus);
+                printCfitsioError(__func__, rawStatus);
             }
         }
         else {
             emit messageAvailable(fi.fileName() + " : Uncompression did not work as expected!", "error");
-            printCfitsioError("uncompress()", rawStatus);
-            printCfitsioError("uncompress()", outRawStatus);
+            printCfitsioError(__func__, rawStatus);
+            printCfitsioError(__func__, outRawStatus);
             successProcessing = false;
         }
     }
@@ -201,7 +201,7 @@ void Splitter::consistencyChecks()
         // equal or more numHDUs than chips is fine (e.g. multi-channel cameras, or multiple readout ports per detector)
     }
 
-    printCfitsioError("consistencyChecks()", rawStatus);
+    printCfitsioError(__func__, rawStatus);
 }
 
 void Splitter::compileNumericKeys()
@@ -288,7 +288,7 @@ void Splitter::extractImagesFITS()
     if (!checkInstrumentConsistency(instrument)) {
         if (rawStatus == END_OF_FILE) rawStatus = 0;
         fits_close_file(rawFptr, &rawStatus);
-        printCfitsioError("extractImagesFITS()", rawStatus);
+        printCfitsioError(__func__, rawStatus);
         return;
     }
 
@@ -449,7 +449,7 @@ void Splitter::extractImagesFITS()
     if (rawStatus == END_OF_FILE) rawStatus = 0;
     fits_close_file(rawFptr, &rawStatus);
 
-    printCfitsioError("extractImagesFITS()", rawStatus);
+    printCfitsioError(__func__, rawStatus);
 }
 
 // skip over bad detectors
@@ -619,7 +619,7 @@ void Splitter::getCurrentExtensionData()
     delete [] buffer;
     buffer = nullptr;
 
-    printCfitsioError("getCurrentExtensionData()", rawStatus);
+    printCfitsioError(__func__, rawStatus);
 }
 
 // UNUSED
@@ -661,7 +661,7 @@ void Splitter::getDataInFirstCubeSlice()
     buffer = nullptr;
     fpixel = nullptr;
 
-    printCfitsioError("getDataInFirstCubeSlice()", rawStatus);
+    printCfitsioError(__func__, rawStatus);
 }
 
 void Splitter::getDataInCube()
@@ -695,7 +695,7 @@ void Splitter::getDataInCube()
     delete [] bufferAll;
     bufferAll = nullptr;
 
-    printCfitsioError("getDataInCube()", rawStatus);
+    printCfitsioError(__func__, rawStatus);
 }
 
 void Splitter::sliceCube(long slice)
@@ -967,7 +967,7 @@ void Splitter::writeImage(int chipMapped)
     delete [] array;
     array = nullptr;
 
-    printCfitsioError("writeImage()", status);
+    printCfitsioError(__func__, status);
 }
 
 void Splitter::individualFixOutName(const int chipID)
@@ -1103,7 +1103,7 @@ bool Splitter::individualFixWriteImage(int chipMapped)
             delete [] array;
             array = nullptr;
 
-            printCfitsioError("writeImage()", status);
+            printCfitsioError(__func__, status);
         }
         individualFixDone = true;
     }
@@ -1184,7 +1184,7 @@ bool Splitter::individualFixWriteImage(int chipMapped)
             delete [] array;
             array = nullptr;
 
-            printCfitsioError("writeImage()", status);
+            printCfitsioError(__func__, status);
         }
         individualFixDone = true;
     }
@@ -1246,7 +1246,7 @@ void Splitter::writeImageSlice(int chip, long slice)
     delete [] array;
     array = nullptr;
 
-    printCfitsioError("writeImageSlice()", status);
+    printCfitsioError(__func__, status);
 }
 
 // UNUSED. Not sure whether I need the MyImages sorted
@@ -1307,7 +1307,7 @@ void Splitter::readExtHeader()
     char *fullheader = nullptr;
     int numHeaderKeys = 0;
     fits_hdr2str(rawFptr, TRUE, NULL, 0, &fullheader, &numHeaderKeys, &rawStatus);
-    printCfitsioError("readextheader()", rawStatus);
+    printCfitsioError(__func__, rawStatus);
     if (rawStatus) return;
 
     fullExtHeaderString = QString::fromUtf8(fullheader);
@@ -1334,7 +1334,7 @@ void Splitter::readPrimaryHeader()
     char *fullheader = nullptr;
     int numHeaderKeys = 0;
     fits_hdr2str(rawFptr, TRUE, NULL, 0, &fullheader, &numHeaderKeys, &rawStatus);
-    printCfitsioError("readPrimaryHeader()", rawStatus);
+    printCfitsioError(__func__, rawStatus);
     if (rawStatus) return;
 
     fullPrimaryHeaderString = QString::fromUtf8(fullheader);
