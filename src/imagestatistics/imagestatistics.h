@@ -85,7 +85,7 @@ private:
     Ui::ImageStatistics *ui;
     QString thelidir;
     QString userdir;
-    QVector<QList<MyImage*>> myImageList;
+    QVector<QList<MyImage*>> myExposureList;
     QList<MyImage*> allMyImages;
     QStringList dataName;
     QStringList badStatsList;

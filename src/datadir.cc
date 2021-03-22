@@ -18,6 +18,7 @@ If not, see https://www.gnu.org/licenses/ .
 */
 
 #include "datadir.h"
+#include "functions.h"
 #include <QDebug>
 
 // Constructor
@@ -31,23 +32,23 @@ DataDir::DataDir()
     name = "";
     subdirname = "";
     numFITS = 0;
-    numCHIP1 = 0;
+    numCHIP = 0;
 }
 
 void DataDir::setPaths(QString data, QString main)
 {
     if (data.isEmpty()) {
-        qDebug() << "DataDir::setPaths(): sub-directory cannot be an empty string!";
+        qDebug() << __func__ << ": sub-directory cannot be an empty string!";
         return;
     }
     if (!main.isEmpty()) {
         QDir maindir(main);
         if (!maindir.exists()) {
-            qDebug() << "DataDir::setPaths(): main directory does not exist!";
+            qDebug() << __func__ << ": main directory does not exist!";
             return;
         }
         if (!maindir.isAbsolute()) {
-            qDebug() << "DataDir::setPaths(): main directory must be absolute!";
+            qDebug() << __func__ << ": main directory must be absolute!";
             return;
         }
     }
@@ -82,17 +83,23 @@ void DataDir::setPaths(QString data, QString main)
             numFITS = fileList.length();
         }
 
-        // How many FITS files do we have of chip 1 (i.e., number of exposures)
+        // How many FITS files do we have a chip 1 (i.e., number of exposures)
         // (needed to create master calibrators)
-        QStringList filterCHIP1;
-        filterCHIP1 << "*_1P.fits";
-        dir.setNameFilters(filterCHIP1);
-        fileList = dir.entryList();
-        numCHIP1 = fileList.length();
+        int chip = 1;
+        QVector<int> numExposures;
+        while (chip <= numChips) {
+            QStringList filterCHIP;
+            filterCHIP << "*_"+QString::number(chip)+"P.fits";
+            dir.setNameFilters(filterCHIP);
+            fileList = dir.entryList();
+            numExposures << fileList.length();
+            ++chip;
+        }
+        numCHIP = maxVec_T(numExposures);
     }
     else {
         numFITS = 0;
-        numCHIP1 = 0;
+        numCHIP = 0;
     }
 }
 
@@ -101,10 +108,14 @@ bool DataDir::hasMaster()
     // This is to check if a BIAS, DARK etc directory already contains a master BIAS, DARK, etc
     QString cleanname = subdirname.remove("/");
     QStringList filter;
-    filter << cleanname+"_1.fits";
+    int chip = 1;
+    while (chip <= numChips) {
+        filter << cleanname+"_"+QString::number(chip)+".fits";
+        ++chip;
+    }
     dir.setNameFilters(filter);
     QStringList fileList = dir.entryList();
-    if (fileList.length() == 1) {
+    if (fileList.length() > 1) {
         return true;
     }
     else {
@@ -129,18 +140,18 @@ bool DataDir::exists()
 
 long DataDir::numEXT(QString type)
 {
-    // How many FITS files of a certain type do we have of chip 1 (e.g. "_1AB.fits")
+    // How many FITS files of a certain type do we have (e.g. "_*AB.fits")
     QStringList filter;
-    filter << "*_1"+type+".fits";
+    filter << "*_*"+type+".fits";
     dir.setNameFilters(filter);
     QStringList fileList = dir.entryList();
     return fileList.length();
 }
 
 bool DataDir::hasType(QString type) {
-    // Do we have FITS files of a certain type (e.g. "_1AB.fits")
+    // Do we have FITS files of a certain type (e.g. "_*AB.fits")
     QStringList filter;
-    filter << "*_1"+type+".fits";
+    filter << "*_*"+type+".fits";
     dir.setNameFilters(filter);
     QStringList fileList = dir.entryList();
     if (fileList.length() > 0) {

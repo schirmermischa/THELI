@@ -141,6 +141,7 @@ void Splitter::determineFileFormat()
 void Splitter::uncompress()
 {
     if (!successProcessing) return;
+
     // Unpack tile-compressed image and write new fits file to disk
     if (fits_is_compressed_image(rawFptr, &rawStatus)) {
         if (*verbosity > 1) emit messageAvailable(baseName + " : Uncompressing ...", "image");
@@ -175,9 +176,6 @@ void Splitter::uncompress()
             successProcessing = false;
         }
     }
-
-    // CHECK: xtalk correction only works if we maintain the original detector geometry
-    //correctXtalk();
 }
 
 void Splitter::consistencyChecks()
@@ -238,7 +236,7 @@ void Splitter::extractImages()
     // adjust progress step size for multi-chip cameras whose detectors are stored in single extension FITS files
     // (i.e. raw data does not come as a MEF but as separate FITS files)
     QStringList instruments = {"Direct_4k_SWOPE@LCO", "FORS1_E2V_2x2@VLT", "FORS2_E2V_2x2@VLT", "FORS2_MIT_1x1@VLT", "FORS2_MIT_2x2@VLT", "FourStar@LCO",
-                               "LDSS3_2004-201401@LCO", "LDSS3_from201402@LCO",
+                               "HSC@SUBARU", "LDSS3_2004-201401@LCO", "LDSS3_from201402@LCO",
                                "IMACS_F2_200404-2008@LCO", "IMACS_F2_2008-today@LCO", "IMACS_F4_200404-2012@LCO", "IMACS_F4_2012-today@LCO", "IMACS_F4_2012-today_2x2@LCO",
                                "MOIRCS_200406-201006@SUBARU", "MOIRCS_201007-201505@SUBARU", "MOIRCS_201512-today@SUBARU",
                                "SPARTAN@SOAR", "SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808-201705@SUBARU",
@@ -283,6 +281,7 @@ void Splitter::extractImagesFITS()
     // Check if the instrument matches the data
     // This does NOT catch all inconsistent matches at this point (e.g. we are not comparing detector identification strings),
     // and the INSTRUME keyword has not been determined for all pre-defined instruments yet. In the altter case, the test is skipped.
+    // And this works only for uncompressed data (INSTRUME keyword found in extension header of compressed data, which is not yet read at this point
     QString instrument = "";
     searchKeyValue(headerDictionary.value("INSTRUME"), instrument);
     if (!checkInstrumentConsistency(instrument)) {
@@ -309,6 +308,9 @@ void Splitter::extractImagesFITS()
             // same field of view and should be treated as single-chip cameras.
             // Hence this mapping
             int chipMapped = inferChipID(chip) - 1;   // same value as chip for normal 'MEF' files
+
+            // For HSC@SUBARU, drop the 8 focus CCDs
+            if (instData.name == "HSC@SUBARU" && chipMapped >= 104) break;
 
             // do we have an "image" (as compared to a data unit that is simply a nullptr)
             int naxis = -1;
@@ -527,9 +529,10 @@ int Splitter::inferChipID(int chip)
 
     else if (instData.name == "SuprimeCam_200105-200807@SUBARU"
              || instData.name == "SuprimeCam_200101-200104@SUBARU"
-             || instData.name == "SuprimeCam_200808-201705@SUBARU") {
+             || instData.name == "SuprimeCam_200808-201705@SUBARU"
+             || instData.name == "HSC@SUBARU") {
         int value = 0;
-        searchKeyValue(QStringList() << "DET-ID", value);    // running from 0 to 9
+        searchKeyValue(QStringList() << "DET-ID", value);    // running from 0 to 9 (and 0 to 111 for HSC)
         chipID = value + 1;
         return chipID;
     }
@@ -573,7 +576,7 @@ int Splitter::inferChipID(int chip)
     // Otherwise chipID runs to values larger than 1 which crashes queries of the Mask class
     else if (instData.name == "GROND_OPT@MPGESO"
              || instData.name == "GROND_NIR@MPGESO") {
-//             || instData.name == "PISCO@LCO") {            // must maintain chip id because of chip-dependent pasting
+        //             || instData.name == "PISCO@LCO") {            // must maintain chip id because of chip-dependent pasting
         // Simultaneous observations in multiple bands, but just a single detector per band
         return 1;   // (reduced by -1 in caller)
     }
@@ -980,11 +983,11 @@ void Splitter::individualFixOutName(const int chipID)
         uniqueID = uniqueID.simplified();
         individualFixDone = true;
     }
-//    if (instData.name == "Direct_4k_SWOPE@LCO") {
-//        test = searchKeyValue(QStringList() << "FILENAME", uniqueID);
-//        uniqueID = uniqueID.remove(7,2);
-//        individualFixDone = true;
-//    }
+    //    if (instData.name == "Direct_4k_SWOPE@LCO") {
+    //        test = searchKeyValue(QStringList() << "FILENAME", uniqueID);
+    //        uniqueID = uniqueID.remove(7,2);
+    //        individualFixDone = true;
+    //    }
     else if (instData.name.contains("MOIRCS")) {
         test = searchKeyValue(QStringList() << "EXP-ID", uniqueID);    // e.g. MCSE00012193
         individualFixDone = true;
@@ -1360,11 +1363,11 @@ bool Splitter::checkCorrectMaskSize(const int chip)
     if (n_mask > 0 && n_data > 0 && n_mask != n_data) {
         if (!maskSizeWarningShown) {
             emit messageAvailable(fileName + ": Inconsistent image size detected between data and instrument configuration"
-                                  " (overscan and / or data section) in\n"+instData.nameFullPath+
+                                             " (overscan and / or data section) in\n"+instData.nameFullPath+
                                   " \n. The image will not be processed, please remove it manually.", "warning");
             emit warning();
-//            successProcessing = false;
-//            maskSizeWarningShown = true;
+            //            successProcessing = false;
+            //            maskSizeWarningShown = true;
             return false;
         }
     }

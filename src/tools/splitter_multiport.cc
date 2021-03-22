@@ -193,6 +193,59 @@ void Splitter::getMultiportInformation(int chip)
         individualFixDone = true;
     }
 
+    if (instData.name == "HSC@SUBARU") {
+        // contains 4 vertical data slices, separated by overscans, in a single FITS extension
+        naxis1 = 2048;
+        naxis2 = 4224;
+        // NOTE: The y coordinates of the illuminated sections and overscan sections in the SuprimeCam raw data are wrong.
+        // They are normally contained in keywords "T_EFMN11", "T_EFMX11", "T_EFMN12", "T_EFMX12" for channel 1, etc
+        multiportOverscanDirections << "vertical" << "vertical" << "vertical" << "vertical";
+        multiportOverscanSections << extractReducedOverscanFromKeyword("T_OSMN11", "T_OSMX11", 1, naxis2Raw);
+        multiportOverscanSections << extractReducedOverscanFromKeyword("T_OSMN21", "T_OSMX21", 1, naxis2Raw);
+        multiportOverscanSections << extractReducedOverscanFromKeyword("T_OSMN31", "T_OSMX31", 1, naxis2Raw);
+        multiportOverscanSections << extractReducedOverscanFromKeyword("T_OSMN41", "T_OSMX41", 1, naxis2Raw);
+
+        /*
+        multiportIlluminatedSections << extractVerticesFromKeyword("T_EFMN11", "T_EFMX11", "T_EFMN12", "T_EFMX12");
+        multiportIlluminatedSections << extractVerticesFromKeyword("T_EFMN21", "T_EFMX21", "T_EFMN22", "T_EFMX22");
+        multiportIlluminatedSections << extractVerticesFromKeyword("T_EFMN31", "T_EFMX31", "T_EFMN32", "T_EFMX32");
+        multiportIlluminatedSections << extractVerticesFromKeyword("T_EFMN41", "T_EFMX41", "T_EFMN42", "T_EFMX42");
+        */
+
+        int ymin = 1;    // in pixel coords (not accounting for C++ indexing starting at 0)
+        int ymax = 4224; // in pixel coords (not accounting for C++ indexing starting at 0)
+
+        multiportIlluminatedSections << extractReducedIlluminationFromKeyword("T_EFMN11", "T_EFMX11", ymin, ymax);
+        multiportIlluminatedSections << extractReducedIlluminationFromKeyword("T_EFMN21", "T_EFMX21", ymin, ymax);
+        multiportIlluminatedSections << extractReducedIlluminationFromKeyword("T_EFMN31", "T_EFMX31", ymin, ymax);
+        multiportIlluminatedSections << extractReducedIlluminationFromKeyword("T_EFMN41", "T_EFMX41", ymin, ymax);
+
+//        if (chip == 0 || chip == 1 || chip == 2 || chip == 6 || chip == 7) {
+            multiportChannelSections << QVector<long>({0*naxis1Raw/4, 1*naxis1Raw/4-1, 0, naxis2Raw-1});     // These numbers are not directly accessible in the FITS headers
+            multiportChannelSections << QVector<long>({1*naxis1Raw/4, 2*naxis1Raw/4-1, 0, naxis2Raw-1});
+            multiportChannelSections << QVector<long>({2*naxis1Raw/4, 3*naxis1Raw/4-1, 0, naxis2Raw-1});
+            multiportChannelSections << QVector<long>({3*naxis1Raw/4, 4*naxis1Raw/4-1, 0, naxis2Raw-1});
+//        }
+//        else {
+//            multiportChannelSections << QVector<long>({3*naxis1Raw/4, 4*naxis1Raw/4-1, 0, naxis2Raw-1});     // reversed order in FITS headers
+//            multiportChannelSections << QVector<long>({2*naxis1Raw/4, 3*naxis1Raw/4-1, 0, naxis2Raw-1});
+//            multiportChannelSections << QVector<long>({1*naxis1Raw/4, 2*naxis1Raw/4-1, 0, naxis2Raw-1});
+//            multiportChannelSections << QVector<long>({0*naxis1Raw/4, 1*naxis1Raw/4-1, 0, naxis2Raw-1});
+//        }
+        float gainValue1 = 1.0;
+        float gainValue2 = 1.0;
+        float gainValue3 = 1.0;
+        float gainValue4 = 1.0;
+        searchKeyValue(QStringList() << "T_GAIN1", gainValue1);
+        searchKeyValue(QStringList() << "T_GAIN2", gainValue2);
+        searchKeyValue(QStringList() << "T_GAIN3", gainValue3);
+        searchKeyValue(QStringList() << "T_GAIN4", gainValue4);
+        multiportGains << gainValue1 << gainValue2 << gainValue3 << gainValue4;
+        channelGains.clear();
+        channelGains << 1.0 << 1.0 << 1.0 << 1.0;   // dummy; not used anywhere else for SuprimeCam_200808-201705
+        individualFixDone = true;
+    }
+
     if (instData.name == "LIRIS_POL@WHT") {
         naxis1 = 1024;
         naxis2 = 1024;
@@ -750,6 +803,7 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
             long tIndex = iT+nT*jT;
             if (!instData.name.contains("GROND")) {
                 if (sIndex >= dimS || tIndex >= dimT) {
+                    qDebug() << tIndex << dimT << iminS << imaxS << jminS << jmaxS << sizex << sizey;
                     emit messageAvailable("Inconsistent image geometry. " + instData.name + " not fully tested in THELI.", "error");
                     emit critical();
                     successProcessing = false;

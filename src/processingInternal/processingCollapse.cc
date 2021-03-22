@@ -219,7 +219,7 @@ void Controller::taskInternalBinnedpreview()
 
     memoryDecideDeletableStatus(scienceData, false);
 
-    int numExp = scienceData->myImageList[0].length();
+    int numExp = scienceData->myImageList[instData->validChip].length();
 
     getNumberOfActiveImages(scienceData);
 
@@ -268,7 +268,7 @@ void Controller::taskInternalBinnedpreview()
             progress += progressStepSize;
         }
         if (binnedChipCounter == 0) continue;    // skip inactive images
-        QString outName = scienceData->myImageList[0][img]->rootName;
+        QString outName = scienceData->myImageList[instData->validChip][img]->rootName;
         outName.append("_"+statusString+".mosaic.fits");
         QString outDirName = scienceData->dirName+"/BINNED/";
         QDir outDir(outDirName);

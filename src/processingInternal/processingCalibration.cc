@@ -52,7 +52,7 @@ void Controller::taskInternalProcessbias()
 
     // TODO: The following line is needed only as long as we are handling splitting of raw data by scripts.
     // The biasData imagelist is empty after splitting because the Data constructor only looks for *_chip.fits, not for raw files.
-    if (biasData->myImageList[0].isEmpty()) {
+    if (biasData->myImageList[instData->validChip].isEmpty()) {
         biasData->populate("");
         emit populateMemoryView();
     }
@@ -60,7 +60,7 @@ void Controller::taskInternalProcessbias()
     getNumberOfActiveImages(biasData);
 
     // Release as much memory as maximally necessary
-    float nimg = biasData->myImageList[0].length() + 1;  // The number of images one thread keeps in memory
+    float nimg = biasData->myImageList[instData->validChip].length() + 1;  // The number of images one thread keeps in memory
     releaseMemory(nimg*instData->storage*maxExternalThreads, 1, "calibrator");
     // Protect the rest, will be unprotected as needed
     biasData->protectMemory();
@@ -152,13 +152,13 @@ void Controller::taskInternalProcessdark()
     getNumberOfActiveImages(darkData);
 
     // TODO: The following line is needed only as long as we are handling splitting of raw data by scripts.
-    if (darkData->myImageList[0].isEmpty()) {
+    if (darkData->myImageList[instData->validChip].isEmpty()) {
         darkData->populate("");
         emit populateMemoryView();
     }
 
     // Release as much memory as maximally necessary
-    float nimg = darkData->myImageList[0].length() + 1;  // The number of images one thread keeps in memory
+    float nimg = darkData->myImageList[instData->validChip].length() + 1;  // The number of images one thread keeps in memory
     releaseMemory(nimg*instData->storage*maxExternalThreads, 1, "calibrator");
     // Protect the rest, will be unprotected as needed
     darkData->protectMemory();
@@ -238,7 +238,7 @@ void Controller::taskInternalProcessflatoff()
     pushConfigProcessflatoff();
 
     // TODO: The following line is needed only as long as we are handling splitting of raw data by scripts.
-    if (flatoffData->myImageList[0].isEmpty()) {
+    if (flatoffData->myImageList[instData->validChip].isEmpty()) {
         flatoffData->populate("");
         emit populateMemoryView();
     }
@@ -246,7 +246,7 @@ void Controller::taskInternalProcessflatoff()
     getNumberOfActiveImages(flatoffData);
 
     // Release as much memory as maximally necessary
-    float nimg = flatoffData->myImageList[0].length() + 1;  // The number of images one thread keeps in memory
+    float nimg = flatoffData->myImageList[instData->validChip].length() + 1;  // The number of images one thread keeps in memory
     releaseMemory(nimg*instData->storage*maxExternalThreads, 1, "calibrator");
     // Protect the rest, will be unprotected as needed
     flatoffData->protectMemory();
@@ -370,7 +370,7 @@ void Controller::taskInternalProcessflat()
     memoryDecideDeletableStatus(flatData, false);
 
     // TODO: The following line is needed only as long as we are handling splitting of raw data by scripts.
-    if (flatData->myImageList[0].isEmpty()) {
+    if (flatData->myImageList[instData->validChip].isEmpty()) {
         flatData->populate("");
         emit populateMemoryView();
     }
@@ -378,7 +378,7 @@ void Controller::taskInternalProcessflat()
     getNumberOfActiveImages(flatData);
 
     // Release as much memory as maximally necessary
-    float nimg = flatData->myImageList[0].length() + 2;  // The number of images one thread keeps in memory
+    float nimg = flatData->myImageList[instData->validChip].length() + 2;  // The number of images one thread keeps in memory
     releaseMemory(nimg*instData->storage*maxExternalThreads, 1, "calibrator");
     // Protect the rest, will be unprotected as needed
     flatData->protectMemory();
@@ -541,7 +541,7 @@ void Controller::taskInternalProcessscience()
 
     memoryDecideDeletableStatus(scienceData, false);
     // TODO: The following line is needed only as long as we are handling splitting of raw data by scripts.
-    if (scienceData->myImageList[0].isEmpty()) {
+    if (scienceData->myImageList[instData->validChip].isEmpty()) {
         scienceData->populate("");
         emit populateMemoryView();
     }

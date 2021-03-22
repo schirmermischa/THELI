@@ -219,15 +219,27 @@ Data::~Data()
     omp_destroy_lock(&progressLock);
 }
 
-// Upon launch, check if the status on record matches the FITS files on drive (using chip 1 as a reference)
+// Upon launch, check if the status on record matches the FITS files on drive
 bool Data::checkStatusConsistency()
 {
     // only do this
     if (!processingStatus->doesStatusFileExist()) return true;
 
+    // Figure out a chip that must be present (not excluded by the user
+    int testChip = -1;
+    for (int chip=0; chip<instData->numChips; ++chip) {
+        if (!instData->badChips.contains(chip)) {
+            testChip = chip;
+            break;
+        }
+    }
+    if (testChip == -1) {
+        qDebug() << __func__ << "error: no data left after filtering";
+    }
+
     if (dataType == "SCIENCE" || dataType == "SKY" || dataType == "STD") {
-        QStringList expectedFileList = dir.entryList(QStringList() << "*_1"+processingStatus->statusString+".fits");
-        QStringList observedFileList = dir.entryList(QStringList() << "*_1*.fits");
+        QStringList expectedFileList = dir.entryList(QStringList() << "*_"+QString::number(testChip+1)+processingStatus->statusString+".fits");
+        QStringList observedFileList = dir.entryList(QStringList() << "*_"+QString::number(testChip+1)+"P*.fits");
 
         // write found status to disk. Controller will then retry if necessary
         if (expectedFileList.isEmpty() && !observedFileList.isEmpty()) {
@@ -377,8 +389,8 @@ bool Data::checkTaskRepeatStatus(QString taskBasename)
     else if (taskBasename == "Skysub" && processingStatus->Skysub) isTaskRepeated = true;
 
     // Check that all images have the same status
-    myImageList[0][0]->checkTaskRepeatStatus(taskBasename);
-    bool imageStatus = myImageList[0][0]->isTaskRepeated;
+    myImageList[instData->validChip][0]->checkTaskRepeatStatus(taskBasename);
+    bool imageStatus = myImageList[instData->validChip][0]->isTaskRepeated;
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : myImageList[chip]) {
             it->checkTaskRepeatStatus(taskBasename);
@@ -397,7 +409,7 @@ bool Data::checkTaskRepeatStatus(QString taskBasename)
         // Map the imaging status onto the Data structure
         emit messageAvailable(dirName + " : Data::checkTaskRepeatStatus(): Inconsistent processing status detected between images and Data class. Reset to image status", "warning");
         emit warning();
-        processingStatus->statusToBoolean(myImageList[0][0]->processingStatus->statusString);
+        processingStatus->statusToBoolean(myImageList[instData->validChip][0]->processingStatus->statusString);
         processingStatus->getStatusString();
     }
 
@@ -2022,7 +2034,7 @@ int Data::identifyClusters(QString toleranceString)
     if (!toleranceString.isEmpty()) tolerance = toleranceString.toFloat() / 60.;
 
     // Initiate the first of all images
-    myImageList[0][0]->groupNumber = groupNumber;
+    myImageList[instData->validChip][0]->groupNumber = groupNumber;
 
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : myImageList[chip]) {
@@ -2215,7 +2227,7 @@ void Data::transferBackupInfo()
 {
     if (!successProcessing) return;
 
-    MyImage *it = myImageList[0][0];
+    MyImage *it = myImageList[instData->validChip][0];
     pathBackupL1 = it->pathBackupL1;
     pathBackupL2 = it->pathBackupL2;
     pathBackupL3 = it->pathBackupL3;

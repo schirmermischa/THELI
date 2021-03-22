@@ -45,6 +45,8 @@ typedef struct {
     long nGlobal = 1;     // Overall focal plane size in x-direction
     long mGlobal = 1;     // Overall focal plane size in x-direction
     QVector<int> badChips;
+    QVector<int> goodChips;
+    int validChip = -1;
     QMap<int, int> chipMap;      // in case of bad detectors, we need to map e.g. chip #4 to index #3 (e.g. if data from chip #2 is missing)
 
     QVector<int> overscan_xmin;

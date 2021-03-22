@@ -19,6 +19,7 @@ If not, see https://www.gnu.org/licenses/ .
 
 #include "functions.h"
 #include "preferences.h"
+#include "instrumentdata.h"
 #include "tools/fitgauss1d.h"
 
 #include <wcs.h>
@@ -1662,4 +1663,24 @@ void flipSections(QVector<long> &sections, const QString dir, const int naxis1, 
     }
 
     sections = copy;
+}
+
+// In case the user has deactivated some chips, we need to find one that is valid
+int getValidChip(const instrumentDataType *instData)
+{
+    /*
+    int testChip = -1;
+    for (int chip=0; chip<instData->numChips; ++chip) {
+        if (!instData->badChips.contains(chip)) {
+            testChip = chip;
+            break;
+        }
+    }
+    if (testChip == -1) {
+        qDebug() << __func__ << "error: no data left after filtering";
+    }
+    return testChip;
+    */
+    if (instData->goodChips.isEmpty()) return 0;       // error message is printed by MainWindow::updateExcludedDetectors(QString badDetectors)
+    else return instData->goodChips[0];                // return the first valid chip
 }

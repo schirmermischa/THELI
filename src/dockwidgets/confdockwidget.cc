@@ -595,9 +595,21 @@ void ConfDockWidget::on_COAskypaPushButton_clicked()
     QDir dir(sciencedir);
     if (!dir.exists()) return;
 
+    int testChip = -1;
+    for (int chip=0; chip<mainGUI->instData.numChips; ++chip) {
+        if (!mainGUI->instData.badChips.contains(chip)) {
+            testChip = chip;
+            break;
+        }
+    }
+    if (testChip == -1) {
+        qDebug() << __func__ << "error: no data left after filtering";
+    }
+
+
     QString currentStatus = mainGUI->status.getStatusFromHistory();
-    QStringList filter1("*_1"+currentStatus+".fits");
-    QStringList filter2("*_1"+currentStatus+".sub.fits");
+    QStringList filter1("*_"+QString::number(testChip+1)+currentStatus+".fits");
+    QStringList filter2("*_"+QString::number(testChip+1)+currentStatus+".sub.fits");
     dir.setNameFilters(filter1);
     dir.setSorting(QDir::Name);
     QStringList list = dir.entryList();
@@ -742,7 +754,7 @@ void ConfDockWidget::on_skyAreaPushButton_clicked()
     launchViewer("SkyMode");
 }
 
-//void ConfDockWidget::launchViewer(const QString &dirname, const QString &filter, const QString &mode)
+// void ConfDockWidget::launchViewer(const QString &dirname, const QString &filter, const QString &mode)
 void ConfDockWidget::launchViewer(const QString &mode)
 {
     // Load the plot viewer
@@ -756,9 +768,9 @@ void ConfDockWidget::launchViewer(const QString &mode)
     QString mainDirName = mainGUI->controller->mainDirName;
     QString scienceDirName = mainGUI->controller->DT_SCIENCE[0]->subDirName;
     QString dirName = mainDirName + "/"+scienceDirName;
-    IView *iView = new IView("MEMview", mainGUI->controller->DT_SCIENCE[0]->myImageList[0], dirName, this);
+    IView *iView = new IView("MEMview", mainGUI->controller->DT_SCIENCE[0]->myImageList[mainGUI->instData.validChip], dirName, this);
     iView->scene->clear();
-    MyImage *it = mainGUI->controller->DT_SCIENCE[0]->myImageList[0][0];
+    MyImage *it = mainGUI->controller->DT_SCIENCE[0]->myImageList[mainGUI->instData.validChip][0];
     iView->loadFromRAM(it, 3);
     iView->currentId = 0;
     // IView needs to know the directory name so that it can overlay catalogs

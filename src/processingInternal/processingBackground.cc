@@ -45,7 +45,7 @@ void Controller::taskInternalBackground()
     pushConfigBackground();
 
     // Need to fill myImageList to get Filter keyword (if the user starts fresh with this task after launching THELI)
-    if (scienceData->myImageList[0].isEmpty()) scienceData->populate(scienceData->processingStatus->statusString);
+    if (scienceData->myImageList[instData->validChip].isEmpty()) scienceData->populate(scienceData->processingStatus->statusString);
     if (!scienceData->hasImages()) return;
     if (!scienceData->collectMJD()) return;    // Leave if identical MJD entries are found (or no MJD entries at all)
     scienceData->resetProcessbackground();
@@ -91,7 +91,7 @@ void Controller::taskInternalBackground()
     QVector<QString> numBackExpList(instData->numChips);
 
     float windowsize;
-    if (window.isEmpty() || window == "0") windowsize = scienceData->myImageList[0].length();
+    if (window.isEmpty() || window == "0") windowsize = scienceData->myImageList[instData->validChip].length();
     else windowsize = window.toInt();
     float nimg = 7 + windowsize;  // image, combined image, new image, background, measure, segment, mask + window data; modify for SKY images?
     releaseMemory(nimg*instData->storage*maxExternalThreads, 1);
@@ -99,7 +99,7 @@ void Controller::taskInternalBackground()
     scienceData->protectMemory();
     skyData->protectMemory();
 
-    doDataFitInRAM(scienceData->myImageList[0].length()*instData->numUsedChips, instData->storage);
+    doDataFitInRAM(scienceData->myImageList[instData->validChip].length()*instData->numUsedChips, instData->storage);
 
     QString dt = cdw->ui->BACDTLineEdit->text();
     QString dmin = cdw->ui->BACDMINLineEdit->text();

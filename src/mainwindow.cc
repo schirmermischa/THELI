@@ -141,8 +141,8 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     }
 
     // Initial configuration of MainWindow
-    initGUI();
 
+    initGUI();
     // Repaint background of previously executed tasks.
     // initGUI loads the style sheet, thus defaulting to backgrounds
     status.history2checkbox();
@@ -212,6 +212,8 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     estimateBinningFactor();
 
     setHomeDir();  // mostly first time launch, only
+
+    updateExcludedDetectors(cdw->ui->excludeDetectorsLineEdit->text());
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -576,6 +578,7 @@ bool MainWindow::maybeSave()
 
 void MainWindow::initGUI()
 {
+    qDebug() << "A1";
     QFile file(":/qss/default.qss");
     file.open(QFile::ReadOnly);
     QString styleSheet = QString::fromLatin1(file.readAll());
@@ -588,6 +591,7 @@ void MainWindow::initGUI()
     QIcon projectDataReset(":/icons/db-reset.png");
     // configuration dialog
 
+    qDebug() << "A2";
     ui->HDUreformatConfigureToolButton->setIcon(key);
     ui->calibratorConfigureToolButton->setIcon(key);
     ui->BACconfigureToolButton->setIcon(key);
@@ -608,12 +612,14 @@ void MainWindow::initGUI()
     ui->setupProjectResetToolButton->setIcon(projectReset);
     ui->setupProjectResetDataToolButton->setIcon(projectDataReset);
 
+    qDebug() << "A3";
     this->setWindowTitle("THELI "+GUIVERSION+"      Project: "+ui->setupProjectLineEdit->text());
 
     // Check the status of currently selected tasks (if any; simulator mode)
     // and push a suitable message to plainTextedit
     on_startPushButton_clicked();
 
+    qDebug() << "A4";
     // Mandatory checkboxes have yellow background
     // Don't know the parameter referring to the background color of the checkbox marker alone
     /*
@@ -633,6 +639,7 @@ void MainWindow::initGUI()
     QIcon stop(":/icons/Actions-process-stop-icon.png");
     ui->yieldToolButton->setIcon(yield);
     ui->stopToolButton->setIcon(stop);
+    qDebug() << "A5";
 }
 
 void MainWindow::establish_connections()
@@ -1433,12 +1440,30 @@ void MainWindow::statusChangedReceived(QString newStatus)
 
 void MainWindow::updateExcludedDetectors(QString badDetectors)
 {
+    if (doingInitialLaunch && readingSettings) return;
+
+    if (controller) controller->successProcessing = true;         // function called at launch when controller does not yet exist
+
     instData.badChips.clear();
     QStringList chipStringList = badDetectors.replace(","," ").simplified().split(" ");
     if (!badDetectors.isEmpty()) {
         for (auto &chip : chipStringList) instData.badChips.append(chip.toInt()-1);
     }
     instData.numUsedChips = instData.numChips - instData.badChips.length();
+
+    instData.goodChips.clear();
+    for (int chip=0; chip<instData.numChips; ++chip) {
+        if (!instData.badChips.contains(chip)) instData.goodChips.append(chip);
+    }
+    if (instData.goodChips.isEmpty()) {
+        if (controller) controller->successProcessing = false;
+        QMessageBox::critical(this, tr("THELI"),
+                              tr("No valid detectors remain after filtering bad detectors. Review the list of user-defined unusable detectors."),
+                              QMessageBox::Ok);
+    }
+    else {
+        instData.validChip = instData.goodChips[0];
+    }
 
     // Map the chip numbers to the number in which they appear in order (e.g. in .scamp catalogs)
     int countGoodChip = 0;

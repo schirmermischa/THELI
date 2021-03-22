@@ -74,11 +74,11 @@ void Controller::taskInternalGlobalweight()
 
     memoryDecideDeletableStatus(scienceData, false);
     // Need to fill myImageList to get Filter keyword (if the user starts fresh with this task after launching THELI)
-    if (scienceData->myImageList[0].isEmpty()) scienceData->populate(scienceData->processingStatus->statusString);
+    if (scienceData->myImageList[instData->validChip].isEmpty()) scienceData->populate(scienceData->processingStatus->statusString);
 
     // Get the filter name, first exposure in SCIENCE (assuming same filter for all exposures)
     QString filter = "";
-    for (auto &it : scienceData->myImageList[0]) {
+    for (auto &it : scienceData->myImageList[instData->validChip]) {
         if (!it->filter.isEmpty()) {
             filter = it->filter;
             break;

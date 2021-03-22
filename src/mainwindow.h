@@ -76,7 +76,7 @@ public:
     QString mainPID;
 
     IView *solutionViewer;
-    Controller *controller;
+    Controller *controller = nullptr;
     ConfDockWidget *cdw;
     Monitor *monitor;
     MemoryViewer *memoryViewer = nullptr;
@@ -94,6 +94,8 @@ public:
     QMap<QString,QString> taskCommentMap;
 
     QList<QThread*> threadList;
+
+    instrumentDataType instData;
 
     QProgressBar *cpuProgressBar;
     QProgressBar *memoryProgressBar;
@@ -255,7 +257,6 @@ private:
     MyStringListModel *instrument_model;
     Preferences *preferences;
     Instrument *instrument = new Instrument(this);
-    instrumentDataType instData;
     MultidirReadme *multidirReadme;
     License *license;
     Acknowledging *acknowledging;

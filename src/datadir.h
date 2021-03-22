@@ -34,7 +34,8 @@ public:
     QDir dir;
     bool exists();
     long numFITS;
-    long numCHIP1;
+    long numCHIP;
+    long numChips = 1;
     bool hasMaster();
     bool isEmpty();
     bool hasType(QString type);

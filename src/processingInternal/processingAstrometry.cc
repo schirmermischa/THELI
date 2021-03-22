@@ -257,7 +257,11 @@ void Controller::scampCalcFluxscale()
         MEF.close();
 
         // Find the associated exposure time
-        for (auto &it : scampScienceData->myImageList[0]) {
+        if (instData->validChip == -1) {
+            successProcessing = false;
+            return;
+        }
+        for (auto &it : scampScienceData->myImageList[instData->validChip]) {
             it->loadHeader();
             if (it->baseName.contains(MEFbasename)) {
                 exptime = it->exptime;
@@ -321,8 +325,8 @@ void Controller::splitScampHeaders()
     QStringList MEFheaders = dir.entryList(filterList);
     bool success = true;
     long MEFindex = 0;
+
     for (auto &it : MEFheaders) {
-        int chip = 1;
         QFile MEF(scampDir+"/"+it);
         QFileInfo MEFinfo(MEF);
         QTextStream inStream(&MEF);
@@ -334,18 +338,19 @@ void Controller::splitScampHeaders()
         QTextStream outStream;
         QString line;
         int i=0;
+        int headCount = 0;
         while (inStream.readLineInto(&line)) {
             if (i==0) {
-                if (instData->badChips.contains(chip-1)) ++chip;
+                int chip = instData->chipMap.key(headCount) + 1;      // dealing with user defined bad chips
                 HEAD.setFileName(scampHeadersDir+"/"+MEFinfo.completeBaseName()+"_"+QString::number(chip)+".head");
                 outStream.setDevice(&HEAD);
-                if( !HEAD.open(QIODevice::WriteOnly)) {
+                if (!HEAD.open(QIODevice::WriteOnly)) {
                     success = false;
                     break;
                 }
             }
             // THELI style flux scaling
-            if (line.contains("FLXSCALE=")) line.replace("FLXSCALE=","FLSCALE =");        // preserve the original FLXSCALE value
+            if (line.contains("FLXSCALE=")) line.replace("FLXSCALE=","FLSCALE =");        // copying the original FLXSCALE keyword to FLSCALE (original will be replaced below)
             if (line.contains("PHOTINST")) {
                 int photinst_idx = line.split("=")[1].split("/")[0].simplified().toInt() - 1;
                 long idx = photInstruments[photinst_idx]->indexMap.value(MEFindex);
@@ -360,7 +365,7 @@ void Controller::splitScampHeaders()
                 HEAD.close();
                 HEAD.setPermissions(QFile::ReadUser | QFile::WriteUser);
                 i=0;
-                ++chip;
+                ++headCount;
             }
         }
         MEF.close();

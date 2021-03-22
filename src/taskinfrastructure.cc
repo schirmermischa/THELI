@@ -172,6 +172,7 @@ QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList
     }
 
     DataDir datadir;
+    datadir.numChips = instData.numChips;
     QStringList commandList;
 
     // Process science can act on DT_SCIENCE, SKY, STD and thus needs to distinguish between them
@@ -1000,7 +1001,19 @@ QStringList MainWindow::displayCoaddFilterChoice(QString dirname, QString &filte
 
     // We look in normal images, then in skysub images for filter string
     QDir dir(dirname);
-    QStringList filter("*_1*.fits");
+    // Figure out a chip that must be present (not excluded by the user
+    int testChip = -1;
+    for (int chip=0; chip<instData.numChips; ++chip) {
+        if (!instData.badChips.contains(chip)) {
+            testChip = chip;
+            break;
+        }
+    }
+    if (testChip == -1) {
+        qDebug() << __func__ << "error: no data left after filtering";
+    }
+
+    QStringList filter("*_"+QString::number(testChip+1)+"*.fits");
     dir.setNameFilters(filter);
     dir.setSorting(QDir::Name);
     QStringList list = dir.entryList();

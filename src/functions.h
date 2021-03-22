@@ -23,6 +23,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include <valarray>
 #include "fitsio2.h"
 #include <wcs.h>
+#include "instrumentdata.h"
 
 #include <QString>
 #include <QFile>
@@ -111,6 +112,7 @@ int gauss_fdf(const gsl_vector *x, void *params, gsl_vector *f, gsl_matrix *J);
 void mkAbsDir(QString absDirName);
 void flipData(QVector<float> &data, const QString dir, const int naxis1, const int naxis2);
 void flipSections(QVector<long> &sections, const QString dir, const int naxis1, const int naxis2);
+int getValidChip(const instrumentDataType *instData);
 
 // template functions end in "_T"
 // This is to distinguish them from the same functions
@@ -160,7 +162,7 @@ template<class T>
 T minVec_T(const QVector<T> &qv)
 {
     if (qv.length() == 0) {
-        qDebug() << "QDEBUG: minVec(): vector has zero length.";
+//        qDebug() << "QDEBUG: minVec(): vector has zero length.";
         return 0;
     }
     T extreme = qv.at(0);
@@ -174,7 +176,7 @@ template<class T>
 T maxVec_T(const QVector<T> &qv)
 {
     if (qv.length() == 0) {
-        qDebug() << "QDEBUG: maxVec_T(): vector has zero length.";
+//        qDebug() << "QDEBUG: maxVec_T(): vector has zero length.";
         return 0;
     }
     T extreme = qv.at(0);

@@ -35,7 +35,7 @@ void Controller::taskInternalGetCatalogFromWEB()
     Data *scienceData = getData(DT_SCIENCE, scienceDir);
     if (scienceData == nullptr) return;      // Error triggered by getData();
 
-    if (scienceData->myImageList[0].isEmpty()) {
+    if (instData->validChip == -1) {
         emit messageAvailable("No images found for "+scienceData->subDirName+". Could not determine sky coordinates for catalog download.", "warning");
         emit warningReceived();
         return;

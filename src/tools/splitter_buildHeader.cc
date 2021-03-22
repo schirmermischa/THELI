@@ -187,14 +187,20 @@ void Splitter::WCSbuildCRPIX(int chip)
 
     QStringList headerWCS;
 
-    // CRPIXi: Rely on instrument.ini (Todo: scan .ahead files directly for multi-chip cameras)
-    QString crpix1_card = "CRPIX1  = "+QString::number(instData.crpix1[chip]);
-    QString crpix2_card = "CRPIX2  = "+QString::number(instData.crpix2[chip]);
-    crpix1_card.resize(80, ' ');
-    crpix2_card.resize(80, ' ');
-    headerWCS.append(crpix1_card);
-    headerWCS.append(crpix2_card);
-
+    // Use dedicated lookup
+    if (instData.name == "HSC@SUBARU") {
+        searchKeyCRVAL("CRPIX1", headerDictionary.value("CRPIX1"), headerWCS);
+        searchKeyCRVAL("CRPIX2", headerDictionary.value("CRPIX2"), headerWCS);
+    }
+    else {
+        // CRPIXi: Rely on instrument.ini (Todo: scan .ahead files directly for multi-chip cameras)
+        QString crpix1_card = "CRPIX1  = "+QString::number(instData.crpix1[chip]);
+        QString crpix2_card = "CRPIX2  = "+QString::number(instData.crpix2[chip]);
+        crpix1_card.resize(80, ' ');
+        crpix2_card.resize(80, ' ');
+        headerWCS.append(crpix1_card);
+        headerWCS.append(crpix2_card);
+    }
     headerTHELI.append(headerWCS);
 }
 
@@ -1115,6 +1121,7 @@ bool Splitter::individualFixGAIN(int chip)
     }
     // multi-amp cameras where the gain is available in the header
     else if (instData.name == "SuprimeCam_200808-201705@SUBARU"
+             || instData.name == "HSC@SUBARU"
              || instData.name.contains("GMOS-N-HAM")
              || instData.name.contains("GMOS-S-HAM")
              || instData.name.contains("SAMI")          // have not added yet 1x1 confog

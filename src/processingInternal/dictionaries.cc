@@ -246,6 +246,14 @@ void Controller::populateFilterDictionary()
     filterDictionary.insert("r_Sloan", "r");
     filterDictionary.insert("i_Sloan", "i");
     filterDictionary.insert("z_Sloan", "z");
+    // HSC
+    filterDictionary.insert("HSC-g", "g");
+    filterDictionary.insert("HSC-r", "r");
+    filterDictionary.insert("HSC-i", "i");
+    filterDictionary.insert("HSC-z", "z");
+    filterDictionary.insert("HSC-r2", "r");
+    filterDictionary.insert("HSC-i2", "i");
+    filterDictionary.insert("HSC-Y", "Y");
 //    filterDictionary.insert(, );
 }
 
@@ -308,6 +316,7 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("GSAOI_CHIP4@GEMINI", "GSAOI");
     instrumentDictionary.insert("HAWKI@VLT", "HAWKI");
     instrumentDictionary.insert("HDI@KPNO_0.9m", "hdi");
+    instrumentDictionary.insert("HSC@SUBARU", "Hyper Suprime-Cam");
     instrumentDictionary.insert("IMACS_F2_NEW@LCO", "IMACS Short-Camera");
     instrumentDictionary.insert("IMACS_F2_OLD@LCO", "");
     instrumentDictionary.insert("IMACS_F4_NEW@LCO", "IMACS Long-Camera");

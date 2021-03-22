@@ -235,15 +235,15 @@ void Controller::coaddPrepare(QString filterArg)
     progress = 30.;
     //    emit progressUpdate(progress);
 
-    // For proper motion correction we need the MJD-OBS of the first exposure, taken from the first chip
+    // For proper motion correction we need the MJD-OBS of the first exposure, taken from the first valid chip
     // We also want accurate start and end DATE-OBS keywords.
     QVector<double> mjdobsData;
-    minDateObs = coaddScienceData->myImageList[0][0]->dateobs;
-    maxDateObs = coaddScienceData->myImageList[0][0]->dateobs;
-    mjdStart = coaddScienceData->myImageList[0][0]->mjdobs;
-    mjdEnd = coaddScienceData->myImageList[0][0]->mjdobs;
+    minDateObs = coaddScienceData->myImageList[instData->validChip][0]->dateobs;
+    maxDateObs = coaddScienceData->myImageList[instData->validChip][0]->dateobs;
+    mjdStart = coaddScienceData->myImageList[instData->validChip][0]->mjdobs;
+    mjdEnd = coaddScienceData->myImageList[instData->validChip][0]->mjdobs;
     float lastExpTime = 0.; // to be added to DATE-OBS of the last exposure
-    for (auto &it : coaddScienceData->myImageList[0]) {
+    for (auto &it : coaddScienceData->myImageList[instData->validChip]) {
         if (!it->successProcessing) continue;
         it->loadHeader();
         mjdobsData.append(it->mjdobs);
@@ -500,12 +500,11 @@ void Controller::coaddPrepareProjectRotation()
         if (line.contains("CD2_2   =")) cd22_coadd = line.split("=")[1].split("/")[0].simplified().toDouble();
     }
 
-    // PA of the original data (taken from first image)
-
-    double cd11 = coaddScienceData->myImageList[0][0]->wcs->cd[0];
-    double cd12 = coaddScienceData->myImageList[0][0]->wcs->cd[1];
-    double cd21 = coaddScienceData->myImageList[0][0]->wcs->cd[2];
-    double cd22 = coaddScienceData->myImageList[0][0]->wcs->cd[3];
+    // PA of the original data (taken from first image and its valid chip)
+    double cd11 = coaddScienceData->myImageList[instData->validChip][0]->wcs->cd[0];
+    double cd12 = coaddScienceData->myImageList[instData->validChip][0]->wcs->cd[1];
+    double cd21 = coaddScienceData->myImageList[instData->validChip][0]->wcs->cd[2];
+    double cd22 = coaddScienceData->myImageList[instData->validChip][0]->wcs->cd[3];
     double PAold = getPosAnglefromCD(cd11, cd12, cd21, cd22);        // in [deg]; not sure about the minus here
     double PAnew = cdw->ui->COAskypaLineEdit->text().toDouble();     // in [deg]; if image is flipped, the angle to get "parallel" axes should be 180 - the automatically determined angle.
 

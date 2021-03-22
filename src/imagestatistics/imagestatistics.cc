@@ -62,9 +62,9 @@ ImageStatistics::ImageStatistics(QList<Data*> &datalist, const QString main, con
 
     Data *scienceData = getData(dataList, sciencedirname);            // dataList corresponds to DT_SCIENCE in the Controller class
     scienceData->populateExposureList();
-    myImageList = scienceData->exposureList;
+    myExposureList = scienceData->exposureList;
 
-    //    if (!myImageList[0]->isEmpty()) statusString = myImageList[0].
+    //    if (!myExposureList[instData->validChip]->isEmpty()) statusString = myExposureList[instData->validChip].
     //    else statusString = "";
     //    ui->filterLineEdit->setText("*_1"+statusString+".fits");
     ui->statPlot->setMultiSelectModifier(Qt::ControlModifier);
@@ -80,10 +80,10 @@ ImageStatistics::ImageStatistics(QList<Data*> &datalist, const QString main, con
 void ImageStatistics::init()
 {
     allMyImages.clear();
-    for (int k=0; k<myImageList.length(); ++k) {
+    for (int k=0; k<myExposureList.length(); ++k) {
         for (int chip=0; chip<instData->numChips; ++chip) {
             if (instData->badChips.contains(chip)) continue;
-            auto &it = myImageList[k][chip];
+            auto &it = myExposureList[k][chip];
             it->loadHeader();       // if not yet in memory
             it->getMode(true);
             allMyImages.append(it);
@@ -256,7 +256,7 @@ void ImageStatistics::readStatisticsData()
     numObj = 0;
     // check for bad data in memory (should always be the same as on drive, but nonetheless)
     for (auto &it : allMyImages) {
-        //        for (auto &it : myImageList[chip]) {
+        //        for (auto &it : myExposureList[chip]) {
         // skip bad images
         if (it->activeState != MyImage::ACTIVE) continue;
         if (badStatsList.contains(it->chipName)) continue;
@@ -524,7 +524,7 @@ void ImageStatistics::on_scienceComboBox_activated(const QString &arg1)
 
     Data *scienceData = getData(dataList, arg1);            // dataList corresponds to DT_SCIENCE in the Controller class
     scienceData->populateExposureList();
-    myImageList = scienceData->exposureList;
+    myExposureList = scienceData->exposureList;
 
     init();
 }

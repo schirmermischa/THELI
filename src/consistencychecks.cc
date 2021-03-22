@@ -176,7 +176,7 @@ void MainWindow::check_taskProcessbias(DataDir *datadir, bool &stop, bool &skip,
         stop = true;
     }
     if (!stop
-            && datadir->numCHIP1 < 3
+            && datadir->numCHIP < 3
             && !ui->applyHDUreformatCheckBox->isChecked()) {
 //        message(ui->plainTextEdit, "STOP: Need at least 3 exposures in '"+datadir->subdirname+"'.");
 //        stop = true;
@@ -195,7 +195,7 @@ void MainWindow::check_taskProcessdark(DataDir *datadir, bool &stop, bool &skip,
         stop = true;
     }
     if (!stop
-            && datadir->numCHIP1 < 3
+            && datadir->numCHIP < 3
             && !ui->applyHDUreformatCheckBox->isChecked()) {
 //        message(ui->plainTextEdit, "STOP: Need at least 3 exposures in '"+datadir->subdirname+"'.");
 //        stop = true;
@@ -214,7 +214,7 @@ void MainWindow::check_taskProcessflatoff(DataDir *datadir, bool &stop, bool &sk
         stop = true;
     }
     if (!stop
-            && datadir->numCHIP1 < 3
+            && datadir->numCHIP < 3
             && !ui->applyHDUreformatCheckBox->isChecked()) {
 //        message(ui->plainTextEdit, "STOP: Need at least 3 exposures in '"+datadir->subdirname+"'.");
 //        stop = true;
@@ -233,7 +233,7 @@ void MainWindow::check_taskProcessflat(DataDir *datadir, bool &stop, bool &skip,
         stop = true;
     }
     if (!stop
-            && datadir->numCHIP1 < 2
+            && datadir->numCHIP < 2
             && !ui->applyHDUreformatCheckBox->isChecked()) {
 //        message(ui->plainTextEdit, "STOP: Need at least 3 exposures in '"+datadir->subdirname+"'.");
 //        stop = true;
