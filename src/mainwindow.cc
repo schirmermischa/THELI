@@ -578,7 +578,6 @@ bool MainWindow::maybeSave()
 
 void MainWindow::initGUI()
 {
-    qDebug() << "A1";
     QFile file(":/qss/default.qss");
     file.open(QFile::ReadOnly);
     QString styleSheet = QString::fromLatin1(file.readAll());
@@ -591,7 +590,6 @@ void MainWindow::initGUI()
     QIcon projectDataReset(":/icons/db-reset.png");
     // configuration dialog
 
-    qDebug() << "A2";
     ui->HDUreformatConfigureToolButton->setIcon(key);
     ui->calibratorConfigureToolButton->setIcon(key);
     ui->BACconfigureToolButton->setIcon(key);
@@ -612,14 +610,12 @@ void MainWindow::initGUI()
     ui->setupProjectResetToolButton->setIcon(projectReset);
     ui->setupProjectResetDataToolButton->setIcon(projectDataReset);
 
-    qDebug() << "A3";
     this->setWindowTitle("THELI "+GUIVERSION+"      Project: "+ui->setupProjectLineEdit->text());
 
     // Check the status of currently selected tasks (if any; simulator mode)
     // and push a suitable message to plainTextedit
     on_startPushButton_clicked();
 
-    qDebug() << "A4";
     // Mandatory checkboxes have yellow background
     // Don't know the parameter referring to the background color of the checkbox marker alone
     /*
@@ -639,7 +635,6 @@ void MainWindow::initGUI()
     QIcon stop(":/icons/Actions-process-stop-icon.png");
     ui->yieldToolButton->setIcon(yield);
     ui->stopToolButton->setIcon(stop);
-    qDebug() << "A5";
 }
 
 void MainWindow::establish_connections()
