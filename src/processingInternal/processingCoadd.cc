@@ -61,7 +61,15 @@ void Controller::taskInternalCoaddition()
     mjdEnd = 0.;
     mjdMedian = 0.;
 
-    currentData->checkModeIsPresent();
+    // If coming here right after launch:
+    // #pragma omp parallel for num_threads(maxExternalThreads)
+    for (int chip=0; chip<instData->numChips; ++chip) {
+        for (auto &it : coaddScienceData->myImageList[chip]) {
+            it->loadHeader();
+        }
+    }
+
+    coaddScienceData->checkModeIsPresent();
 
     memoryDecideDeletableStatus(coaddScienceData, false);
     QString coaddSubDir = "coadd_"+filterArg;
@@ -85,14 +93,6 @@ void Controller::taskInternalCoaddition()
 
     // TODO
     // The following is very fast and does not need a parallel loop on top.
-
-    // If coming here right after launch:
-    // #pragma omp parallel for num_threads(maxExternalThreads)
-    for (int chip=0; chip<instData->numChips; ++chip) {
-        for (auto &it : coaddScienceData->myImageList[chip]) {
-            it->loadHeader();
-        }
-    }
 
     getMinimumSaturationValue();
 
