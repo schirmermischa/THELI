@@ -58,6 +58,10 @@ void Controller::populateHeaderDictionary()
 
     // Other keywords of interest (to calculate others, or preserve information)
     headerDictionary.insert("INSTRUME", {"INSTRUME", "DETECTOR"});
+    headerDictionary.insert("PC1_1", {"PC1_1"});
+    headerDictionary.insert("PC1_2", {"PC1_2"});
+    headerDictionary.insert("PC2_1", {"PC2_1"});
+    headerDictionary.insert("PC2_2", {"PC2_2"});
     headerDictionary.insert("DATE", {"DATE", "DATE-OBS", "DATEOBS", "UT-DATE"});
     headerDictionary.insert("TIME", {"EXPSTART", "TIME", "TIME-OBS", "UT", "UT-TIME", "UTSTART", "UT-STR", "TELUT"});
     headerDictionary.insert("LST", {"LST", "LST-OBS", "LSTHDR", "LST_OBS", "OBS-LST", "SD_TIME", "ST"});

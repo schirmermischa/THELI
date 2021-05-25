@@ -262,17 +262,29 @@ void Splitter::WCSbuildCDmatrix(int chip)
 
     for (auto &wcsKey : wcsKeys) {
         bool keyFound = searchKey(wcsKey, headerDictionary.value(wcsKey), headerWCS);
-        // default values if failed
+
+        // fallback
+        double cd = 0.0;
         if (!keyFound && wcsKey == "CD1_1") {
-            bool found = searchKey("CD1_1", headerDictionary.value("CDELT1"), headerWCS);  // first argument, CD1_1, is taken to form the new header card. Value is taken from CDELT1
-            if (!found) fallback = "CD1_1   = "+QString::number(-1.*flipcd11*instData.pixscale/3600., 'g', 6);
+            bool success = CDfromCDELTandPC("CDELT1", "PC1_1", cd);
+            if (success) fallback = "CD1_1   = "+QString::number(cd, 'g', 6);
+            else fallback = "CD1_1   = "+QString::number(-1.*flipcd11*instData.pixscale/3600., 'g', 6);
         }
         if (!keyFound && wcsKey == "CD2_2") {
-            bool found = searchKey("CD2_2", headerDictionary.value("CDELT2"), headerWCS);
-            if (!found) fallback = "CD2_2   = "+QString::number(flipcd22*instData.pixscale/3600., 'g', 6);
+            bool success = CDfromCDELTandPC("CDELT2", "PC2_2", cd);
+            if (success) fallback = "CD2_2   = "+QString::number(cd, 'g', 6);
+            else fallback = "CD2_2   = "+QString::number(flipcd22*instData.pixscale/3600., 'g', 6);
         }
-        if (!keyFound && wcsKey == "CD1_2") fallback = "CD1_2   = 0.0";
-        if (!keyFound && wcsKey == "CD2_1") fallback = "CD2_1   = 0.0";
+        if (!keyFound && wcsKey == "CD1_2") {
+            bool success = CDfromCDELTandPC("CDELT1", "PC1_2", cd);
+            if (success) fallback = "CD1_2   = "+QString::number(cd, 'g', 6);
+            else fallback = "CD1_2   = 0.0";
+        }
+        if (!keyFound && wcsKey == "CD2_1") {
+            bool success = CDfromCDELTandPC("CDELT2", "PC2_1", cd);
+            if (success) fallback = "CD2_1   = "+QString::number(cd, 'g', 6);
+            else fallback = "CD2_1   = 0.0";
+        }
 
         if (!keyFound) {
             if (*verbosity > 1) emit messageAvailable(fileName + " : Could not determine keyword: "+wcsKey+", using default: "+fallback, "ignore");
@@ -282,6 +294,28 @@ void Splitter::WCSbuildCDmatrix(int chip)
     }
 
     headerTHELI.append(headerWCS);
+}
+
+bool Splitter::CDfromCDELTandPC(const QString cdeltstr, const QString pcstr, double &cd)
+{
+    double cdelt = -1.0;
+    double pc = -1.0;
+    bool cdtest = searchKeyValue(headerDictionary.value(cdeltstr), cdelt);
+    bool pctest = searchKeyValue(headerDictionary.value(pcstr), pc);
+    if (cdtest && pctest) {
+        cd = cdelt*pc;
+        if (fabs(cd) > 0.5) cd *= instData.pixscale/3600.;   // recover plate scale if not available
+        return true;
+    }
+    else if (cdtest && !pctest) {
+        cd = cdelt;
+        if (fabs(cd) > 0.5) cd *= instData.pixscale/3600.;
+        return true;
+    }
+    else {
+        cd = 0.;
+        return false;
+    }
 }
 
 void Splitter::WCSbuildRADESYS()
