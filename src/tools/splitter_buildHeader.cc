@@ -1059,6 +1059,10 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 3) chipGain = 2.110;
         individualFixDone = true;
     }
+    if (instData.name == "SOFI@NTT") {           // https://www.eso.org/sci/facilities/lasilla/instruments/sofi/inst/setup/Detector_characteristic.html
+        chipGain = 5.3;
+        individualFixDone = true;
+    }
     if (instData.name == "NEWFIRM@KPNO_4m") {    // https://www.noao.edu/ets/newfirm/documents/ORION_SCA_lab_tests_final.pdf
         chipGain = 7.6;                          // same for all 4 chips
         individualFixDone = true;
