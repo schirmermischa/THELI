@@ -858,6 +858,7 @@ void Query::pushNumberOfSources()
             messageString = "WARNING: No reference sources retrieved! <br>"
                             "-- try a different catalog <br>"
                             "-- check your internet connection <br>"
+                            "-- do not run THELI from a console with active conda/astroconda environment <br>"
                             "-- adjust mag limit and radius";
             emit messageAvailable(messageString, "stop");
             emit critical();
