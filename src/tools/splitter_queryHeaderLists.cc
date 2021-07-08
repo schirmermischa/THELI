@@ -201,7 +201,7 @@ bool Splitter::searchKeyInHeaderCRVAL(const QString searchKey, const QStringList
                 }
 
                 // The William Herschel Telescope has its own funny "apertures" ...
-                if (instData.name.contains("@WHT")) {
+                if (instData.name.contains("@WHT") && !instData.name.contains("PF_QHY")) {
                     double ra_off1 = 0.;
                     double ra_off2 = 0.;
                     double dec_off1 = 0.;
