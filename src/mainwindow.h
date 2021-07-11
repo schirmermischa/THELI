@@ -70,7 +70,7 @@ public:
     explicit MainWindow(QString pid, QWidget *parent = nullptr);
     ~MainWindow();
 
-    QString GUIVERSION = "3.1.0";
+    QString GUIVERSION = "3.1.1";
     QString instrument_dir;
     QString instrument_userDir;
     QString mainPID;
