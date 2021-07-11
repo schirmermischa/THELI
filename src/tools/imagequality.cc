@@ -78,7 +78,7 @@ bool ImageQuality::getSeeingFromGaia()
     }
 //    fwhm = meanMask_T(fwhmVec, QVector<bool>()) * instData->pixscale;
 //    ellipticity = meanMask_T(ellipticityVec, QVector<bool>());
-    fwhm = straightMedian_T(fwhmVec) * instData->pixscale;
+    fwhm = straightMedian_T(fwhmVec);
     ellipticity = straightMedian_T(ellipticityVec);
     numSources = fwhmVec.length();
 

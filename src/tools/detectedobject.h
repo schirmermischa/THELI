@@ -32,6 +32,7 @@ class DetectedObject : public QObject
     void calcFlux();
     void calcMoments();
     void calcMomentsErrors();
+    void calcVariance();
     void calcEllipticity();
     void calcFluxRadius();
     void calcWindowedMoments();
@@ -95,6 +96,8 @@ public:
     double ERRTHETA = 0.;
     double MAG_ISO = 0.;
     double FLUX_ISO = 0.;
+    double XVAR = 0.;
+    double YVAR = 0.;
 
     // WINDOWED
     double XWIN = 0.;   // windowed 1st moment          // WARNING: zero-indexing, must add +1 if used externally

@@ -132,6 +132,7 @@ void DetectedObject::computeObjectParams()
     // ISOPHOTAL
     calcFlux();
     calcMoments();
+    calcVariance();
     calcEllipticity();
     calcMomentsErrors();
     calcApertureMagnitudes();
@@ -352,6 +353,35 @@ void DetectedObject::calcMoments()
     }
 }
 
+// weighted variance
+// https://www.itl.nist.gov/div898/software/dataplot/refman2/ch2/weighvar.pdf
+void DetectedObject::calcVariance()
+{
+    if (badDetection) return;
+
+    double xsum = 0.;
+    double ysum = 0.;
+    double psum = 0.;
+    double n_nonzero = 0;
+    if (area>1) {
+        for (long i=0; i<area; ++i) {
+            double pi = pixels_flux.at(i);
+            double px = pixels_x.at(i);
+            double py = pixels_y.at(i);
+            xsum += pi*pow(px - X,2);
+            ysum += pi*pow(py - Y,2);
+            if (pi!= 0.) ++n_nonzero;
+            psum += pi;
+        }
+        XVAR = xsum / ( (n_nonzero-1.) / n_nonzero * psum);
+        YVAR = ysum / ( (n_nonzero-1.) / n_nonzero * psum);
+    }
+    else {
+        XVAR = 1.;
+        YVAR = 1.;
+    }
+}
+
 void DetectedObject::calcWindowedMoments()
 {
     if (badDetection) return;
@@ -534,7 +564,7 @@ void DetectedObject::calcSkyCoords()
 
 void DetectedObject::calcEllipticity()
 {
-  //  if (badDetection) return;
+    //  if (badDetection) return;
 
     if (XY == 0. || X2 == Y2) THETA = 0.;
     else {
@@ -549,7 +579,7 @@ void DetectedObject::calcEllipticity()
     if (s1<s2) {
         bitflags.setBit(7,true);
         badDetection = true;
-//        return;
+        //        return;
     }
 
     A = sqrt(s1+s2);
@@ -691,7 +721,8 @@ void DetectedObject::calcFluxRadius()
 
 void DetectedObject::calcFWHM()
 {
-    FWHM = 1.995*FLUX_RADIUS; // For a theoretical 2D gaussian
+    //    FWHM = 1.995*FLUX_RADIUS; // For a theoretical 2D gaussian
+    FWHM = 2.355*sqrt(XVAR+YVAR);
 }
 
 void DetectedObject::getWindowedPixels()

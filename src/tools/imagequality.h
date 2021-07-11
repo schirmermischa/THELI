@@ -37,7 +37,7 @@ public:
 
     double matchingTolerance = 1./3600;   // 1.0 arcsec starting value
     QString baseName;
-    double fwhm = -1.0;
+    double fwhm = -1.0;             // in pixel
     double ellipticity = -1.0;
     long numSources = 0;
 

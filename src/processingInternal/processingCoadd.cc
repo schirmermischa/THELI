@@ -1021,8 +1021,8 @@ void Controller::coaddUpdate()
             // match
             static_cast<void> (imageQuality->getSeeingFromGaia());
             //        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: not yet implemented
-            seeing_world = imageQuality->fwhm;                           // in arcsec
-            seeing_image = imageQuality->fwhm / coadd->plateScale;       // in pixel
+            seeing_image = imageQuality->fwhm;                           // in pixel
+            seeing_world = imageQuality->fwhm * coadd->plateScale;       // in pixel
             if (imageQuality->numSources > 0) {
                 emit messageAvailable("coadd.fits : FWHM = " + QString::number(seeing_world, 'f', 2) + "\"  ("
                                       + QString::number(seeing_image, 'f', 2) + " pixel)", "image");

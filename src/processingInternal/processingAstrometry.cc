@@ -657,14 +657,14 @@ void Controller::doImageQualityAnalysis()
         it->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag, instData->chipMap.value(chip));
         // match
         static_cast<void> (imageQuality->getSeeingFromGaia());
-        it->fwhm = imageQuality->fwhm;                                                     // Updating MyImage fwhm parameter
-        it->updateHeaderValue("FWHM", imageQuality->fwhm);                                 // Updating MyImage header string
+        it->fwhm = imageQuality->fwhm * instData->pixscale;                                // Updating MyImage fwhm parameter, in arcsec
+        it->updateHeaderValue("FWHM", it->fwhm);                                           // Updating MyImage header string
         it->updateHeaderValue("ELLIP", imageQuality->ellipticity);
-        it->updateHeaderValueInFITS("FWHM", QString::number(imageQuality->fwhm, 'f', 3));  // Updating the current FITS image on drive
+        it->updateHeaderValueInFITS("FWHM", QString::number(it->fwhm, 'f', 3));            // Updating the current FITS image on drive
         it->updateHeaderValueInFITS("ELLIP", QString::number(imageQuality->ellipticity, 'f', 3));
         //        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: Not yet implemented
         if (verbosity > 1) emit messageAvailable(it->chipName + " : FWHM / Ellipticity / # stars = "
-                                                 + QString::number(imageQuality->fwhm, 'f', 3) + " / "
+                                                 + QString::number(it->fwhm, 'f', 3) + " / "
                                                  + QString::number(imageQuality->ellipticity, 'f', 3) + " / "
                                                  + QString::number(imageQuality->numSources), "ignore");
         delete imageQuality;
