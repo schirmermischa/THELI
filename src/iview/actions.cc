@@ -306,3 +306,19 @@ void IView::on_actionFinder_triggered()
         finderdw->ui->targetNameSiderealLineEdit->setFocus();
     }
 }
+
+void IView::on_actionRedshift_triggered()
+{
+    if (zdw->isVisible()) {
+        clearAxes();
+        removeDockWidget(zdw);
+        zdw->hide();
+    }
+    else {
+        zdw->setFloating(false);
+        zdw->raise();
+        zdw->show();
+        zdw->init();
+        updateAxes();
+    }
+}

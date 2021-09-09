@@ -298,7 +298,6 @@ void Splitter::extractImagesFITS()
     while (rawStatus != END_OF_FILE && successProcessing) {
 
         if (hduType == IMAGE_HDU) {
-
             // for MMIRS, we only want to keep the first extension
             if (instData.name.contains("MMIRS") && chip >= 1) break;
 
@@ -1241,6 +1240,10 @@ void Splitter::writeImageSlice(int chip, long slice)
     for (int i=0; i<headerTHELI.length(); ++i) {
         fits_write_record(fptr, headerTHELI[i].toUtf8().constData(), &status);
     }
+
+    // Update the SATURATE keyword
+    fits_update_key_flt(fptr, "SATURATE", saturationValue, 6, nullptr, &status);
+
     // WARNING: POOR TIMIMG! Increment MJD-OBS by 0.1 s per slice
     double mjdobs = 0.;
     fits_read_key_dbl(fptr, "MJD-OBS", &mjdobs, NULL, &status);
@@ -1359,6 +1362,8 @@ void Splitter::readPrimaryHeader()
 
 bool Splitter::checkCorrectMaskSize(const int chip)
 {
+    if (instData.name.contains("DUMMY")) return true;
+
     long n_mask = mask->globalMask[chip].length();
     long n_data = dataCurrent.length();
     // detectors with multi-amps (one amp per FITS extension): masked at a later stage (calibration)

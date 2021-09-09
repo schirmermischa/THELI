@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>IvRedshiftDockWidget</class>
+ <widget class="QDockWidget" name="IvRedshiftDockWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>161</width>
+    <height>313</height>
+   </rect>
+  </property>
+  <property name="allowedAreas">
+   <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+  </property>
+  <property name="windowTitle">
+   <string>Redshift estimator</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents">
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="1" column="0">
+     <widget class="QCheckBox" name="HCheckBox">
+      <property name="statusTip">
+       <string>Hydrogen</string>
+      </property>
+      <property name="text">
+       <string>H</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QCheckBox" name="NaCheckBox">
+      <property name="statusTip">
+       <string>Sodium</string>
+      </property>
+      <property name="text">
+       <string>Na</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QCheckBox" name="SCheckBox">
+      <property name="statusTip">
+       <string>Sulfur</string>
+      </property>
+      <property name="text">
+       <string>S</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QCheckBox" name="CaCheckBox">
+      <property name="statusTip">
+       <string>Calcium</string>
+      </property>
+      <property name="text">
+       <string>Ca</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="QCheckBox" name="CCheckBox">
+      <property name="statusTip">
+       <string>Carbon</string>
+      </property>
+      <property name="text">
+       <string>C</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QCheckBox" name="OCheckBox">
+      <property name="statusTip">
+       <string>Oxygen</string>
+      </property>
+      <property name="text">
+       <string>O</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QCheckBox" name="MgCheckBox">
+      <property name="statusTip">
+       <string>Magnesium</string>
+      </property>
+      <property name="text">
+       <string>Mg</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QCheckBox" name="NCheckBox">
+      <property name="statusTip">
+       <string>Nitrogen</string>
+      </property>
+      <property name="text">
+       <string>N</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="2">
+     <widget class="QCheckBox" name="FeCheckBox">
+      <property name="statusTip">
+       <string>Iron</string>
+      </property>
+      <property name="text">
+       <string>Fe</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="2">
+     <widget class="QCheckBox" name="ArCheckBox">
+      <property name="statusTip">
+       <string>Argon</string>
+      </property>
+      <property name="text">
+       <string>Ar</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QCheckBox" name="NeCheckBox">
+      <property name="statusTip">
+       <string>Neon</string>
+      </property>
+      <property name="text">
+       <string>Ne</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QCheckBox" name="HeCheckBox">
+      <property name="statusTip">
+       <string>Helium</string>
+      </property>
+      <property name="text">
+       <string>He</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0" colspan="3">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Spectral features</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0" colspan="3">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="statusTip">
+         <string>The currently applied redshift</string>
+        </property>
+        <property name="text">
+         <string>Redshift</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="zLineEdit">
+        <property name="statusTip">
+         <string>The currently applied redshift</string>
+        </property>
+        <property name="text">
+         <string>0.0</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Finesse</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="finesseSpinBox">
+        <property name="statusTip">
+         <string>The higher the number, the finer you can adjust the redshift by left-click dragging in the image.</string>
+        </property>
+        <property name="readOnly">
+         <bool>false</bool>
+        </property>
+        <property name="maximum">
+         <number>10</number>
+        </property>
+        <property name="value">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="lambdaObsLabel">
+        <property name="text">
+         <string>lobs</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="lambdaObsLineEdit">
+        <property name="statusTip">
+         <string>Observed wavelength</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="lambdaRestLabel">
+        <property name="text">
+         <string>lrest</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="lambdaRestLineEdit">
+        <property name="statusTip">
+         <string>Restframe wavelength</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="6" column="0">
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

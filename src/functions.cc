@@ -1481,7 +1481,8 @@ double getPosAnglefromCD(double cd11, double cd12, double cd21, double cd22, boo
             }
 
             else {
-                qDebug() << __func__ << "ERROR: Could not determine position angle from CD matrix!";
+                // should print to command line only if in debug mode
+                //                qDebug() << __func__ << "ERROR: Could not determine position angle from CD matrix!";
             }
         }
     }

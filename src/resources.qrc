@@ -55,5 +55,6 @@
         <file>icons/satellite-icon.png</file>
         <file>icons/asteroid_icon.png</file>
         <file>icons/star_icon.png</file>
+        <file>icons/spec.png</file>
     </qresource>
 </RCC>

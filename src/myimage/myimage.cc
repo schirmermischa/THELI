@@ -188,6 +188,8 @@ void MyImage::showProcInfo()
 
 void MyImage::checkCorrectMaskSize(const instrumentDataType *instData)
 {
+    if (instData->name.contains("DUMMY")) return;
+
     long n_mask = globalMask.length();
     long n_data = naxis1*naxis2;
     if (n_mask > 0 && n_mask != n_data) {

@@ -384,6 +384,7 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("PAUCam@WHT", "");
     instrumentDictionary.insert("PFC_new@WHT", "");
     instrumentDictionary.insert("PFC_old@WHT", "Prime Imaging");
+    instrumentDictionary.insert("PF_QHY2x2", "QHY CCD QHY600M-929ba64");
     instrumentDictionary.insert("PICCD@WISE", "");
     instrumentDictionary.insert("PISCES@LBT", "");
     instrumentDictionary.insert("PISCO@LCO", "PISCO");

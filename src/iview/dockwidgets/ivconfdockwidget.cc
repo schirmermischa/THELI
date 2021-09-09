@@ -327,6 +327,9 @@ void IvConfDockWidget::receiveWCS(wcsprm *WCS, bool wcsinit)
 
     wcs = WCS;
 
+    // Catching spectroscopic exposures or others with invalid "imaging" WCS
+    if (!wcs) return;
+
     cd11 = wcs->cd[0];
     cd12 = wcs->cd[1];
     cd21 = wcs->cd[2];

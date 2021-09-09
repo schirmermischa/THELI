@@ -69,6 +69,7 @@ void IView::initDynrangeDrag()
         }
     }
     if (scene->crosshairShown) scene->removeCrosshair();
+    clearAxes();
 }
 
 void IView::showCurrentMousePos(QPointF point)
@@ -275,6 +276,9 @@ void IView::measureAngularSeparations(QPointF pointStart, QPointF pointEnd, doub
 void IView::drawSeparationVector(QPointF pointStart, QPointF pointEnd)
 {
     if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
+
+    if (zdw->isVisible()) return;
+
     // (will crash because the scene items become unavailable while dragging)
     if (ui->actionForward->isChecked()) return;
     if (ui->actionBack->isChecked()) return;
@@ -777,6 +781,7 @@ void IView::redrawSkyCirclesAndCats()
     showSourceCat();
     showReferenceCat();
     checkFinderBypass();
+    redrawUpdateAxes();
 }
 
 void IView::dumpSkyCircleCoordinates()
@@ -874,3 +879,4 @@ void IView::xy2sky_linear(double x, double y, QString button)
     icdw->ui->deltaHexLabel->setText("Dec  = "+deltaHex);
 }
 */
+

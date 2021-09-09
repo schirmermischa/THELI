@@ -61,6 +61,12 @@ SOURCES += \
     iview/mybinnedgraphicsview.cc \
     iview/mymagnifiedgraphicsview.cc \
     iview/dockwidgets/ivstatisticsdockwidget.cc \
+    iview/transformations.cc \
+    iview/myqgraphicsrectitem.cc \
+    iview/dockwidgets/ivfinderdockwidget.cc \
+    iview/dockwidgets/ivredshiftdockwidget.cc \
+    iview/myaxis.cc \
+    iview/redshift.cc \
     mainwindow.cc \
     myimage/astrometrynet.cc \
     myimage/background.cc \
@@ -134,10 +140,7 @@ SOURCES += \
     tools/swarpfilter.cc \
     tools/tools.cc \
     tools/xcorr.cc \
-    validators.cc \
-    iview/transformations.cc \
-    iview/myqgraphicsrectitem.cc \
-    iview/dockwidgets/ivfinderdockwidget.cc
+    validators.cc
 
 HEADERS += \
     abszp/absphot.h \
@@ -164,6 +167,10 @@ HEADERS += \
     iview/mybinnedgraphicsview.h \
     iview/mymagnifiedgraphicsview.h \
     iview/dockwidgets/ivstatisticsdockwidget.h \
+    iview/myqgraphicsrectitem.h \
+    iview/dockwidgets/ivfinderdockwidget.h \
+    iview/dockwidgets/ivredshiftdockwidget.h \
+    iview/myaxis.h \
     mainwindow.h \
     myimage/myimage.h \
     preferences.h \
@@ -203,9 +210,7 @@ HEADERS += \
     tools/ram.h \
     tools/splitter.h \
     tools/swarpfilter.h \
-    tools/tools.h \
-    iview/myqgraphicsrectitem.h \
-    iview/dockwidgets/ivfinderdockwidget.h
+    tools/tools.h
 
 FORMS += \
         mainwindow.ui \
@@ -230,7 +235,8 @@ FORMS += \
     readmes/swarpreadme.ui \
     readmes/license.ui \
     readmes/acknowledging.ui \
-    iview/dockwidgets/ivfinderdockwidget.ui
+    iview/dockwidgets/ivfinderdockwidget.ui \
+    iview/dockwidgets/ivredshiftdockwidget.ui
 
 RESOURCES = resources.qrc
 

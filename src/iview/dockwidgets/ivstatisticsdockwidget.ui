@@ -22,6 +22,9 @@
     <height>524287</height>
    </size>
   </property>
+  <property name="allowedAreas">
+   <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+  </property>
   <property name="windowTitle">
    <string>Pixel statistics</string>
   </property>

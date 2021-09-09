@@ -182,6 +182,15 @@ void Splitter::WCSbuildCRPIX(int chip)
 {
     if (!successProcessing) return;
 
+    if (chip >= instData.crpix1.length()) {
+        QString nfound = QString::number(chip+1);
+        QString nexpected = QString::number(instData.numChips);
+        emit messageAvailable(fileName + ": " + nfound + " detectors found, " + nexpected + "expected. Check instrument selection." , "error");
+        emit critical();
+        successProcessing = false;
+        return;
+    }
+
     // Exceptions. Return if successful.
     if (individualFixCRPIX(chip)) return;
 

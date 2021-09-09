@@ -104,6 +104,12 @@ void IView::sendWCStoWCSdockWidget()
 {
     if (!wcsInit) return;
 
+    // Catching spectroscopic exposures or other exposures with invalid "imaging" WCS
+    if (!wcs) {
+        wcsdw->init();
+        return;
+    }
+
     // Copy the CD matrix to the WCS dock widget and init()
     wcsdw->cd11_orig = wcs->cd[0];
     wcsdw->cd12_orig = wcs->cd[1];
@@ -489,6 +495,7 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
         // Load the binned image to the navigator
         emit updateNavigatorBinned(binnedPixmapItem);       // binnedPixmapItem created in mapFITS()
         emit updateNavigatorBinnedWCS(wcs, wcsInit);
+        emit newImageLoaded();
     }
     else {
         // At end of file list, or file does not exist anymore.
@@ -554,6 +561,7 @@ void IView::updateNavigatorMagnifiedReceived(QPointF point)
 void IView::loadFromRAM(MyImage *it, int indexColumn)
 {
     scene->removeCrosshair();
+    clearAxes();
 
     currentMyImage = it;
     if (indexColumn == 0 || indexColumn == 3) {
@@ -629,6 +637,7 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     // Update the navigator binned window with the binned poststamp
     emit updateNavigatorBinned(binnedPixmapItem);
     emit updateNavigatorBinnedWCS(wcs, wcsInit);
+    emit newImageLoaded();
 }
 
 void IView::loadColorFITS(qreal scaleFactor)
@@ -684,6 +693,7 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
     }
 
     scene->removeCrosshair();
+    clearAxes();
 
     if (weightMode) {
         filename.replace(".fits", ".weight.fits");
@@ -1348,14 +1358,16 @@ void IView::autoContrastPushButton_toggled_receiver(bool checked)
     if (checked) {
         autoContrast();
 
-        scene->removeCrosshair();
         // Must clear all items (sky circles) on the scene, then redraw afterwards
+        clearAxes();
+        scene->removeCrosshair();
         if (!skyCircleItems.isEmpty()) skyCircleItems.clear();
         if (!acceptedSkyCircleItems.isEmpty()) {
             for (auto &it : acceptedSkyCircleItems) {
                 scene->removeItem(it);
             }
         }
+
         mapFITS();
         myGraphicsView->setScene(scene);
         myGraphicsView->show();
@@ -1439,9 +1451,11 @@ void IView::zoomZeroPushButton_clicked_receiver()
 
 void IView::minmaxLineEdit_returnPressed_receiver(QString rangeMin, QString rangeMax)
 {
+    clearAxes();
     dynRangeMin = rangeMin.toFloat();
     dynRangeMax = rangeMax.toFloat();
     mapFITS();
+    redrawUpdateAxes();  // redshift axes
     myGraphicsView->setScene(scene);
     myGraphicsView->show();
 }

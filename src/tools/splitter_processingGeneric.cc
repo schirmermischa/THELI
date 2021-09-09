@@ -280,6 +280,8 @@ void Splitter::applyMask(int chip)
 {
     if (!successProcessing) return;
 
+    if (instData.name.contains("DUMMY")) return;
+
     if (!MEFpastingFinished) return;
     else {
         // Must reset 'chip' such that it counts true CCDs, not the extensions with the individual amplifiers (e.g., for GMOS and SOI)

@@ -29,7 +29,9 @@ If not, see https://www.gnu.org/licenses/ .
 #include "dockwidgets/ivwcsdockwidget.h"
 #include "dockwidgets/ivstatisticsdockwidget.h"
 #include "dockwidgets/ivfinderdockwidget.h"
+#include "dockwidgets/ivredshiftdockwidget.h"
 #include "../myimage/myimage.h"
+#include "myaxis.h"
 
 #include "fitsio2.h"
 #include "wcs.h"
@@ -102,6 +104,17 @@ public:
     IvStatisticsDockWidget *statdw = new IvStatisticsDockWidget(this);
     IvFinderDockWidget *finderdw = new IvFinderDockWidget(this);
     IvWCSDockWidget *wcsdw = new IvWCSDockWidget(this);
+    IvRedshiftDockWidget *zdw = new IvRedshiftDockWidget(this);
+
+    QList<QGraphicsLineItem*> observedAxisLineItems;
+    QList<QGraphicsLineItem*> restframeAxisLineItems;
+    QList<QGraphicsLineItem*> spectrumAxisLineItems;
+    QList<QGraphicsLineItem*> observedAxisMainLineItems;
+    QList<QGraphicsLineItem*> restframeAxisMainLineItems;
+    QList<QGraphicsLineItem*> spectrumAxisMainLineItems;
+    QList<QGraphicsTextItem*> observedAxisTextItems;
+    QList<QGraphicsTextItem*> restframeAxisTextItems;
+    QList<QGraphicsTextItem*> spectrumAxisTextItems;
 
     MyGraphicsView *myGraphicsView;
 //    MyGraphicsScene *scene = new MyGraphicsScene(this);
@@ -148,6 +161,10 @@ public:
     void binnedToQimage(qreal bx, qreal by, qreal &qx, qreal &qy);
     QPointF binnedToQimage(const QPointF bpoint);
 
+    MyAxis observedAxis;
+    MyAxis restframeAxis;
+    MyAxis spectrumAxis;
+
 signals:
     void abortPlay();
     void colorFactorChanged(QString redFactor, QString blueFactor);
@@ -163,6 +180,8 @@ signals:
     void statisticsSampleColorAvailable(const QVector<float> &sampleR, const QVector<float> &sampleG, const QVector<float> &sampleB);
     void updateNavigatorBinnedWCS(wcsprm *cd, bool wcsinit);
     void clearMagnifiedScene();
+    void newImageLoaded();
+    void wavelengthUpdated(QString lobs, QString lrest);
 
 private slots:
     void adjustBrightnessContrast(QPointF point);
@@ -201,10 +220,14 @@ private slots:
     void filterLineEdit_textChanged(const QString &arg1);
     void collectLocalStatisticsSample(QPointF point);
     void updateStatisticsButton();
+    void updateRedshiftButton();
     void updateFinderButton();
     void fovCenterChangedReceiver(QPointF newCenter);
     void on_actionFinder_triggered();
     void WCSupdatedReceived();
+    void on_actionRedshift_triggered();
+    void showWavelength(QPointF point);
+    void redrawUpdateAxes();
 
 public slots:
     void autoContrastPushButton_toggled_receiver(bool checked);
@@ -228,6 +251,10 @@ public slots:
     void zoomZeroPushButton_clicked_receiver();
     void viewportChangedReceived(QRect viewport_rect);
     void targetResolvedReceived(QString alphaStr, QString deltaStr);
+    void updateAxes();
+    void updateFinesse(int value);
+    void resetRedshift();
+    void redshiftChanged(QString text);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -333,6 +360,7 @@ private:
     void setCurrentId(QString filename);
     void setImageListFromMemory();
     void showWCSdockWidget();
+    void showAxes();
     void sky2xyQImage(double ra, double dec, double &x, double &y);
     void sky2xyFITS(double ra, double dec, double &x, double &y);
     void writePreferenceSettings();
@@ -343,6 +371,10 @@ private:
     void sendWCStoWCSdockWidget();
     void checkFinder();
     void checkFinderBypass();
+    void showAxesHelper(QList<QGraphicsLineItem *> &lineItemList, QList<QGraphicsLineItem *> &mainLineItemList, QList<QGraphicsTextItem *> &textItemList, const MyAxis &axis, QString type);
+    void clearAxesHelper(QList<QGraphicsLineItem *> &lineItemList, QList<QGraphicsLineItem *> &mainLineItemList, QList<QGraphicsTextItem*> &textItemList);
+    void clearAxes();
+    void updateAxesHelper();
 };
 
 #endif // IVIEW_H

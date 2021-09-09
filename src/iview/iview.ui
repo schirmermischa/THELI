@@ -101,6 +101,7 @@
    <addaction name="separator"/>
    <addaction name="actionImage_statistics"/>
    <addaction name="actionFinder"/>
+   <addaction name="actionRedshift"/>
    <addaction name="separator"/>
    <addaction name="actionSourceCat"/>
    <addaction name="actionRefCat"/>
@@ -310,6 +311,21 @@
    </property>
    <property name="toolTip">
     <string>Locate a target in the image</string>
+   </property>
+  </action>
+  <action name="actionRedshift">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/spec.png</normaloff>:/icons/spec.png</iconset>
+   </property>
+   <property name="text">
+    <string>Redshift</string>
+   </property>
+   <property name="toolTip">
+    <string>Redshift estimation for FITS spectra</string>
    </property>
   </action>
  </widget>

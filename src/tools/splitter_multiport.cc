@@ -801,7 +801,7 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
             long jT = offy+jS-jminS;
             long sIndex = iS+nS*jS;
             long tIndex = iT+nT*jT;
-            if (!instData.name.contains("GROND")) {
+            if (!instData.name.contains("GROND") && !instData.name.contains("DUMMY")) {
                 if (sIndex >= dimS || tIndex >= dimT) {
                     qDebug() << tIndex << dimT << iminS << imaxS << jminS << jmaxS << sizex << sizey;
                     emit messageAvailable("Inconsistent image geometry. " + instData.name + " not fully tested in THELI.", "error");
@@ -811,7 +811,9 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
                 }
             }
             if (iT>=nT || iT<0 || jT>=mT || jT<0) continue;   // don't paste pixels falling outside target area
-            dataT[tIndex] = dataS[sIndex] * corrFactor;   // correcting for gain differences
+            if (!instData.name.contains("DUMMY")) {
+                dataT[tIndex] = dataS[sIndex] * corrFactor;   // correcting for gain differences
+            }
         }
     }
 }

@@ -257,7 +257,10 @@ bool MyImage::loadDataThreadSafe(QString loadFileName)
 // Setup the WCS
 void MyImage::initWCS()
 {
-    if (!successProcessing) return;
+    // CHECK: This line must be commented so that the redshift module works.
+    // For a reason I don't understand 'successProcessing' is wrong for the spectra when loaded.
+
+//    if (!successProcessing) return;
 
     emit setWCSLock(true);          // It appears that not everything in the wcslib is threadsafe
     int nreject;

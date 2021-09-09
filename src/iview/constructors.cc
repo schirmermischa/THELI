@@ -26,8 +26,10 @@ If not, see https://www.gnu.org/licenses/ .
 #include "mygraphicsscene.h"
 #include "ui_ivconfdockwidget.h"
 #include "ui_ivcolordockwidget.h"
+#include "ui_ivredshiftdockwidget.h"
 #include "dockwidgets/ivscampdockwidget.h"
 #include "dockwidgets/ivcolordockwidget.h"
+#include "dockwidgets/ivredshiftdockwidget.h"
 
 #include "../tools/tools.h"
 
@@ -522,6 +524,11 @@ void IView::makeConnections()
     connect(myGraphicsView, &MyGraphicsView::mouseLeftView, icdw, &IvConfDockWidget::mouseLeftViewReceived);
     connect(myGraphicsView, &MyGraphicsView::viewportChanged, this, &IView::viewportChangedReceived);
     connect(myGraphicsView, &MyGraphicsView::currentMousePos, this, &IView::updateNavigatorMagnifiedReceived);
+    connect(myGraphicsView, &MyGraphicsView::currentMousePos, this, &IView::showWavelength);
+    connect(myGraphicsView, &MyGraphicsView::leftDragTravelled, &restframeAxis, &MyAxis::redshiftSpectrum);
+    connect(myGraphicsView, &MyGraphicsView::leftDragTravelled, &spectrumAxis, &MyAxis::redshiftSpectrum);
+    connect(myGraphicsView, &MyGraphicsView::leftButtonReleased, &restframeAxis, &MyAxis::closeRedshift);
+    connect(myGraphicsView, &MyGraphicsView::leftButtonReleased, &spectrumAxis, &MyAxis::closeRedshift);
 
     connect(scene, &MyGraphicsScene::itemDeleted, this, &IView::updateSkyCircles);
     connect(scene, &MyGraphicsScene::mouseLeftScene, icdw, &IvConfDockWidget::mouseLeftViewReceived);
@@ -531,6 +538,7 @@ void IView::makeConnections()
     connect(wcsdw, &IvWCSDockWidget::CDmatrixChanged, icdw, &IvConfDockWidget::drawCompass);
 
     connect(statdw, &IvStatisticsDockWidget::visibilityChanged, this, &IView::updateStatisticsButton);
+    connect(zdw, &IvRedshiftDockWidget::visibilityChanged, this, &IView::updateRedshiftButton);
     connect(finderdw, &IvFinderDockWidget::visibilityChanged, this, &IView::updateFinderButton);
     connect(finderdw, &IvFinderDockWidget::targetResolved, this, &IView::targetResolvedReceived);
     connect(finderdw, &IvFinderDockWidget::clearTargetResolved, scene, &MyGraphicsScene::removeCrosshair);
@@ -549,6 +557,14 @@ void IView::makeConnections()
     connect(icdw->binnedGraphicsView, &MyBinnedGraphicsView::fovRectCenterChanged, this, &IView::fovCenterChangedReceiver);
     connect(this, &IView::updateNavigatorBinnedWCS, icdw, &IvConfDockWidget::receiveWCS);
     connect(this, &IView::clearMagnifiedScene, icdw, &IvConfDockWidget::clearMagnifiedSceneReceiver);
+
+    connect(this, &IView::newImageLoaded, this, &IView::updateAxes);
+    connect(this, &IView::newImageLoaded, this, &IView::resetRedshift);
+    connect(this, &IView::wavelengthUpdated, zdw, &IvRedshiftDockWidget::showWavelength);
+
+    connect(&restframeAxis, &MyAxis::redshiftRecomputed, this, &IView::updateAxes);
+    connect(&spectrumAxis, &MyAxis::redshiftRecomputed, this, &IView::updateAxes);
+    connect(&spectrumAxis, &MyAxis::redshiftUpdated, zdw, &IvRedshiftDockWidget::redshiftUpdatedReceiver);
 }
 
 void IView::switchMode(QString mode)
@@ -747,12 +763,14 @@ void IView::addDockWidgets()
         scampdw->raise();
         finderdw->hide();
         statdw->hide();
+        zdw->hide();
     }
     else if (displayMode == "SCAMP_VIEWONLY") {
         icdw = new IvConfDockWidget(this);
         icdw->hide();
         finderdw->hide();
         statdw->hide();
+        zdw->hide();
     }
 
     // Connections
@@ -772,6 +790,10 @@ void IView::addDockWidgets()
         connect(icdw, &IvConfDockWidget::zoomInPushButton_clicked, this, &IView::zoomInPushButton_clicked_receiver);
         connect(icdw, &IvConfDockWidget::zoomOutPushButton_clicked, this, &IView::zoomOutPushButton_clicked_receiver);
         connect(icdw, &IvConfDockWidget::zoomZeroPushButton_clicked, this, &IView::zoomZeroPushButton_clicked_receiver);
+        connect(icdw, &IvConfDockWidget::zoomFitPushButton_clicked, this, &IView::updateAxes);
+        connect(icdw, &IvConfDockWidget::zoomInPushButton_clicked, this, &IView::updateAxes);
+        connect(icdw, &IvConfDockWidget::zoomOutPushButton_clicked, this, &IView::updateAxes);
+        connect(icdw, &IvConfDockWidget::zoomZeroPushButton_clicked, this, &IView::updateAxes);
         connect(icdw, &IvConfDockWidget::closeIview, this, &IView::close);
     }
 
@@ -781,6 +803,9 @@ void IView::addDockWidgets()
 
         addDockWidget(Qt::LeftDockWidgetArea, finderdw);
         finderdw->hide();
+
+        addDockWidget(Qt::LeftDockWidgetArea, zdw);
+        zdw->hide();
     }
 }
 
@@ -788,6 +813,12 @@ void IView::updateStatisticsButton()
 {
     if (statdw->isVisible()) ui->actionImage_statistics->setChecked(true);
     else ui->actionImage_statistics->setChecked(false);
+}
+
+void IView::updateRedshiftButton()
+{
+    if (zdw->isVisible()) ui->actionRedshift->setChecked(true);
+    else ui->actionRedshift->setChecked(false);
 }
 
 void IView::updateFinderButton()

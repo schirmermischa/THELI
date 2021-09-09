@@ -35,6 +35,8 @@ bool Splitter::searchKey(const QString &searchKeyName, const QStringList &possib
     bool inExtHeader = false;
     bool inPrimaryHeader = searchKeyInHeader(searchKeyName, possibleKeyNames, primaryHeader, outputHeader);
     if (!inPrimaryHeader) inExtHeader = searchKeyInHeader(searchKeyName, possibleKeyNames, extHeader, outputHeader);
+//    bool inPrimaryHeader = searchKeyInHeader(searchKeyName, possibleKeyNames, extHeader, outputHeader);
+//    if (!inPrimaryHeader) inExtHeader = searchKeyInHeader(searchKeyName, possibleKeyNames, primaryHeader, outputHeader);
 
     if (!inExtHeader && !inPrimaryHeader) return false;
     else return true;
@@ -46,6 +48,8 @@ void Splitter::searchKeyCRVAL(const QString searchKey, const QStringList &possib
     bool inExtHeader = false;
     bool inPrimaryHeader = searchKeyInHeaderCRVAL(searchKey, possibleKeyNames, primaryHeader, outputHeader);
     if (!inPrimaryHeader) inExtHeader = searchKeyInHeaderCRVAL(searchKey, possibleKeyNames, extHeader, outputHeader);
+//    bool inPrimaryHeader = searchKeyInHeaderCRVAL(searchKey, possibleKeyNames, extHeader, outputHeader);
+//    if (!inPrimaryHeader) inExtHeader = searchKeyInHeaderCRVAL(searchKey, possibleKeyNames, primaryHeader, outputHeader);
 
     // Fallback:
     if (!inPrimaryHeader && !inExtHeader) {
