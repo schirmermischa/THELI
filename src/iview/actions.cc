@@ -315,6 +315,11 @@ void IView::on_actionRedshift_triggered()
         zdw->hide();
     }
     else {
+        // Do not display the dialog if no image is loaded
+        if (!currentMyImage) {
+            ui->actionRedshift->setChecked(false);
+            return;
+        }
         zdw->setFloating(false);
         zdw->raise();
         zdw->show();

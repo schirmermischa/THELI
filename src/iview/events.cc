@@ -81,7 +81,9 @@ void IView::showCurrentMousePos(QPointF point)
     // Still have to mirror in y, and add a half pixel correction
     // to be conform with the FITS standard
 
-    if (displayMode == "CLEAR" || displayMode.contains("SCAMP")) return;
+    if (displayMode == "CLEAR"
+            || displayMode.contains("SCAMP")
+            || !currentMyImage) return;
 
     float x_cursor;
     float y_cursor;
@@ -177,7 +179,10 @@ void IView::collectLocalStatisticsSample(QPointF point)
 
 void IView::adjustBrightnessContrast(QPointF point)
 {
-    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
+    if (displayMode.contains("SCAMP")
+            || displayMode == "CLEAR"
+            || !currentMyImage) return;
+
     // Also leave if actively cycling through images
     // (will crash because the scene items become unavailable while dragging)
     // Or (NOT IMPLEMENTED): stop cycling through images
@@ -275,7 +280,9 @@ void IView::measureAngularSeparations(QPointF pointStart, QPointF pointEnd, doub
 
 void IView::drawSeparationVector(QPointF pointStart, QPointF pointEnd)
 {
-    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
+    if (displayMode.contains("SCAMP")
+            || displayMode == "CLEAR"
+            || !currentMyImage) return;
 
     if (zdw->isVisible()) return;
 
@@ -286,10 +293,10 @@ void IView::drawSeparationVector(QPointF pointStart, QPointF pointEnd)
     // don't draw the vector if there is an ellipse underneath
     if (startLeftClickInsideItem) return;
 
-//    QPen pen(QColor("#ffaa00"));
+    //    QPen pen(QColor("#ffaa00"));
     QPen pen(QColor("#35ffff"));
     pen.setWidth(0);
-//    QPen penDashed(QColor("#ffaa00"));
+    //    QPen penDashed(QColor("#ffaa00"));
     QPen penDashed(QColor("#35ffff"));
     penDashed.setWidth(0);
     QVector<qreal> dashes;
@@ -328,9 +335,9 @@ void IView::drawSeparationVector(QPointF pointStart, QPointF pointEnd)
     labelX->setHtml(QString("<div style='background:rgba(53, 255, 255, 50%);'>" + QString("&nbsp;") + sepXString + QString("&nbsp;") + QString("</div>") ));
     labelY->setHtml(QString("<div style='background:rgba(53, 255, 255, 50%);'>" + QString("&nbsp;") + sepYString + QString("&nbsp;") + QString("</div>") ));
     labelD->setHtml(QString("<div style='background:rgba(53, 255, 255, 50%);'>" + QString("&nbsp;") + sepDString + QString("&nbsp;") + QString("</div>") ));
-//    labelX->setHtml(QString("<div style='background:rgba(255, 170, 0, 100%);'>" + QString("&nbsp;") + sepXString + QString("&nbsp;") + QString("</div>") ));
-//    labelY->setHtml(QString("<div style='background:rgba(255, 170, 0, 100%);'>" + QString("&nbsp;") + sepYString + QString("&nbsp;") + QString("</div>") ));
-//    labelD->setHtml(QString("<div style='background:rgba(255, 170, 0, 100%);'>" + QString("&nbsp;") + sepDString + QString("&nbsp;") + QString("</div>") ));
+    //    labelX->setHtml(QString("<div style='background:rgba(255, 170, 0, 100%);'>" + QString("&nbsp;") + sepXString + QString("&nbsp;") + QString("</div>") ));
+    //    labelY->setHtml(QString("<div style='background:rgba(255, 170, 0, 100%);'>" + QString("&nbsp;") + sepYString + QString("&nbsp;") + QString("</div>") ));
+    //    labelD->setHtml(QString("<div style='background:rgba(255, 170, 0, 100%);'>" + QString("&nbsp;") + sepDString + QString("&nbsp;") + QString("</div>") ));
     labelX->setDefaultTextColor(QColor("#000000"));
     labelY->setDefaultTextColor(QColor("#000000"));
     labelD->setDefaultTextColor(QColor("#000000"));
@@ -440,7 +447,9 @@ void IView::clearSkyCircleItems()
 // currently unused
 void IView::drawSkyRectangle(QPointF pointStart, QPointF pointEnd)
 {
-    if (displayMode.contains("SCAMP") || displayMode == "CLEAR") return;
+    if (displayMode.contains("SCAMP")
+            || displayMode == "CLEAR"
+            || !currentMyImage) return;
     if (displayMode == "FITScolor") return;
     // (will crash because the scene items become unavailable while dragging)
     if (ui->actionForward->isChecked()) return;
@@ -602,25 +611,25 @@ void IView::updateCRPIXFITS()
 {
     if (!wcsInit) return;
 
+    if (!currentMyImage) return;
+
     // Do nothing if no refcat items are displayed.
     if (refCatItems.isEmpty()) return;
 
-    if (currentMyImage != nullptr) {
-        int status = 0;
-        if (currentFileName.isEmpty()) currentFileName = currentMyImage->baseName+".fits";
-        // force drive dump if FITS file does not exist yet
-        if (!currentMyImage->imageOnDrive) currentMyImage->writeImage();
-        // Identical way to reconstruct filenames
-        // TODO: uniformize
-        //        qDebug() << currentFileName;
-        //        qDebug() << currentMyImage->path+"/"+currentMyImage->chipName+currentMyImage->processingStatus->statusString+".fits";
-        fitsfile *fptr = nullptr;
-        fits_open_file(&fptr, (dirName+"/"+currentMyImage->pathExtension+"/"+currentFileName).toUtf8().data(), READWRITE, &status);
-        fits_update_key_flt(fptr, "CRPIX1", wcs->crpix[0], -5, nullptr, &status);
-        fits_update_key_flt(fptr, "CRPIX2", wcs->crpix[1], -5, nullptr, &status);
-        fits_close_file(fptr, &status);
-        if (status > 0) qDebug() << "IView::updateCRPIXFITS(): cfitsio error code = " << status << dirName+"/"+currentFileName;
-    }
+    int status = 0;
+    if (currentFileName.isEmpty()) currentFileName = currentMyImage->baseName+".fits";
+    // force drive dump if FITS file does not exist yet
+    if (!currentMyImage->imageOnDrive) currentMyImage->writeImage();
+    // Identical way to reconstruct filenames
+    // TODO: uniformize
+    //        qDebug() << currentFileName;
+    //        qDebug() << currentMyImage->path+"/"+currentMyImage->chipName+currentMyImage->processingStatus->statusString+".fits";
+    fitsfile *fptr = nullptr;
+    fits_open_file(&fptr, (dirName+"/"+currentMyImage->pathExtension+"/"+currentFileName).toUtf8().data(), READWRITE, &status);
+    fits_update_key_flt(fptr, "CRPIX1", wcs->crpix[0], -5, nullptr, &status);
+    fits_update_key_flt(fptr, "CRPIX2", wcs->crpix[1], -5, nullptr, &status);
+    fits_close_file(fptr, &status);
+    if (status > 0) qDebug() << "IView::updateCRPIXFITS(): cfitsio error code = " << status << dirName+"/"+currentFileName;
 }
 
 // Called when slider is released in wcs mode
@@ -628,21 +637,21 @@ void IView::updateCDmatrixFITS()
 {
     if (!wcsInit) return;
 
+    if (!currentMyImage) return;
+
     // Do nothing if no refcat items are displayed.
     if (refCatItems.isEmpty()) return;
 
-    if (currentMyImage != nullptr) {
-        int status = 0;
-        if (currentFileName.isEmpty()) currentFileName = currentMyImage->baseName+".fits";
-        fitsfile *fptr = nullptr;
-        fits_open_file(&fptr, (dirName+"/"+currentMyImage->pathExtension+"/"+currentFileName).toUtf8().data(), READWRITE, &status);
-        fits_update_key_dbl(fptr, "CD1_1", wcs->cd[0], 8, nullptr, &status);
-        fits_update_key_dbl(fptr, "CD1_2", wcs->cd[1], 8, nullptr, &status);
-        fits_update_key_dbl(fptr, "CD2_1", wcs->cd[2], 8, nullptr, &status);
-        fits_update_key_dbl(fptr, "CD2_2", wcs->cd[3], 8, nullptr, &status);
-        fits_close_file(fptr, &status);
-        if (status > 0) qDebug() << "IView::updateCDmatrixFITS(): cfitsio error code = " << status << dirName+"/"+currentFileName;
-    }
+    int status = 0;
+    if (currentFileName.isEmpty()) currentFileName = currentMyImage->baseName+".fits";
+    fitsfile *fptr = nullptr;
+    fits_open_file(&fptr, (dirName+"/"+currentMyImage->pathExtension+"/"+currentFileName).toUtf8().data(), READWRITE, &status);
+    fits_update_key_dbl(fptr, "CD1_1", wcs->cd[0], 8, nullptr, &status);
+    fits_update_key_dbl(fptr, "CD1_2", wcs->cd[1], 8, nullptr, &status);
+    fits_update_key_dbl(fptr, "CD2_1", wcs->cd[2], 8, nullptr, &status);
+    fits_update_key_dbl(fptr, "CD2_2", wcs->cd[3], 8, nullptr, &status);
+    fits_close_file(fptr, &status);
+    if (status > 0) qDebug() << "IView::updateCDmatrixFITS(): cfitsio error code = " << status << dirName+"/"+currentFileName;
 }
 
 void IView::drawSkyCircle(QPointF pointStart, QPointF pointEnd)
