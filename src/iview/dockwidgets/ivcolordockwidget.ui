@@ -166,7 +166,7 @@
     <item row="5" column="0" colspan="4">
      <widget class="QPushButton" name="G2referencesPushButton">
       <property name="statusTip">
-       <string>The reference sources used for color calibration (SDSS: red, PanSTARRS: cyan, APASS: green, SKYMAPPER: yellow)</string>
+       <string>The reference sources used for color calibration (SDSS: red, PanSTARRS: cyan, ATLAS-REFCAT2: green, SKYMAPPER: yellow)</string>
       </property>
       <property name="text">
        <string>Show G2 Sources</string>

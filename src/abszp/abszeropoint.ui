@@ -610,6 +610,11 @@
           </property>
           <item>
            <property name="text">
+            <string>ATLAS-REFCAT2</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
             <string>PANSTARRS-DR1</string>
            </property>
           </item>

@@ -4148,7 +4148,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item row="4" column="5">
-            <widget class="QPushButton" name="resultAPASSPushButton">
+            <widget class="QPushButton" name="resultATLASPushButton">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -4171,10 +4171,10 @@ p, li { white-space: pre-wrap; }
               <enum>Qt::ClickFocus</enum>
              </property>
              <property name="statusTip">
-              <string>Shows the APASS result</string>
+              <string>Shows the ATLAS-REFCAT2 result</string>
              </property>
              <property name="text">
-              <string>APASS</string>
+              <string>ATLAS-REFCAT2</string>
              </property>
              <property name="checkable">
               <bool>true</bool>
@@ -4185,7 +4185,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item row="4" column="6">
-            <widget class="QLabel" name="numAPASSLabel">
+            <widget class="QLabel" name="numATLASLabel">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
                <horstretch>0</horstretch>

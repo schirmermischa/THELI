@@ -127,15 +127,15 @@ private:
     QList<MyImage*> coaddList;     // all coadds, including weights
     QList<MyImage*> croppedList;   // only the cropped coadded images, without the weights
 
-    QStringList refCatList = {"SDSS", "APASS", "SKYMAPPER", "PANSTARRS"};
+    QStringList refCatList = {"SDSS", "ATLAS-REFCAT2", "SKYMAPPER", "PANSTARRS"};
 
     Query *SDSSquery = new Query(&verbosity);
-    Query *APASSquery = new Query(&verbosity);
+    Query *ATLASquery = new Query(&verbosity);
     Query *PANSTARRSquery = new Query(&verbosity);
     Query *SKYMAPPERquery = new Query(&verbosity);
 
     RefCatData *SDSS = new RefCatData("SDSS", this);
-    RefCatData *APASS = new RefCatData("APASS", this);
+    RefCatData *ATLAS = new RefCatData("ATLAS-REFCAT2", this);
     RefCatData *SKYMAPPER = new RefCatData("SKYMAPPER", this);
     RefCatData *PANSTARRS = new RefCatData("PANSTARRS", this);
 

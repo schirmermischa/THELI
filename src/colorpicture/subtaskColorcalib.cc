@@ -38,7 +38,7 @@ void ColorPicture::on_calibratePushButton_clicked()
     photcatresult[0].catname = "PANSTARRS";
     photcatresult[1].catname = "SDSS";
     photcatresult[2].catname = "SKYMAPPER";
-    photcatresult[3].catname = "APASS";
+    photcatresult[3].catname = "ATLAS-REFCAT2";
     photcatresult[4].catname = "AVGWHITE";
 
     ui->redFactorLineEdit->setText("");
@@ -88,7 +88,7 @@ void ColorPicture::taskInternalColorCalib()
 
     QList<Query*> queryList;
     if (croppedList.at(0)->plateScale > 3. || croppedList.at(0)->radius > 1.5) {
-        queryList = {APASSquery};
+        queryList = {ATLASquery};
         ui->resultPANSTARRSPushButton->setDisabled(true);
         ui->resultSDSSPushButton->setDisabled(true);
         ui->resultSKYMAPPERPushButton->setDisabled(true);
@@ -98,7 +98,7 @@ void ColorPicture::taskInternalColorCalib()
         emit messageAvailable("PANSTARRS, SDSS and SKYMAPPER queries deactivated, field of view is too large.", "warning");
     }
     else {
-        queryList = {PANSTARRSquery, SDSSquery, SKYMAPPERquery, APASSquery};
+        queryList = {PANSTARRSquery, SDSSquery, SKYMAPPERquery, ATLASquery};
     }
 
     // Retrieve the photometric reference catalogs and identify solar type analogs
@@ -213,8 +213,8 @@ void ColorPicture::colorCalibMatchCatalogs()
     filterReferenceCatalog(SKYMAPPER, imageG);
     colorCalibMatchReferenceCatalog(matchedRGB, SKYMAPPER, toleranceRGB);
 
-    filterReferenceCatalog(APASS, imageG);
-    colorCalibMatchReferenceCatalog(matchedRGB, APASS, toleranceRGB);
+    filterReferenceCatalog(ATLAS, imageG);
+    colorCalibMatchReferenceCatalog(matchedRGB, ATLAS, toleranceRGB);
 }
 
 // Remove objects outside the actual field of view (simply for clarity)
@@ -244,7 +244,7 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
     if (REFCAT->name == "PANSTARRS") index = 0;
     else if (REFCAT->name == "SDSS") index = 1;
     else if (REFCAT->name == "SKYMAPPER") index = 2;
-    else if (REFCAT->name == "APASS") index = 3;
+    else if (REFCAT->name == "ATLAS-REFCAT2") index = 3;
 
     if (matchedRGB.isEmpty() || REFCAT->ra.isEmpty()) {
         photcatresult[index].rfac    = "1.000";
@@ -260,7 +260,7 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
             if (REFCAT->name == "PANSTARRS") ui->numPANSTARRSLabel->setText(nstars);
             else if (REFCAT->name == "SDSS") ui->numSDSSLabel->setText(nstars);
             else if (REFCAT->name == "SKYMAPPER") ui->numSKYMAPPERLabel->setText(nstars);
-            else if (REFCAT->name == "APASS") ui->numAPASSLabel->setText(nstars);
+            else if (REFCAT->name == "ATLAS-REFCAT2") ui->numATLASLabel->setText(nstars);
         }
         return;
     }
@@ -292,7 +292,7 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
         if (REFCAT->name == "PANSTARRS") ui->numPANSTARRSLabel->setText(nstars);
         else if (REFCAT->name == "SDSS") ui->numSDSSLabel->setText(nstars);
         else if (REFCAT->name == "SKYMAPPER") ui->numSKYMAPPERLabel->setText(nstars);
-        else if (REFCAT->name == "APASS") ui->numAPASSLabel->setText(nstars);
+        else if (REFCAT->name == "ATLAS-REFCAT2") ui->numATLASLabel->setText(nstars);
         return;
     }    // Calculate the color correction factors
     // matchRGB contains magnitudes in the order BGR, i.e. matchREFCAT contains: magref-B-G-R
@@ -319,7 +319,7 @@ void ColorPicture::colorCalibMatchReferenceCatalog(const QVector<QVector<double>
     if (REFCAT->name == "PANSTARRS") ui->numPANSTARRSLabel->setText(nstars);
     else if (REFCAT->name == "SDSS") ui->numSDSSLabel->setText(nstars);
     else if (REFCAT->name == "SKYMAPPER") ui->numSKYMAPPERLabel->setText(nstars);
-    else if (REFCAT->name == "APASS") ui->numAPASSLabel->setText(nstars);
+    else if (REFCAT->name == "ATLAS-REFCAT2") ui->numATLASLabel->setText(nstars);
     else if (REFCAT->name == "AVGWHITE") ui->numAVGWHITELabel->setText(nstars);
 
     QString type = "note";
@@ -385,7 +385,7 @@ void ColorPicture::filterSolarTypeStars(QList<Query*> queryList)
     PANSTARRS->clear();
     SDSS->clear();
     SKYMAPPER->clear();
-    APASS->clear();
+    ATLAS->clear();
 
     for (auto &query : queryList) {
         if (query->numSources == 0) continue;
@@ -403,9 +403,9 @@ void ColorPicture::filterSolarTypeStars(QList<Query*> queryList)
                 SKYMAPPER->ra.append(query->ra_out[k]);
                 SKYMAPPER->de.append(query->de_out[k]);
             }
-            if (query->refcatName == "APASS") {
-                APASS->ra.append(query->ra_out[k]);
-                APASS->de.append(query->de_out[k]);
+            if (query->refcatName == "ATLAS-REFCAT2") {
+                ATLAS->ra.append(query->ra_out[k]);
+                ATLAS->de.append(query->de_out[k]);
             }
         }
     }
@@ -457,6 +457,6 @@ void ColorPicture::updateNrefStarsReceived(QString name, long number)
     if (name == "PANSTARRS") ui->numPANSTARRSLabel->setText(nstars);
     else if (name == "SDSS") ui->numSDSSLabel->setText(nstars);
     else if (name == "SKYMAPPER") ui->numSKYMAPPERLabel->setText(nstars);
-    else if (name == "APASS") ui->numAPASSLabel->setText(nstars);
+    else if (name == "ATLAS-REFCAT2") ui->numATLASLabel->setText(nstars);
     else if (name == "AVGWHITE") ui->numAVGWHITELabel->setText(nstars);
 }

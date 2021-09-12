@@ -85,7 +85,7 @@ void AbsZeroPoint::initGUI()
     clearText();
 
     // Fill in defaults
-    on_zpRefcatComboBox_currentTextChanged("PANSTARRS-DR1");
+    on_zpRefcatComboBox_currentTextChanged("ATLAS-REFCAT2");
     on_zpFilterComboBox_currentTextChanged("g");
     defaults_if_empty();
 
@@ -640,6 +640,10 @@ void AbsZeroPoint::on_zpImageLineEdit_textChanged(const QString &arg1)
 
 void AbsZeroPoint::on_zpRefcatComboBox_currentTextChanged(const QString &arg1)
 {
+    if (arg1.contains("ATLAS-REFCAT2")) {
+        fill_combobox(ui->zpFilterComboBox, "g r i z");
+        fill_combobox(ui->zpColorComboBox, "g-r g-i r-i i-z");
+    }
     if (arg1.contains("PANSTARRS")) {
         fill_combobox(ui->zpFilterComboBox, "g r i z y");
         fill_combobox(ui->zpColorComboBox, "g-r g-i r-i i-z z-y");
@@ -1056,7 +1060,9 @@ void AbsZeroPoint::plot()
         colorZPGraphManualOutlier->setLineStyle(QCPGraph::lsNone);
         colorZPGraphManualOutlier->rescaleKeyAxis();
         colorZPGraphManualOutlier->rescaleValueAxis();
-        colorZPGraphManualOutlier->setData(absPhot->qv_colorManualOutlier,absPhot->qv_ZPManualOutlier);void AbsZeroPoint::showData(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event)
+        colorZPGraphManualOutlier->setData(absPhot->qv_colorManualOutlier,absPhot->qv_ZPManualOutlier);
+
+        // void AbsZeroPoint::showData(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event)
 
     }
     */
