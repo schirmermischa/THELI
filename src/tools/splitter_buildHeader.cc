@@ -182,17 +182,17 @@ void Splitter::WCSbuildCRPIX(int chip)
 {
     if (!successProcessing) return;
 
+    // Exceptions. Return if successful.
+    if (individualFixCRPIX(chip)) return;
+
     if (chip >= instData.crpix1.length()) {
         QString nfound = QString::number(chip+1);
         QString nexpected = QString::number(instData.numChips);
-        emit messageAvailable(fileName + ": " + nfound + " detectors found, " + nexpected + "expected. Check instrument selection." , "error");
+        emit messageAvailable(fileName + ": " + nfound + " detectors found, " + nexpected + " expected. Check instrument selection." , "error");
         emit critical();
         successProcessing = false;
         return;
     }
-
-    // Exceptions. Return if successful.
-    if (individualFixCRPIX(chip)) return;
 
     QStringList headerWCS;
 
@@ -491,6 +491,14 @@ bool Splitter::individualFixCRPIX(int chip)
         if (chip == 7) crpix1_card = "CRPIX1  = 544";
         if (chip == 11) crpix1_card = "CRPIX1  = -502";
         crpix2_card = "CRPIX2  = 1152";
+        individualFixDone = true;
+    }
+
+    if (instData.name == "GMOS-S-HAM_4x4@GEMINI") {
+        if (chip == 3) crpix1_card = "CRPIX1  = 794";
+        if (chip == 7) crpix1_card = "CRPIX1  = 272";
+        if (chip == 11) crpix1_card = "CRPIX1  = -251";
+        crpix2_card = "CRPIX2  = 576";
         individualFixDone = true;
     }
 

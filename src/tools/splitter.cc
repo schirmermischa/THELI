@@ -245,7 +245,7 @@ void Splitter::extractImages()
     // multiple readout channels in different FITS extensions
     multiChannelMultiExt << "DEIMOS_2AMP@KECK"
                          << "GMOS-N-HAM@GEMINI" << "GMOS-N-HAM_1x1@GEMINI"
-                         << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI"
+                         << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI" << "GMOS-S-HAM_4x4@GEMINI"
                          << "LRIS_BLUE@KECK" << "LRIS_RED@KECK"
                          << "MOSAIC-II_16@CTIO" << "MOSAIC-III_4@KPNO_4m"
                          << "PISCO@LCO" << "SAMI_2x2@SOAR" << "SOI@SOAR";
@@ -830,7 +830,7 @@ void Splitter::getNumberOfAmplifiers()
     // multiple readout channels in different FITS extensions
     multiChannelMultiExt << "DEIMOS_2AMP@KECK"
                          << "GMOS-N-HAM@GEMINI" <<  "GMOS-N-HAM_1x1@GEMINI"
-                         << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI"
+                         << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI" << "GMOS-S-HAM_4x4@GEMINI"
                          << "LRIS_BLUE@KECK" << "LRIS_RED@KECK"
                          << "MOSAIC-II_16@CTIO" << "MOSAIC-III_4@KPNO_4m"
                          << "PISCO@LCO" << "SAMI_2x2@SOAR" << "SOI@SOAR";

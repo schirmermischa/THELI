@@ -306,6 +306,7 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("GMOS-S-EEV@GEMINI", "GMOS-S");
     instrumentDictionary.insert("GMOS-S-HAM@GEMINI", "GMOS-S");
     instrumentDictionary.insert("GMOS-S-HAM_1x1@GEMINI", "GMOS-S");
+    instrumentDictionary.insert("GMOS-S-HAM_4x4@GEMINI", "GMOS-S");
     instrumentDictionary.insert("GMOS-S_EEV_GeMS@GEMINI", "GMOS-S");
     instrumentDictionary.insert("GOODMAN_1x1@SOAR", "");
     instrumentDictionary.insert("GOODMAN_2x2@SOAR", "");

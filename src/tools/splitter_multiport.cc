@@ -264,6 +264,7 @@ void Splitter::getMultiportInformation(int chip)
         searchKeyValue(QStringList() << "CCDSUM", binString);
         if (binString.simplified() == "1 1") binning = 1;
         else if (binString.simplified() == "2 2") binning = 2;
+        else if (binString.simplified() == "4 4") binning = 4;
         else {
             emit messageAvailable(fileName + ": Invalid binning encountered: "+binString.simplified(), "error");
             emit critical();
@@ -289,7 +290,7 @@ void Splitter::getMultiportInformation(int chip)
         if (chip % numAmpPerChip == 0) dataPasted.resize(naxis1 * naxis2);
 
         float gainValue = 1.0;
-        if (instData.name == "GMOS-S-HAM@GEMINI" || instData.name == "GMOS-S-HAM_1x1@GEMINI") {
+        if (instData.name == "GMOS-S-HAM@GEMINI" || instData.name == "GMOS-S-HAM_1x1@GEMINI" || instData.name == "GMOS-S-HAM_4x4@GEMINI") {
             // Accurate amplifier gains are not available in the GMOS FITS headers
             if (mjdobsValue < 57265.999988) {           // before 2015-08-31        // WARNING: these are the LOW gain modes. High gain mode is hardly used
                 if (chip == 0)       gainValue = 1.626;
