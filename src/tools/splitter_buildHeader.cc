@@ -1114,6 +1114,10 @@ bool Splitter::individualFixGAIN(int chip)
         chipGain = 1.3;
         individualFixDone = true;
     }
+    if (instData.name == "INOLA@INO") {          // https://www.sbig.de/stf-8300/stf-8300-techdat.pdf
+        chipGain = 0.37;
+        individualFixDone = true;
+    }
     if (instData.name == "WHIRC@WIYN") {         // https://www.noao.edu/kpno/manuals/whirc/whirc.user.html
         chipGain = 3.4;
         individualFixDone = true;
