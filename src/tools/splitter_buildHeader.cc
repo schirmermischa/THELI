@@ -1219,6 +1219,20 @@ bool Splitter::individualFixGAIN(int chip)
             }
         }
     }
+    else if (instData.name.contains("NOTcam")) {
+        float gain1 = 0.0;
+        float gain2 = 0.0;
+        float gain3 = 0.0;
+        float gain4 = 0.0;
+        searchKeyValue(QStringList() << "GAIN1", gain1);
+        searchKeyValue(QStringList() << "GAIN2", gain2);
+        searchKeyValue(QStringList() << "GAIN3", gain3);
+        searchKeyValue(QStringList() << "GAIN4", gain4);
+        channelGains.clear();
+        channelGains << gain1 << gain2 << gain3 << gain4;
+        chipGain = harmonicGain(channelGains);
+        individualFixDone = true;
+    }
 
     if (individualFixDone) {
         QString card1 = "GAINORIG= "+QString::number(chipGain, 'f', 6) + " / Original gain in the raw data for this image";

@@ -298,8 +298,11 @@ void Splitter::extractImagesFITS()
     while (rawStatus != END_OF_FILE && successProcessing) {
 
         if (hduType == IMAGE_HDU) {
-            // for MMIRS, we only want to keep the first extension
-            if (instData.name.contains("MMIRS") && chip >= 1) break;
+            // for MMIRS and NOTcam, we only want to keep the first extension
+            if (instData.name.contains("MMIRS")
+                    || instData.name.contains("NOTcam")) {
+                if (chip >= 1) break;
+            }
 
             // some multi-chip cams (FORS, etc) come with separate FITS files. For them, 'chip' would always be zero,
             // and thus the correct overscan regions etc not identified correctly.

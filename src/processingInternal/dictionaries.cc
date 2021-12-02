@@ -54,7 +54,8 @@ void Controller::populateHeaderDictionary()
                                        "HIERARCH ESO INS FILT3 NAME", "HIERARCH ESO INS FILT4 NAME",
                                        "HIERARCH ESO INS OPTI-2 NAME",
                                        "AFT", "ALFLTNM", "FAFLTNM", "FBFLTNM", "FILTRE", "FLTRNAME", "PFMFNAME", "WFFBAND",
-                                       "ACAMFSLI", "ACAMWH1", "ACAMWH2", "INGF1NAM", "INGF2NAM", "LIRF1NAM", "LIRF2NAM"});
+                                       "ACAMFSLI", "ACAMWH1", "ACAMWH2", "INGF1NAM", "INGF2NAM", "LIRF1NAM", "LIRF2NAM",
+                                       "NCFLTNM1", "NCFLTNM2"});
 
     // Other keywords of interest (to calculate others, or preserve information)
     headerDictionary.insert("INSTRUME", {"INSTRUME", "DETECTOR"});
