@@ -106,8 +106,12 @@ void MyImage::filterSourceExtractorCatalog(QString minFWHM, QString maxFlag)
     fitsfile *fptr;
     int status = 0;
 
-    //    QString filterString = "Flag <= "+maxFlag + " && FWHM_IMAGE <= "+minFWHM;
-    QString filterString = "FLAGS <= "+ maxFlag + " && FWHM_IMAGE >= "+minFWHM;
+    QString filterString = "";
+    if (!maxFlag.isEmpty() && minFWHM.isEmpty()) filterString = "FLAGS <= "+ maxFlag;
+    else if (maxFlag.isEmpty() && !minFWHM.isEmpty()) filterString = "FWHM_IMAGE >= "+minFWHM;
+    else if (!maxFlag.isEmpty() && !minFWHM.isEmpty()) filterString = "FLAGS <= "+ maxFlag + " && FWHM_IMAGE >= "+minFWHM;
+    else return;
+
     QString catName = path+"/cat/"+chipName+".cat";
     fits_open_file(&fptr, catName.toUtf8().data(), READWRITE, &status);
     char tblname[100] = "LDAC_OBJECTS";
