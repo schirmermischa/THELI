@@ -852,7 +852,8 @@ void MyImage::applyBackgroundModel(const MyImage *backgroundImage, QString mode,
             ++i;
         }
 
-        saturationValue /= backgroundImage->skyValue;
+        // No normalization of saturation keyword required
+//        saturationValue /= backgroundImage->skyValue;
         updateHeaderValue("SATURATE", saturationValue);
 
         QString img = " IMG = "+QString::number(skyValue, 'f', 3) + ";";
