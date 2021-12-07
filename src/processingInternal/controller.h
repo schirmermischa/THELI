@@ -500,6 +500,7 @@ signals:
     void forceFinish();
 
 public slots:
+    void activationWarningReceived(QString imagestatus, QString drivestatus);
     void updateAll();
     //    void updateSingle();
     void loadPreferences();
@@ -524,5 +525,6 @@ public slots:
     void absZeroPointCloseReceived();
     void resetErrorStatusReceived(QString dirName);
 };
+
 
 #endif // CONTROLLER_H

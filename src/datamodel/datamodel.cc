@@ -175,7 +175,7 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
     int col = index.column();
 
     if (row >= imageList.length()) {
-    //    qDebug() << "DataModel::data(): invalid row index" << row <<", max num images =" << imageList.length();
+        //    qDebug() << "DataModel::data(): invalid row index" << row <<", max num images =" << imageList.length();
         return QVariant();
     }
 
@@ -379,11 +379,25 @@ bool DataModel::setData(const QModelIndex & index, const QVariant & value, int r
 
     // Activate / deactivate images
     if (role == Qt::CheckStateRole && index.column() == 1) {
+        // CONFUSING! Example:
+        // The user clicks on a checked 'active' box to deactivate the image.
+        // The 'active' checkbox state e.g. changes from checked to unchecked,
+        // but only THEN this slot is invoked, at which point the checkbox is already unchecked.
         if ((Qt::CheckState)value.toInt() == Qt::Checked) {
-            imageList[index.row()]->oldState = imageList[index.row()]->activeState;
-            imageList[index.row()]->setActiveState(MyImage::ACTIVE); // Setting this value automatically moves the image on drive accordingly!
+            // the user clicked an unchecked box, which is now checked, hence we must activate the image
+            // ONLY do this if the deactivated image has the same processing state as the active images!
+            QString imagestatus = imageList[index.row()]->processingStatus->statusString;
+            QString drivestatus = imageList[index.row()]->processingStatus->whatIsStatusOnDrive();
+            if (imagestatus == drivestatus) {
+                imageList[index.row()]->oldState = imageList[index.row()]->activeState;
+                imageList[index.row()]->setActiveState(MyImage::ACTIVE); // Setting this value automatically moves the image on drive accordingly!
+            }
+            else {
+                emit activationWarning(imagestatus, drivestatus);
+            }
         }
         else {
+            // the user clicked an checked box, which is now unchecked, hence we must deactivate the image
             imageList[index.row()]->oldState = imageList[index.row()]->activeState;
             imageList[index.row()]->setActiveState(MyImage::INACTIVE); // Setting this value automatically moves the image on drive accordingly!
         }

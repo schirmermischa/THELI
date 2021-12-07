@@ -48,6 +48,7 @@ public:
     void inferStatusFromFilenames();
     bool doesStatusFileExist();
     void deleteFromDrive();
+    QString whatIsStatusOnDrive();
 
 private:
     QDir dir;

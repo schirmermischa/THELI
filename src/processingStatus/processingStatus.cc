@@ -83,6 +83,28 @@ void ProcessingStatus::readFromDrive()
     file.close();
 }
 
+QString ProcessingStatus::whatIsStatusOnDrive()
+{
+    QFile file(dirName + "/.processingStatus");
+
+    if (!file.exists()) {
+        inferStatusFromFilenames();
+        statusToBoolean(statusString);
+        return "";
+    }
+
+    if(!file.open(QIODevice::ReadOnly)) {
+        emit messageAvailable("ProcessingStatus::read(): Could not open "+dirName + "/.processingStatus "+file.errorString(), "error");
+        emit critical();
+        return "";
+    }
+
+    QTextStream stream(&file);
+    QString tmp = stream.readLine();
+    file.close();
+    return tmp;
+}
+
 QString ProcessingStatus::getStatusString()
 {
     statusString = "";

@@ -1567,14 +1567,24 @@ void MyImage::emitModelUpdateNeeded()
     emit modelUpdateNeeded(chipName);
 }
 
-// For use from within the memory viewer
+// For use from within the memory viewer; also called by the statistics module
 void MyImage::setActiveState(active_type state)
 {
     // Do nothing if the requested state equals the current state (otherwise, image might get deleted before moving it onto itself)
     if (activeState == state) return;
 
-    // Always us this function when setting the active status
+    // Always use this function when setting the active status
     activeState = state;
+
+    // If the file is currently inactive, check whether the processing state is the same as that of currently active images.
+    // Otherwise, the file must not be moved
+    if (state == MyImage::INACTIVE) {
+        if (processingStatus->statusString != processingStatus->whatIsStatusOnDrive()) {
+
+        }
+    }
+
+
 
     // Move the image accordingly
     QString currentPath = path + pathExtension;      // The path where the image is currently located (if on disk)

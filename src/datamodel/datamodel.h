@@ -59,7 +59,6 @@ public:
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
     bool removeColumns(int column, int count, const QModelIndex &parent = QModelIndex()) override;
     void updateImageList();
-
     void updateheaderLineExternal();
 private slots:
     void modelUpdateReceiver(QString chipName);
@@ -89,7 +88,8 @@ private:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
 signals:
-//    void writeImageToDisk(MyImage *myImage) const;
+    void activationWarning(QString imagestatus, QString drivestatus);
+    //    void writeImageToDisk(MyImage *myImage) const;
 };
 
 #endif // DATAMODEL_H

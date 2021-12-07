@@ -70,7 +70,11 @@ void IView::previousAction_triggered()
         if (displayMode == "FITSmonochrome") loadFITS("", currentId);
         else if (displayMode == "CLEAR") loadFITS("", currentId);
         else if (displayMode.contains("SCAMP")) loadPNG("", currentId);
-        else if (displayMode == "MEMview") loadFromRAM(myImageList[currentId], 0);
+        else if (displayMode == "MEMview") {
+            // Check if the selected image is active. If not, search for one
+            while (myImageList[currentId]->activeState == MyImage::INACTIVE && currentId > 0) --currentId;
+            loadFromRAM(myImageList[currentId], 0);
+        }
         ui->actionNext->setEnabled(true);
         ui->actionEnd->setEnabled(true);
         ui->actionForward->setEnabled(true);
@@ -103,7 +107,11 @@ void IView::nextAction_triggered()
         if (displayMode == "FITSmonochrome") loadFITS("", currentId);
         else if (displayMode == "CLEAR") loadFITS("", currentId);
         else if (displayMode.contains("SCAMP")) loadPNG("", currentId);
-        else if (displayMode == "MEMview") loadFromRAM(myImageList[currentId], 0);
+        else if (displayMode == "MEMview") {
+            // Check if the selected image is active. If not, search for one
+            while (myImageList[currentId]->activeState == MyImage::INACTIVE && currentId < numImages-1) ++currentId;
+            loadFromRAM(myImageList[currentId], 0);
+        }
         ui->actionPrevious->setEnabled(true);
         ui->actionStart->setEnabled(true);
         ui->actionBack->setEnabled(true);
@@ -140,7 +148,11 @@ void IView::forwardAction_triggered()
         if (displayMode == "FITSmonochrome") loadFITS("", currentId);
         else if (displayMode == "CLEAR") loadFITS("", currentId);
         else if (displayMode.contains("SCAMP")) loadPNG("", currentId);
-        else if (displayMode == "MEMview") loadFromRAM(myImageList[currentId], 0);
+        else if (displayMode == "MEMview") {
+            // Check if the selected image is active. If not, search for one
+            while (myImageList[currentId]->activeState == MyImage::INACTIVE && currentId < numImages-1) ++currentId;
+            loadFromRAM(myImageList[currentId], 0);
+        }
         ui->actionPrevious->setEnabled(true);
         ui->actionStart->setEnabled(true);
     }
@@ -175,7 +187,11 @@ void IView::backAction_triggered()
         if (displayMode == "FITSmonochrome") loadFITS("", currentId);
         else if (displayMode == "CLEAR") loadFITS("", currentId);
         else if (displayMode.contains("SCAMP")) loadPNG("", currentId);
-        else if (displayMode == "MEMview") loadFromRAM(myImageList[currentId], 0);
+        else if (displayMode == "MEMview") {
+            // Check if the selected image is active. If not, search for one
+            while (myImageList[currentId]->activeState == MyImage::INACTIVE && currentId > 0) --currentId;
+            loadFromRAM(myImageList[currentId], 0);
+        }
         ui->actionNext->setEnabled(true);
         ui->actionEnd->setEnabled(true);
     }
@@ -205,7 +221,11 @@ void IView::startAction_triggered()
     if (displayMode == "FITSmonochrome") loadFITS("", currentId);
     else if (displayMode == "CLEAR") loadFITS("", currentId);
     else if (displayMode.contains("SCAMP")) loadPNG("", currentId);
-    else if (displayMode == "MEMview") loadFromRAM(myImageList[currentId], 0);
+    else if (displayMode == "MEMview") {
+        // Check if the selected image is active. If not, search for one
+        while (myImageList[currentId]->activeState == MyImage::INACTIVE && currentId < numImages-1) ++currentId;
+        loadFromRAM(myImageList[currentId], 0);
+    }
     ui->actionNext->setEnabled(true);
     ui->actionForward->setEnabled(true);
     ui->actionEnd->setEnabled(true);
@@ -234,7 +254,11 @@ void IView::endAction_triggered()
     if (displayMode == "FITSmonochrome") loadFITS("", currentId);
     else if (displayMode == "CLEAR") loadFITS("", currentId);
     else if (displayMode.contains("SCAMP")) loadPNG("", currentId);
-    else if (displayMode == "MEMview") loadFromRAM(myImageList[currentId], 0);
+    else if (displayMode == "MEMview") {
+        // Check if the selected image is active. If not, search for one
+        while (myImageList[currentId]->activeState == MyImage::INACTIVE && currentId > 0) --currentId;
+        loadFromRAM(myImageList[currentId], 0);
+    }
     ui->actionNext->setDisabled(true);
     ui->actionForward->setDisabled(true);
     ui->actionEnd->setDisabled(true);

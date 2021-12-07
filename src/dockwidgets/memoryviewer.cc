@@ -170,6 +170,7 @@ void MemoryViewer::addData(const QList<Data*> &DT_x, const QString &type)
         dataModelList.append(dataModel);
         connect(this, &MemoryViewer::beginResetModel, dataModel, &DataModel::beginResetModelReceived, Qt::DirectConnection);
         connect(this, &MemoryViewer::endResetModel, dataModel, &DataModel::endResetModelReceived, Qt::DirectConnection);
+        connect(dataModel, &DataModel::activationWarning, controller, &Controller::activationWarningReceived);
     }
     if (list.isEmpty()) return;
     ui->datadirComboBox->addItems(list);

@@ -1154,6 +1154,15 @@ void Controller::connectDataWithMemoryViewer()
     }
 }
 
+void Controller::activationWarningReceived(QString imagestatus, QString drivestatus)
+{
+    QMessageBox::warning( this, "THELI: Incoherent processing states",
+                          "This image has a different processing status (" + imagestatus + ") "
+                          +"than the currently active images (" + drivestatus + "). It cannot be reactivated like this.\n"
+                          +"To include this image in the processing, you must either restore the corresponding processing status for all active images, "
+                           "or close THELI and manually restore all suitable images, or start from the raw data.");
+}
+
 /*
 void Controller::decrementCurrentThreads(omp_lock_t &lock)
 {

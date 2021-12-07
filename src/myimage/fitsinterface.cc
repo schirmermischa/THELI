@@ -83,13 +83,13 @@ void MyImage::initFITS(fitsfile **fptr, QString loadFileName, int *status)
 {
     if (loadFileName.isNull() || loadFileName.isEmpty()) {
         *status = 1;
-        emit messageAvailable("MyImage::initFITS(): file name empty or not initialized!", "error");
+        emit messageAvailable(name+"MyImage::initFITS(): file name empty or not initialized!", "error");
         return;
     }
     // Bypassing a memory leak in cfitsio
     QFile file(loadFileName);
     if (!file.exists()) {
-        emit messageAvailable(name+" MyImage::initFITS(): file name empty or not initialized!", "error");
+        emit messageAvailable(name+" MyImage::initFITS(): File does not exist at current location!", "error");
         *status = 104;
         return;
     }
@@ -201,7 +201,8 @@ void MyImage::readDataWeight(fitsfile **fptr, int *status)
 
 bool MyImage::loadData(QString loadFileName)
 {
-    if (loadFileName.isEmpty()) loadFileName = path + "/" + chipName+processingStatus->statusString+".fits";
+    // pathExtension needed to load image when clicking on deactivated filename in memory table viewer
+    if (loadFileName.isEmpty()) loadFileName = path + "/" + pathExtension + "/" + chipName+processingStatus->statusString+".fits";
 
     int status = 0;
     fitsfile *fptr = nullptr;
