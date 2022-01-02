@@ -150,10 +150,10 @@ QString MainWindow::estimateStatusFromFilename(DataDir *datadir)
 
 void MainWindow::check_taskHDUreformat(DataDir *datadir, bool &stop, bool &skip, const QString mode)
 {
-    if (datadir->isEmpty()) {
-        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' contains no images. Skipping...", "note");
-        skip = true;
-    }
+//    if (datadir->isEmpty()) {
+//        if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' contains no images. Skipping...", "note");
+//        skip = true;
+//    }
     if (datadir->hasType("P")) {
         if (mode != "execute") message(ui->plainTextEdit, "'"+datadir->subdirname+"' already contains HDU reformatted images. Skipping...", "note");
         skip = true;
