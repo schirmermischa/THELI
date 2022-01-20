@@ -169,6 +169,12 @@ Controller::~Controller()
 // Reads whatever is defined in the Setup data tree section, and maps it onto the various lists
 void Controller::mapDataTree()
 {
+    if (QDir(mainDirName) == QDir::home()) {
+        emit messageAvailable("For safety reasons, your home directory is not permitted as the main directory.", "error");
+        criticalReceived();
+        return;
+    }
+
     dataTreeUpdateOngoing = true;
     omp_set_lock(&memoryLock);
     emit clearMemoryView();
@@ -234,6 +240,11 @@ void Controller::parseDataDir(QLineEdit *le, QList<Data *> &DT_x)
         // do not accept any wrong entries; empty the list
         if (!QDir(mainDirName+"/"+it).exists()) {
             DT_x.clear();
+            return;
+        }
+        if (QDir(mainDirName) == QDir::home()) {
+            emit messageAvailable("For safety reasons, your home directory is not permitted as the main directory.", "error");
+            criticalReceived();
             return;
         }
 

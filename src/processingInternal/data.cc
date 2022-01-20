@@ -53,6 +53,12 @@ Data::Data(const instrumentDataType *instrumentData, Mask *detectorMask, QString
 
     resetSuccessProcessing();
 
+    if (QDir(maindirname) == QDir::home()) {
+        emit messageAvailable("For safety reasons, your home directory is not permitted as the main directory.", "error");
+        emit critical();
+        return;
+    }
+
     omp_init_lock(&progressLock);
 
     mainDirName = maindirname;
@@ -2338,21 +2344,22 @@ bool Data::restoreFromBackupLevel(QString level, QString &newStatusRAM)
     }
 
     // Obsolete images have been removed. Now also remove the corresponding backup directories.
+    // Some paranoia making sure we don't accidentally delete the user's home directory.
     if (level == "L1") {
         QDir backupL3(pathBackupL3);
-        backupL3.removeRecursively();
+        if (!pathBackupL3.isEmpty() && backupL3 != QDir::home()) backupL3.removeRecursively();
     }
     if (level == "L2") {
         QDir backupL1(pathBackupL1);
         QDir backupL3(pathBackupL3);
-        backupL1.removeRecursively();
-        backupL3.removeRecursively();
+        if (!pathBackupL1.isEmpty() && backupL1 == QDir::home()) backupL1.removeRecursively();
+        if (!pathBackupL3.isEmpty() && backupL3 == QDir::home()) backupL3.removeRecursively();
     }
     if (level == "L3") {
         QDir backupL1(pathBackupL1);
         QDir backupL2(pathBackupL2);
-        backupL1.removeRecursively();
-        backupL2.removeRecursively();
+        if (!pathBackupL1.isEmpty() && backupL1 == QDir::home()) backupL1.removeRecursively();
+        if (!pathBackupL2.isEmpty() && backupL2 != QDir::home()) backupL2.removeRecursively();
     }
 
     transferBackupInfo();
