@@ -97,7 +97,7 @@ void MyImage::pushDown(QString backupDir)
     // make backup file (if the FITS file exists)
     mkAbsDir(pathBackupL1);
     moveFile(baseNameBackupL1+".fits", path, pathBackupL1, true);
-    backupL1OnDrive = true;
+//    backupL1OnDrive = true;
 
     emit modelUpdateNeeded(chipName);
 }
@@ -110,6 +110,7 @@ void MyImage::pushDownToL1(QString backupDir)
     // MEMORY
     dataBackupL1 = dataCurrent;
     backupL1InMemory = imageInMemory;
+    backupL1OnDrive = imageOnDrive;
     statusBackupL1 = processingStatus->statusString;
     dataBackupL1_deletable = dataCurrent_deletable;
     pathBackupL1 = path+"/"+backupDir;
@@ -126,6 +127,7 @@ void MyImage::pushDownToL2()
     if (!minimizeMemoryUsage) {
         dataBackupL2 = dataBackupL1;
         backupL2InMemory = backupL1InMemory;
+        backupL2OnDrive = backupL1OnDrive;
         statusBackupL2 = statusBackupL1;
         pathBackupL2 = pathBackupL1;
         baseNameBackupL2 = baseNameBackupL1;
@@ -143,6 +145,7 @@ void MyImage::pushDownToL3()
     if (!minimizeMemoryUsage) {
         dataBackupL3 = dataBackupL2;
         backupL3InMemory = backupL2InMemory;
+        backupL3OnDrive = backupL2OnDrive;
         statusBackupL3 = statusBackupL2;
         pathBackupL3 = pathBackupL2;
         baseNameBackupL3 = baseNameBackupL2;
@@ -178,7 +181,7 @@ bool MyImage::makeL1Current()
 
     bool success = true;
     // DRIVE
-    // The following construct gives a compiler warbing with gcc7
+    // The following construct gives a compiler warning with gcc7
     // success *= deleteFile(baseName+".fits", path);
     success = success && deleteFile(baseName+".fits", path);
     // restore backup FITS file

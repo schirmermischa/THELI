@@ -2176,7 +2176,7 @@ void Data::restoreBackupLevel(QString backupDirName)
         return;
     }
 
-    // CASE 2: Data in memory (and on disk)
+    // CASE 2: Data in memory (and on drive)
     // Comparing output from QDir::absolutePath() because it removes double // and trailing /
     QDir d1(pathBackupL1);
     QDir d2(pathBackupL2);
@@ -2200,7 +2200,7 @@ void Data::restoreBackupLevel(QString backupDirName)
     else {
         // If newStatusRAM has changed then the operation was successful, and we can remove the directory
         if (!newStatusRAM.isEmpty()) {
-            backupDir.removeRecursively();
+            if (backupDir != QDir::home()) backupDir.removeRecursively();
             emit statusChanged(newStatusRAM);
             emit updateModelHeaderLine();
             return;
@@ -2209,7 +2209,7 @@ void Data::restoreBackupLevel(QString backupDirName)
 
     //    qDebug() << "BLEVEL CASE3";
 
-    // CASE 3: We are still here. That means the user selected a backup dir on disk that is not mapped in one of the backup levels
+    // CASE 3: We are still here. That means the user selected a backup dir on drive that is not mapped in one of the backup levels
     restoreFromDirectory(backupDirName);
 }
 

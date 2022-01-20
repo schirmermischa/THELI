@@ -63,6 +63,7 @@ void MyImage::writeImageTIFF(QString fileName, QString filter, float exptime, bo
 void MyImage::writeImageBackupL1()
 {
     if (!successProcessing) return;
+    if (dataBackupL1.isEmpty() || !backupL1InMemory) return;
 
     QString fileName = pathBackupL1+"/"+chipName+statusBackupL1+".fits";
 
@@ -78,6 +79,7 @@ void MyImage::writeImageBackupL1()
 void MyImage::writeImageBackupL2()
 {
     if (!successProcessing) return;
+    if (dataBackupL2.isEmpty() || !backupL2InMemory) return;
 
     QString fileName = pathBackupL2+"/"+chipName+statusBackupL2+".fits";
 
@@ -93,6 +95,7 @@ void MyImage::writeImageBackupL2()
 void MyImage::writeImageBackupL3()
 {
     if (!successProcessing) return;
+    if (dataBackupL3.isEmpty() || !backupL3InMemory) return;
 
     QString fileName = pathBackupL3+"/"+chipName+statusBackupL3+".fits";
 
