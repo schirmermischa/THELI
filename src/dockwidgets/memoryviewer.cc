@@ -53,7 +53,7 @@ MemoryViewer::MemoryViewer(Controller *ctrl, MainWindow *parent) :
     connect(ui->procstatusCollapseCheckbox, &QCheckBox::clicked, this, &MemoryViewer::updateProcessingStatusOnDriveAndInData);
     connect(ui->procstatusStarflatCheckbox, &QCheckBox::clicked, this, &MemoryViewer::updateProcessingStatusOnDriveAndInData);
     connect(ui->procstatusSkysubCheckbox, &QCheckBox::clicked, this, &MemoryViewer::updateProcessingStatusOnDriveAndInData);
-    connect(this, &MemoryViewer::reraiseMemoryViewer, mainGUI, &MainWindow::reraiseMemoryViewerReceiver);
+    connect(this, &MemoryViewer::refreshMemoryViewer, mainGUI, &MainWindow::refreshMemoryViewerReceiver);
 
     QFile file(":/qss/default.qss");
     file.open(QFile::ReadOnly);
@@ -480,7 +480,7 @@ void MemoryViewer::on_restorePushButton_clicked()
 
     // header line only changes if we manually resize the viewer, or:
     // quickly load the monitor, then the memory viewer again:
-    emit reraiseMemoryViewer();
+    emit refreshMemoryViewer();
 }
 
 void MemoryViewer::hideStatusCheckBoxes()

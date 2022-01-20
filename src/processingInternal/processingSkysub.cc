@@ -95,6 +95,7 @@ void Controller::taskInternalSkysub()
         scienceData->emitStatusChanged();
         emit addBackupDirToMemoryviewer(scienceDir);
         emit progressUpdate(100);
+        emit refreshMemoryViewer();      // Update TableView header
         //        pushEndMessage(taskBasename, scienceDir);
     }
 }

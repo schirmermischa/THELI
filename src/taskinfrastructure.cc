@@ -1084,7 +1084,7 @@ void MainWindow::printCfitsioError(QString funcName, int status)
     }
 }
 
-void MainWindow::reraiseMemoryViewerReceiver()
+void MainWindow::refreshMemoryViewerReceiver()
 {
     monitor->raise();
     memoryViewer->raise();

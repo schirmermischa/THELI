@@ -99,7 +99,7 @@ private slots:
 signals:
     void beginResetModel();
     void endResetModel();
-    void reraiseMemoryViewer();
+    void refreshMemoryViewer();
 
 };
 

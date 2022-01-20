@@ -158,6 +158,7 @@ void Controller::taskInternalBackground()
         scienceData->emitStatusChanged();
         emit addBackupDirToMemoryviewer(scienceDir);
         emit progressUpdate(100);
+        emit refreshMemoryViewer();      // Update TableView header
     }
 }
 

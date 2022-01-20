@@ -498,6 +498,7 @@ signals:
     void loadAbsZP(QString coaddImagePath, float maxVal);
     void updateMemoryProgressBar(long splitterMemory);
     void forceFinish();
+    void refreshMemoryViewer();
 
 public slots:
     void activationWarningReceived(QString imagestatus, QString drivestatus);
