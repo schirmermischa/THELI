@@ -52,10 +52,10 @@ void Controller::taskInternalProcessbias()
 
     // TODO: The following line is needed only as long as we are handling splitting of raw data by scripts.
     // The biasData imagelist is empty after splitting because the Data constructor only looks for *_chip.fits, not for raw files.
-    if (biasData->myImageList[instData->validChip].isEmpty()) {
-        biasData->populate("");
-        emit populateMemoryView();
-    }
+//    if (biasData->myImageList[instData->validChip].isEmpty()) {
+//        biasData->populate("");
+//        emit populateMemoryView();
+//    }
 
     getNumberOfActiveImages(biasData);
 
@@ -151,11 +151,11 @@ void Controller::taskInternalProcessdark()
 
     getNumberOfActiveImages(darkData);
 
-    // TODO: The following line is needed only as long as we are handling splitting of raw data by scripts.
-    if (darkData->myImageList[instData->validChip].isEmpty()) {
-        darkData->populate("");
-        emit populateMemoryView();
-    }
+//    // TODO: The following line is needed only as long as we are handling splitting of raw data by scripts.
+//    if (darkData->myImageList[instData->validChip].isEmpty()) {
+//        darkData->populate("");
+//        emit populateMemoryView();
+//    }
 
     // Release as much memory as maximally necessary
     float nimg = darkData->myImageList[instData->validChip].length() + 1;  // The number of images one thread keeps in memory
@@ -238,10 +238,10 @@ void Controller::taskInternalProcessflatoff()
     pushConfigProcessflatoff();
 
     // TODO: The following line is needed only as long as we are handling splitting of raw data by scripts.
-    if (flatoffData->myImageList[instData->validChip].isEmpty()) {
-        flatoffData->populate("");
-        emit populateMemoryView();
-    }
+//    if (flatoffData->myImageList[instData->validChip].isEmpty()) {
+//        flatoffData->populate("");
+//        emit populateMemoryView();
+//    }
 
     getNumberOfActiveImages(flatoffData);
 
@@ -370,10 +370,10 @@ void Controller::taskInternalProcessflat()
     memoryDecideDeletableStatus(flatData, false);
 
     // TODO: The following line is needed only as long as we are handling splitting of raw data by scripts.
-    if (flatData->myImageList[instData->validChip].isEmpty()) {
-        flatData->populate("");
-        emit populateMemoryView();
-    }
+//    if (flatData->myImageList[instData->validChip].isEmpty()) {
+//        flatData->populate("");
+//        emit populateMemoryView();
+//    }
 
     getNumberOfActiveImages(flatData);
 
@@ -541,10 +541,10 @@ void Controller::taskInternalProcessscience()
 
     memoryDecideDeletableStatus(scienceData, false);
     // TODO: The following line is needed only as long as we are handling splitting of raw data by scripts.
-    if (scienceData->myImageList[instData->validChip].isEmpty()) {
-        scienceData->populate("");
-        emit populateMemoryView();
-    }
+//    if (scienceData->myImageList[instData->validChip].isEmpty()) {
+//        scienceData->populate("");
+//        emit populateMemoryView();
+//    }
 
     // Loop over all chips
     backupDirName = scienceData->processingStatus->getStatusString() + "_IMAGES";

@@ -1083,3 +1083,9 @@ void MainWindow::printCfitsioError(QString funcName, int status)
         emit messageAvailable(funcName+":<br>" + errorCodes->errorKeyMap.value(status), "error");
     }
 }
+
+void MainWindow::reraiseMemoryViewerReceiver()
+{
+    monitor->raise();
+    memoryViewer->raise();
+}

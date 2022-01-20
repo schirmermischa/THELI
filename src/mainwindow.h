@@ -106,6 +106,7 @@ public:
     bool doingInitialLaunch = false;
     bool readingSettings = false;
     bool checkPathsLineEdit(QLineEdit *lineEdit);
+    void reraiseMemoryViewerReceiver();
 
 signals:
     QFont sendingDefaultFont(QFont);         //  implemented in designer

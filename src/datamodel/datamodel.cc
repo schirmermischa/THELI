@@ -407,7 +407,11 @@ bool DataModel::setData(const QModelIndex & index, const QVariant & value, int r
     // Force write to drive
     if (role == Qt::CheckStateRole && index.column() == 2) {
         if ((Qt::CheckState)value.toInt() == Qt::Checked) {
-            imageList[index.row()]->imageOnDrive = true;
+            MyImage *it = imageList[index.row()];
+            if (!it->imageOnDrive) {
+                it->writeImage();
+                it->imageOnDrive = true;
+            }
         }
         emit dataChanged(index,index);
         return true;

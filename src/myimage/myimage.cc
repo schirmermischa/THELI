@@ -1584,8 +1584,6 @@ void MyImage::setActiveState(active_type state)
         }
     }
 
-
-
     // Move the image accordingly
     QString currentPath = path + pathExtension;      // The path where the image is currently located (if on disk)
     updateInactivePath();                            // Update pathextension according to the set state

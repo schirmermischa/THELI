@@ -359,11 +359,11 @@ void DetectedObject::calcVariance()
 {
     if (badDetection) return;
 
-    double xsum = 0.;
-    double ysum = 0.;
-    double psum = 0.;
-    double n_nonzero = 0;
     if (area>1) {
+        double xsum = 0.;
+        double ysum = 0.;
+        double psum = 0.;
+        double n_nonzero = 0;
         for (long i=0; i<area; ++i) {
             double pi = pixels_flux.at(i);
             double px = pixels_x.at(i);

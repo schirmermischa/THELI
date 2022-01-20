@@ -1814,6 +1814,18 @@ void Data::countUnsavedImages(long &numUnsavedLatest, long &numUnsavedBackup)
     }
 }
 
+bool Data::isEmpty()
+{
+    if (myImageList.isEmpty()) return true;
+
+    bool empty = true;
+    for (int chip=0; chip<instData->numChips; ++chip) {
+        empty = myImageList.at(chip).isEmpty() & empty;
+    }
+    if (empty) return true;
+    else return false;
+}
+
 void Data::clearImageInfo()
 {
     imageInfo.baseName.clear();

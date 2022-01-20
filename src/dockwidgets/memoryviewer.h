@@ -73,6 +73,7 @@ private:
     void statusDataToCheckBox(Data *data);
     void statusCheckBoxToData();
     Data *getDataClassThisModel();
+    void hideStatusCheckBoxes();
 
 public slots:
     void populate();
@@ -98,6 +99,7 @@ private slots:
 signals:
     void beginResetModel();
     void endResetModel();
+    void reraiseMemoryViewer();
 
 };
 

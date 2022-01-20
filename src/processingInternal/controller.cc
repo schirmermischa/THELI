@@ -948,7 +948,8 @@ Data* Controller::getData(QList<Data *> DT_x, QString dirName)
         if (QDir::cleanPath(it->dirName) == QDir::cleanPath(mainDirName + "/" + dirName)) {
             // check if it contains mastercalib data
             it->checkPresenceOfMasterCalibs();
-            return it;
+            if (it->isEmpty()) return nullptr;
+            else return it;
         }
     }
 

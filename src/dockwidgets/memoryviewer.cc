@@ -53,6 +53,7 @@ MemoryViewer::MemoryViewer(Controller *ctrl, MainWindow *parent) :
     connect(ui->procstatusCollapseCheckbox, &QCheckBox::clicked, this, &MemoryViewer::updateProcessingStatusOnDriveAndInData);
     connect(ui->procstatusStarflatCheckbox, &QCheckBox::clicked, this, &MemoryViewer::updateProcessingStatusOnDriveAndInData);
     connect(ui->procstatusSkysubCheckbox, &QCheckBox::clicked, this, &MemoryViewer::updateProcessingStatusOnDriveAndInData);
+    connect(this, &MemoryViewer::reraiseMemoryViewer, mainGUI, &MainWindow::reraiseMemoryViewerReceiver);
 
     QFile file(":/qss/default.qss");
     file.open(QFile::ReadOnly);
@@ -406,6 +407,8 @@ void MemoryViewer::on_memoryTableView_clicked(const QModelIndex &index)
 
     // don't show the image if the "active/deactivate" column is clicked
     if (index.column() == 1) return;
+    // don't show the image if the "dump to drive" column is clicked
+    if (index.column() == 2) return;
 
     DataModel *model = dataModelList[cbindex];
     if (model->imageList.isEmpty()) return;   // Not sure this is ever happening
@@ -475,15 +478,29 @@ void MemoryViewer::on_restorePushButton_clicked()
 
     repopulateRestoreComboBox();
 
-    // header line only changes if we manually resize the viewer
+    // header line only changes if we manually resize the viewer, or:
+    // quickly load the monitor, then the memory viewer again:
+    emit reraiseMemoryViewer();
+}
 
-    // TODO: Does not work. perhaps using signal/slot mechanism?
-    //    DataModel *model = dataModelList[ui->datadirComboBox->currentIndex()];
-    //    model->updateheaderLineExternal();
+void MemoryViewer::hideStatusCheckBoxes()
+{
+    ui->procstatusHDUreformatCheckbox->setVisible(false);
+    ui->procstatusProcessscienceCheckbox->setVisible(false);
+    ui->procstatusChopnodCheckbox->setVisible(false);
+    ui->procstatusBackgroundCheckbox->setVisible(false);
+    ui->procstatusCollapseCheckbox->setVisible(false);
+    ui->procstatusStarflatCheckbox->setVisible(false);
+    ui->procstatusSkysubCheckbox->setVisible(false);
 }
 
 void MemoryViewer::showhideStatusCheckBoxes(QString type)
 {
+    hideStatusCheckBoxes();
+    return;
+
+    // Never needed this
+    /*
     Data *data = getDataClassThisModel();
     if (data == nullptr) return;
 
@@ -521,6 +538,7 @@ void MemoryViewer::showhideStatusCheckBoxes(QString type)
         ui->procstatusStarflatCheckbox->setVisible(false);
         ui->procstatusSkysubCheckbox->setVisible(false);
     }
+    */
 }
 
 void MemoryViewer::updateStatusCheckBoxes(Data *data)
