@@ -2315,6 +2315,7 @@ bool Data::restoreFromBackupLevel(QString level, QString &newStatusRAM)
 {
     long i = 0;
     bool success = true;
+
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (instData->badChips.contains(chip)) continue;
         for (auto &it: myImageList[chip]) {
@@ -2335,6 +2336,25 @@ bool Data::restoreFromBackupLevel(QString level, QString &newStatusRAM)
             ++i;
         }
     }
+
+    // Obsolete images have been removed. Now also remove the corresponding backup directories.
+    if (level == "L1") {
+        QDir backupL3(pathBackupL3);
+        backupL3.removeRecursively();
+    }
+    if (level == "L2") {
+        QDir backupL1(pathBackupL1);
+        QDir backupL3(pathBackupL3);
+        backupL1.removeRecursively();
+        backupL3.removeRecursively();
+    }
+    if (level == "L3") {
+        QDir backupL1(pathBackupL1);
+        QDir backupL2(pathBackupL2);
+        backupL1.removeRecursively();
+        backupL2.removeRecursively();
+    }
+
     transferBackupInfo();
     processingStatus->statusToBoolean(newStatusRAM);
     processingStatus->getStatusString();

@@ -620,6 +620,7 @@ void MemoryViewer::repopulateRestoreComboBox()
     filters << "RAWDATA" << "*_IMAGES";
     QStringList backupdirList = dir.entryList(filters, QDir::Dirs);
     ui->restoreComboBox->clear();
+    // Add the directory only if it is not empty!
     ui->restoreComboBox->addItems(backupdirList);
     ui->restoreComboBox->update();
 }

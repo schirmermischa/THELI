@@ -230,7 +230,7 @@ bool MyImage::makeL2Current()
     // L3 to L2
     pullUpFromL3();
 
-    // wipe L1
+    // wipe L1 and L3
     wipeL1();
     wipeL3();
 
