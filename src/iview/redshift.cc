@@ -29,7 +29,6 @@ If not, see https://www.gnu.org/licenses/ .
 
 #include <QTransform>
 
-
 void IView::updateAxesHelper()
 {
     observedAxis.init(currentMyImage->wcs->crval[0], currentMyImage->wcs->cd[0], currentMyImage->naxis1, currentMyImage->naxis2, 75, "down", QColor("#00aaff"));

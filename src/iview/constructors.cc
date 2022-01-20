@@ -88,6 +88,9 @@ IView::IView(QString mode, QWidget *parent) :
     ui->setupUi(this);
     initGUI();
 
+    // Hide redshift action
+    ui->actionRedshift->setVisible(false);
+
     //    qDebug() << "mode memview single image:" << mode;
 
     icdw->zoom2scale(zoomLevel);
@@ -118,6 +121,9 @@ IView::IView(QString mode, QList<MyImage*> &list, QString dirname, QWidget *pare
 {
     ui->setupUi(this);
     initGUI();
+
+    // Hide redshift action
+    ui->actionRedshift->setVisible(false);
 
     //    qDebug() << "mode memview list of images:" << mode;
 
@@ -275,6 +281,9 @@ IView::IView(QString mode, QString dirname, QString filter, QWidget *parent) :
     initGUI();
     filterLineEdit->setText(filterName);
 
+    // Hide redshift action
+    ui->actionRedshift->setVisible(false);
+
     icdw->zoom2scale(zoomLevel);
 
     // get a list of all FITS files in this directory
@@ -303,6 +312,9 @@ IView::IView(QString mode, QString dirname, QString fileName, QString filter, QW
 {
     ui->setupUi(this);
     initGUI();
+
+    // Hide redshift action
+    ui->actionRedshift->setVisible(false);
 
     // qDebug() << "mode imstatistics 2:" << mode << filterName;
 
@@ -335,6 +347,9 @@ IView::IView(QString mode, QString dirname, QString rChannel, QString gChannel, 
 {
     ui->setupUi(this);
     initGUI();
+
+    // Hide redshift action
+    ui->actionRedshift->setVisible(false);
 
     // The list of the three FITS images
     imageList << ChannelR << ChannelG << ChannelB;
