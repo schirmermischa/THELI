@@ -89,6 +89,7 @@ private:
 
 signals:
     void activationWarning(QString imagestatus, QString drivestatus);
+    void refreshMemoryViewer();
     //    void writeImageToDisk(MyImage *myImage) const;
 };
 

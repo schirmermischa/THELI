@@ -402,6 +402,7 @@ bool DataModel::setData(const QModelIndex & index, const QVariant & value, int r
             imageList[index.row()]->setActiveState(MyImage::INACTIVE); // Setting this value automatically moves the image on drive accordingly!
         }
         emit dataChanged(index,index);
+        emit refreshMemoryViewer();
         return true;
     }
     // Force write to drive

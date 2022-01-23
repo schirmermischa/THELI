@@ -171,6 +171,7 @@ void MemoryViewer::addData(const QList<Data*> &DT_x, const QString &type)
         dataModelList.append(dataModel);
         connect(this, &MemoryViewer::beginResetModel, dataModel, &DataModel::beginResetModelReceived, Qt::DirectConnection);
         connect(this, &MemoryViewer::endResetModel, dataModel, &DataModel::endResetModelReceived, Qt::DirectConnection);
+        connect(dataModel, &DataModel::refreshMemoryViewer, mainGUI, &MainWindow::refreshMemoryViewerReceiver);
         connect(dataModel, &DataModel::activationWarning, controller, &Controller::activationWarningReceived);
     }
     if (list.isEmpty()) return;
