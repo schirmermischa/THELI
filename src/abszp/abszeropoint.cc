@@ -103,7 +103,7 @@ void AbsZeroPoint::initGUI()
     // Deactivate UKIDSS for the time being
     // very inhomogeneous sky coverage in various epochs
     const QStandardItemModel* model = dynamic_cast< QStandardItemModel * >( ui->zpRefcatComboBox->model() );
-    model->item(6,0)->setEnabled(false);
+    model->item(7,0)->setEnabled(false);
 
     // Provide a roughly log range of apertures
     ui->zpApertureLineEdit->setText("10,15,20,25,30,40,50,75,100");
