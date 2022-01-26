@@ -3307,6 +3307,11 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>minLineEdit</tabstop>
+  <tabstop>maxLineEdit</tabstop>
+  <tabstop>quitPushButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

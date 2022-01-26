@@ -266,6 +266,24 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>HCheckBox</tabstop>
+  <tabstop>HeCheckBox</tabstop>
+  <tabstop>NeCheckBox</tabstop>
+  <tabstop>OCheckBox</tabstop>
+  <tabstop>SCheckBox</tabstop>
+  <tabstop>NCheckBox</tabstop>
+  <tabstop>CaCheckBox</tabstop>
+  <tabstop>MgCheckBox</tabstop>
+  <tabstop>CCheckBox</tabstop>
+  <tabstop>NaCheckBox</tabstop>
+  <tabstop>ArCheckBox</tabstop>
+  <tabstop>FeCheckBox</tabstop>
+  <tabstop>zLineEdit</tabstop>
+  <tabstop>finesseSpinBox</tabstop>
+  <tabstop>lambdaObsLineEdit</tabstop>
+  <tabstop>lambdaRestLineEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

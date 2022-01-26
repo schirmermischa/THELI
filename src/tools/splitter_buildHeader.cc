@@ -343,6 +343,7 @@ void Splitter::WCSbuildCDmatrix(int chip)
     headerTHELI.append(headerWCS);
 }
 
+/*
 bool Splitter::CDfromCDELTandPC(const QString cdeltstr, const QString pcstr, double &cd)
 {
     double cdelt = -1.0;
@@ -365,6 +366,7 @@ bool Splitter::CDfromCDELTandPC(const QString cdeltstr, const QString pcstr, dou
         return false;
     }
 }
+*/
 
 QVector<double> Splitter::CDfromCDELT()
 {

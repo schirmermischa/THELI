@@ -35,6 +35,9 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="4" column="1" colspan="3">
      <widget class="QSlider" name="blueSlider">
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -142,6 +145,9 @@
     </item>
     <item row="3" column="3">
      <widget class="QPushButton" name="blueResetPushButton">
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="statusTip">
        <string>Resets the blue factor to the determined value</string>
       </property>
@@ -178,6 +184,9 @@
     </item>
     <item row="1" column="3">
      <widget class="QPushButton" name="redResetPushButton">
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="statusTip">
        <string>Resets the red factor to the determined value</string>
       </property>
@@ -301,6 +310,9 @@
     </item>
     <item row="2" column="1" colspan="3">
      <widget class="QSlider" name="redSlider">
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -322,6 +334,15 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>redFactorLineEdit</tabstop>
+  <tabstop>blueFactorLineEdit</tabstop>
+  <tabstop>G2referencesPushButton</tabstop>
+  <tabstop>redResetPushButton</tabstop>
+  <tabstop>blueResetPushButton</tabstop>
+  <tabstop>redSlider</tabstop>
+  <tabstop>blueSlider</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

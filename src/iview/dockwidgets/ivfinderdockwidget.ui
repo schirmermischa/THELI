@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>168</width>
-    <height>208</height>
+    <height>217</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -31,17 +31,24 @@
       </property>
      </widget>
     </item>
-    <item row="3" column="1" colspan="3">
+    <item row="4" column="1" colspan="3">
      <widget class="QLineEdit" name="targetDeltaLineEdit">
       <property name="statusTip">
        <string>Target declination  (decimal or sexagesimal)</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="1" colspan="3">
+    <item row="3" column="1" colspan="3">
      <widget class="QLineEdit" name="targetAlphaLineEdit">
       <property name="statusTip">
        <string>Target right ascension (decimal or sexagesimal)</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Dec</string>
       </property>
      </widget>
     </item>
@@ -89,13 +96,6 @@
       </property>
       <property name="autoRaise">
        <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="0">
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>Dec</string>
       </property>
      </widget>
     </item>
@@ -153,10 +153,13 @@
       </property>
      </widget>
     </item>
-    <item row="4" column="0" colspan="4">
+    <item row="5" column="0" colspan="4">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QPushButton" name="locatePushButton">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="statusTip">
          <string>Shows manually entered coordinates. The target resolver buttons do this automatically.</string>
         </property>
@@ -167,6 +170,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="clearPushButton">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="statusTip">
          <string>Clears all input fields and removes the target marker</string>
         </property>
@@ -177,14 +183,14 @@
       </item>
      </layout>
     </item>
-    <item row="2" column="0">
+    <item row="3" column="0">
      <widget class="QLabel" name="label">
       <property name="text">
        <string>R.A.</string>
       </property>
      </widget>
     </item>
-    <item row="5" column="2">
+    <item row="6" column="2">
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -197,9 +203,24 @@
       </property>
      </spacer>
     </item>
+    <item row="2" column="0" colspan="4">
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>targetNameSiderealLineEdit</tabstop>
+  <tabstop>targetNameNonsiderealLineEdit</tabstop>
+  <tabstop>targetAlphaLineEdit</tabstop>
+  <tabstop>targetDeltaLineEdit</tabstop>
+  <tabstop>locatePushButton</tabstop>
+  <tabstop>clearPushButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

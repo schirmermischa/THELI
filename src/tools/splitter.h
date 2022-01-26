@@ -315,8 +315,9 @@ private:
     void overrideDetectorSections(int chip);
     bool individualFixFILTER(int chip);
     bool individualFixEQUINOX();
-    bool CDfromCDELTandPC(const QString cdeltstr, const QString pcstr, double &cd);
+//    bool CDfromCDELTandPC(const QString cdeltstr, const QString pcstr, double &cd);
     QVector<double> CDfromCDELT();
+
 signals:
     void messageAvailable(QString message, QString type);
     void warning();

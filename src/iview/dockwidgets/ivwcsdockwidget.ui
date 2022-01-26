@@ -47,6 +47,9 @@
       </item>
       <item row="1" column="0" colspan="3">
        <widget class="QSlider" name="cd11Slider">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="minimum">
          <number>-100</number>
         </property>
@@ -70,6 +73,9 @@
       </item>
       <item row="3" column="0" colspan="3">
        <widget class="QSlider" name="cd12Slider">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="minimum">
          <number>-100</number>
         </property>
@@ -93,6 +99,9 @@
       </item>
       <item row="5" column="0" colspan="3">
        <widget class="QSlider" name="cd21Slider">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="minimum">
          <number>-100</number>
         </property>
@@ -116,6 +125,9 @@
       </item>
       <item row="7" column="0" colspan="3">
        <widget class="QSlider" name="cd22Slider">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="minimum">
          <number>-100</number>
         </property>
@@ -143,6 +155,9 @@
       </item>
       <item row="9" column="0" colspan="3">
        <widget class="QSlider" name="plateScaleSlider">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="minimum">
          <number>-100</number>
         </property>
@@ -170,6 +185,9 @@
       </item>
       <item row="11" column="0" colspan="3">
        <widget class="QSlider" name="posAngleSlider">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="minimum">
          <number>-100</number>
         </property>
@@ -209,6 +227,21 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>cd11LineEdit</tabstop>
+  <tabstop>cd12LineEdit</tabstop>
+  <tabstop>cd21LineEdit</tabstop>
+  <tabstop>cd22LineEdit</tabstop>
+  <tabstop>plateScaleLineEdit</tabstop>
+  <tabstop>posAngleLineEdit</tabstop>
+  <tabstop>cd12Slider</tabstop>
+  <tabstop>cd22Slider</tabstop>
+  <tabstop>cd11Slider</tabstop>
+  <tabstop>plateScaleSlider</tabstop>
+  <tabstop>cd21Slider</tabstop>
+  <tabstop>posAngleSlider</tabstop>
+  <tabstop>resetPushButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
