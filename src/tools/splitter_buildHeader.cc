@@ -248,6 +248,7 @@ void Splitter::WCSbuildCTYPE()
 }
 
 // Instrument dependent
+/*
 void Splitter::WCSbuildCDmatrix(int chip)
 {
     if (!successProcessing) return;
@@ -271,7 +272,6 @@ void Splitter::WCSbuildCDmatrix(int chip)
 
     for (auto &wcsKey : wcsKeys) {
         bool keyFound = searchKey(wcsKey, headerDictionary.value(wcsKey), headerWCS);
-
         // fallback
         double cd = 0.0;
         if (!keyFound && wcsKey == "CD1_1") {
@@ -285,16 +285,54 @@ void Splitter::WCSbuildCDmatrix(int chip)
             else fallback = "CD2_2   = "+QString::number(flipcd22*instData.pixscale/3600., 'g', 6);
         }
         if (!keyFound && wcsKey == "CD1_2") {
-            bool success = CDfromCDELTandPC("CDELT1", "PC1_2", cd);
+            bool success = CDfromCDELTandPC("CDELT2", "PC1_2", cd);
             if (success) fallback = "CD1_2   = "+QString::number(cd, 'g', 6);
             else fallback = "CD1_2   = 0.0";
         }
         if (!keyFound && wcsKey == "CD2_1") {
-            bool success = CDfromCDELTandPC("CDELT2", "PC2_1", cd);
+            bool success = CDfromCDELTandPC("CDELT1", "PC2_1", cd);
             if (success) fallback = "CD2_1   = "+QString::number(cd, 'g', 6);
             else fallback = "CD2_1   = 0.0";
         }
 
+        if (!keyFound) {
+            if (*verbosity > 1) emit messageAvailable(fileName + " : Could not determine keyword: "+wcsKey+", using default: "+fallback, "ignore");
+            fallback.resize(80, ' ');
+            headerWCS.append(fallback);
+        }
+    }
+
+    headerTHELI.append(headerWCS);
+}
+*/
+
+// Instrument dependent
+void Splitter::WCSbuildCDmatrix(int chip)
+{
+    if (!successProcessing) return;
+
+    // Exceptions. Return if successful.
+    if (individualFixCDmatrix(chip)) return;
+
+    QStringList headerWCS;
+    QString fallback = "";
+
+    QStringList wcsKeys = {"CD1_1", "CD1_2", "CD2_1", "CD2_2"};
+
+
+    // Create fallback CD matrix from CDELT keywords, if later determination of CDij fails
+    QVector<double> cd_fallback;
+    cd_fallback = CDfromCDELT();
+
+    // Try reading CDij matrix directly, sue fallback if failing
+    for (auto &wcsKey : wcsKeys) {
+        bool keyFound = searchKey(wcsKey, headerDictionary.value(wcsKey), headerWCS);
+
+        // fallback
+        if (!keyFound && wcsKey == "CD1_1") fallback = "CD1_1   = "+QString::number(cd_fallback[0], 'g', 6);
+        if (!keyFound && wcsKey == "CD1_2") fallback = "CD1_2   = "+QString::number(cd_fallback[1], 'g', 6);
+        if (!keyFound && wcsKey == "CD2_1") fallback = "CD2_1   = "+QString::number(cd_fallback[2], 'g', 6);
+        if (!keyFound && wcsKey == "CD2_2") fallback = "CD2_2   = "+QString::number(cd_fallback[3], 'g', 6);
         if (!keyFound) {
             if (*verbosity > 1) emit messageAvailable(fileName + " : Could not determine keyword: "+wcsKey+", using default: "+fallback, "ignore");
             fallback.resize(80, ' ');
@@ -319,12 +357,117 @@ bool Splitter::CDfromCDELTandPC(const QString cdeltstr, const QString pcstr, dou
     else if (cdtest && !pctest) {
         cd = cdelt;
         if (fabs(cd) > 0.5) cd *= instData.pixscale/3600.;
+        qDebug() << cdeltstr << cd;
         return true;
     }
     else {
         cd = 0.;
         return false;
     }
+}
+
+QVector<double> Splitter::CDfromCDELT()
+{
+    double cdelt1 = 0.;
+    double cdelt2 = 0.;
+    double pc11 = 1.; // matching crota2 = 0.
+    double pc12 = 0.; // matching crota2 = 0.
+    double pc21 = 0.; // matching crota2 = 0.
+    double pc22 = 1.; // matching crota2 = 0.
+    double crota2 = 0.;
+
+    bool cdelt1test = searchKeyValue(headerDictionary.value("CDELT1"), cdelt1);
+    bool cdelt2test = searchKeyValue(headerDictionary.value("CDELT2"), cdelt2);
+    bool crota2test = searchKeyValue(headerDictionary.value("CROTA2"), crota2);
+    bool pc11test = searchKeyValue(headerDictionary.value("PC1_1"), pc11);
+    bool pc12test = searchKeyValue(headerDictionary.value("PC1_2"), pc12);
+    bool pc21test = searchKeyValue(headerDictionary.value("PC2_1"), pc21);
+    bool pc22test = searchKeyValue(headerDictionary.value("PC2_2"), pc22);
+    bool pctest = true;
+    pctest = pc11test & pc12test & pc21test & pc22test;
+    if (!pctest) {
+        // check for really old convention
+        pc11test = searchKeyValue(headerDictionary.value("PC001001"), pc11);
+        pc12test = searchKeyValue(headerDictionary.value("PC001002"), pc12);
+        pc21test = searchKeyValue(headerDictionary.value("PC002001"), pc21);
+        pc22test = searchKeyValue(headerDictionary.value("PC002002"), pc22);
+        pctest = pc11test & pc12test & pc21test & pc22test;
+    }
+
+    // Only if no CD matrix information is present in the raw FITS headers:
+    float flipcd11 = 1.0;
+    float flipcd22 = 1.0;
+    if (instData.flip == "FLIPX") flipcd11 = -1.0;
+    else if (instData.flip == "FLIPY") flipcd22 = -1.0;
+    else if (instData.flip == "ROT180") {
+        flipcd11 = -1.0;
+        flipcd22 = -1.0;
+    }
+
+    double cd11 = 0.;
+    double cd12 = 0.;
+    double cd21 = 0.;
+    double cd22 = 0.;
+
+    // Now build the CD matrix
+    QVector<double> cd;
+
+    // No information whatsoever: return standard "North up East left"
+    if (!cdelt1test || !cdelt2test) {
+        cd11 = -flipcd11*instData.pixscale/3600.;
+        cd22 = flipcd22*instData.pixscale/3600.;
+        cd << cd11 << cd12 << cd21 << cd22;
+        return cd;
+    }
+
+    // CDELT yes, but no information about sky position angle
+    if (!pctest && !crota2test) {
+        cd11 = cdelt1;
+        cd22 = cdelt2;
+        cd << cd11 << cd12 << cd21 << cd22;
+        return cd;
+    }
+
+    // CROTA2 but no PC matrix
+    else if (!pctest && crota2test) {
+        pc11 = cos(crota2*rad);
+        pc12 = -sin(crota2*rad);
+        pc21 = sin(crota2*rad);
+        pc22 = cos(crota2*rad);
+    }
+    // PC matrix and CROTA2
+    // According to the FITS standard, this combination is not allowed, but still some headers have it
+    else if (pctest && crota2test) {
+        pc11 = cos(crota2*rad);
+        pc12 = -sin(crota2*rad);
+        pc21 = sin(crota2*rad);
+        pc22 = cos(crota2*rad);
+        emit messageAvailable(name + " : PC matrix and CROTA2 found. Using CROTA2 to compute CD matrix.", "warning");
+    }
+    else {
+        // (pctest && !crota2test) {
+        // already handled above by determining the PCij elements directly from FITS header
+    }
+
+    // Compute the CD matrix
+    cd11 = cdelt1 * pc11;
+    cd12 = cdelt2 * pc12;
+    cd21 = cdelt1 * pc21;
+    cd22 = cdelt2 * pc22;
+
+    // safety check
+    if (fabs(cd11) > 0.5
+            || fabs(cd11) > 0.5
+            || fabs(cd21) > 0.5
+            || fabs(cd22) > 0.5) {
+        cd11 = -flipcd11*instData.pixscale/3600.;
+        cd22 = flipcd22*instData.pixscale/3600.;
+        cd12 = 0.;
+        cd21 = 0.;
+    }
+
+    cd << cd11 << cd12 << cd21 << cd22;
+    return cd;
 }
 
 void Splitter::WCSbuildRADESYS()
