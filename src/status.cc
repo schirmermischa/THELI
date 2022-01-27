@@ -103,7 +103,7 @@ int Status::lastExecutedTaskId()
     QString statusString = getStatusFromHistory(true);
     int lastId = 0;
     if (statusString.length() != numtasks) {
-        qDebug() << "QDEBUG: The length of the status string must match the number of tasks!";
+        qDebug() << __func__ << "The length of the status string must match the number of tasks!";
         return 0;
     }
     for (int i=0; i<numtasks; ++i) {

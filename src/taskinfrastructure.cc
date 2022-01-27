@@ -197,7 +197,7 @@ QStringList MainWindow::createCommandlistBlock(QString taskBasename, QStringList
                                               Q_ARG(bool &, skip),
                                               Q_ARG(const QString, mode));
         if (!test) {
-            qDebug() << "QDEBUG: createCommandListBlock: Could not evaluate QMetaObject.";
+            qDebug() << __func__ << "Could not evaluate QMetaObject.";
             stop = true;
             return QStringList();
         }
@@ -679,7 +679,7 @@ bool MainWindow::OSPBC_addCommandBlock(const QString taskBasename, const QString
                                           Q_ARG(bool &, stop),
                                           Q_ARG(const QString, mode));
     if (!test) {
-        qDebug() << "QDEBUG: on_startPushButton_clicked: Could not evaluate QMetaObject.";
+        qDebug() << __func__ << "Could not evaluate QMetaObject.";
         return false;
     }
     // Check if the task identified a condition (which it will print to ui->plainTextEdit)

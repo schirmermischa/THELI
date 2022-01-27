@@ -791,7 +791,7 @@ bool moveFiles(QString filter, QString sourceDirName, QString targetDirName)
     QDir dir1(sourceDirName);
     QDir dir2(targetDirName);
     if (!dir1.exists() || !dir2.exists()) {
-        qDebug() << "ERROR: moveFiles(): One or both of these directories does not exist:" << dir1 << dir2;
+        qDebug() << __func__ << "ERROR: One or both of these directories does not exist:" << dir1 << dir2;
         return false;
     }
     QStringList filterList(filter);
@@ -822,7 +822,7 @@ bool moveFile(QString filename, QString sourceDirPath, QString targetDirPath, bo
     QDir targetDir(targetDirPath);
     if (!targetDir.exists()) {
         if (!targetDir.mkpath(targetDirPath)) {
-            qDebug() << "ERROR: moveFile(): Could not create directory " << targetDirPath;
+            qDebug() << __func__ << "ERROR: Could not create directory " << targetDirPath;
             // mkpath() returns true if the directory already exists,
             // hence if we are here then something really went wrong
             return false;
@@ -840,7 +840,7 @@ bool moveFile(QString filename, QString sourceDirPath, QString targetDirPath, bo
 
     if (!file.rename(targetDirPath + "/" + filename)) {
         QString operation = "mv " + sourceDirPath+"/"+filename + " " + targetDirPath+"/"+filename;
-        qDebug() << "ERROR: moveFile(): Could not execute this operation:\n" << operation;
+        qDebug() << __func__ << "ERROR: Could not execute this operation:\n" << operation;
         return false;
     }
 
@@ -953,7 +953,7 @@ double dateobsToDecimal(QString dateobs)
     if (!dateobs.contains("T")
             || !dateobs.contains(":")
             || !dateobs.contains("-")) {
-        qDebug() << "ERROR: dateobsToDecimal(): DATE-OBS string " << dateobs << "does not have YYYY-MM-DDTHH:MM:SS.sss format!";
+        qDebug() << __func__ << "ERROR: DATE-OBS string " << dateobs << "does not have YYYY-MM-DDTHH:MM:SS.sss format!";
         return 0.;
     }
     QStringList list = dateobs.split("T");
@@ -963,7 +963,7 @@ double dateobsToDecimal(QString dateobs)
     QStringList timelist = time.split(":");
     if (datelist.length() != 3
             || timelist.length() != 3) {
-        qDebug() << "ERROR: dateobsToDecimal(): DATE-OBS string " << dateobs << "does not have YYYY-MM-DDTHH:MM:SS.sss format!";
+        qDebug() << __func__ << "ERROR: DATE-OBS string " << dateobs << "does not have YYYY-MM-DDTHH:MM:SS.sss format!";
         return 0.;
     }
     double year = datelist[0].toDouble();
@@ -1015,7 +1015,7 @@ QVector<float> modeMask(const QVector<float> &data, QString mode, const QVector<
     long n = data.length();
     if (n == 0) return sky << 0. << -1.;
     if (!mask.isEmpty() && n != mask.length()) {
-        qDebug() << "ERROR: modeMask: Mask is not empty but has different size than data vector." << n << mask.length();
+        qDebug() << __func__ << "ERROR: Mask is not empty but has different size than data vector." << n << mask.length();
         return sky << 0. << -1.;
     }
 
@@ -1210,7 +1210,7 @@ void modeMask_stable(const QVector<long> histogram, float &skyValue)
     }
     */
     if (cutOn == cutOff) {
-        qDebug() << "modeMask_stable():  Error determining 50% cut-on and cut-off values for image statistics. Using middle quantile.";
+        qDebug() << __func__ << "Error determining 50% cut-on and cut-off values for image statistics. Using middle quantile.";
         cutOn = 0.25*numBins;
         cutOff = 0.75*numBins;
     }
