@@ -217,7 +217,7 @@ public:
     void restoreRAWDATA();
     bool checkStatusConsistency();
     void emitStatusChanged();
-    bool hasMatchingPartnerFiles(QString testDirName, QString suffix);
+    bool hasMatchingPartnerFiles(QString testDirName, QString suffix, bool abort = true);
     bool checkTaskRepeatStatus(QString taskBasename);
     void resetStaticModel();
     void writeBackgroundModel(const int &chip, const QString &mode, const QString &basename, bool &staticImageWritten);

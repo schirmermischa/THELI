@@ -203,7 +203,8 @@ Data::Data(const instrumentDataType *instrumentData, Mask *detectorMask, QString
 
         // Add deactivated images
         QStringList deactiveDirList;
-        deactiveDirList << "/inactive/" << "/inactive/badStatistics/" << "/inactive/badBackground/" << "/inactive/lowDetections/";
+        deactiveDirList << "/inactive/" << "/inactive/badStatistics/" << "/inactive/badBackground/"
+                        << "/inactive/lowDetections/" << "/inactive/noAstrometry/";
         for (auto &pathExtension : deactiveDirList) {
             QDir deactiveDir(dirName+pathExtension);
             QStringList deactiveFilter;
@@ -235,6 +236,7 @@ Data::Data(const instrumentDataType *instrumentData, Mask *detectorMask, QString
                 if (pathExtension == "inactive/badStatistics/") myImage->activeState = MyImage::BADSTATS;
                 else if (pathExtension == "inactive/badBackground/") myImage->activeState = MyImage::BADBACK;
                 else if (pathExtension == "inactive/lowDetections/") myImage->activeState = MyImage::LOWDETECTION;
+                else if (pathExtension == "inactive/noAstrometry/") myImage->activeState = MyImage::NOASTROM;
                 else myImage->activeState = MyImage::INACTIVE;
                 myImageList[chip].append(myImage);
                 if (!uniqueChips.contains(chip+1)) uniqueChips.push_back(chip+1);
@@ -2477,7 +2479,7 @@ void Data::emitStatusChanged()
     emit updateModelHeaderLine();
 }
 
-bool Data::hasMatchingPartnerFiles(QString testDirName, QString suffix)
+bool Data::hasMatchingPartnerFiles(QString testDirName, QString suffix, bool abort)
 {
     if (!successProcessing) return false;
 
@@ -2541,9 +2543,15 @@ bool Data::hasMatchingPartnerFiles(QString testDirName, QString suffix)
             missingItems.append("\n");
             ++i;
         }
-        emit messageAvailable(subDirName + " : Not all images have matching "+suffix+ " files!", "error");
-        emit critical();
-        successProcessing = false;
+        if (abort) {
+            emit messageAvailable(subDirName + " : Not all images have matching "+suffix+ " files!", "error");
+            emit critical();
+            successProcessing = false;
+        }
+        else {
+            emit messageAvailable(subDirName + " : Not all images have matching "+suffix+ " files!", "warning");
+            emit warning();
+        }
 
         long nbad = notMatched.length();
         if (suffix.contains("weight")) {

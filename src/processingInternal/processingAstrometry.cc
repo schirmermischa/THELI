@@ -64,10 +64,16 @@ void Controller::taskInternalAstromphotom()
 
     if (cdw->ui->ASTmethodComboBox->currentText() == "Scamp") {
         QString catDirName = mainDirName + "/" + scienceDir + "/cat/";
-        if (!scienceData->hasMatchingPartnerFiles(catDirName, ".scamp")) return;
+        if (!scienceData->hasMatchingPartnerFiles(catDirName, ".scamp", false)) {
+            emit messageAvailable("Not all exposures have complete .scamp catalogs. They will be skipped.", "warning");
+            // return;
+        }
 
         if (cdw->ui->ASTmatchMethodComboBox->currentText() == "Astrometry.net") {
-            if (!scienceData->hasMatchingPartnerFiles(catDirName, ".anet")) return;
+            if (!scienceData->hasMatchingPartnerFiles(catDirName, ".anet", false)) {
+                emit messageAvailable("Not all exposures have complete .anet catalogs. They will be skipped.", "warning");
+                // return;
+            }
             prepareAnetRun(scienceData);
             progress = 0.;
             runAnet(scienceData);

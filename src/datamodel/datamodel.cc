@@ -238,6 +238,7 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
                 else if (imageList[row]->activeState == MyImage::INACTIVE) return "Deactivated";
                 else if (imageList[row]->activeState == MyImage::BADBACK) return "Poor background model";
                 else if (imageList[row]->activeState == MyImage::BADSTATS) return "Poor data quality";
+                else if (imageList[row]->activeState == MyImage::NOASTROM) return "No astrometric solution for at least one detector";
                 else if (imageList[row]->activeState == MyImage::LOWDETECTION) return "Insufficient sources for astrometry";
                 else if (imageList[row]->activeState == MyImage::DELETED) return "Image not found or deleted";
                 else return "";

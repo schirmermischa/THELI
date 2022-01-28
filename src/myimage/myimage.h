@@ -140,6 +140,7 @@ public:
         INACTIVE,         // Image is inactive (for whatever reason, parked in inactive/)
         BADSTATS,         // Image was flagged as having bad seeing/ throughput etc (parked in inactive/badStatistics/)
         BADBACK,          // Image was flagged because the background could not be modeled (parked in inactive/badBackground/)
+        NOASTROM,         // Image was flagged because astrometric information could not be found
         LOWDETECTION,     // Image was flagged because it has insufficiently many source detections for astrometry
         DELETED,          // Image was manually deleted by the user (cannot be found anymore on disk)
     };

@@ -225,7 +225,7 @@ void MainWindow::showMessageBoxReceived(QString trigger, QString part1, QString 
     }
     else if (trigger == "Data::SCAMP_CATS_NOT_FOUND") {
         QMessageBox::warning(this, tr("Missing scamp catalogs"),
-                             tr("The following ")+part1+tr(" images do not have matching scamp catalogs (cat/*.scamp):\n")+part2,
+                             tr("The following ")+part1+tr(" images do not have matching scamp catalogs (cat/*.scamp). The corresponding exposures will be deactivated:\n")+part2,
                              QMessageBox::Ok);
     }
     else if (trigger == "Controller::BACKGROUND_PARALLELIZATION") {

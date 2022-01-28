@@ -291,12 +291,8 @@ void MyImage::readImage(QString loadFileName)
 
 bool MyImage::isActive()
 {
-    bool active = true;
-    if (activeState == MyImage::INACTIVE
-            || activeState == MyImage::BADBACK
-            || activeState == MyImage::BADSTATS
-            || activeState == MyImage::LOWDETECTION) active = false;
-    return active;
+    if (activeState == MyImage::ACTIVE) return true;
+    else return false;
 }
 
 // When having to read from a backup file right after launch (task repeated)
@@ -381,18 +377,25 @@ bool MyImage::scanAstromHeader(int chip, QString mode)
     QFile file;
     if (mode == "inBackupDir") {
         file.setFileName(path+"/.origheader_backup/"+rootName+"_"+QString::number(chip+1)+".origastrom.head");
-        if(!file.open(QIODevice::ReadOnly)) {
-            emit messageAvailable("MyImage::scanAstromHeader(): " + file.fileName() + " " + file.errorString(), "error");
-            emit critical();
+        if (!file.open(QIODevice::ReadOnly)) {
+       //     emit messageAvailable("MyImage::scanAstromHeader(): " + file.fileName() + " " + file.errorString(), "error");
+       //     emit critical();
+            emit messageAvailable(baseName + ": origastrom.head not found, image deactivated", "warning");
+            if (*verbosity >= 2) emit messageAvailable(file.fileName() + ": " + file.errorString() + ", image deactivated", "warning");
+            setActiveState(MyImage::NOASTROM);
             return false;
         }
     }
     else {
         // mode == "inHeadersDir"
         file.setFileName(path+"/headers/"+rootName+"_"+QString::number(chip+1)+".head");
-        if(!file.open(QIODevice::ReadOnly)) {
-            emit messageAvailable("MyImage::scanAstromHeader(): " + file.fileName() + " " + file.errorString(), "error");
-            emit critical();
+        if (!file.open(QIODevice::ReadOnly)) {
+//            emit messageAvailable("MyImage::scanAstromHeader(): " + file.fileName() + " " + file.errorString(), "error");
+//            emit critical();
+            emit messageAvailable(baseName + ": .head not found, image deactivated", "warning");
+            if (*verbosity >= 2) emit messageAvailable(file.fileName() + " " + file.errorString() + ", image deactivated", "warning");
+            setActiveState(MyImage::NOASTROM);
+//            emit critical();
             return false;
         }
     }
@@ -1223,6 +1226,7 @@ void MyImage::updateInactivePath()
     else if (activeState == MyImage::INACTIVE) pathExtension = "/inactive/";
     else if (activeState == MyImage::BADSTATS) pathExtension = "/inactive/badStatistics/";
     else if (activeState == MyImage::BADBACK) pathExtension = "/inactive/badBackground/";
+    else if (activeState == MyImage::NOASTROM) pathExtension = "/inactive/noAstrometry/";
     else if (activeState == MyImage::LOWDETECTION) pathExtension = "/inactive/lowDetections/";
     else if (activeState == MyImage::DELETED) pathExtension = "/inactive/";
 }
