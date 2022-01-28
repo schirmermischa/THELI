@@ -289,6 +289,16 @@ void MyImage::readImage(QString loadFileName)
     }
 }
 
+bool MyImage::isActive()
+{
+    bool active = true;
+    if (activeState == MyImage::INACTIVE
+            || activeState == MyImage::BADBACK
+            || activeState == MyImage::BADSTATS
+            || activeState == MyImage::LOWDETECTION) active = false;
+    return active;
+}
+
 // When having to read from a backup file right after launch (task repeated)
 void MyImage::readImageBackupL1Launch()
 {
@@ -853,7 +863,7 @@ void MyImage::applyBackgroundModel(const MyImage *backgroundImage, QString mode,
         }
 
         // No normalization of saturation keyword required
-//        saturationValue /= backgroundImage->skyValue;
+        //        saturationValue /= backgroundImage->skyValue;
         updateHeaderValue("SATURATE", saturationValue);
 
         QString img = " IMG = "+QString::number(skyValue, 'f', 3) + ";";

@@ -69,7 +69,6 @@ void ImageStatistics::keyReleaseEvent(QKeyEvent *event)
 
                     // Deactivate selected image
                     allMyImages[i]->setActiveState(MyImage::BADSTATS);  // deactivate
-                    qDebug() << "emitting";
                     emit allMyImages[i]->modelUpdateNeeded(allMyImages[i]->chipName);
                 }
 

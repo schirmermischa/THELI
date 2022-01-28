@@ -530,11 +530,14 @@ void Data::populateExposureList()
 
     // Collect all MyImages that belong to one mjdobs
     long expNumber = 0;
+
     for (auto &mjdobs : mjdList) {
         for (int chip=0; chip<instData->numChips; ++chip) {
             if (instData->badChips.contains(chip)) continue;
             for (auto &it : myImageList[chip]) {
-                if (it->mjdobs == mjdobs) exposureList[expNumber].append(it);
+                if (it->mjdobs == mjdobs) {
+                    exposureList[expNumber].append(it);
+                }
             }
         }
         ++expNumber;

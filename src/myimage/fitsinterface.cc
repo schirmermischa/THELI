@@ -32,7 +32,7 @@ If not, see https://www.gnu.org/licenses/ .
 // Extract the FILTER keyword from a yet unopened FITS file
 void MyImage::readFILTER(QString loadFileName)
 {
-    if (loadFileName.isEmpty()) loadFileName = path + "/" + baseName + ".fits";
+    if (loadFileName.isEmpty()) loadFileName = path + pathExtension + "/" + baseName + ".fits";
     int status = 0;
     fitsfile *fptr = nullptr;
     initFITS(&fptr, loadFileName, &status);
@@ -317,7 +317,7 @@ void MyImage::initWCS()
 void MyImage::loadHeader(QString loadFileName)
 {
     if (headerInfoProvided) return;
-    if (loadFileName.isEmpty()) loadFileName = path+"/"+baseName+".fits";
+    if (loadFileName.isEmpty()) loadFileName = path+pathExtension+"/"+baseName+".fits";
     int status = 0;
     fitsfile *fptr = nullptr;
     initFITS(&fptr, loadFileName, &status);
@@ -346,7 +346,7 @@ void MyImage::getMJD()
 
     fitsfile *fptr = nullptr;
 
-    QString fileName = path+"/"+chipName+processingStatus->statusString+".fits";
+    QString fileName = path+pathExtension+"/"+chipName+processingStatus->statusString+".fits";
 
     int status = 0;
     fits_open_file(&fptr, fileName.toUtf8().data(), READONLY, &status);

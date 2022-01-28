@@ -352,7 +352,7 @@ public:
     //  void subtractPolynomialSkyFit(gsl_vector *c, int order);
     void add(float value);
     void addExludedRegionToMask(long imin, long imax, long jmin, long jmax);
-    void appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_string, QString maxFlag_string);
+    void appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_string, QString maxFlag_string, bool empty = false);
     void appendToScampCatalogSourceExtractor(fitsfile *fptr);
     void applyBackgroundModel(const MyImage *backgroundImage, QString mode, bool rescaleFlag);
     void applyMask();
@@ -403,6 +403,7 @@ public:
     void initFITS(fitsfile **fptr, QString loadFileName, int *status);
     void initWCS();
     void initWeightfromGlobalWeight(const QList<MyImage *> &gwList);
+    bool isActive();
     void laplaceFilter(QVector<float> &dataFiltered);
     bool loadData(QString loadFileName = "");
     bool loadDataThreadSafe(QString loadFileName = "");

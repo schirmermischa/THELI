@@ -712,7 +712,7 @@ void MyImage::makeXcorrData()
 }
 
 // Appends a new binary table to an already opened FITS file (handled by Controller class)
-void MyImage::appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_string, QString maxFlag_string)
+void MyImage::appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_string, QString maxFlag_string, bool empty)
 {
     float minFWHM = minFWHM_string.toFloat();
     float maxFlag = maxFlag_string.toFloat();
@@ -781,6 +781,7 @@ void MyImage::appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_strin
     char *tform2[13] = {tf1, tf2, tf3, tf4, tf5, tf6, tf7, tf8, tf9, tf10, tf11, tf12, tf13};
 
     long numSources = objectList.length();
+//    if (empty) numSources = 0;        // empty table for deactivated images
     long numSourcesRetained = 0;
     for (long i=0; i<numSources; ++i) {
         if (3.*objectList[i]->AWIN >= minFWHM && objectList[i]->FLAGS <= maxFlag && objectList[i]->FLUX_AUTO > 0.) {
@@ -789,6 +790,7 @@ void MyImage::appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_strin
     }
 
     nrows = numSourcesRetained;  // one row per source
+ //   if (empty) nrows = 0;        // empty table for deactivated images
     float xwin_arr[nrows];
     float ywin_arr[nrows];
     float erra_arr[nrows];
@@ -851,8 +853,12 @@ void MyImage::appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_strin
         detStatus = " (low source count)";
         level = "warning";
     }
-    if (nrows<=3) {
+    if (nrows<=3 && nrows >= 1) {
         detStatus = " (very low source count)";
+        level = "stop";
+    }
+    if (nrows==0) {
+        detStatus = " (no sources detected, or image deactivated)";
         level = "stop";
     }
 

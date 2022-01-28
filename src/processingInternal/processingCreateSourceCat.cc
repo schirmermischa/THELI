@@ -364,9 +364,14 @@ void Controller::mergeInternal(Data *scienceData, QString minFWHM, QString maxFl
         int inactiveCounter = 0;
         for (auto &it : scienceData->exposureList[i]) {
             if (it->activeState == MyImage::LOWDETECTION) lowCounts = true;
-            if (it->activeState == MyImage::INACTIVE) ++inactiveCounter;
+            if (!it->isActive()) ++inactiveCounter;
         }
-        if (lowCounts || inactiveCounter > 0) continue;       // WARNING: skipping images where some detectors have no data / deactivated
+        // WARNING: skipping images where some detectors have no data / deactivated
+        if (lowCounts || inactiveCounter > 0) {
+            emit messageAvailable(scienceData->exposureList[i][0]->rootName + " : Omitted. One or more images inactive or with low counts.",
+                    "warning");
+            continue;
+        }
 
         fitsfile *fptr;
         int status = 0;
@@ -376,7 +381,7 @@ void Controller::mergeInternal(Data *scienceData, QString minFWHM, QString maxFl
         int counter = 0;
         for (auto &it : scienceData->exposureList[i]) {
             // Exclude inactive exposures
-//            if (it->activeState == MyImage::INACTIVE) continue;          // could exclude more flags
+//            if (!it->isActive()) continue;
             it->appendToScampCatalogInternal(fptr, minFWHM, maxFlag);
             ++counter;
         }
