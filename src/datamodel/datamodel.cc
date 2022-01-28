@@ -387,7 +387,7 @@ bool DataModel::setData(const QModelIndex & index, const QVariant & value, int r
             // the user clicked an unchecked box, which is now checked, hence we must activate the image
             // ONLY do this if the deactivated image has the same processing state as the active images!
             QString imagestatus = imageList[index.row()]->processingStatus->statusString;
-            QString drivestatus = imageList[index.row()]->processingStatus->whatIsStatusOnDrive();
+            QString drivestatus = myData->processingStatus->whatIsStatusOnDrive();
             if (imagestatus == drivestatus) {
                 imageList[index.row()]->oldState = imageList[index.row()]->activeState;
                 imageList[index.row()]->setActiveState(MyImage::ACTIVE); // Setting this value automatically moves the image on drive accordingly!

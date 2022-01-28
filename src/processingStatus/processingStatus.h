@@ -49,12 +49,11 @@ public:
     bool doesStatusFileExist();
     void deleteFromDrive();
     QString whatIsStatusOnDrive();
+    QString extractStatusFromFilename(QString &filename);
 
 private:
     QDir dir;
     QString dirName = "";
-
-    QString extractStatusFromFilename(QString &filename);
 
 signals:
     void processingStatusChanged();

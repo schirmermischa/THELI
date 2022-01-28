@@ -49,7 +49,7 @@ void ImageStatistics::keyReleaseEvent(QKeyEvent *event)
         QString badStatsDirName = scienceDirName+"/inactive/badStatistics/";
         QDir badStatsDir(badStatsDirName);
         badStatsDir.mkpath(badStatsDirName);
-        // move selected images to badstats
+        // move selected images to inactive/badStatistics/
         foreach (QCPDataRange dataRange, selection.dataRanges()) {
             //       QCPGraphDataContainer::const_iterator itBegin = seeingGraph->data()->at(dataRange.begin());
             //       QCPGraphDataContainer::const_iterator itEnd = seeingGraph->data()->at(dataRange.end());
@@ -60,48 +60,32 @@ void ImageStatistics::keyReleaseEvent(QKeyEvent *event)
                 imgSelectedName = dataName[i];
 
                 // 'Delete' key pressed (actually: released)
-                // Park selected image
+                // Deactivate selected *image*
                 if (event->key() == Qt::Key_Delete) {
+                    // Add selected image to list of bad images
                     if (!badStatsList.contains(imgSelectedName)) {
                         badStatsList << imgSelectedName;
                     }
-                    QFile badImage(scienceDirName+"/"+imgSelectedName+statusString+".fits");
 
-                    /*
-                    allMyImages[i]->activeState = MyImage::BADSTATS;  // deactivate
-                    emit allMyImages[i]->modelUpdateNeeded(allMyImages[i]->chipName);
-                    if (allMyImages[i]->imageOnDrive) {
-                        if (!badImage.rename(badStatsDirName+imgSelectedName+statusString+".fits")) {
-                            qDebug() << "QDEBUG: Could not execute the following operation:";
-                            qDebug() << "mv " << scienceDirName+"/"+imgSelectedName+statusString+".fits" << badStatsDirName+imgSelectedName+statusString+".fits";
-                        }
-                    }
-                    */
-
+                    // Deactivate selected image
                     allMyImages[i]->setActiveState(MyImage::BADSTATS);  // deactivate
+                    qDebug() << "emitting";
                     emit allMyImages[i]->modelUpdateNeeded(allMyImages[i]->chipName);
                 }
 
                 // 'A' key pressed
-                // Park selected exposure (all chips belonging to that exposure)
+                // Deactivate selected *exposure* (all chips belonging to that exposure)
                 if (event->key() == Qt::Key_A) {
                     QString base = removeLastWords(imgSelectedName, 1, '_');
                     QStringList baseFilter(base+"_*.fits");
-                    QStringList baseList = scienceDir.entryList(baseFilter);
+                    QStringList baseList = scienceDir.entryList(baseFilter);      // List of all images belonging to that exposure
                     for (auto &it : baseList) {
                         if (!badStatsList.contains(it)) {
                             badStatsList << it;
                         }
-                        QFile badImage(scienceDirName+"/"+it);
-                        if (!badImage.rename(badStatsDirName+it)) {
-                            // Don't have to check whether image is on drive, because we loop over list of existing FITS images
-                            qDebug() << "QDEBUG: Could not execute the following operation:";
-                            qDebug() << "mv " << scienceDirName+"/"+it << badStatsDirName+it;
-                        }
                     }
                     for (auto &myimg : allMyImages) {
                         if (imgSelectedName.contains(myimg->rootName)) {
-//                            myimg->activeState = MyImage::BADSTATS;  // deactivate
                             myimg->setActiveState(MyImage::BADSTATS);  // deactivate
                             emit myimg->modelUpdateNeeded(myimg->chipName);
                         }

@@ -1578,11 +1578,14 @@ void MyImage::setActiveState(active_type state)
 
     // If the file is currently inactive, check whether the processing state is the same as that of currently active images.
     // Otherwise, the file must not be moved
+    // Check done externally before calling setActiveState()
+    /*
     if (state == MyImage::INACTIVE) {
         if (processingStatus->statusString != processingStatus->whatIsStatusOnDrive()) {
-
+        //
         }
     }
+    */
 
     // Move the image accordingly
     QString currentPath = path + pathExtension;      // The path where the image is currently located (if on disk)

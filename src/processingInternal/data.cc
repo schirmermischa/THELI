@@ -200,6 +200,52 @@ Data::Data(const instrumentDataType *instrumentData, Mask *detectorMask, QString
             connect(myImage, &MyImage::setMemoryLock, this, &Data::setMemoryLockReceived, Qt::DirectConnection);
             connect(myImage, &MyImage::setWCSLock, this, &Data::setWCSLockReceived, Qt::DirectConnection);
         }
+
+        // Add deactivated images
+        QStringList deactiveDirList;
+        deactiveDirList << "/inactive/" << "/inactive/badStatistics/" << "/inactive/badBackground/" << "/inactive/lowDetections/";
+        for (auto &pathExtension : deactiveDirList) {
+            QDir deactiveDir(dirName+pathExtension);
+            QStringList deactiveFilter;
+            deactiveFilter << "*.fits";  // selects all images, not just those of a specific chip
+            QStringList files = deactiveDir.entryList(deactiveFilter);
+            for (auto &it : files) {
+                // check if the image belongs to the currently processed chip. If not, continue;
+                QFileInfo fi(dirName+pathExtension+"/"+it);
+                QString rootName = fi.completeBaseName();
+                rootName.truncate(rootName.lastIndexOf('_'));
+                QString chipName = rootName+"_"+QString::number(chip+1);
+                QString status = processingStatus->extractStatusFromFilename(it);
+                if (chipName+status+".fits" != it) continue;
+
+                // Ok, image belongs to current chip
+                QString deactiveBackupStatus = status;
+                deactiveBackupStatus.chop(1);
+                QString deactivePathBackupL1 = dirName + "/" + deactiveBackupStatus + "_IMAGES";
+                MyImage *myImage = new MyImage(dirName, it, status, chip+1, mask->globalMask[chip], verbosity);
+                myImage->pathExtension = pathExtension;
+                myImage->setParent(this);
+                myImage->readFILTER(deactiveDir.absolutePath()+"/"+it);
+                myImage->imageOnDrive = true;
+                myImage->pathBackupL1 = deactivePathBackupL1;
+                myImage->baseNameBackupL1 = myImage->chipName + deactiveBackupStatus;
+                myImage->weightPath = dirName+"/../WEIGHTS/";
+                QFile weight(myImage->weightPath+"/"+myImage->weightName+".fits");
+                if (weight.exists()) myImage->weightOnDrive = true;
+                if (pathExtension == "inactive/badStatistics/") myImage->activeState = MyImage::BADSTATS;
+                else if (pathExtension == "inactive/badBackground/") myImage->activeState = MyImage::BADBACK;
+                else if (pathExtension == "inactive/lowDetections/") myImage->activeState = MyImage::LOWDETECTION;
+                else myImage->activeState = MyImage::INACTIVE;
+                myImageList[chip].append(myImage);
+                if (!uniqueChips.contains(chip+1)) uniqueChips.push_back(chip+1);
+                connect(myImage, &MyImage::modelUpdateNeeded, this, &Data::modelUpdateReceiver);
+                connect(myImage, &MyImage::critical, this, &Data::pushCritical);
+                connect(myImage, &MyImage::warning, this, &Data::pushWarning);
+                connect(myImage, &MyImage::messageAvailable, this, &Data::pushMessageAvailable);
+                connect(myImage, &MyImage::setMemoryLock, this, &Data::setMemoryLockReceived, Qt::DirectConnection);
+                connect(myImage, &MyImage::setWCSLock, this, &Data::setWCSLockReceived, Qt::DirectConnection);
+            }
+        }
         numImages += myImageList[chip].length();
     }
     if (numImages > 0) dataInitialized = true;

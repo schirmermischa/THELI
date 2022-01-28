@@ -83,6 +83,7 @@ void ProcessingStatus::readFromDrive()
     file.close();
 }
 
+// same as above, just returning the string
 QString ProcessingStatus::whatIsStatusOnDrive()
 {
     QFile file(dirName + "/.processingStatus");
