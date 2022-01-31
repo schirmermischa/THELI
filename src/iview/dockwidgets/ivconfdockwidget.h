@@ -89,6 +89,7 @@ public slots:
     void updateNavigatorMagnifiedViewportReceived();
     void receiveWCS(wcsprm *WCS, bool wcsinit);
     void clearMagnifiedSceneReceiver();
+    void clearBinnedSceneReceiver();
 
 signals:
     void autoContrastPushButton_toggled(bool checked);

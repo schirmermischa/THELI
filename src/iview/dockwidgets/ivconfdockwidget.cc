@@ -239,6 +239,12 @@ void IvConfDockWidget::clearMagnifiedSceneReceiver()
     magnifiedGraphicsView->show();
 }
 
+void IvConfDockWidget::clearBinnedSceneReceiver()
+{
+    binnedScene->clear();
+    binnedGraphicsView->show();
+}
+
 void IvConfDockWidget::updateNavigatorBinnedReceived(QGraphicsPixmapItem *binnedPixmapItem)
 {
     //    binnedGraphicsView->resetMatrix();

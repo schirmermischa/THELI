@@ -56,6 +56,7 @@ signals:
     void imageSelected(int index);
 
 public slots:
+    void currentlyDisplayedIndexReceived(int currentId);
 
 private slots:
     void dataPointClicked(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event);
@@ -119,8 +120,9 @@ private:
     QCPGraph *airmassGraph;
     QCPGraph *rzpGraph;
     QCPGraph *ellipticityGraph;
-    QCPDataSelection selection;    // data points selected by mouse clicks or key presses
-    QCPDataSelection numSelection; // data points selected by manually entered numeric thresholds
+    QCPDataSelection selection;          // data points selected by mouse clicks or key presses
+    QCPDataSelection iviewSelection;    // data point selected for display in iView, marked with a special symbol
+    QCPDataSelection numSelection;       // data points selected by manually entered numeric thresholds
     QList<QCPGraph*> graphList;
     QStringList filteredImageList;
     QList<QLineEdit*> numericThresholdList;

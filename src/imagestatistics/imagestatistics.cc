@@ -404,12 +404,13 @@ void ImageStatistics::on_showPushButton_clicked()
             // iView->clearAll();
         }
         else if (!imgSelected && statisticsDataDisplayed) {
-            QCPDataRange range(0,1);
-            selection.addDataRange(range);
-            imgSelectedName = dataName[0];
-            imgSelected = true;
+//            QCPDataRange range(0,1);
+//            selection.addDataRange(range);
+//            imgSelectedName = dataName[0];
+//            imgSelected = true;
+            imgSelected = false;
             lastButtonClicked = Qt::LeftButton;
-            plotSelection(0);
+//            plotSelection(0);
             iView = new IView("MEMview", allMyImages, scienceDirName, this); // dirname is needed to overlay catalogs
             connect(this, &ImageStatistics::imageSelected, iView, &IView::loadFITSexternalRAM);
             connect(iView, &IView::destroyed, this, &ImageStatistics::uncheckIviewPushButton);
@@ -446,6 +447,7 @@ void ImageStatistics::on_showPushButton_clicked()
 // To be implemented
 void ImageStatistics::currentlyDisplayedIndexReceived(int currentId)
 {
+    qDebug() << currentId;
     // indicate displayed image, e.g. by a ring around the data point
 }
 
@@ -463,6 +465,7 @@ void ImageStatistics::uncheckIviewPushButton()
 void ImageStatistics::clearSelection()
 {
     selection.clear();
+    iviewSelection.clear();
     imgSelected = false;
     for (auto &it : numericThresholdList) {
         it->clear();

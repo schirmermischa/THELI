@@ -383,6 +383,8 @@ void IView::clearAll()
     this->setWindowTitle("iView");
     pageLabel->clear();
     switchMode("CLEAR");
+    icdw->clearBinnedSceneReceiver();
+    icdw->clearMagnifiedSceneReceiver();
 }
 
 void IView::loadFITSexternal(QString fileName, QString filter)
