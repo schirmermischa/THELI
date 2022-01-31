@@ -124,7 +124,6 @@ Data* ImageStatistics::getData(QList<Data *> DT_x, QString dirName)
 
 void ImageStatistics::makeConnections()
 {
-
     numericThresholdList << ui->skyMinLineEdit << ui->skyMaxLineEdit
                          << ui->airmassMinLineEdit << ui->airmassMaxLineEdit
                          << ui->seeingMinLineEdit << ui->seeingMaxLineEdit
@@ -163,6 +162,7 @@ void ImageStatistics::clearAll()
     statisticsDataDisplayed = false;
 }
 
+// clicking on "update images"
 void ImageStatistics::on_statisticsPushButton_clicked()
 {
     if (!scienceDir.exists()) {
@@ -183,19 +183,22 @@ void ImageStatistics::on_statisticsPushButton_clicked()
     }
 
     filteredImageList.clear();
+    filteredMyImages.clear();
     // Filter for sky coordinates
     QString ra = ui->raLineEdit->text();
     QString dec = ui->decLineEdit->text();
 
     for (int k=0; k<allMyImages.length(); ++k) {
-        if (isImageSelected(allMyImages[k], ra, dec, chipID)) filteredImageList << allMyImages[k]->chipName;
+        if (isImageSelected(allMyImages[k], ra, dec, chipID)) {
+            filteredImageList << allMyImages[k]->chipName;
+            filteredMyImages << allMyImages[k];
+        }
     }
 
     numObj = filteredImageList.size();
     if (numObj == 0) {
         QMessageBox::warning( this, "No images found",
-                              "No images found, check the directory path\n"
-                              "and, if provided, your name filter or sky coordinates.\n");
+                              "No images found, check any filters or sky coordinates if provided.\n");
         ui->statisticsPushButton->setEnabled(true);
         ui->statisticsPushButton->setText("Get statistics ...");
         return;
@@ -204,6 +207,13 @@ void ImageStatistics::on_statisticsPushButton_clicked()
     readStatisticsData();
 
     plot();
+
+    // Push the filtered list of images to iView
+    if (iViewOpen) {
+        iView->myImageList = filteredMyImages;
+        iView->numImages = numObj;
+        iView->clearAll();
+    }
 }
 
 
@@ -386,6 +396,7 @@ void ImageStatistics::on_exportPushButton_clicked()
     }
 }
 
+// "Clicking on "display images"
 void ImageStatistics::on_showPushButton_clicked()
 {
     if (!scienceDir.exists()) return;
@@ -411,7 +422,8 @@ void ImageStatistics::on_showPushButton_clicked()
             imgSelected = false;
             lastButtonClicked = Qt::LeftButton;
 //            plotSelection(0);
-            iView = new IView("MEMview", allMyImages, scienceDirName, this); // dirname is needed to overlay catalogs
+//            iView = new IView("MEMview", allMyImages, scienceDirName, this); // dirname is needed to overlay catalogs
+            iView = new IView("MEMview", filteredMyImages, scienceDirName, this); // dirname is needed to overlay catalogs
             connect(this, &ImageStatistics::imageSelected, iView, &IView::loadFITSexternalRAM);
             connect(iView, &IView::destroyed, this, &ImageStatistics::uncheckIviewPushButton);
             connect(iView, &IView::closed, this, &ImageStatistics::uncheckIviewPushButton);
@@ -421,11 +433,13 @@ void ImageStatistics::on_showPushButton_clicked()
         }
         else {
             if (lastDataPointClicked != -1) {
-                iView = new IView("MEMview", allMyImages, scienceDirName, this); // dirname is needed to overlay catalogs
+//                iView = new IView("MEMview", allMyImages, scienceDirName, this); // dirname is needed to overlay catalogs
+                iView = new IView("MEMview", filteredMyImages, scienceDirName, this); // dirname is needed to overlay catalogs
                 connect(this, &ImageStatistics::imageSelected, iView, &IView::loadFITSexternalRAM);
                 connect(iView, &IView::destroyed, this, &ImageStatistics::uncheckIviewPushButton);
                 connect(iView, &IView::closed, this, &ImageStatistics::uncheckIviewPushButton);
-                iView->loadFromRAM(allMyImages[lastDataPointClicked], 0);   // '0' refers to dataCurrent (compared to backup levels L1-L3)
+//                iView->loadFromRAM(allMyImages[lastDataPointClicked], 0);   // '0' refers to dataCurrent (compared to backup levels L1-L3)
+                iView->loadFromRAM(filteredMyImages[lastDataPointClicked], 0);   // '0' refers to dataCurrent (compared to backup levels L1-L3)
                 iView->currentId = lastDataPointClicked;
             }
         }
@@ -531,4 +545,19 @@ void ImageStatistics::on_scienceComboBox_activated(const QString &arg1)
     myExposureList = scienceData->exposureList;
 
     init();
+}
+
+void ImageStatistics::on_chipsLineEdit_editingFinished()
+{
+    on_statisticsPushButton_clicked();
+}
+
+void ImageStatistics::on_raLineEdit_editingFinished()
+{
+    on_statisticsPushButton_clicked();
+}
+
+void ImageStatistics::on_decLineEdit_editingFinished()
+{
+    on_statisticsPushButton_clicked();
 }

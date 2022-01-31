@@ -405,7 +405,7 @@ void IView::loadFITSexternal(QString fileName, QString filter)
 // invoked when clicking a data point in image statistics
 void IView::loadFITSexternalRAM(int index)
 {
-    switchMode("FITSmonochrome");
+    switchMode("MEMview");
     bool sourcecatShown = sourcecatSourcesShown;
     bool refcatShown = refcatSourcesShown;
     clearItems();

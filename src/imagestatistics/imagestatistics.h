@@ -77,6 +77,12 @@ private slots:
     void on_actionClose_triggered();
     void on_scienceComboBox_activated(const QString &arg1);
 
+    void on_chipsLineEdit_editingFinished();
+
+    void on_raLineEdit_editingFinished();
+
+    void on_decLineEdit_editingFinished();
+
 private:
     QString mainDir;
     QString statusString;
@@ -88,6 +94,7 @@ private:
     QString userdir;
     QVector<QList<MyImage*>> myExposureList;
     QList<MyImage*> allMyImages;
+    QList<MyImage*> filteredMyImages;
     QStringList dataName;
     QStringList badStatsList;
     QString scienceDirName;

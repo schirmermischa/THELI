@@ -68,8 +68,10 @@ void ImageStatistics::keyReleaseEvent(QKeyEvent *event)
                     }
 
                     // Deactivate selected image
-                    allMyImages[i]->setActiveState(MyImage::BADSTATS);  // deactivate
-                    emit allMyImages[i]->modelUpdateNeeded(allMyImages[i]->chipName);
+//                    allMyImages[i]->setActiveState(MyImage::BADSTATS);  // deactivate
+//                    emit allMyImages[i]->modelUpdateNeeded(allMyImages[i]->chipName);
+                    filteredMyImages[i]->setActiveState(MyImage::BADSTATS);  // deactivate
+                    emit filteredMyImages[i]->modelUpdateNeeded(filteredMyImages[i]->chipName);
                 }
 
                 // 'A' key pressed
@@ -84,6 +86,7 @@ void ImageStatistics::keyReleaseEvent(QKeyEvent *event)
                         }
                     }
                     for (auto &myimg : allMyImages) {
+//                      for (auto &myimg : filteredMyImages) {
                         if (imgSelectedName.contains(myimg->rootName)) {
                             myimg->setActiveState(MyImage::BADSTATS);  // deactivate
                             emit myimg->modelUpdateNeeded(myimg->chipName);
