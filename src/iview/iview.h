@@ -235,7 +235,7 @@ public slots:
     void colorFactorChanged_receiver(QString redFactor, QString blueFactor);
     void loadFITSexternal(QString fileName, QString filter);
     void loadFromRAM(MyImage *it, int level);
-    void loadFromRAMlist(const QModelIndex &index);
+//    void loadFromRAMlist(const QModelIndex &index);
     void loadFITSexternalRAM(int index);
     void mapFITS();
     void minmaxLineEdit_returnPressed_receiver(QString rangeMin, QString rangeMax);

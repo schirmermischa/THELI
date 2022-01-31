@@ -84,6 +84,7 @@ void IvRedshiftDockWidget::populateWavelengthMaps()
     OList.append(qMakePair(QString("OVI"), 1032));
     OList.append(qMakePair(QString("OVI"), 1038));
     OList.append(qMakePair(QString("OVI]"), 1402));
+    OList.append(qMakePair(QString("OIII]"), 1666));
     OList.append(qMakePair(QString("OIII"), 3133));
     OList.append(qMakePair(QString("[OII]"), 3727));
     OList.append(qMakePair(QString("[OIII]"), 4363));
@@ -93,10 +94,12 @@ void IvRedshiftDockWidget::populateWavelengthMaps()
     OList.append(qMakePair(QString("[OI]"), 6366));
     OList.append(qMakePair(QString("[OII]"), 7321));
 
+    NList.append(qMakePair(QString("NV"), 1240));
     NList.append(qMakePair(QString("[NII]"), 6550));
     NList.append(qMakePair(QString("[NII]"), 6586));
 
     CList.append(qMakePair(QString("CIII"), 977));
+    CList.append(qMakePair(QString("CIII]"), 1909));
     CList.append(qMakePair(QString("CIV"), 1549));
     CList.append(qMakePair(QString("CII"), 2326));
 

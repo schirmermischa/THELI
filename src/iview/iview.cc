@@ -400,10 +400,18 @@ void IView::loadFITSexternal(QString fileName, QString filter)
     }
 }
 
+// invoked when clicking a data point in image statistics
 void IView::loadFITSexternalRAM(int index)
 {
     switchMode("FITSmonochrome");
+    bool sourcecatShown = sourcecatSourcesShown;
+    bool refcatShown = refcatSourcesShown;
+    clearItems();
+
     loadFromRAM(myImageList[index], 0);
+    currentId = index;
+    setCatalogOverlaysExternally(sourcecatShown, refcatShown);
+    redrawSkyCirclesAndCats();
 }
 
 void IView::loadPNG(QString filename, int currentId)
@@ -505,6 +513,7 @@ void IView::loadFITS(QString filename, int currentId, qreal scaleFactor)
     }
 }
 
+/*
 void IView::loadFromRAMlist(const QModelIndex &index)
 {
     loadFromRAM(myImageList[index.row()], index.column());
@@ -518,6 +527,7 @@ void IView::loadFromRAMlist(const QModelIndex &index)
     // Update the navigator magnified window with the center image poststamp
     emit updateNavigatorMagnified(magnifiedPixmapItem, icdw->zoom2scale(zoomLevel)*magnify, 0., 0.);
 }
+*/
 
 // Receiver of Navigator currentMousePos Eevent
 void IView::updateNavigatorMagnifiedReceived(QPointF point)
@@ -633,6 +643,14 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
 
     currentMyImage = it;   // For later use, in particular when updating CRPIX1/2
     currentFileName = currentMyImage->baseName+".fits";
+
+    // Get the center image poststamp; copy() refers to the top left corner, and then width and height
+    QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(naxis1/2.-icdw->navigator_magnified_nx/2.,
+                                                        naxis2/2.-icdw->navigator_magnified_ny/2.,
+                                                        icdw->navigator_magnified_nx, icdw->navigator_magnified_ny);
+    magnifiedPixmapItem = new QGraphicsPixmapItem(magnifiedPixmap);
+    // Update the navigator magnified window with the center image poststamp
+    emit updateNavigatorMagnified(magnifiedPixmapItem, icdw->zoom2scale(zoomLevel)*magnify, 0., 0.);
 
     // Update the navigator binned window with the binned poststamp
     emit updateNavigatorBinned(binnedPixmapItem);

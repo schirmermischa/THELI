@@ -433,13 +433,12 @@ void MemoryViewer::on_memoryTableView_clicked(const QModelIndex &index)
         connect(iView, &IView::destroyed, this, &MemoryViewer::iViewClosed_received);
         connect(iView, &IView::closed, this, &MemoryViewer::iViewClosed_received);
     }
-//    iView->scene->clear();
     bool sourcecatShown = iView->sourcecatSourcesShown;
     bool refcatShown = iView->refcatSourcesShown;
     iView->clearItems();
-    iView->loadFromRAMlist(index);
+    iView->loadFromRAM(model->imageList[index.row()], index.column());
+//    iView->loadFromRAMlist(index);
     iView->currentId = index.row();
-    // IView needs to know the directory name so that it can overlay catalogs
     iView->setCatalogOverlaysExternally(sourcecatShown, refcatShown);
     iView->redrawSkyCirclesAndCats();
     iView->show();

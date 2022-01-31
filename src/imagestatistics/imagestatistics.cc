@@ -398,8 +398,10 @@ void ImageStatistics::on_showPushButton_clicked()
     if (ui->showPushButton->isChecked() && !iViewOpen) {
         if (!imgSelected && !statisticsDataDisplayed) {
             iView = new IView("FITSmonochrome", scienceDirName, "*.fits", this);
-            iView->show();
-            //            iView->clearAll();
+            connect(this, &ImageStatistics::imageSelected, iView, &IView::loadFITSexternalRAM);
+            connect(iView, &IView::destroyed, this, &ImageStatistics::uncheckIviewPushButton);
+            connect(iView, &IView::closed, this, &ImageStatistics::uncheckIviewPushButton);
+            // iView->clearAll();
         }
         else if (!imgSelected && statisticsDataDisplayed) {
             QCPDataRange range(0,1);
@@ -409,44 +411,43 @@ void ImageStatistics::on_showPushButton_clicked()
             lastButtonClicked = Qt::LeftButton;
             plotSelection(0);
             iView = new IView("MEMview", allMyImages, scienceDirName, this); // dirname is needed to overlay catalogs
-            iViewOpen = true;
+            connect(this, &ImageStatistics::imageSelected, iView, &IView::loadFITSexternalRAM);
+            connect(iView, &IView::destroyed, this, &ImageStatistics::uncheckIviewPushButton);
+            connect(iView, &IView::closed, this, &ImageStatistics::uncheckIviewPushButton);
             // To be implemented
-            //            connect(iView, &IView::currentlyDisplayedIndex, this, &ImageStatistics::currentlyDisplayedIndexReceived);
+            // connect(iView, &IView::currentlyDisplayedIndex, this, &ImageStatistics::currentlyDisplayedIndexReceived);
             iView->scene->clear();
-            iView->show();
         }
         else {
             if (lastDataPointClicked != -1) {
                 iView = new IView("MEMview", allMyImages, scienceDirName, this); // dirname is needed to overlay catalogs
-                iView->loadFromRAM(allMyImages[lastDataPointClicked], 0);   // '0' refers to dataCurrent
+                connect(this, &ImageStatistics::imageSelected, iView, &IView::loadFITSexternalRAM);
+                connect(iView, &IView::destroyed, this, &ImageStatistics::uncheckIviewPushButton);
+                connect(iView, &IView::closed, this, &ImageStatistics::uncheckIviewPushButton);
+                iView->loadFromRAM(allMyImages[lastDataPointClicked], 0);   // '0' refers to dataCurrent (compared to backup levels L1-L3)
                 iView->currentId = lastDataPointClicked;
-                iView->show();
-            }
-            else {
-                qDebug() << "QDEBUG: ImageStatistics::on_showPushButton_clicked(): BUG: invalid selection";
             }
         }
+
+        bool sourcecatShown = iView->sourcecatSourcesShown;
+        bool refcatShown = iView->refcatSourcesShown;
+        iView->clearItems();
+        iView->setCatalogOverlaysExternally(sourcecatShown, refcatShown);
+        iView->redrawSkyCirclesAndCats();
+        iView->show();
         iViewOpen = true;
-        connect(this, &ImageStatistics::imageSelected, iView, &IView::loadFITSexternalRAM);
     }
     else if (ui->showPushButton->isChecked() && iViewOpen) {
-        iView->show();
-        connect(this, &ImageStatistics::imageSelected, iView, &IView::loadFITSexternalRAM);
-        iView->raise();
-        iViewOpen = true;
+        iView->scene->clear();
+        iViewOpen = false;
     }
-
-    // "uncheck" the iView PushButton when the viewer is closed externally
-    connect(iView, &IView::closed, this, &ImageStatistics::uncheckIviewPushButton);
 }
 
 // To be implemented
-/*
 void ImageStatistics::currentlyDisplayedIndexReceived(int currentId)
 {
     // indicate displayed image, e.g. by a ring around the data point
 }
-*/
 
 void ImageStatistics::on_ClearPlotPushButton_clicked()
 {
