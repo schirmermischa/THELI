@@ -23,6 +23,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include "readmes/multidirreadme.h"
 #include "readmes/license.h"
 #include "readmes/acknowledging.h"
+#include "readmes/tutorials.h"
 #include "abszp/abszeropoint.h"
 #include "instrumentdefinition.h"
 #include "instrumentdata.h"
@@ -243,6 +244,7 @@ private slots:
     void emitEditingFinished(const QString &arg1);
     void on_actionLicense_triggered();
     void on_actionAcknowledging_triggered();
+    void on_actionDocumentation_triggered();
     void loadCoaddAbsZP(QString coaddImage, float maxVal);
     void updateMemoryProgressBarReceived(long memoryUsed);
     void on_setupProjectLineEdit_textChanged(const QString &arg1);
@@ -261,6 +263,7 @@ private:
     MultidirReadme *multidirReadme;
     License *license;
     Acknowledging *acknowledging;
+    Tutorials *tutorials;
     ErrorDialog *errordialog = new ErrorDialog(this);
     QSettings *settingsp;
     QMap<QCheckBox*,QString> checkboxMap;

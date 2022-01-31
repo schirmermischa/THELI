@@ -1902,6 +1902,12 @@ void MainWindow::on_actionAcknowledging_triggered()
     acknowledging->show();
 }
 
+void MainWindow::on_actionDocumentation_triggered()
+{
+    tutorials = new Tutorials(this);
+    tutorials->show();
+}
+
 int MainWindow::estimateBinningFactor()
 {
     QScreen *screen = QGuiApplication::primaryScreen();

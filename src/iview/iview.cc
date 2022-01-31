@@ -647,6 +647,7 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
     currentFileName = currentMyImage->baseName+".fits";
 
     // Get the center image poststamp; copy() refers to the top left corner, and then width and height
+
     QPixmap magnifiedPixmap = pixmapItem->pixmap().copy(naxis1/2.-icdw->navigator_magnified_nx/2.,
                                                         naxis2/2.-icdw->navigator_magnified_ny/2.,
                                                         icdw->navigator_magnified_nx, icdw->navigator_magnified_ny);
@@ -656,6 +657,7 @@ void IView::loadFromRAM(MyImage *it, int indexColumn)
 
     // Update the navigator binned window with the binned poststamp
     emit updateNavigatorBinned(binnedPixmapItem);
+
     emit updateNavigatorBinnedWCS(wcs, wcsInit);
     emit newImageLoaded();
 }

@@ -140,7 +140,8 @@ SOURCES += \
     tools/swarpfilter.cc \
     tools/tools.cc \
     tools/xcorr.cc \
-    validators.cc
+    validators.cc \
+    readmes/tutorials.cc
 
 HEADERS += \
     abszp/absphot.h \
@@ -210,7 +211,8 @@ HEADERS += \
     tools/ram.h \
     tools/splitter.h \
     tools/swarpfilter.h \
-    tools/tools.h
+    tools/tools.h \
+    readmes/tutorials.h
 
 FORMS += \
         mainwindow.ui \
@@ -236,7 +238,8 @@ FORMS += \
     readmes/license.ui \
     readmes/acknowledging.ui \
     iview/dockwidgets/ivfinderdockwidget.ui \
-    iview/dockwidgets/ivredshiftdockwidget.ui
+    iview/dockwidgets/ivredshiftdockwidget.ui \
+    readmes/tutorials.ui
 
 RESOURCES = resources.qrc
 

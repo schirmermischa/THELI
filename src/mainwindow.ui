@@ -2545,7 +2545,7 @@
      <x>0</x>
      <y>0</y>
      <width>468</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -2564,8 +2564,15 @@
     <addaction name="actionLicense"/>
     <addaction name="actionAcknowledging"/>
    </widget>
+   <widget class="QMenu" name="menuTurorials">
+    <property name="title">
+     <string>Documentation</string>
+    </property>
+    <addaction name="actionDocumentation"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuAbout"/>
+   <addaction name="menuTurorials"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
@@ -2747,6 +2754,14 @@
   <action name="actionAcknowledging">
    <property name="text">
     <string>Acknowledging</string>
+   </property>
+  </action>
+  <action name="actionDocumentation">
+   <property name="text">
+    <string>Tutorials</string>
+   </property>
+   <property name="toolTip">
+    <string>Links to online documentation</string>
    </property>
   </action>
  </widget>
