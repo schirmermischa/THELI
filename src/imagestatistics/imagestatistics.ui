@@ -1168,19 +1168,6 @@
         </item>
         <item row="2" column="0" colspan="2">
          <layout class="QGridLayout" name="gridLayout_4">
-          <item row="2" column="0">
-           <widget class="QPushButton" name="clearSelectionPushButton">
-            <property name="focusPolicy">
-             <enum>Qt::ClickFocus</enum>
-            </property>
-            <property name="statusTip">
-             <string>Clears a selection of data points.</string>
-            </property>
-            <property name="text">
-             <string>Clear selection</string>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="1">
            <widget class="QPushButton" name="invertSelectionPushButton">
             <property name="focusPolicy">
@@ -1207,16 +1194,16 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <widget class="QPushButton" name="exportPushButton">
+          <item row="2" column="0">
+           <widget class="QPushButton" name="clearSelectionPushButton">
             <property name="focusPolicy">
              <enum>Qt::ClickFocus</enum>
             </property>
             <property name="statusTip">
-             <string>Exports the graphics to PNG format.</string>
+             <string>Clears a selection of data points.</string>
             </property>
             <property name="text">
-             <string>Export plot</string>
+             <string>Clear selection</string>
             </property>
            </widget>
           </item>
@@ -1230,6 +1217,19 @@
             </property>
             <property name="text">
              <string>Restore data</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QPushButton" name="exportPushButton">
+            <property name="focusPolicy">
+             <enum>Qt::ClickFocus</enum>
+            </property>
+            <property name="statusTip">
+             <string>Exports the graphics to PNG format.</string>
+            </property>
+            <property name="text">
+             <string>Export plot</string>
             </property>
            </widget>
           </item>
@@ -1868,7 +1868,7 @@
   <customwidget>
    <class>QCustomPlot</class>
    <extends>QWidget</extends>
-   <header>qcustomplot.h</header>
+   <header location="global">qcustomplot.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

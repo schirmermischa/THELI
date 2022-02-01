@@ -57,6 +57,8 @@ signals:
 
 public slots:
     void currentlyDisplayedIndexReceived(int currentId);
+    void activationChangedReceiver();
+    void iviewNewImageShownReceiver(int newDataPoint);
 
 private slots:
     void dataPointClicked(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event);
@@ -76,11 +78,8 @@ private slots:
     void on_fwhmunitsComboBox_currentIndexChanged(const QString &arg1);
     void on_actionClose_triggered();
     void on_scienceComboBox_activated(const QString &arg1);
-
     void on_chipsLineEdit_editingFinished();
-
     void on_raLineEdit_editingFinished();
-
     void on_decLineEdit_editingFinished();
 
 private:
@@ -89,6 +88,7 @@ private:
     ProcessingStatus *processingStatus;
     const instrumentDataType *instData;
     QList<Data*> dataList;
+    Data *scienceData;
     Ui::ImageStatistics *ui;
     QString thelidir;
     QString userdir;
@@ -127,10 +127,15 @@ private:
     QCPGraph *airmassGraph;
     QCPGraph *rzpGraph;
     QCPGraph *ellipticityGraph;
+    QCPGraph *skyGraphIview;
+    QCPGraph *seeingGraphIview;
+    QCPGraph *airmassGraphIview;
+    QCPGraph *rzpGraphIview;
+    QCPGraph *ellipticityGraphIview;
     QCPDataSelection selection;          // data points selected by mouse clicks or key presses
-    QCPDataSelection iviewSelection;    // data point selected for display in iView, marked with a special symbol
     QCPDataSelection numSelection;       // data points selected by manually entered numeric thresholds
     QList<QCPGraph*> graphList;
+    QList<QCPGraph*> graphListIview;
     QStringList filteredImageList;
     QList<QLineEdit*> numericThresholdList;
     ImstatsReadme *imstatsReadme;
@@ -149,6 +154,7 @@ private:
     void init();
     bool isImageSelected(MyImage *myImage, const QString &ra, const QString &dec, const QVector<int> &chipID);
     void activateImages();
+    void highlightClickedDataPoint();
 };
 
 #endif // IMAGESTATISTICS_H

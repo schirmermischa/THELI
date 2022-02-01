@@ -1523,6 +1523,8 @@ void MainWindow::load_dialog_imageStatistics()
     }
 
     ImageStatistics *imagestatistics = new ImageStatistics(controller->DT_SCIENCE, mainDir, scienceData->subDirName, &instData, this);
+    // Inform image statistics when the user manually (de)activates an image. Must be connected here, as imagestatistics does not know about mainGUI
+    connect(memoryViewer, &MemoryViewer::activationChanged, imagestatistics, &ImageStatistics::activationChangedReceiver);
     imagestatistics->show();
 }
 

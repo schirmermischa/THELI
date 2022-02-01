@@ -1607,7 +1607,6 @@ void MyImage::setActiveState(active_type state)
     QString newPath = path + pathExtension;          // The path where the image should go
     if (!imageOnDrive) return;
     moveFile(baseName+".fits", currentPath, newPath);
-    // TODO: must do a modelUpdate
 }
 
 void MyImage::printCfitsioError(QString funcName, int status)

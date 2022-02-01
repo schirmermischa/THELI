@@ -95,11 +95,13 @@ private slots:
     void updateStatusTipRestoreButton();
     void on_restoreComboBox_currentTextChanged(const QString &arg1);
     void iViewClosed_received();
+    void activationChangedReceiver();
 
 signals:
     void beginResetModel();
     void endResetModel();
     void refreshMemoryViewer();
+    void activationChanged();
 
 };
 

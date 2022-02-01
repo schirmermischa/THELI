@@ -87,12 +87,21 @@ void ImageStatistics::plot()
 
     // The graphs
     graphList.clear();
+    graphListIview.clear();
     skyGraph = ui->statPlot->addGraph(rectSky->axis(QCPAxis::atBottom), rectSky->axis(QCPAxis::atLeft));
     seeingGraph = ui->statPlot->addGraph(rectSeeing->axis(QCPAxis::atBottom), rectSeeing->axis(QCPAxis::atLeft));
     airmassGraph = ui->statPlot->addGraph(rectAirmass->axis(QCPAxis::atBottom), rectAirmass->axis(QCPAxis::atLeft));
     rzpGraph = ui->statPlot->addGraph(rectRZP->axis(QCPAxis::atBottom), rectRZP->axis(QCPAxis::atLeft));
     ellipticityGraph = ui->statPlot->addGraph(rectEllipticity->axis(QCPAxis::atBottom), rectEllipticity->axis(QCPAxis::atLeft));
+
+    skyGraphIview = ui->statPlot->addGraph(rectSky->axis(QCPAxis::atBottom), rectSky->axis(QCPAxis::atLeft));
+    seeingGraphIview = ui->statPlot->addGraph(rectSeeing->axis(QCPAxis::atBottom), rectSeeing->axis(QCPAxis::atLeft));
+    airmassGraphIview = ui->statPlot->addGraph(rectAirmass->axis(QCPAxis::atBottom), rectAirmass->axis(QCPAxis::atLeft));
+    rzpGraphIview = ui->statPlot->addGraph(rectRZP->axis(QCPAxis::atBottom), rectRZP->axis(QCPAxis::atLeft));
+    ellipticityGraphIview = ui->statPlot->addGraph(rectEllipticity->axis(QCPAxis::atBottom), rectEllipticity->axis(QCPAxis::atLeft));
+
     graphList << skyGraph << seeingGraph << airmassGraph << rzpGraph << ellipticityGraph;
+    graphListIview << skyGraphIview << seeingGraphIview << airmassGraphIview<< rzpGraphIview << ellipticityGraphIview;
 
     // Leave here if we are just initializing the plot panels
 
@@ -105,16 +114,12 @@ void ImageStatistics::plot()
     QCPSelectionDecorator *decoratorEllipticity = new QCPSelectionDecorator();
     // change the last argument to a larger number if you want bigger data points
     QCPScatterStyle scatterstyle(QCPScatterStyle::ScatterShape::ssDisc, QColor("#ff3300"), QColor("#ff3300"), 6);
-    decoratorSky->setPen(QPen(QColor("#000000")));
     decoratorSky->setScatterStyle(scatterstyle, QCPScatterStyle::spAll);
-    decoratorRZP->setPen(QPen(QColor("#000000")));
     decoratorRZP->setScatterStyle(scatterstyle, QCPScatterStyle::spAll);
-    decoratorSeeing->setPen(QPen(QColor("#000000")));
     decoratorSeeing->setScatterStyle(scatterstyle, QCPScatterStyle::spAll);
-    decoratorAirmass->setPen(QPen(QColor("#000000")));
     decoratorAirmass->setScatterStyle(scatterstyle, QCPScatterStyle::spAll);
-    decoratorEllipticity->setPen(QPen(QColor("#000000")));
     decoratorEllipticity->setScatterStyle(scatterstyle, QCPScatterStyle::spAll);
+
     double xmin = minVec_T(dataImageNr);
     double xmax = maxVec_T(dataImageNr);
     double dx = (xmax - xmin) * 0.05;
@@ -176,12 +181,56 @@ void ImageStatistics::plot()
         it->keyAxis()->setRange(xmin-dx, xmax+dx);
         it->valueAxis()->setRange(ymin-dy, ymax+dy);
     }
+
     ui->statPlot->replot();
     ui->statPlot->update();
 
     if (numObj > 0) statisticsDataDisplayed = true;
     else statisticsDataDisplayed = false;
 }
+
+void ImageStatistics::highlightClickedDataPoint()
+{
+    if (lastDataPointClicked == -1) return;
+
+    for (auto &it : graphListIview) {
+        int ldpc = lastDataPointClicked;
+        QVector<double> x;
+        QVector<double> y;
+        x << dataImageNr[ldpc];
+        it->setSelectable(QCP::SelectionType::stNone);
+        it->setLineStyle(QCPGraph::lsNone);
+        it->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QColor("#000000"), 12));
+        if (it == skyGraphIview) {
+            y << dataSky[ldpc];
+            it->setData(x,y);
+        }
+        else if (it == seeingGraphIview) {
+            float unitsRescale = 1.0;
+            if (ui->fwhmunitsComboBox->currentText() == "arcsec") unitsRescale = 1.0;
+            else unitsRescale = instData->pixscale;
+            y << dataFWHM[ldpc];
+            for (auto &it : y) it /= unitsRescale;
+            it->setData(x,y);
+        }
+        else if (it == airmassGraphIview) {
+            y << dataAirmass[ldpc];
+            it->setData(x,y);
+        }
+        else if (it == rzpGraphIview) {
+            y << dataRZP[ldpc];
+            it->setData(x,y);
+        }
+        else if (it == ellipticityGraphIview) {
+            y << dataEllipticity[ldpc];
+            it->setData(x,y);
+        }
+    }
+
+    ui->statPlot->replot();
+    ui->statPlot->update();
+}
+
 
 /*
 void ImageStatistics::showNoData(QCPGraph *graph, float xpos, float ypos)
@@ -238,6 +287,7 @@ void ImageStatistics::dataPointClicked(QCPAbstractPlottable *plottable, int data
     lastButtonClicked = event->button();
     selection.simplify();
     plotSelection(dataIndex);
+    highlightClickedDataPoint();
     //    ui->statPlot->setStatusTip(imgSelectedName);
     if (!selection.isEmpty()) {
         emit imageSelected(lastDataPointClicked);
@@ -313,6 +363,7 @@ void ImageStatistics::on_connectDataPointsCheckBox_clicked()
     if (ui->connectDataPointsCheckBox->isChecked()) myLineStyle = QCPGraph::lsLine;
     else myLineStyle = QCPGraph::lsNone;
     plot();
+    plotSelection(0);
 }
 
 void ImageStatistics::on_clearSelectionPushButton_clicked()

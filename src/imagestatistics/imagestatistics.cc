@@ -60,7 +60,7 @@ ImageStatistics::ImageStatistics(QList<Data*> &datalist, const QString main, con
 
     ui->scienceComboBox->setCurrentText(sciencedirname);
 
-    Data *scienceData = getData(dataList, sciencedirname);            // dataList corresponds to DT_SCIENCE in the Controller class
+    scienceData = getData(dataList, sciencedirname);            // dataList corresponds to DT_SCIENCE in the Controller class
     scienceData->populateExposureList();
     myExposureList = scienceData->exposureList;
 
@@ -198,7 +198,7 @@ void ImageStatistics::on_statisticsPushButton_clicked()
     numObj = filteredImageList.size();
     if (numObj == 0) {
         QMessageBox::warning( this, "No images found",
-                              "No images found, check any filters or sky coordinates if provided.\n");
+                              "No images found, check chip filter or sky coordinates if provided.\n");
         ui->statisticsPushButton->setEnabled(true);
         ui->statisticsPushButton->setText("Get statistics ...");
         return;
@@ -412,6 +412,7 @@ void ImageStatistics::on_showPushButton_clicked()
             connect(this, &ImageStatistics::imageSelected, iView, &IView::loadFITSexternalRAM);
             connect(iView, &IView::destroyed, this, &ImageStatistics::uncheckIviewPushButton);
             connect(iView, &IView::closed, this, &ImageStatistics::uncheckIviewPushButton);
+            connect(iView, &IView::currentlyDisplayedIndex, this, &ImageStatistics::iviewNewImageShownReceiver);
             // iView->clearAll();
         }
         else if (!imgSelected && statisticsDataDisplayed) {
@@ -427,6 +428,7 @@ void ImageStatistics::on_showPushButton_clicked()
             connect(this, &ImageStatistics::imageSelected, iView, &IView::loadFITSexternalRAM);
             connect(iView, &IView::destroyed, this, &ImageStatistics::uncheckIviewPushButton);
             connect(iView, &IView::closed, this, &ImageStatistics::uncheckIviewPushButton);
+            connect(iView, &IView::currentlyDisplayedIndex, this, &ImageStatistics::iviewNewImageShownReceiver);
             // To be implemented
             // connect(iView, &IView::currentlyDisplayedIndex, this, &ImageStatistics::currentlyDisplayedIndexReceived);
             iView->scene->clear();
@@ -438,6 +440,7 @@ void ImageStatistics::on_showPushButton_clicked()
                 connect(this, &ImageStatistics::imageSelected, iView, &IView::loadFITSexternalRAM);
                 connect(iView, &IView::destroyed, this, &ImageStatistics::uncheckIviewPushButton);
                 connect(iView, &IView::closed, this, &ImageStatistics::uncheckIviewPushButton);
+                connect(iView, &IView::currentlyDisplayedIndex, this, &ImageStatistics::iviewNewImageShownReceiver);
 //                iView->loadFromRAM(allMyImages[lastDataPointClicked], 0);   // '0' refers to dataCurrent (compared to backup levels L1-L3)
                 iView->loadFromRAM(filteredMyImages[lastDataPointClicked], 0);   // '0' refers to dataCurrent (compared to backup levels L1-L3)
                 iView->currentId = lastDataPointClicked;
@@ -479,7 +482,6 @@ void ImageStatistics::uncheckIviewPushButton()
 void ImageStatistics::clearSelection()
 {
     selection.clear();
-    iviewSelection.clear();
     imgSelected = false;
     for (auto &it : numericThresholdList) {
         it->clear();
@@ -540,7 +542,7 @@ void ImageStatistics::on_scienceComboBox_activated(const QString &arg1)
     scienceDirName = mainDir + "/" + arg1;
     scienceDir.setPath(scienceDirName);
 
-    Data *scienceData = getData(dataList, arg1);            // dataList corresponds to DT_SCIENCE in the Controller class
+    scienceData = getData(dataList, arg1);            // dataList corresponds to DT_SCIENCE in the Controller class
     scienceData->populateExposureList();
     myExposureList = scienceData->exposureList;
 
@@ -560,4 +562,31 @@ void ImageStatistics::on_raLineEdit_editingFinished()
 void ImageStatistics::on_decLineEdit_editingFinished()
 {
     on_statisticsPushButton_clicked();
+}
+
+void ImageStatistics::activationChangedReceiver()
+{
+    // has no effect. in readStatisticsData()->makeListofBadImages(), images are recognized as bad even when they are not.
+    scienceData = getData(dataList, ui->scienceComboBox->currentText());
+    scienceData->populateExposureList();
+    myExposureList = scienceData->exposureList;
+
+    allMyImages.clear();
+     for (int k=0; k<myExposureList.length(); ++k) {
+         for (int chip=0; chip<instData->numChips; ++chip) {
+             if (instData->badChips.contains(chip)) continue;
+             auto &it = myExposureList[k][chip];
+             it->loadHeader();       // if not yet in memory
+             it->getMode(true);
+             allMyImages.append(it);
+         }
+     }
+
+     on_statisticsPushButton_clicked();
+}
+
+void ImageStatistics::iviewNewImageShownReceiver(int newDataPoint)
+{
+    lastDataPointClicked = newDataPoint;
+    highlightClickedDataPoint();
 }

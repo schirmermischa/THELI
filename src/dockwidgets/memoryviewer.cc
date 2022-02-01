@@ -173,6 +173,7 @@ void MemoryViewer::addData(const QList<Data*> &DT_x, const QString &type)
         connect(this, &MemoryViewer::endResetModel, dataModel, &DataModel::endResetModelReceived, Qt::DirectConnection);
         connect(dataModel, &DataModel::refreshMemoryViewer, mainGUI, &MainWindow::refreshMemoryViewerReceiver);
         connect(dataModel, &DataModel::activationWarning, controller, &Controller::activationWarningReceived);
+        connect(dataModel, &DataModel::activationChanged, this, &MemoryViewer::activationChangedReceiver);
     }
     if (list.isEmpty()) return;
     ui->datadirComboBox->addItems(list);
@@ -448,6 +449,11 @@ void MemoryViewer::on_memoryTableView_clicked(const QModelIndex &index)
 void MemoryViewer::iViewClosed_received()
 {
     iViewOpen = false;
+}
+
+void MemoryViewer::activationChangedReceiver()
+{
+    emit activationChanged();
 }
 
 void MemoryViewer::currentlyDisplayedIndex_received(int currentId)
