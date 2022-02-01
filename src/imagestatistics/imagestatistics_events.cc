@@ -164,6 +164,8 @@ void ImageStatistics::keyReleaseEvent(QKeyEvent *event)
         selection.simplify();
         plotSelection(currentDataPoint);
 
+        highlightClickedDataPoint();
+
         // Reflect the image in iView
         if (iViewOpen) {
             imgSelectedName = dataName[currentDataPoint];
