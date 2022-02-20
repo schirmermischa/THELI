@@ -1323,6 +1323,26 @@ bool Splitter::individualFixGAIN(int chip)
         chipGain = harmonicGain(multiportGains);
         individualFixDone = true;
     }
+    else if (instData.name == "VIRCAM@VISTA") {  // https://www.eso.org/sci/facilities/paranal/instruments/vircam/doc/VIS-MAN-ESO-06000-0002_v108.pdf
+        if (chip == 0) chipGain = 3.7;
+        if (chip == 1) chipGain = 4.2;
+        if (chip == 2) chipGain = 4.0;
+        if (chip == 3) chipGain = 4.2;
+        if (chip == 4) chipGain = 4.2;
+        if (chip == 5) chipGain = 4.1;
+        if (chip == 6) chipGain = 3.9;
+        if (chip == 7) chipGain = 4.2;
+        if (chip == 8) chipGain = 4.6;
+        if (chip == 9) chipGain = 4.0;
+        if (chip == 10) chipGain = 4.6;
+        if (chip == 11) chipGain = 4.0;
+        if (chip == 12) chipGain = 5.8;
+        if (chip == 13) chipGain = 4.8;
+        if (chip == 14) chipGain = 4.0;
+        if (chip == 15) chipGain = 5.0;
+        chipGain = harmonicGain(multiportGains);
+        individualFixDone = true;
+    }
     // multi-amp cameras where the gain is available in the header
     else if (instData.name == "SuprimeCam_200808-201705@SUBARU"
              || instData.name == "HSC@SUBARU"
