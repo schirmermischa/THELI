@@ -486,7 +486,7 @@ QString findExecutableName(QString program)
 {
     QStringList sourceextractorlist = {"source-extractor", "sex", "sextractor", "SExtractor"};
     QStringList scamplist = {"scamp", "Scamp"};
-    QStringList swarplist = {"swarp", "Swarp", "SWarp"};
+    QStringList swarplist = {"SWarp", "Swarp", "swarp"};
     QStringList anetlist1 = {"solve-field"};
     QStringList anetlist2 = {"build-astrometry-index"};
     QStringList pythonlist = {"python3", "python"};
