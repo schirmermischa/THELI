@@ -52,7 +52,7 @@ void Controller::populateHeaderDictionary()
                                        "FILT1", "FILT2", "FILTERS", "FILTNAME", "SUBSET",
                                        "HIERARCH ESO INS FILT1 NAME", "HIERARCH ESO INS FILT2 NAME",
                                        "HIERARCH ESO INS FILT3 NAME", "HIERARCH ESO INS FILT4 NAME",
-                                       "HIERARCH ESO INS OPTI-2 NAME",
+                                       "HIERARCH ESO INS OPTI-2 NAME", "HIERARCH ESO INS2 NXFW NAME",
                                        "AFT", "ALFLTNM", "FAFLTNM", "FBFLTNM", "FILTRE", "FLTRNAME", "PFMFNAME", "WFFBAND",
                                        "ACAMFSLI", "ACAMWH1", "ACAMWH2", "INGF1NAM", "INGF2NAM", "LIRF1NAM", "LIRF2NAM",
                                        "NCFLTNM1", "NCFLTNM2"});
