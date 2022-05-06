@@ -1370,6 +1370,7 @@ bool Splitter::checkCorrectMaskSize(const int chip)
     long n_mask = mask->globalMask[chip].length();
     long n_data = dataCurrent.length();
     // detectors with multi-amps (one amp per FITS extension): masked at a later stage (calibration)
+    if (instNameFromData == "GROND_NIR@MPGESO" && instData.name == "GROND_NIR@MPGESO") return true;
     if (n_mask > 0 && n_data > 0 && n_mask != n_data) {
         if (!maskSizeWarningShown) {
             emit messageAvailable(fileName + ": Inconsistent image size detected between data and instrument configuration"
