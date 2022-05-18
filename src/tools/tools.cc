@@ -631,7 +631,7 @@ void match2D(const QVector<QVector<double>> vec1, const QVector<QVector<double>>
 
 // Copy magnitudes and mag errors from a {DEC, RA, <MAG>, <MAGERR>} vector to another {DEC, RA, <MAG>, <MAGERR>} vector (matching)
 // <MAG> can be one or more numbers, e.g. 2 ref mags, or several aperture mags
-// tolerance is in [d/data1/TESTDATA/ST10/NGC4651/NGC4651_ALL/coadd_Redeg]
+// tolerance is in [deg]
 void match2D(const QVector<QVector<double>> vec1, QVector<QVector<double>> vec2, QVector<QVector<double>> &matched,
              double tolerance, int &multiple1, int &multiple2, int nthreads)
 {

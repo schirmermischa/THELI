@@ -1373,7 +1373,7 @@ void Query::writeAstromANET()
     long nrows = numSources;
 
     if (numSources > 150000) {
-        QString messageString = "NOTE: More than 1cd ../TEST350000 sources were retrieved.\n"
+        QString messageString = "NOTE: More than 150000 sources were retrieved.\n"
                                 "The astrometry.net index is not being built as it is very time consuming.\n"
                                 "If you want to use astrometry.net, reduce the catalog size by imposing\n"
                                 "a (tighter) magnitude limit.";
