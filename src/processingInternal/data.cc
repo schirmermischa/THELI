@@ -505,6 +505,7 @@ void Data::checkPresenceOfMasterCalibs()
         QStringList fitsFiles = dir.entryList(filter);
         if (!fitsFiles.isEmpty()) ++numMasterCalibs;
     }
+
     if (numMasterCalibs == instData->numUsedChips) hasAllMasterCalibs = true;
     else hasAllMasterCalibs = false;
 }
