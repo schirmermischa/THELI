@@ -57,6 +57,10 @@ QVector<long> MyImage::locateSkyNode(const double alpha, const double delta, con
     if (w<1) return QVector<long>();
 
     QVector<long> aperture;
+
+    // If center is outside image (e.g. stray skysample file, bad user input, etc)
+    if (xcen >= naxis1 || xcen <= 0. || ycen >= naxis2 || ycen <= 0) return aperture;
+
     long xmin = xcen - w < 0 ? 0 : xcen - w;
     long ymin = ycen - w < 0 ? 0 : ycen - w;
     long xmax = xcen + w >= naxis1 ? naxis1-1 : xcen + w;
