@@ -221,6 +221,7 @@ void Controller::coaddPrepare(QString filterArg)
             if (instData->badChips.contains(chip)) continue;
             for (auto &it : coaddScienceData->myImageList[chip]) {
                 if (!it->successProcessing) continue;
+                if (it->activeState != MyImage::ACTIVE) continue;
                 alpha.append(it->alpha_ctr);
                 delta.append(it->delta_ctr);
             }
@@ -231,7 +232,7 @@ void Controller::coaddPrepare(QString filterArg)
         refDE = QString::number(deltaMedian, 'f', 9);
     }
 
-    // Progress bar is updated some fraction of a second. We just need to set the variable.
+    // Progress bar is updated every some fraction of a second. We just need to set the variable.
     progress = 30.;
     //    emit progressUpdate(progress);
 
@@ -245,6 +246,7 @@ void Controller::coaddPrepare(QString filterArg)
     float lastExpTime = 0.; // to be added to DATE-OBS of the last exposure
     for (auto &it : coaddScienceData->myImageList[instData->validChip]) {
         if (!it->successProcessing) continue;
+        if (it->activeState != MyImage::ACTIVE) continue;
         it->loadHeader();
         mjdobsData.append(it->mjdobs);
         if (it->mjdobs <= mjdStart) {
@@ -277,6 +279,7 @@ void Controller::coaddPrepare(QString filterArg)
         if (!chipList.contains(chip) || instData->badChips.contains(chip)) continue;        // Skip chips that should not be coadded
         for (auto &it : coaddScienceData->myImageList[chip]) {
             if (!it->successProcessing) continue;
+            if (it->activeState != MyImage::ACTIVE) continue;
             it->loadHeader();
             QFile image(it->path + "/" + it->baseName + ".fits");
             QFile weight(it->weightPath + "/" + it->weightName + ".fits");
