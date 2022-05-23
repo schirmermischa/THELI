@@ -804,7 +804,6 @@ void Splitter::pasteSubArea(QVector<float> &dataT, const QVector<float> &dataS, 
             long tIndex = iT+nT*jT;
             if (!instData.name.contains("GROND") && !instData.name.contains("DUMMY")) {
                 if (sIndex >= dimS || tIndex >= dimT) {
-                    qDebug() << tIndex << dimT << iminS << imaxS << jminS << jmaxS << sizex << sizey;
                     emit messageAvailable("Inconsistent image geometry. " + instData.name + " not fully tested in THELI.", "error");
                     emit critical();
                     successProcessing = false;

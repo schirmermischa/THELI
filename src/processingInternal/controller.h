@@ -291,6 +291,7 @@ private:
     bool setupBackgroundList(int chip, Data *skyData, const QString &chipName);
     void combineAllBackgroundUsabilityFlags(const QList<MyImage *> &backgroundList);
     void getMinimumSaturationValue();
+    bool isExposureActive(QList<MyImage *> exposure);
 private slots:
 //    void displayRAMload();
 //    void displayMemoryTotalUsed();

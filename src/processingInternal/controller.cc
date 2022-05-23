@@ -1177,6 +1177,18 @@ void Controller::activationWarningReceived(QString imagestatus, QString drivesta
                            "or close THELI and manually restore all suitable images, or start from the raw data.");
 }
 
+bool Controller::isExposureActive(QList<MyImage*> exposure)
+{
+    bool active = false;
+    for (auto &it : exposure) {
+        if (it->activeState == MyImage::ACTIVE) {
+            active = true;
+            break;
+        }
+    }
+    return active;
+}
+
 /*
 void Controller::decrementCurrentThreads(omp_lock_t &lock)
 {

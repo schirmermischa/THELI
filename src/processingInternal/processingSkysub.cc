@@ -129,6 +129,9 @@ void Controller::skysubPolynomialFit(Data *scienceData)
     for (long i=0; i<numExposures; ++i) {
         if (abortProcess || !successProcessing) continue;
 
+        // Skip deactivated exposures (all chips inactive)
+        if (!isExposureActive(scienceData->exposureList[i])) continue;
+
         emit messageAvailable("Building polynomial fit for exposure " + QString::number(i) + " / "
                               + QString::number(numExposures), "controller");
         QList<QVector<double>> skyPolyfitNodes;
@@ -137,8 +140,10 @@ void Controller::skysubPolynomialFit(Data *scienceData)
             int chip = it->chipNumber - 1;
             if (instData->badChips.contains(chip)) continue;
             if (!it->successProcessing) continue;
+            if (it->activeState != MyImage::ACTIVE) continue;
             skyPolyfitNodes.append(it->skyPolyfitNodes);
         }
+
         // Fit a polynomial to the nodes, subtract the model from the images
         Fitting skyFit;
         connect(&skyFit, &Fitting::messageAvailable, this, &Controller::messageAvailableReceived);
@@ -206,6 +211,9 @@ void Controller::skysubConstantFromArea(Data *scienceData)
 #pragma omp parallel for num_threads(maxCPU)
     for (long i=0; i<numExposures; ++i) {
         if (abortProcess || !successProcessing) continue;
+        // Skip deactivated exposures (all chips inactive)
+        if (!isExposureActive(scienceData->exposureList[i])) continue;
+
         // Calculate the mean sky background for the exposure
         QVector<float> skyBackground;
         for (auto &it : scienceData->exposureList[i]) {
@@ -341,6 +349,8 @@ void Controller::skysubConstantReferenceChip(Data *scienceData, QString DT, QStr
 #pragma omp parallel for num_threads(maxCPU) firstprivate(DT, DMIN, expFactor)
     for (long i=0; i<numExposures; ++i) {
         if (abortProcess || !successProcessing) continue;
+        // Skip deactivated exposures (all chips inactive)
+        if (!isExposureActive(scienceData->exposureList[i])) continue;
 
         releaseMemory(nimg*instData->storage, maxCPU);
 

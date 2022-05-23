@@ -447,6 +447,7 @@ bool Data::checkTaskRepeatStatus(QString taskBasename)
     bool imageStatus = myImageList[instData->validChip][0]->isTaskRepeated;
     for (int chip=0; chip<instData->numChips; ++chip) {
         for (auto &it : myImageList[chip]) {
+            if (it->activeState != MyImage::ACTIVE) continue;
             it->checkTaskRepeatStatus(taskBasename);
             if (imageStatus != it->isTaskRepeated) {
                 emit messageAvailable(dirName + " : Data::checkTaskRepeatStatus(): Inconsistent processing status detected among images!<br>You must clean-up the data directory manually. Restart recommended.", "error");
@@ -472,6 +473,7 @@ bool Data::checkTaskRepeatStatus(QString taskBasename)
     if (isTaskRepeated) {
         for (int chip=0; chip<instData->numChips; ++chip) {
             for (auto &it : myImageList[chip]) {
+                if (it->activeState != MyImage::ACTIVE) continue;
                 // If the image is not in memory, check if it is on disk
                 if (!it->backupL1InMemory) {
                     QString fileName = it->pathBackupL1 + "/" + it->baseNameBackupL1 + ".fits";

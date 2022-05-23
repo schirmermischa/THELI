@@ -768,7 +768,7 @@ void ConfDockWidget::launchViewer(const QString &mode)
     QString mainDirName = mainGUI->controller->mainDirName;
     QString scienceDirName = mainGUI->controller->DT_SCIENCE[0]->subDirName;
     QString dirName = mainDirName + "/"+scienceDirName;
-    IView *iView = new IView("MEMview", mainGUI->controller->DT_SCIENCE[0]->myImageList[mainGUI->instData.validChip], dirName, this);
+    IView *iView = new IView("FITSmonochrome", mainGUI->controller->DT_SCIENCE[0]->myImageList[mainGUI->instData.validChip], dirName, this);
     iView->scene->clear();
     MyImage *it = mainGUI->controller->DT_SCIENCE[0]->myImageList[mainGUI->instData.validChip][0];
     iView->loadFromRAM(it, 3);
