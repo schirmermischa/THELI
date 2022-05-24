@@ -67,7 +67,7 @@ void getBinnedSize(const instrumentDataType *instData, const QVector<QVector<int
 QVector<int> CDmatrixToTransformationMatrix(QVector<double> CD, QString instName)
 {
     if (instName != "WFC@INT" &&
-            instName != "WFC_2x2@INT") rotateCDmatrix(CD, 0.);
+            instName != "WFC_2x2@INT" && instName != "90Prime@BOK2.3m") rotateCDmatrix(CD, 0.);
     double pscale = sqrt(CD[0]*CD[0] + CD[2]*CD[2]);
 
     QVector<int> T;
@@ -77,7 +77,7 @@ QVector<int> CDmatrixToTransformationMatrix(QVector<double> CD, QString instName
     T.push_back(round(CD[3]/pscale));
 
     if (instName != "WFC@INT" &&
-            instName != "WFC_2x2@INT") {
+            instName != "WFC_2x2@INT" && instName != "90Prime@BOK2.3m") {
         // Take out any flips. Only rotations are allowed for binned mosaics
         if (T[0] == -1 && T[3] == 1) T[0] = 1;
         else if (T[0] == 1 && T[3] == -1) T[3] = 1;

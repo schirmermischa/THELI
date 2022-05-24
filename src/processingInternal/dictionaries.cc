@@ -262,8 +262,10 @@ void Controller::populateFilterDictionary()
 //    filterDictionary.insert(, );
 }
 
+// Matching THELI instrument configuration with FITS file INSTRUME keyword, to detect wrong matchups.
 void Controller::populateInstrumentDictionary()
 {
+    instrumentDictionary.insert("90Prime@BOK2.3m", "90prime");
     instrumentDictionary.insert("ACAM@WHT", "ACAM");
     instrumentDictionary.insert("ACS@HST", "");
     instrumentDictionary.insert("ALFOSC@NOT", "");

@@ -319,7 +319,6 @@ void Splitter::WCSbuildCDmatrix(int chip)
 
     QStringList wcsKeys = {"CD1_1", "CD1_2", "CD2_1", "CD2_2"};
 
-
     // Create fallback CD matrix from CDELT keywords, if later determination of CDij fails
     QVector<double> cd_fallback;
     cd_fallback = CDfromCDELT();
@@ -1004,6 +1003,29 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
         individualFixDone = true;
     }
+    if (instData.name == "90Prime@BOK2.3m") {
+        // CD matrix appears to assume a plate scale of 1.0 instead of 0.452 arcsec/pixel. It is also rotated by 90 degrees and flipped.
+        // We fix it manually, and hope that it doesn't change.
+        cd11_card = "CD1_1   = 0.";
+        cd22_card = "CD2_2   = 0.";
+        if (chip == 0 || chip == 4 || chip == 11 || chip == 15) {
+           cd12_card = "CD1_2   =   1.258E-04 ";
+           cd21_card = "CD2_1   =   1.258E-04 ";
+        }
+        if (chip == 1 || chip == 5 || chip == 10 || chip == 14) {
+           cd12_card = "CD1_2   =   1.258E-04 ";
+           cd21_card = "CD2_1   =  -1.258E-04 ";
+        }
+        if (chip == 2 || chip == 6 || chip == 9 || chip == 13) {
+           cd12_card = "CD1_2   =  -1.258E-04 ";
+           cd21_card = "CD2_1   =   1.258E-04 ";
+        }
+        if (chip == 3 || chip == 7 || chip == 8 || chip == 12) {
+           cd12_card = "CD1_2   =  -1.258E-04 ";
+           cd21_card = "CD2_1   =  -1.258E-04 ";
+        }
+        individualFixDone = true;
+    }
 
     if (individualFixDone) {
         cd11_card.resize(80, ' ');
@@ -1396,6 +1418,27 @@ bool Splitter::individualFixGAIN(int chip)
         channelGains.clear();
         channelGains << gain1 << gain2 << gain3 << gain4;
         chipGain = harmonicGain(channelGains);
+        individualFixDone = true;
+    }
+    else if (instData.name == "90Prime@BOK2.3m") {
+//        QString gainkeyword = "GAIN"+QString::number(chip+1);
+//        searchKeyValue(QStringList() << gainkeyword, chipGain);
+        if (chip == 0)  {searchKeyValue(QStringList() << "GAIN1", chipGain);  chipGain /= 1.0000;}
+        if (chip == 1)  {searchKeyValue(QStringList() << "GAIN2", chipGain);  chipGain /= 1.0033;}
+        if (chip == 2)  {searchKeyValue(QStringList() << "GAIN3", chipGain);  chipGain /= 1.0113;}
+        if (chip == 3)  {searchKeyValue(QStringList() << "GAIN4", chipGain);  chipGain /= 0.9681;}
+        if (chip == 4)  {searchKeyValue(QStringList() << "GAIN5", chipGain);  chipGain /= 1.0000;}
+        if (chip == 5)  {searchKeyValue(QStringList() << "GAIN6", chipGain);  chipGain /= 0.9406;}
+        if (chip == 6)  {searchKeyValue(QStringList() << "GAIN7", chipGain);  chipGain /= 0.9823;}
+        if (chip == 7)  {searchKeyValue(QStringList() << "GAIN8", chipGain);  chipGain /= 0.9504;}
+        if (chip == 8)  {searchKeyValue(QStringList() << "GAIN9", chipGain);  chipGain /= 1.0000;}
+        if (chip == 9)  {searchKeyValue(QStringList() << "GAIN10", chipGain); chipGain /= 0.9729;}
+        if (chip == 10) {searchKeyValue(QStringList() << "GAIN11", chipGain); chipGain /= 1.0204;}
+        if (chip == 11) {searchKeyValue(QStringList() << "GAIN12", chipGain); chipGain /= 0.9789;}
+        if (chip == 12) {searchKeyValue(QStringList() << "GAIN13", chipGain); chipGain /= 1.0000;}
+        if (chip == 13) {searchKeyValue(QStringList() << "GAIN14", chipGain); chipGain /= 0.9982;}
+        if (chip == 14) {searchKeyValue(QStringList() << "GAIN15", chipGain); chipGain /= 1.0366;}
+        if (chip == 15) {searchKeyValue(QStringList() << "GAIN16", chipGain); chipGain /= 0.9660;}
         individualFixDone = true;
     }
 
