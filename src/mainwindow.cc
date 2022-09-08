@@ -150,7 +150,7 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     // this->setStyleSheet("QComboBox:hover { background-color: #99ccff };");
 
     // The entity that keeps track of the data, incl connections
-//    QString statusOld = status.getStatusFromHistory();
+    //    QString statusOld = status.getStatusFromHistory();
 
     // Another dock widget, must be done after instantiating the controller
     memoryViewer = new MemoryViewer(controller, this);
@@ -183,6 +183,8 @@ MainWindow::MainWindow(QString pid, QWidget *parent) :
     connect(controller, &Controller::updateMemoryProgressBar, this, &MainWindow::updateMemoryProgressBarReceived);
     connect(controller, &Controller::forceFinish, this, &MainWindow::taskFinished);
     connect(controller, &Controller::refreshMemoryViewer, this, &MainWindow::refreshMemoryViewerReceiver);
+
+//    controller->isMainDirHome();
 
     connect(this, &MainWindow::resetErrorStatus, controller, &Controller::resetErrorStatusReceived);
     connect(this, &MainWindow::rereadScienceDataDir, controller, &Controller::rereadScienceDataDirReceived);
@@ -781,8 +783,17 @@ bool MainWindow::checkPathsLineEdit(QLineEdit *lineEdit)
     }
     if (lineEdit == ui->setupMainLineEdit) {
         if (dir.isAbsolute()) {
-            paintPathLineEdit(lineEdit, dirname);
-            return true;
+            QString mainDirName = lineEdit->text();
+            if (QDir(mainDirName) != QDir::home()) {
+                paintPathLineEdit(lineEdit, dirname);
+                return true;
+            }
+            else {
+                QPalette palette;
+                palette.setColor(QPalette::Base,QColor("#ffffaa"));
+                lineEdit->setPalette(palette);
+                return false;
+            }
         }
         else {
             QPalette palette;
@@ -1376,6 +1387,7 @@ void MainWindow::on_setupProjectLoadToolButton_clicked()
     controller->wipeDataTree();
 
     // Now load the new GUI settings
+    // ui->plainTextEdit->clear();      // Not effective. Why?
     ui->setupProjectLineEdit->setText(projectBaseName);
     int settingsStatus = readGUISettings(projectBaseName);
     if (settingsStatus == 0) {

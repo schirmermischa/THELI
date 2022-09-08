@@ -166,19 +166,37 @@ Controller::~Controller()
     stderrByteArray = nullptr;
 }
 
+bool Controller::isMainDirHome()
+{
+    // Must compare string values, not QDirs themselves, as they could be initialized differently (e.g. "." vs /home/.../)
+    if (QDir(mainDirName).absolutePath() == QDir::home().absolutePath()) {
+        if (!homeDirWarningShowed) emit messageAvailable("For safety reasons, your home directory is not permitted as the main directory.", "error");
+        // emit criticalReceived();
+        homeDirWarningShowed = true;
+        successProcessing = false;
+        return true;
+    }
+    else {
+        homeDirWarningShowed = false;
+        successProcessing = true;
+        return false;
+    }
+}
+
 // Reads whatever is defined in the Setup data tree section, and maps it onto the various lists
 void Controller::mapDataTree()
 {
-    if (QDir(mainDirName) == QDir::home()) {
-        emit messageAvailable("For safety reasons, your home directory is not permitted as the main directory.", "error");
-        criticalReceived();
-        return;
-    }
 
     dataTreeUpdateOngoing = true;
     omp_set_lock(&memoryLock);
     emit clearMemoryView();
     mainDirName = mainGUI->ui->setupMainLineEdit->text();
+
+    if (isMainDirHome()) {
+        omp_unset_lock(&memoryLock);
+        return;
+    }
+
     recurseCounter = 0;
     parseDataDir(mainGUI->ui->setupBiasLineEdit, DT_BIAS);
     recurseCounter = 0;
@@ -242,11 +260,8 @@ void Controller::parseDataDir(QLineEdit *le, QList<Data *> &DT_x)
             DT_x.clear();
             return;
         }
-        if (QDir(mainDirName) == QDir::home()) {
-            emit messageAvailable("For safety reasons, your home directory is not permitted as the main directory.", "error");
-            criticalReceived();
-            return;
-        }
+
+        if (isMainDirHome()) return;
 
         Data *data = new Data(instData, mask, mainDirName, it, &verbosity);
         connect(data, &Data::statusChanged, mainGUI, &MainWindow::statusChangedReceived);
@@ -987,7 +1002,7 @@ Data* Controller::getDataAll(QString dirName)
         }
     }
 
-    emit messageAvailable("Controller::getDataAll(): Directory " + dirName + " not found in Data classes.", "error");
+    emit messageAvailable(QString(__func__)+": Directory " + dirName + " not found in Data classes.", "error");
     criticalReceived();
     return nullptr;
 }

@@ -292,6 +292,7 @@ private:
     void combineAllBackgroundUsabilityFlags(const QList<MyImage *> &backgroundList);
     void getMinimumSaturationValue();
     bool isExposureActive(QList<MyImage *> exposure);
+
 private slots:
 //    void displayRAMload();
 //    void displayMemoryTotalUsed();
@@ -385,6 +386,8 @@ public:
     bool alwaysStoreData = false;
     bool minimizeMemoryUsage = false;
 
+    bool homeDirWarningShowed = false;
+
     float progress = 0.;
     long numActiveImages = 0;
     float progressStepSize = 0.;
@@ -476,8 +479,9 @@ public:
     void connectDataWithMemoryViewer();
     QLineEdit *getDataTreeLineEdit(Data *data);
     void getFieldCenter(Data *data, QString &alphaCenter, QString &deltaCenter);
-
+    bool isMainDirHome();
     void populateInstrumentDictionary();
+
 signals:
     void loadViewer(QString dirname, QString filter, QString mode);
     void messageAvailable(QString message, QString type);

@@ -53,8 +53,9 @@ Data::Data(const instrumentDataType *instrumentData, Mask *detectorMask, QString
 
     resetSuccessProcessing();
 
-    if (QDir(maindirname) == QDir::home()) {
-        emit messageAvailable("For safety reasons, your home directory is not permitted as the main directory.", "error");
+    // Must compare string values, not QDirs themselves, as they could be initialized differently (e.g. "." vs /home/.../)
+    if (QDir(maindirname).absolutePath() == QDir::home().absolutePath()) {
+        emit messageAvailable(QString(__func__)+": For safety reasons, your home directory is not permitted as the main directory.", "error");
         emit critical();
         return;
     }

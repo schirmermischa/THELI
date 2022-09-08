@@ -544,8 +544,13 @@ void MainWindow::on_startPushButton_clicked()
     if (! areAllPathsValid()
             && (mode != "ResolveTargetSidereal")
             && !doingInitialLaunch) {
-        message(ui->plainTextEdit, "STOP: Nonexistent entries were found in the data directory tree. "
-                                   "They must be fixed or removed.");
+        if (QDir(ui->setupMainLineEdit->text()) != QDir::home()) {
+            message(ui->plainTextEdit, "STOP: Nonexistent entries were found in the data directory tree. "
+                                       "They must be fixed or removed.");
+        }
+        else {
+            message(ui->plainTextEdit, "STOP: For safety reasons, your home directory is not permitted as the main directory.");
+        }
         ui->processingTabWidget->setCurrentIndex(0);
         return;
     }
@@ -578,6 +583,12 @@ void MainWindow::on_startPushButton_clicked()
         }
     }
     totalCommandList.append("END::"+taskBasename);
+
+    if (controller->isMainDirHome()) {
+        message(ui->plainTextEdit, "STOP: For safety reasons, your home directory is not permitted as the main directory.");
+        stop = true;
+        return;
+    }
 
     // If we are not in simulator mode then do the real thing
     if (mode != "simulate") {
