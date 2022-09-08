@@ -1255,6 +1255,9 @@ void Data::initGlobalWeight(int chip, Data *flatData, QString filter, bool sameW
     connect(myImage, &MyImage::setMemoryLock, this, &Data::setMemoryLockReceived, Qt::DirectConnection);
     connect(myImage, &MyImage::setWCSLock, this, &Data::setWCSLockReceived, Qt::DirectConnection);
 
+    myImage->wcs = new wcsprm();
+    myImage->initWCS();
+
     // Potential masking
     long i=0;
     float flatMinVal = 0.;
