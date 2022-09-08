@@ -529,7 +529,8 @@ int MainWindow::readGUISettings(QString projectname)
     cdw->ui->flatoffNhighLineEdit->setText(settings.value("flatoffNhighLineEdit").toString());
     cdw->ui->flatoffNlowLineEdit->setText(settings.value("flatoffNlowLineEdit").toString());
     cdw->ui->flatoffMethodComboBox->setCurrentIndex(settings.value("flatoffMethodComboBox").toInt());
-    cdw->ui->skyAreaComboBox->setCurrentIndex(settings.value("skyAreaComboBox").toInt());
+    // Instrument-dependent, see below
+    // cdw->ui->skyAreaComboBox->setCurrentIndex(settings.value("skyAreaComboBox").toInt());
     cdw->ui->skyConstsubRadioButton->setChecked(settings.value("skyConstsubRadioButton").toBool());
     cdw->ui->skyDMINLineEdit->setText(settings.value("skyDMINLineEdit").toString());
     cdw->ui->skyDTLineEdit->setText(settings.value("skyDTLineEdit").toString());
@@ -593,6 +594,11 @@ int MainWindow::readGUISettings(QString projectname)
     ui->setupScienceLineEdit->setText(settings.value("setupScienceLineEdit").toString());
     ui->setupSkyLineEdit->setText(settings.value("setupSkyLineEdit").toString());
     ui->setupStandardLineEdit->setText(settings.value("setupStandardLineEdit").toString());
+
+    // Now that the instrument is known, we can update instrument-dependent comboboxes etc
+    cdw->setupInstrumentComboBox_clicked();
+    cdw->ui->skyAreaComboBox->setCurrentIndex(settings.value("skyAreaComboBox").toInt());
+
     settings.endGroup();
     preventLoop_WriteSettings = false;
     readingSettings = false;

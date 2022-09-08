@@ -1489,7 +1489,9 @@ void MyImage::mergeObjectWithGlobalMask()
     else {
         long i=0;
         for (auto &pixel : objectMask) {
-            pixel = pixel && globalMask.at(i);
+            // pixel = pixel && globalMask.at(i);   // wrong!
+            // a masked value is true. If && is used, then false && true == false, i.e. unmasked && masked == unmasked, but should be masked
+            pixel = pixel || globalMask.at(i);
             ++i;
         }
     }
