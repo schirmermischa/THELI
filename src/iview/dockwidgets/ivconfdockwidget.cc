@@ -200,13 +200,13 @@ void IvConfDockWidget::showCurrentMousePosBinned(QPointF currentMousePos)
     }
     else {
         if (iview->displayMode == "FITSmonochrome" || iview->displayMode == "MEMview") {
-            ui->valueLabel->setText(QString::number(iview->fitsData[i+iview->naxis1*j]));
+            ui->valueLabel->setText(QString::number(iview->fitsData[i+iview->naxis1*j]) + " " + iview->currentMyImage->bunit);
         }
         else if (iview->displayMode == "FITScolor") {
             ui->valueLeftLabel->setText("R = "+QString::number(iview->fitsDataR[i+iview->naxis1*j]));
-            ui->valueLabel->setText(QString::number(iview->fitsDataR[i+iview->naxis1*j]));
-            ui->valueGreenLabel->setText(QString::number(iview->fitsDataG[i+iview->naxis1*j]));
-            ui->valueBlueLabel->setText(QString::number(iview->fitsDataB[i+iview->naxis1*j]));
+            ui->valueLabel->setText(QString::number(iview->fitsDataR[i+iview->naxis1*j]) + " " + iview->currentMyImage->bunit);
+            ui->valueGreenLabel->setText(QString::number(iview->fitsDataG[i+iview->naxis1*j]) + " " + iview->currentMyImage->bunit);
+            ui->valueBlueLabel->setText(QString::number(iview->fitsDataB[i+iview->naxis1*j]) + " " + iview->currentMyImage->bunit);
         }
     }
 }

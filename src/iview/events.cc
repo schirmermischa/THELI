@@ -102,14 +102,14 @@ void IView::showCurrentMousePos(QPointF point)
     long j = y_cursor - 0.5;
     if (i<naxis1 && i>=0 && j<naxis2 && j>=0) {
         if (displayMode == "FITSmonochrome" || displayMode == "MEMview") {
-            QString value = QString::number(fitsData[i+naxis1*j]);
+            QString value = QString::number(fitsData[i+naxis1*j]) + " " + currentMyImage->bunit;
             icdw->ui->valueLabel->setText(value);
         }
         else {
             // Color FITS
-            QString rval = QString::number(fitsDataR[i+naxis1*j]);
-            QString gval = QString::number(fitsDataG[i+naxis1*j]);
-            QString bval = QString::number(fitsDataB[i+naxis1*j]);
+            QString rval = QString::number(fitsDataR[i+naxis1*j]) + " " + currentMyImage->bunit;
+            QString gval = QString::number(fitsDataG[i+naxis1*j]) + " " + currentMyImage->bunit;
+            QString bval = QString::number(fitsDataB[i+naxis1*j]) + " " + currentMyImage->bunit;
             icdw->ui->valueLabel->setText(rval);
             icdw->ui->valueGreenLabel->setText(gval);
             icdw->ui->valueBlueLabel->setText(bval);

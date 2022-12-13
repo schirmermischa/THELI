@@ -77,6 +77,11 @@ void Splitter::buildTheliHeader()
     headerTHELI.append(geolon);
     headerTHELI.append(geolat);
 
+    // Append BUNIT
+    QString bunit = "BUNIT   = 'e-'";
+    bunit.resize(80, ' ');
+    headerTHELI.append(bunit);
+
     // Instrument-specific optional keys
     bool keyFoundOptional = true;
     QString instSpecificKey = "";
@@ -897,7 +902,32 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
         individualFixDone = true;
     }
-    if (instData.name.contains("IMACS")) {     // IMACS has no CD matrix in the header
+    if (instData.name.contains("IMACS_F2")) {     // IMACS has no CD matrix in the header
+        if (!searchKeyValue(QStringList() << "ROTATORE", positionAngle)) {
+            emit messageAvailable(name + " : Could not find ROTANGLE keyword, set to zero! CD matrix might have wrong orientation.", "warning");
+            emit warning();
+            positionAngle = 0.0;
+        }
+
+        if (chip<=3) {
+            cd11 = 0.;
+            cd12 = -instData.pixscale / 3600.;
+            cd21 = instData.pixscale / 3600.;
+            cd22 = 0.;
+        }
+        if (chip>=4) {
+            cd11 = 0.;
+            cd12 = instData.pixscale / 3600.;
+            cd21 = -instData.pixscale / 3600.;
+            cd22 = 0.;
+        }
+        cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
+        cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
+        cd21_card = "CD2_1   =  "+QString::number(cd21, 'g', 6);
+        cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
+        individualFixDone = true;
+    }
+    if (instData.name.contains("IMACS_F4")) {     // IMACS has no CD matrix in the header
         if (!searchKeyValue(QStringList() << "ROTATORE", positionAngle)) {
             emit messageAvailable(name + " : Could not find ROTANGLE keyword, set to zero! CD matrix might have wrong orientation.", "warning");
             emit warning();
@@ -1009,20 +1039,20 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd11_card = "CD1_1   = 0.";
         cd22_card = "CD2_2   = 0.";
         if (chip == 0 || chip == 4 || chip == 11 || chip == 15) {
-           cd12_card = "CD1_2   =   1.258E-04 ";
-           cd21_card = "CD2_1   =   1.258E-04 ";
+            cd12_card = "CD1_2   =   1.258E-04 ";
+            cd21_card = "CD2_1   =   1.258E-04 ";
         }
         if (chip == 1 || chip == 5 || chip == 10 || chip == 14) {
-           cd12_card = "CD1_2   =   1.258E-04 ";
-           cd21_card = "CD2_1   =  -1.258E-04 ";
+            cd12_card = "CD1_2   =   1.258E-04 ";
+            cd21_card = "CD2_1   =  -1.258E-04 ";
         }
         if (chip == 2 || chip == 6 || chip == 9 || chip == 13) {
-           cd12_card = "CD1_2   =  -1.258E-04 ";
-           cd21_card = "CD2_1   =   1.258E-04 ";
+            cd12_card = "CD1_2   =  -1.258E-04 ";
+            cd21_card = "CD2_1   =   1.258E-04 ";
         }
         if (chip == 3 || chip == 7 || chip == 8 || chip == 12) {
-           cd12_card = "CD1_2   =  -1.258E-04 ";
-           cd21_card = "CD2_1   =  -1.258E-04 ";
+            cd12_card = "CD1_2   =  -1.258E-04 ";
+            cd21_card = "CD2_1   =  -1.258E-04 ";
         }
         individualFixDone = true;
     }
@@ -1421,8 +1451,8 @@ bool Splitter::individualFixGAIN(int chip)
         individualFixDone = true;
     }
     else if (instData.name == "90Prime@BOK2.3m") {
-//        QString gainkeyword = "GAIN"+QString::number(chip+1);
-//        searchKeyValue(QStringList() << gainkeyword, chipGain);
+        //        QString gainkeyword = "GAIN"+QString::number(chip+1);
+        //        searchKeyValue(QStringList() << gainkeyword, chipGain);
         if (chip == 0)  {searchKeyValue(QStringList() << "GAIN1", chipGain);  chipGain /= 1.0000;}
         if (chip == 1)  {searchKeyValue(QStringList() << "GAIN2", chipGain);  chipGain /= 1.0033;}
         if (chip == 2)  {searchKeyValue(QStringList() << "GAIN3", chipGain);  chipGain /= 1.0113;}

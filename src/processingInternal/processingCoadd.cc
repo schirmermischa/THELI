@@ -1090,7 +1090,7 @@ void Controller::coaddUpdate()
     fits_update_key_flt(fptr, "TEXPTIME", coaddTexptime, 3, "Total exposure time [s]", &status);
     fits_update_key_flt(fptr, "SKYVALUE", coaddSkyvalue, 3, "Effective background value [e-/s]", &status);
     fits_update_key_flt(fptr, "GAIN", coaddGain, 3, "Effective gain. This image is already in e-/s!", &status);
-    fits_update_key_str(fptr, "UNITS", "e-/s", "Pixels are photo-electrons / second", &status);
+    fits_update_key_str(fptr, "BUNIT", "e-/s", "Pixels are photo-electrons / second", &status);
     fits_update_key_flt(fptr, "SATURATE", minCoaddSaturationValue, 3, "Lowest value at which saturation occurs [e-/s]", &status);
     if (!skippedIQ) {
         fits_update_key_flt(fptr, "FWHM_I", seeing_image, 3, "FWHM (pixel)", &status);

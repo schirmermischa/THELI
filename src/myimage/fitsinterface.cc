@@ -112,6 +112,9 @@ void MyImage::readHeader(fitsfile **fptr, int *status)
     fullheaderAllocated = true;
     if (*status) return;
 
+    // Not reading all keywords from coadded FITS header
+    // qDebug() << fullheader;
+
     fullHeaderString = QString::fromUtf8(fullheader);
 
     // Map the header onto a QVector<QString>
@@ -366,6 +369,7 @@ void MyImage::initTHELIheader(int *status)
         extractKeywordLong(it, "NAXIS2", naxis2);
         extractKeywordDouble(it, "MJD-OBS", mjdobs);
         extractKeywordString(it, "FILTER", filter);
+        extractKeywordString(it, "BUNIT", bunit);
         extractKeywordString(it, "DATE-OBS", dateobs);
         extractKeywordFloat(it, "EXPTIME", exptime);
         extractKeywordFloat(it, "GAINCORR", gainNormalization);
@@ -411,6 +415,7 @@ void MyImage::checkTHELIheader(int *status)
             && fullHeaderString.contains("EXPTIME =")
             && fullHeaderString.contains("FILTER  =")
             && fullHeaderString.contains("GAIN    =")
+            && fullHeaderString.contains("BUNIT   =")
             && fullHeaderString.contains("OBJECT  =")
             && fullHeaderString.contains("MJD-OBS =")) {
         hasTHELIheader = true;

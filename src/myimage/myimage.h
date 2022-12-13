@@ -237,6 +237,7 @@ public:
     bool validDetector = true;     // Is the detector alive
     // Data characteristics
     QString dateobs = "";
+    QString bunit = "";
     double crval1 = 0.;
     double crval2 = 0.;
     double mjdobs = 0;

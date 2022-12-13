@@ -269,6 +269,7 @@ IView::IView(QString mode, QString dirname, QWidget *parent) :
 
 // Used by imstatistics (opening iview without data point selection)
 // mode = FITSmonochrome
+// Used to display coadded images
 IView::IView(QString mode, QString dirname, QString filter, QWidget *parent) :
     QMainWindow(parent),
     dirName(dirname),

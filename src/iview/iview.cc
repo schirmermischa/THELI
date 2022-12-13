@@ -730,6 +730,7 @@ bool IView::loadFITSdata(QString filename, QVector<float> &data, QString colorMo
     QVector<bool> dummyMask;
     dummyMask.clear();
     currentMyImage = new MyImage(filename, dummyMask, &verbose);
+    currentMyImage->loadHeader(filename);
     currentMyImage->readImage(filename);
     plateScale = currentMyImage->plateScale;
     naxis1 = currentMyImage->naxis1;

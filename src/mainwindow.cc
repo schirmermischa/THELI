@@ -1599,7 +1599,7 @@ void MainWindow::loadIView()
 }
 
 // Used for displaying:
-// (*) binned mosaics
+// (*) binned mosaics, coadded images (filter = file name)
 void MainWindow::launchViewer(QString dirname, QString filter, QString mode)
 {
     // Load the FITS viewer
