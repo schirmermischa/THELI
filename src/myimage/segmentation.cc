@@ -52,6 +52,11 @@ void MyImage::resetObjectMasking()
 
 void MyImage::segmentImage(const QString DTstring, const QString DMINstring, const bool convolution, const bool writeSegImage)
 {
+    // Catch internal QVector limitation (cannot hold more than 2^29 float elements)
+ //   if (naxis1*naxis2>=pow(2,29)) {
+ //       return;
+ //   }
+
     if (*verbosity > 1) emit messageAvailable(chipName + " : Detecting objects ... ", "image");
 
     // Start fresh
@@ -71,7 +76,7 @@ void MyImage::segmentImage(const QString DTstring, const QString DMINstring, con
     // Noise clipping
     // if this doesn't work, then make controller a member of each myimage
     emit setMemoryLock(true);
-    dataSegmentation.resize(naxis1*naxis2);         // this crashes vor very large images (e.g. coadded omegacam data); likely internal Qvector limitation
+    dataSegmentation.resize(naxis1*naxis2);         // this crashes for very large images (e.g. coadded omegacam data); likely internal Qvector limitation
     dataMeasure.clear();   // Must clear (if we run the detection twice, e.g. for sky modeling)
   //  dataMeasure.reserve(naxis1*naxis2);
     dataMeasure.resize(naxis1*naxis2);

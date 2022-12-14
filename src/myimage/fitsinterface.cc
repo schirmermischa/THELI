@@ -140,7 +140,7 @@ void MyImage::readData(fitsfile **fptr, int *status)
     // Read the data block
     naxis1 = naxis[0];
     naxis2 = naxis[1];
-    long nelements = naxis1*naxis2;
+    long nelements = naxis1*naxis2;             // QVector<float> cannot hold more than 2^29 elements!!!
     float *buffer = new float[nelements];
     float nullval = 0.;
     int anynull;
