@@ -1231,6 +1231,24 @@ void Query::runCommand(QString command)
     process.start("/bin/sh -c \""+command+"\"");
     process.waitForFinished(-1);
     byteArray = process.readAllStandardOutput();
+
+    // check output for issues with anaconda / python3
+    QTextStream stream(&byteArray, QIODevice::ReadOnly);
+    QString line;
+    int count = 0;
+    while (stream.readLineInto(&line) && count < 10) {             // the counter is to avoid processing very large, correct output.
+        line = line.simplified();
+        if (line.contains("-c requires an argument")
+                && queryCommand.contains("python")
+                && (queryCommand.contains("astroconda",Qt::CaseInsensitive) || queryCommand.contains("anaconda",Qt::CaseInsensitive))) {
+            emit messageAvailable(__func__+" ERROR: Incompatible anaconda / astroconda python executable used:", "error");
+            emit messageAvailable(pythonExecutable, "error");
+            emit messageAvailable("Deactivate your conda environment, and use your system's python installation instead.", "error");
+            emit critical();
+            return;
+        }
+        ++count;
+    }
 }
 
 /*

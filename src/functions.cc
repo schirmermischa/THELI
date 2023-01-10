@@ -535,7 +535,9 @@ QString findExecutableName(QString program)
     else if (program == "python") {
         for (auto &it : pythonlist) {
             commandname = QStandardPaths::findExecutable(it);
-            if (!commandname.isEmpty()) break;
+            if (!commandname.isEmpty()) {
+                break;
+            }
         }
     }
 
