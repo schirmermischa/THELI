@@ -1241,7 +1241,7 @@ void Query::runCommand(QString command)
         if (line.contains("-c requires an argument")
                 && queryCommand.contains("python")
                 && (queryCommand.contains("astroconda",Qt::CaseInsensitive) || queryCommand.contains("anaconda",Qt::CaseInsensitive))) {
-            emit messageAvailable(__func__+" ERROR: Incompatible anaconda / astroconda python executable used:", "error");
+            emit messageAvailable(QString(__func__)+" ERROR: Incompatible anaconda / astroconda python executable used:", "error");
             emit messageAvailable(pythonExecutable, "error");
             emit messageAvailable("Deactivate your conda environment, and use your system's python installation instead.", "error");
             emit critical();
