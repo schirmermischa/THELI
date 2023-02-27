@@ -788,7 +788,8 @@ void Splitter::getDetectorSections()
 void Splitter::overrideDetectorSections(int chip)
 {
     if (instData.name == "MOSAIC-III@KPNO_4m"
-            || instData.name == "WFC@INT") {
+            || instData.name == "WFC@INT"
+            || instData.name == "WFC_2x2@INT") {
         multiportOverscanDirections << "vertical";
         QVector<long> tmp = extractVerticesFromKeyword("BIASSEC");
         overscanX[chip] << tmp.at(0) << tmp.at(1);

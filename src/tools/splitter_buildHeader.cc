@@ -546,7 +546,7 @@ bool Splitter::individualFixCRVAL()
     QString crval2 = "";
 
     // List of instruments that we have to consider
-    QStringList list = {"WFC@INT", "SUSI1@NTT", "PISCO@LCO"};
+    QStringList list = {"WFC@INT", "WFC_2x2@INT", "SUSI1@NTT", "PISCO@LCO"};
 
     // Leave if no individual fix is required.
     if (!list.contains(instData.name)) return false;
@@ -562,7 +562,7 @@ bool Splitter::individualFixCRVAL()
     if (crval2.contains(':')) crval2 = dmsToDecimal(crval2);
 
     // Here are the individual fixes
-    if (instData.name == "WFC@INT") {
+    if (instData.name == "WFC@INT" || instData.name == "WFC_2x2@INT") {
         double alpha = crval1.toDouble();
         double delta = crval2.toDouble();
         // reset the coordinates such that scamp does not get confused (optical axis != crpix by ~4 arcminutes)
@@ -882,6 +882,33 @@ bool Splitter::individualFixCDmatrix(int chip)
             cd12_card = "CD1_2   =  -9.221689418834E-05";
             cd21_card = "CD2_1   =  -9.224461667406E-05";
             cd22_card = "CD2_2   =   1.077599414761E-06";
+        }
+        individualFixDone = true;
+    }
+    if (instData.name == "WFC_2x2@INT") {
+        if (chip == 0) {
+            cd11_card = "CD1_1   =  -2.187595402632E-06";
+            cd12_card = "CD1_2   =  -1.836774933953E-04";
+            cd21_card = "CD2_1   =  -1.836774933953E-04";
+            cd22_card = "CD2_2   =   2.196693471198E-06";
+        }
+        if (chip == 1) {
+            cd11_card = "CD1_1   =   1.838979962523E-04";
+            cd12_card = "CD1_2   =  -1.530619041314E-08";
+            cd21_card = "CD2_1   =  -7.465373169364E-08";
+            cd22_card = "CD2_2   =  -1.837749990795E-04";
+        }
+        if (chip == 2) {
+            cd11_card = "CD1_1   =  -2.526051008644E-06";
+            cd12_card = "CD1_2   =  -1.839716072858E-04";
+            cd21_card = "CD2_1   =  -1.839315570910E-04";
+            cd22_card = "CD2_2   =   2.415393914242E-06";
+        }
+        if (chip == 3) {
+            cd11_card = "CD1_1   =  -2.049772957061E-06";
+            cd12_card = "CD1_2   =  -1.847202572582E-04";
+            cd21_card = "CD2_1   =  -1.847377035556E-04";
+            cd22_card = "CD2_2   =   2.053889958265E-06";
         }
         individualFixDone = true;
     }
