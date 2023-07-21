@@ -186,6 +186,16 @@ void MyImage::showProcInfo()
     if (*verbosity > 1) emit messageAvailable(chipName + " : " + procInfo, "image");
 }
 
+bool MyImage::isTooBig()
+{
+    // QVector can only hold 2^29 elements
+    if  (naxis1*naxis2 > pow(2,29)) {
+        emit messageAvailable("Image has more than 2^29 elements and cannot be analysed within THELI.", "image");
+        return true;
+    }
+    else return false;
+}
+
 void MyImage::checkCorrectMaskSize(const instrumentDataType *instData)
 {
     if (instData->name.contains("DUMMY")) return;

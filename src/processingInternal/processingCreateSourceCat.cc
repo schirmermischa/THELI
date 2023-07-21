@@ -65,6 +65,7 @@ void Controller::taskInternalCreatesourcecat()
 
     QString minFWHM = cdw->ui->CSCFWHMLineEdit->text();
     QString maxFlag = cdw->ui->CSCmaxflagLineEdit->text();
+    QString maxEll = cdw->ui->CSCmaxellLineEdit->text();
 
     getNumberOfActiveImages(scienceData);
 
@@ -90,7 +91,7 @@ void Controller::taskInternalCreatesourcecat()
 
     // EXTERNAL (SourceExtractor)
     else {
-        detectionSourceExtractor(scienceData, minFWHM, maxFlag);
+        detectionSourceExtractor(scienceData, minFWHM, maxFlag, maxEll);
         emit resetProgressBar();
         progressStepSize = 100. / float(scienceData->exposureList.length());
         mergeSourceExtractor(scienceData);
@@ -210,7 +211,7 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
     }
 }
 
-void Controller::detectionSourceExtractor(Data *scienceData, QString minFWHM, QString maxFlag)
+void Controller::detectionSourceExtractor(Data *scienceData, QString minFWHM, QString maxFlag, QString maxEll)
 {
     buildSourceExtractorCommandOptions();
     // Create source catalogs for each exposure
@@ -261,7 +262,7 @@ void Controller::detectionSourceExtractor(Data *scienceData, QString minFWHM, QS
         it->sourceExtractorCommand.append(sourceExtractorCommandOptions);
         if (!it->imageOnDrive) it->writeImage();         // Must be on drive for SourceExtractor
         it->createSourceExtractorCatalog();
-        it->filterSourceExtractorCatalog(minFWHM, maxFlag);
+        it->filterSourceExtractorCatalog(minFWHM, maxFlag, maxEll);
         it->calcMedianSeeingEllipticitySex();
         it->sourceExtractorCatToIview();
         it->sourceExtractorCatToAnet();

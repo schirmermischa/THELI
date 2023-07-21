@@ -237,6 +237,7 @@ int MainWindow::writeGUISettings()
     settings.setValue("CSCFWHMLineEdit", cdw->ui->CSCFWHMLineEdit->text());
     settings.setValue("CSCbackgroundLineEdit", cdw->ui->CSCbackgroundLineEdit->text());
     settings.setValue("CSCmaxflagLineEdit", cdw->ui->CSCmaxflagLineEdit->text());
+    settings.setValue("CSCmaxellLineEdit", cdw->ui->CSCmaxellLineEdit->text());
     settings.setValue("CSCmincontLineEdit", cdw->ui->CSCmincontLineEdit->text());
     settings.setValue("CSCrejectExposureLineEdit", cdw->ui->CSCrejectExposureLineEdit->text());
     settings.setValue("CSCconvolutionCheckBox", cdw->ui->CSCconvolutionCheckBox->isChecked());
@@ -497,6 +498,7 @@ int MainWindow::readGUISettings(QString projectname)
     cdw->ui->CSCFWHMLineEdit->setText(settings.value("CSCFWHMLineEdit").toString());
     cdw->ui->CSCbackgroundLineEdit->setText(settings.value("CSCbackgroundLineEdit").toString());
     cdw->ui->CSCmaxflagLineEdit->setText(settings.value("CSCmaxflagLineEdit").toString());
+    cdw->ui->CSCmaxellLineEdit->setText(settings.value("CSCmaxellLineEdit").toString());
     cdw->ui->CSCMethodComboBox->setCurrentIndex(settings.value("CSCMethodComboBox").toInt());
     cdw->ui->CSCmincontLineEdit->setText(settings.value("CSCmincontLineEdit").toString());
     cdw->ui->CSCrejectExposureLineEdit->setText(settings.value("CSCrejectExposureLineEdit").toString());

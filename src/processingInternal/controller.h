@@ -210,7 +210,7 @@ private:
 //    void provideHeaderInfo(Data *scpublic QMainWindowienceData);
     void buildSourceExtractorCommandOptions();
     void detectionInternal(Data *scienceData, QString minFWHM, QString maxFlag);
-    void detectionSourceExtractor(Data *scienceData, QString minFWHM, QString maxFlag);
+    void detectionSourceExtractor(Data *scienceData, QString minFWHM, QString maxFlag, QString maxEll);
     void mergeInternal(Data *scienceData, QString minFWHM, QString maxFlag);
     void mergeSourceExtractor(Data *scienceData);
     void populateHeaderDictionary();

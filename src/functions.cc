@@ -1278,8 +1278,8 @@ float straightMedian_MinMax(QVector<float> &data, const int nlow, const int nhig
     // Calculate average of central two elements if number is even
     long dsize = data.size();
     med = (dsize % 2)
-            ? data[dsize / 2.]
-            : ((float)data[dsize / 2. - 1] + data[dsize / 2.]) * .5;
+            ? data[dsize / 2]
+            : ((float)data[dsize / 2 - 1] + data[dsize / 2]) * .5;
 
     return med;
 }

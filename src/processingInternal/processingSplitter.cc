@@ -150,7 +150,7 @@ void Controller::taskInternalHDUreformat()
     }
 
     // Restart memory bar
- //   memTimer->start(1000);
+    //   memTimer->start(1000);
 }
 
 void Controller::finalizeSplitter(Data *data)
@@ -170,14 +170,17 @@ void Controller::finalizeSplitter(Data *data)
     emit populateMemoryView();
 }
 
-// Multi-chip cameras must have uniform MJD-OBS, otherwise "exposures" cannot be identified unambiguously
+// Multi-chip cameras must have uniform MJD-OBS, otherwise "exposures" cannot be identified unambiguously and scamp catalogs cannot be built
 // The following instruments do not have this
 void Controller::uniformMJDOBS(QDir &dir)
 {
     if (instData->name == "VIMOS@VLT"                  // VIMOS has no unique DATE-OBS
-            || instData->name.contains("MOIRCS")) {    // MOIRCS has no unique DATE-OBS
+            || instData->name.contains("MOIRCS")       // MOIRCS has no unique DATE-OBS
+            || instData->name == "NISP@EUCLID") {      // NISP has no unique DATE-OBS
         QString path = dir.absolutePath();
-        QStringList filter = {instData->shortName+"*.fits"};
+
+        // Look up MJD-OBS etc in the images of chip 1
+        QStringList filter = {instData->shortName+"*_1P.fits"};
         dir.setNameFilters(filter);
         dir.setSorting(QDir::Name);
         QStringList fileNames = dir.entryList();
@@ -187,35 +190,33 @@ void Controller::uniformMJDOBS(QDir &dir)
         for (auto &fileName : fileNames) {
             QFileInfo fi(path+"/"+fileName);
             QString baseName = fi.completeBaseName();
-            int pos = baseName.lastIndexOf('_');
-            QString chipNumber = baseName.remove(0,pos).remove('_').remove("P");
+            QString rootName = fileName.remove("_1P.fits");
+            // Extract DATE-OBS and MJD-OBS from chip 1
             fitsfile *fptr;
             int status = 0;
-            QString completeName = path+"/"+fileName;
+            QString completeName = path+"/"+fileName+"_1P.fits";
             fits_open_file(&fptr, completeName.toUtf8().data(), READWRITE, &status);
-            // Extract DATE-OBS and MJD-OBS from chip 1
-            if (chipNumber == "1") {
-                fits_read_key_str(fptr, "DATE-OBS", dateObsChip1, nullptr, &status);
-                fits_read_key_str(fptr, "FILTER", filterChip1, nullptr, &status);
-                fits_read_key_dbl(fptr, "MJD-OBS", &mjdObsChip1, nullptr, &status);
-            }
-            // Project DATE-OBS and MJD-OBS from chip 1 onto other chips
-            else {
-                fits_update_key_str(fptr, "DATE-OBS", dateObsChip1, nullptr, &status);
-                fits_update_key_dbl(fptr, "MJD-OBS", mjdObsChip1, -13, nullptr, &status);   // the '-' enforces floating point notation over exponential notation
-            }
-            if (chipNumber == "1") {
-                // make double sure that in chip one we have exactly the same format and number of digits as in the other chips!
-                fits_update_key_dbl(fptr, "MJD-OBS", mjdObsChip1, -13, nullptr, &status);
-            }
+            fits_read_key_str(fptr, "DATE-OBS", dateObsChip1, nullptr, &status);
+            fits_read_key_str(fptr, "FILTER", filterChip1, nullptr, &status);
+            fits_read_key_dbl(fptr, "MJD-OBS", &mjdObsChip1, nullptr, &status);
             fits_close_file(fptr, &status);
             printCfitsioError(__func__, status);
+            for (int i=1; i<=instData->numChips; ++i) {
+                fitsfile *fptr;
+                int status = 0;
+                QString completeName = path+"/"+rootName+"_"+QString::number(i)+"P.fits";
+                fits_open_file(&fptr, completeName.toUtf8().data(), READWRITE, &status);
+                fits_update_key_str(fptr, "DATE-OBS", dateObsChip1, nullptr, &status);
+                fits_update_key_dbl(fptr, "MJD-OBS", mjdObsChip1, -13, nullptr, &status);   // the '-' enforces floating point notation over exponential notation
+                fits_close_file(fptr, &status);
+                printCfitsioError(__func__, status);
 
-            // Rename image file to THELI standard
-            QString dateObsString(dateObsChip1);
-            QString filterString(filterChip1);
-            QFile file(path+"/"+fileName);
-            file.rename(path+"/"+instData->shortName+"."+filterString+"."+dateObsString+"_"+chipNumber+"P.fits");
+                // Rename image file to THELI standard
+                QString dateObsString(dateObsChip1);
+                QString filterString(filterChip1);
+                QFile file(path+"/"+fileName);
+                file.rename(path+"/"+instData->shortName+"."+filterString+"."+dateObsString+"_"+QString::number(i)+"P.fits");
+            }
         }
     }
 }
@@ -291,7 +292,7 @@ bool Controller::updateDataDirs(Data *data)
         }
 
         updateDataDirDone = true;
-//        delete DT_x;
+        //        delete DT_x;
     }
 
     return updateDataDirDone;
@@ -327,7 +328,7 @@ void Controller::resetAltInstrumentData()
     altInstData.bayer = "";
     altInstData.type = "OPT";
     altInstData.pixscale = 1.0; // in arcsec
-//    altInstData.gain = 1.0;
+    //    altInstData.gain = 1.0;
     altInstData.radius = 0.1;   // exposure coverage radius in degrees
     altInstData.storage = 0;    // MB used for a single image
     altInstData.storageExposure = 0.; // MB used for the entire (multi-chip) exposure
@@ -378,7 +379,7 @@ void Controller::initAltInstrumentData(QString instrumentNameFullPath)
         if (line.contains("OBSLAT=")) altInstData.obslat = line.split("=")[1].toFloat();
         if (line.contains("OBSLONG=")) altInstData.obslon = line.split("=")[1].toFloat();
         if (line.contains("PIXSCALE=")) altInstData.pixscale = line.split("=")[1].toFloat();
-//        if (line.contains("GAIN=")) altInstData.gain = line.split("=")[1].toFloat();
+        //        if (line.contains("GAIN=")) altInstData.gain = line.split("=")[1].toFloat();
 
         // vectors
         if (line.contains("OVSCANX1=")

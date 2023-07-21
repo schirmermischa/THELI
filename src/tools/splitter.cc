@@ -236,7 +236,7 @@ void Splitter::extractImages()
     // adjust progress step size for multi-chip cameras whose detectors are stored in single extension FITS files
     // (i.e. raw data does not come as a MEF but as separate FITS files)
     QStringList instruments = {"Direct_4k_SWOPE@LCO", "FORS1_E2V_2x2@VLT", "FORS2_E2V_2x2@VLT", "FORS2_MIT_1x1@VLT", "FORS2_MIT_2x2@VLT", "FourStar@LCO",
-                               "HSC@SUBARU", "LDSS3_2004-201401@LCO", "LDSS3_from201402@LCO",
+                               "HSC@SUBARU", "LDSS3_2004-201401@LCO", "LDSS3_from201402@LCO", "NISP@EUCLID",
                                "IMACS_F2_200404-2008@LCO", "IMACS_F2_2008-today@LCO", "IMACS_F4_200404-2012@LCO", "IMACS_F4_2012-today@LCO", "IMACS_F4_2012-today_2x2@LCO",
                                "MOIRCS_200406-201006@SUBARU", "MOIRCS_201007-201505@SUBARU", "MOIRCS_201512-today@SUBARU",
                                "SPARTAN@SOAR", "SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808-201705@SUBARU",
@@ -298,9 +298,10 @@ void Splitter::extractImagesFITS()
     while (rawStatus != END_OF_FILE && successProcessing) {
 
         if (hduType == IMAGE_HDU) {
-            // for MMIRS and NOTcam, we only want to keep the first extension
+            // for MMIRS, NISP, and NOTcam, we only want to keep the first extension
             if (instData.name.contains("MMIRS")
-                    || instData.name.contains("NOTcam")) {
+                    || instData.name.contains("NOTcam")
+                    || instData.name == "NISP@EUCLID") {
                 if (chip >= 1) break;
             }
 
@@ -553,6 +554,28 @@ int Splitter::inferChipID(int chip)
         int value = 0;
         searchKeyValue(QStringList() << "CHIP", value);    // running from 1 to 4
         chipID = value;
+        return chipID;
+    }
+
+    else if (instData.name == "NISP@EUCLID") {
+        int value = 0;
+        searchKeyValue(QStringList() << "SCE_POSN", value);    // running from 11 to 44
+        if (value == 11) chipID = 1;
+        else if (value == 12) chipID = 2;
+        else if (value == 13) chipID = 3;
+        else if (value == 14) chipID = 4;
+        else if (value == 21) chipID = 5;
+        else if (value == 22) chipID = 6;
+        else if (value == 23) chipID = 7;
+        else if (value == 24) chipID = 8;
+        else if (value == 31) chipID = 9;
+        else if (value == 32) chipID = 10;
+        else if (value == 33) chipID = 11;
+        else if (value == 34) chipID = 12;
+        else if (value == 41) chipID = 13;
+        else if (value == 42) chipID = 14;
+        else if (value == 43) chipID = 15;
+        else if (value == 44) chipID = 16;
         return chipID;
     }
 
@@ -998,6 +1021,9 @@ void Splitter::individualFixOutName(const int chipID)
         test = searchKeyValue(QStringList() << "EXP-ID", uniqueID);    // e.g. MCSE00012193
         individualFixDone = true;
     }
+    else if (instData.name.contains("NISP@EUCLID")) {
+        individualFixDone = true;
+    }
     else if (instNameFromData == "GROND_OPT@MPGESO") {
         individualFixDone = true;
     }
@@ -1023,6 +1049,23 @@ void Splitter::individualFixOutName(const int chipID)
                 QDir newDir(newPath);
                 newDir.mkpath(newPath);
                 splitFileName = "!"+newPath+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
+            }
+            else if (instData.name == "NISP@EUCLID") {
+                QString count;
+                test = searchKeyValue(QStringList() << "ACQ_CNT", count);
+                QString newPath = path;
+                QDir newDir(newPath);
+                newDir.mkpath(newPath);
+                QString tmp = fileName;
+                tmp.remove("A_");
+                tmp.remove("B_");
+                tmp.remove(".lv1");
+                int lastUnderscoreIndex = tmp.lastIndexOf("_");
+                if (lastUnderscoreIndex != -1) {
+                    tmp = tmp.left(lastUnderscoreIndex);
+                }
+                tmp = tmp+"_"+count;
+                splitFileName = "!"+newPath+"/"+instData.shortName+"."+filter+"."+tmp+"_"+QString::number(chipID)+"P.fits";
             }
             else {
                 splitFileName = "!"+path+"/"+instData.shortName+"."+filter+"."+uniqueID+"_"+QString::number(chipID)+"P.fits";

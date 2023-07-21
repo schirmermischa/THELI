@@ -336,7 +336,7 @@ void Query::buildQuerySyntaxPhotom()
     QString filter2 = filterStringToVizierName(refcatFilter2);
 
     if (refcatName.contains("2MASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=2MASS-PSC ");
-    else if (refcatName.contains("VHS")) queryCommand.append("-out=RAJ2000 -out=DEJ2000 -source=II/359/vhs_dr4 ");
+    else if (refcatName.contains("VHS")) queryCommand.append("-out=RAJ2000 -out=DEJ2000 -source=II/367/vhs_dr5 ");
     else if (refcatName.contains("APASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=II/336 ");
     else if (refcatName.contains("UKIDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=II/319 ");
     else if (refcatName.contains("SDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=V/147 ");

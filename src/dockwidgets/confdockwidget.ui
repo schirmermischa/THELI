@@ -18035,9 +18035,6 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
        <layout class="QGridLayout" name="gridLayout_34">
         <item row="0" column="0">
          <layout class="QVBoxLayout" name="verticalLayout_10">
-          <property name="spacing">
-           <number>0</number>
-          </property>
           <item>
            <widget class="QLabel" name="conftitleCreatesourcecatLabel">
             <property name="sizePolicy">
@@ -19160,18 +19157,15 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
             <property name="frameShadow">
              <enum>QFrame::Plain</enum>
             </property>
-            <layout class="QGridLayout" name="gridLayout_44">
-             <item row="2" column="0">
-              <widget class="QLabel" name="confSourcecatSaturationLabel">
-               <property name="statusTip">
-                <string>The image value above which saturation occurs</string>
-               </property>
+            <layout class="QGridLayout" name="gridLayout_37">
+             <item row="0" column="0">
+              <widget class="QLabel" name="confSourcecatFLAGLabel">
                <property name="text">
-                <string>Saturation value [e-]</string>
+                <string>Max FLAG</string>
                </property>
               </widget>
              </item>
-             <item row="1" column="1">
+             <item row="0" column="1">
               <widget class="QLineEdit" name="CSCmaxflagLineEdit">
                <property name="minimumSize">
                 <size>
@@ -19190,8 +19184,15 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                </property>
               </widget>
              </item>
-             <item row="3" column="1">
-              <widget class="QLineEdit" name="CSCbackgroundLineEdit">
+             <item row="1" column="0">
+              <widget class="QLabel" name="confSourcecatFLAGLabel_3">
+               <property name="text">
+                <string>Max ellipticity</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="CSCmaxellLineEdit">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -19205,14 +19206,20 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                 </size>
                </property>
                <property name="statusTip">
-                <string>Manually fixed background level (in case the automatic value is very wrong)</string>
+                <string>Max ELLIPTICITY of a source to be kept</string>
+               </property>
+               <property name="text">
+                <string/>
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="confSourcecatBackgroundLabel">
+             <item row="2" column="0">
+              <widget class="QLabel" name="confSourcecatSaturationLabel">
+               <property name="statusTip">
+                <string>The image value above which saturation occurs</string>
+               </property>
                <property name="text">
-                <string>Background level</string>
+                <string>Saturation value [e-]</string>
                </property>
               </widget>
              </item>
@@ -19235,10 +19242,29 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                </property>
               </widget>
              </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="confSourcecatFLAGLabel">
+             <item row="3" column="0">
+              <widget class="QLabel" name="confSourcecatBackgroundLabel">
                <property name="text">
-                <string>Max FLAG</string>
+                <string>Background level</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLineEdit" name="CSCbackgroundLineEdit">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>80</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="statusTip">
+                <string>Manually fixed background level (in case the automatic value is very wrong)</string>
                </property>
               </widget>
              </item>
@@ -19695,16 +19721,6 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              <enum>QFrame::Plain</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_46">
-             <item row="0" column="0" rowspan="2">
-              <widget class="QLabel" name="confSourcecatFLAGLabel_2">
-               <property name="text">
-                <string>Min # of sources in any detector for good exposure</string>
-               </property>
-               <property name="wordWrap">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
              <item row="0" column="1">
               <widget class="QLineEdit" name="CSCrejectExposureLineEdit">
                <property name="minimumSize">
@@ -19721,6 +19737,16 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                </property>
                <property name="statusTip">
                 <string>Deactivate exposure if any chip has less than this many sources (e.g. due to clouds)</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" rowspan="2">
+              <widget class="QLabel" name="confSourcecatFLAGLabel_2">
+               <property name="text">
+                <string>Min # of sources in any detector for good exposure</string>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -22353,7 +22379,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                    </item>
                    <item>
                     <property name="text">
-                     <string>VHS-DR4</string>
+                     <string>VHS-DR5</string>
                     </property>
                    </item>
                    <item>

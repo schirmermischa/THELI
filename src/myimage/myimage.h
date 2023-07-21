@@ -388,7 +388,7 @@ public:
     QString extractAnetOutput();
     QVector<double> extractCDmatrix();
     QVector<float> extractPixelValues(long xmin, long xmax, long ymin, long ymax);
-    void filterSourceExtractorCatalog(QString minFWHM, QString maxFlag);
+    void filterSourceExtractorCatalog(QString minFWHM, QString maxFlag, QString maxEll);
     void freeAll();
     void freeAncillaryData(QVector<float> &data);
     void freeData();
@@ -502,6 +502,7 @@ public:
     void xtalk(int method, float scale, QString direction = "", int nsection = -1);
     void xy2sky(const double x, const double y, double &alpha, double &delta);
 
+    bool isTooBig();
 signals:
     void modelUpdateNeeded(QString chipName);
     void messageAvailable(QString message, QString type);

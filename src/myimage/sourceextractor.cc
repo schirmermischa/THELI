@@ -99,7 +99,7 @@ void MyImage::errorFoundReceived()
     successProcessing = false;
 }
 
-void MyImage::filterSourceExtractorCatalog(QString minFWHM, QString maxFlag)
+void MyImage::filterSourceExtractorCatalog(QString minFWHM, QString maxFlag, QString maxEll)
 {
     if (!successProcessing) return;
 
@@ -110,6 +110,8 @@ void MyImage::filterSourceExtractorCatalog(QString minFWHM, QString maxFlag)
     if (!maxFlag.isEmpty() && minFWHM.isEmpty()) filterString = "FLAGS <= "+ maxFlag;
     else if (maxFlag.isEmpty() && !minFWHM.isEmpty()) filterString = "FWHM_IMAGE >= "+minFWHM;
     else if (!maxFlag.isEmpty() && !minFWHM.isEmpty()) filterString = "FLAGS <= "+ maxFlag + " && FWHM_IMAGE >= "+minFWHM;
+    else if (!maxFlag.isEmpty() && !minFWHM.isEmpty()) filterString = "FLAGS <= "+ maxFlag + " && FWHM_IMAGE >= " +minFWHM + " && ELLIPTICITY <= "+maxEll;
+//            else if (!maxFlag.isEmpty() && !minFWHM.isEmpty()) filterString = "FLAGS <= "+ maxFlag + " && FWHM_IMAGE >= "+minFWHM;
     else return;
 
     QString catName = path+"/cat/"+chipName+".cat";

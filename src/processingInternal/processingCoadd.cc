@@ -81,12 +81,12 @@ void Controller::taskInternalCoaddition()
     if (!coaddScienceData->hasMatchingPartnerFiles(headerDirName, ".head")) return;
 
     // if all chips are stacked, make sure the reference point is within the covered area.
-    // If selected chips are present, then the user might want  the same ref coords for all chip stacks, which might be outside
+    // If selected chips are present, then the user might want the same ref coords for all chip stacks, which might be outside
     if (cdw->ui->COAchipsLineEdit->text().isEmpty()) {
-        if (!coaddScienceData->doesCoaddContainRaDec(cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text())) {
-            emit showMessageBox("Controller::POOR_COORD", cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text());
-            return;
-        }
+//        if (!coaddScienceData->doesCoaddContainRaDec(cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text())) {
+//            emit showMessageBox("Controller::POOR_COORD", cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text());
+//            return;
+//        }
     }
 
     //    qDebug() << "taskInternalCoaddition() : " << filterArg;
@@ -982,6 +982,12 @@ void Controller::coaddUpdate()
         QVector<bool> dummyMask;
         dummyMask.clear();
         MyImage *coadd = new MyImage(coaddDirName, "coadd.fits", "", 1, dummyMask, &verbosity);
+        if (coadd->isTooBig()) {
+            coadd->freeAll();
+            delete coadd;
+            coadd = nullptr;
+            return;
+        }
         connect(coadd, &MyImage::critical, this, &Controller::criticalReceived);
         connect(coadd, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
         connect(coadd, &MyImage::warning, this, &Controller::warningReceived);

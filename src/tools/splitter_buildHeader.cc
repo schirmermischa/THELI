@@ -111,7 +111,7 @@ void Splitter::buildTheliHeaderMJDOBS()
 
     // List of instruments for which MJD-OBS is not reliable and should be constructed from DATE-OBS
     QStringList instruments = {"GSAOI@GEMINI", "GSAOI_CHIP1@GEMINI", "GSAOI_CHIP2@GEMINI", "GSAOI_CHIP3@GEMINI", "GSAOI_CHIP4@GEMINI",
-                               "FLAMINGOS2@GEMINI",
+                               "FLAMINGOS2@GEMINI", "VIS@EUCLID",
                                "SAMI_2x2@SOAR"          // integer
                               };
     if (instruments.contains(instData.name)) {
@@ -203,6 +203,10 @@ void Splitter::WCSbuildCRPIX(int chip)
 
     // Use dedicated lookup
     if (instData.name == "HSC@SUBARU") {
+        searchKeyCRVAL("CRPIX1", headerDictionary.value("CRPIX1"), headerWCS);
+        searchKeyCRVAL("CRPIX2", headerDictionary.value("CRPIX2"), headerWCS);
+    }
+    if (instData.name == "VIS@EUCLID") {
         searchKeyCRVAL("CRPIX1", headerDictionary.value("CRPIX1"), headerWCS);
         searchKeyCRVAL("CRPIX2", headerDictionary.value("CRPIX2"), headerWCS);
     }
@@ -521,6 +525,11 @@ bool Splitter::individualFixEQUINOX()
 
     if (instData.name == "SITe3_SWOPE@LCO") {
         equinoxCard = equinoxCard = "EQUINOX = 2000.0";            // SITe3_SWOPE@LCO has EPOCH written to EQUINOX, which makes scamp fail since the coords are in J2000.
+        individualFixDone = true;
+    }
+
+    if (instData.name == "VIS@EUCLID") {
+        equinoxCard = equinoxCard = "EQUINOX = 2000.0";
         individualFixDone = true;
     }
 
@@ -929,6 +938,17 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
         individualFixDone = true;
     }
+    if (instData.name == "NISP@EUCLID") {     // NISP has no CD matrix in the header
+        cd11 = -1.*instData.pixscale / 3600.;
+        cd12 = 0.0;
+        cd21 = 0.0;
+        cd22 = instData.pixscale / 3600.;
+        cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
+        cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
+        cd21_card = "CD2_1   =  "+QString::number(cd21, 'g', 6);
+        cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
+        individualFixDone = true;
+    }
     if (instData.name.contains("IMACS_F2")) {     // IMACS has no CD matrix in the header
         if (!searchKeyValue(QStringList() << "ROTATORE", positionAngle)) {
             emit messageAvailable(name + " : Could not find ROTANGLE keyword, set to zero! CD matrix might have wrong orientation.", "warning");
@@ -1274,6 +1294,25 @@ bool Splitter::individualFixDATEOBS()
         individualFixDone = true;
     }
 
+    if (instData.name == "VIS@EUCLID" || instData.name == "NISP@EUCLID") {
+        QString dateValue;
+        bool foundDATE = searchKeyValue(QStringList() << "DATE", dateValue);
+        if (foundDATE) dateObsValue = dateValue;
+        else {
+            // Construct a unique dummy DATE-OBS keyword, incremented by 0.1 seconds.
+#pragma omp critical
+            {
+                *dateObsIncrementor += 0.1;
+                QString timeStamp = decimalSecondsToHms(*dateObsIncrementor);
+                dateObsValue = "2020-01-01T"+timeStamp;
+            }
+            emit messageAvailable(fileName + " : Could not determine keyword: DATE-OBS, set to "+dateObsValue, "warning");
+            emit warning();
+
+        }
+        individualFixDone = true;
+    }
+
     if (individualFixDone) {
         QString card = "DATE-OBS= '"+dateObsValue+"'";
         card.resize(80, ' ');
@@ -1336,6 +1375,14 @@ bool Splitter::individualFixGAIN(int chip)
     }
     if (instData.name == "SOFI@NTT") {           // https://www.eso.org/sci/facilities/lasilla/instruments/sofi/inst/setup/Detector_characteristic.html
         chipGain = 5.3;
+        individualFixDone = true;
+    }
+    if (instData.name == "VIS@EUCLID") {
+        chipGain = 3.5;
+        individualFixDone = true;
+    }
+    if (instData.name == "NISP@EUCLID") {
+        chipGain = 2.0;
         individualFixDone = true;
     }
     if (instData.name == "NEWFIRM@KPNO_4m") {    // https://www.noao.edu/ets/newfirm/documents/ORION_SCA_lab_tests_final.pdf
@@ -1538,6 +1585,14 @@ void Splitter::buildTheliHeaderAIRMASS()
 {
     if (!successProcessing) return;
 
+    if (instData.name == "NISP@EUCLID" || instData.name == "VIS@EUCLID") {
+        double airmass = 1.0;
+        QString card = "AIRMASS = "+QString::number(airmass, 'f', 4);
+        card.resize(80, ' ');
+        headerTHELI.append(card);
+        return;   // without errors
+    }
+
     bool keyFound = searchKey("AIRMASS", headerDictionary.value("AIRMASS"), headerTHELI);
     if (keyFound) return;
 
@@ -1667,6 +1722,12 @@ bool Splitter::individualFixFILTER(int chip)
         individualFixDone = true;
     }
 
+    if (instData.name == "VIS@EUCLID") {
+        filter = "IE";
+        filterCard = "FILTER  = '"+filter+"'";
+        individualFixDone = true;
+    }
+
     if (instData.name == "LRIS_BLUE@KECK") {
         searchKeyValue(QStringList() << "BLUFILT", filter);
         filterCard = "FILTER  = '"+filter+"'";
@@ -1675,6 +1736,22 @@ bool Splitter::individualFixFILTER(int chip)
 
     if (instData.name == "LRIS_RED@KECK") {
         searchKeyValue(QStringList() << "REDFILT", filter);
+        filterCard = "FILTER  = '"+filter+"'";
+        individualFixDone = true;
+    }
+
+    if (instData.name == "NISP@EUCLID") {
+        QString fpos = "";
+        QString gpos = "";
+        searchKeyValue(QStringList() << "FWA_POS", fpos);
+        searchKeyValue(QStringList() << "GWA_POS", gpos);
+        if (fpos == "CLOSED") filter = "DARK";
+        else if (fpos == "OPEN") filter = gpos;
+        else if (gpos == "OPEN" && fpos != "OPEN") filter = fpos;
+        else {
+            // nothing yet
+        }
+        filter = filter.remove("FW-");
         filterCard = "FILTER  = '"+filter+"'";
         individualFixDone = true;
     }
