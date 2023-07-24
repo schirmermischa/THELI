@@ -427,9 +427,11 @@ void Controller::mergeSourceExtractor(Data *scienceData)
         QString filename = scienceData->dirName+"/cat/"+scienceData->exposureList[i][0]->rootName+".scamp";
         filename = "!"+filename;
         fits_create_file(&fptr, filename.toUtf8().data(), &status);
+        int counter = 0;
         for (auto &it : scienceData->exposureList[i]) {
             it->appendToScampCatalogSourceExtractor(fptr);
             if (!it->successProcessing) scienceData->successProcessing = false;
+            ++counter;
         }
         fits_close_file(fptr, &status);
 
