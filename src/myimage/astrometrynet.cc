@@ -70,11 +70,13 @@ void MyImage::runAnetCommand()
     if (!successProcessing) return;
 
     // Run the solve-field command
+    anetSolved = true;
     workerThread = new QThread();
     anetWorker = new AnetWorker(anetCommand, path);
     anetWorker->moveToThread(workerThread);
     connect(workerThread, &QThread::started, anetWorker, &AnetWorker::runAnet);
     connect(anetWorker, &AnetWorker::errorFound, this, &MyImage::errorFoundReceived);
+    connect(anetWorker, &AnetWorker::didNotSolve, this, &MyImage::didNotSolveReceived);
     connect(workerThread, &QThread::finished, workerThread, &QThread::deleteLater);
     // Direct connection required, otherwise the task hangs after the first solve-field command
     // (does not proceed to the next step in the controller's for loop)
@@ -83,6 +85,11 @@ void MyImage::runAnetCommand()
     connect(anetWorker, &AnetWorker::messageAvailable, this, &MyImage::anetOutputReceived);
     workerThread->start();
     workerThread->wait();
+}
+
+void MyImage::didNotSolveReceived()
+{
+    anetSolved = false;
 }
 
 QString MyImage::extractAnetOutput()

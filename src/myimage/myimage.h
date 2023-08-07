@@ -207,6 +207,8 @@ public:
     QString sourceExtractorCommand;
     QString anetCommand;
 
+    bool anetSolved = true;
+
     // Static image characteristics
     // Once running, the chipNumber always starts with 1,
     // contrary to the 'chip' variable which starts at 0
@@ -519,6 +521,7 @@ public slots:
 
 private slots:
     void errorFoundReceived();
+    void didNotSolveReceived();
 };
 
 #endif // MYIMAGE_H

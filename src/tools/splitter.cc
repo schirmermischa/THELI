@@ -850,7 +850,8 @@ void Splitter::getNumberOfAmplifiers()
     }
     // 4 amps per detector (geometric layout doesn't matter here)
     if (instData.name == "MOSAIC-III_4@KPNO_4m"
-            || instData.name == "SAMI_2x2@SOAR") {
+            || instData.name == "SAMI_2x2@SOAR"
+            || instData.name == "VIS_merged@EUCLID") {
         numAmpPerChip = 4;
         rawStatus = 0;
     }
@@ -861,7 +862,7 @@ void Splitter::getNumberOfAmplifiers()
                          << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI" << "GMOS-S-HAM_4x4@GEMINI"
                          << "LRIS_BLUE@KECK" << "LRIS_RED@KECK"
                          << "MOSAIC-II_16@CTIO" << "MOSAIC-III_4@KPNO_4m"
-                         << "PISCO@LCO" << "SAMI_2x2@SOAR" << "SOI@SOAR";
+                         << "PISCO@LCO" << "SAMI_2x2@SOAR" << "SOI@SOAR" << "VIS_merged@EUCLID";
     if (multiChannelMultiExt.contains(instData.name)) ampInSeparateExt = true;
 
     if (numAmpPerChip > 1 && ampInSeparateExt) {

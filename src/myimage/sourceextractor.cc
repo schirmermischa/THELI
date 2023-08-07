@@ -107,12 +107,17 @@ void MyImage::filterSourceExtractorCatalog(QString minFWHM, QString maxFlag, QSt
     int status = 0;
 
     QString filterString = "";
-    if (!maxFlag.isEmpty() && minFWHM.isEmpty()) filterString = "FLAGS <= "+ maxFlag;
-    else if (maxFlag.isEmpty() && !minFWHM.isEmpty()) filterString = "FWHM_IMAGE >= "+minFWHM;
-    else if (!maxFlag.isEmpty() && !minFWHM.isEmpty()) filterString = "FLAGS <= "+ maxFlag + " && FWHM_IMAGE >= "+minFWHM;
-    else if (!maxFlag.isEmpty() && !minFWHM.isEmpty()) filterString = "FLAGS <= "+ maxFlag + " && FWHM_IMAGE >= " +minFWHM + " && ELLIPTICITY <= "+maxEll;
-//            else if (!maxFlag.isEmpty() && !minFWHM.isEmpty()) filterString = "FLAGS <= "+ maxFlag + " && FWHM_IMAGE >= "+minFWHM;
-    else return;
+
+    if (!maxFlag.isEmpty() ) filterString = "FLAGS <= "+ maxFlag;
+    if (!minFWHM.isEmpty()) {
+        if (filterString.isEmpty()) filterString = "FWHM_IMAGE >= "+minFWHM;
+        else filterString = " && FWHM_IMAGE >= "+minFWHM;
+    }
+    if (!maxEll.isEmpty()) {
+        if (filterString.isEmpty()) filterString = "ELLIPTICITY <= "+maxEll;
+        else filterString = " && ELLIPTICITY <= "+maxEll;
+    }
+    if (filterString.isEmpty()) return;
 
     QString catName = path+"/cat/"+chipName+".cat";
     fits_open_file(&fptr, catName.toUtf8().data(), READWRITE, &status);

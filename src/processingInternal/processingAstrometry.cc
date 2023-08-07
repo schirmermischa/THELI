@@ -555,6 +555,9 @@ void Controller::runAnet(Data *scienceData)
     scienceData->populateExposureList();
     progressStepSize = 100. / float(numMyImages);
 
+    QStringList failedImages = QStringList();
+    QStringList failedExposures = QStringList();
+
 #pragma omp parallel for num_threads(maxCPU)
     for (int k=0; k<numMyImages; ++k) {
         if (abortProcess || !successProcessing) continue;
@@ -575,11 +578,26 @@ void Controller::runAnet(Data *scienceData)
         if (minimizeMemoryUsage) {
             it->freeAll();
         }
-#pragma omp atomic
-        progress += progressStepSize;
+#pragma omp critical
+        {
+           if (!it->anetSolved) {
+               failedImages.append(it->baseName);
+               failedExposures.append(it->rootName);
+           }
+           progress += progressStepSize;
+        }
     }
 
     emit messageAvailable("<br>Astrometry.net summary : ", "data");
+
+    if (!failedImages.isEmpty()) {
+        emit messageAvailable("The following images did not solve:", "warning");
+        for (auto &it : failedImages) {
+            emit messageAvailable(it, "warning");
+        }
+        emit warningReceived();
+    }
+
 
     // merge the anet output of multi-chip cameras, and extract relevant keywords, only
     for (long i=0; i<scienceData->exposureList.length(); ++i) {
@@ -826,7 +844,7 @@ long Controller::prepareScampCats(Data *scienceData, long &totNumObjects)
     catFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
 
     if (numCat == 0) {
-        emit messageAvailable("No cat/*.scamp catalogs were found matching the exposures in "+scienceDir+"<br>Did you create the source catalogs?", "error");
+        emit messageAvailable("No cat/*.scamp catalogs were found matching the exposures in "+scienceDir+"<br>anetyou create the source catalogs?", "error");
         monitor->raise();
         successProcessing = false;
         return 0;
@@ -846,7 +864,7 @@ long Controller::makeAnetHeaderList(Data *scienceData)
     aheadFile.remove();
     QTextStream stream(&aheadFile);
     if( !aheadFile.open(QIODevice::WriteOnly)) {
-        emit messageAvailable("Writing list of anet ehaders to "+anetDir+aheadFile.fileName(), "error");
+        emit messageAvailable("Writing list of anet headers to "+anetDir+aheadFile.fileName(), "error");
         emit messageAvailable(aheadFile.errorString(), "error");
         successProcessing = false;
         monitor->raise();
@@ -868,7 +886,7 @@ long Controller::makeAnetHeaderList(Data *scienceData)
     for (auto &ahead : aheadList) {
         QString aheadbase = ahead;
         int numChips = getNumAnetChips(anetDir+"/"+aheadbase);
-        if (numChips != instData->numUsedChips) continue;          // skip bad entry. Error triggered by getNumEnetChips()
+        if (numChips != instData->numUsedChips) continue;          // skip bad entry. Error triggered by getNumAnetChips()
         aheadbase.remove(".ahead");
         for (auto &image : imageList) {
             if (image.contains(aheadbase)) {

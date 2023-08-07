@@ -509,8 +509,15 @@ void Splitter::convertToElectrons(int chip)
 
     saturationValue *= gainForSaturation;
 
-    for (auto &pixel : dataCurrent) {
-        pixel *= gain[chip];
+    if (instData.name != "NISP@EUCLID") {
+        for (auto &pixel : dataCurrent) {
+            pixel *= gain[chip];
+        }
+    }
+    else {
+        for (auto &pixel : dataCurrent) {
+            pixel = (pixel-1024.)*gain[chip];     // The NISP DPU adds 1024 ADU, for whatever reason, at least for the commissioning data
+        }
     }
 }
 

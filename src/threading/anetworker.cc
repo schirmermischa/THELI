@@ -66,8 +66,10 @@ void AnetWorker::processExternalStdout()
     // And a field that did not solve
     for (auto &error : errors) {
         if (stdout.contains(error)) {
-            emit errorFound();
-            emit messageAvailable(stdout.simplified(), "stop");
+            failedImages.append(stdout.split(" ").at(1));
+//            emit errorFound();
+            emit didNotSolve();
+            emit messageAvailable(stdout.simplified(), "warning");
             break;
         }
     }

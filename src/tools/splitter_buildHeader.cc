@@ -127,7 +127,7 @@ void Splitter::buildTheliHeaderMJDOBS()
             mjdCard.resize(80, ' ');
             headerTHELI.append(mjdCard);
             emit messageAvailable(fileName + " : Could not determine keyword: MJD-OBS, set to 58849.000000 (2020-01-01)<br>"+
-                                  "Some processing tasks (background modeling, proper motion correction) will not work correctly.", "warning");
+                                  "Some processing tasks (background modeling, proper motion correction, catalog creation) will not work correctly.", "warning");
             emit warning();
         }
         return;
@@ -206,10 +206,10 @@ void Splitter::WCSbuildCRPIX(int chip)
         searchKeyCRVAL("CRPIX1", headerDictionary.value("CRPIX1"), headerWCS);
         searchKeyCRVAL("CRPIX2", headerDictionary.value("CRPIX2"), headerWCS);
     }
-    if (instData.name == "VIS@EUCLID") {
-        searchKeyCRVAL("CRPIX1", headerDictionary.value("CRPIX1"), headerWCS);
-        searchKeyCRVAL("CRPIX2", headerDictionary.value("CRPIX2"), headerWCS);
-    }
+//    if (instData.name == "VIS@EUCLID") {
+//        searchKeyCRVAL("CRPIX1", headerDictionary.value("CRPIX1"), headerWCS);
+//        searchKeyCRVAL("CRPIX2", headerDictionary.value("CRPIX2"), headerWCS);
+//    }
     else {
         // CRPIXi: Rely on instrument.ini (Todo: scan .ahead files directly for multi-chip cameras)
         QString crpix1_card = "CRPIX1  = "+QString::number(instData.crpix1[chip]);
@@ -1806,7 +1806,7 @@ bool Splitter::individualFixCDmatrix(int chip)
         individualFixDone = true;
     }
     if (instData.name == "NISP@EUCLID") {     // NISP has no CD matrix in the header
-        cd11 = -1.*instData.pixscale / 3600.;
+        cd11 = instData.pixscale / 3600.;
         cd12 = 0.0;
         cd21 = 0.0;
         cd22 = instData.pixscale / 3600.;
@@ -2161,7 +2161,8 @@ bool Splitter::individualFixDATEOBS()
         individualFixDone = true;
     }
 
-    if (instData.name == "VIS@EUCLID" || instData.name == "NISP@EUCLID") {
+//    if (instData.name == "VIS@EUCLID" || instData.name == "NISP@EUCLID") {
+    if (instData.name == "NISP@EUCLID") {
         QString dateValue;
         bool foundDATE = searchKeyValue(QStringList() << "DATE", dateValue);
         if (foundDATE) dateObsValue = dateValue;
@@ -2242,10 +2243,6 @@ bool Splitter::individualFixGAIN(int chip)
     }
     if (instData.name == "SOFI@NTT") {           // https://www.eso.org/sci/facilities/lasilla/instruments/sofi/inst/setup/Detector_characteristic.html
         chipGain = 5.3;
-        individualFixDone = true;
-    }
-    if (instData.name == "VIS@EUCLID") {
-        chipGain = 3.5;
         individualFixDone = true;
     }
     if (instData.name == "NISP@EUCLID") {
@@ -2422,7 +2419,7 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 6) chipGain = 3.486;
         if (chip == 7) chipGain = 3.445;
         if (chip == 8) chipGain = 3.579;
-        if (chip == 9) chipGain = 3.52;
+        if (chip == 9) chipGain = 3.520;
         if (chip == 10) chipGain = 3.477;
         if (chip == 11) chipGain = 3.496;
         if (chip == 12) chipGain = 3.531;
@@ -2433,19 +2430,19 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 17) chipGain = 3.425;
         if (chip == 18) chipGain = 3.619;
         if (chip == 19) chipGain = 3.513;
-        if (chip == 20) chipGain = 3.58;
+        if (chip == 20) chipGain = 3.580;
         if (chip == 21) chipGain = 3.548;
         if (chip == 22) chipGain = 3.454;
         if (chip == 23) chipGain = 3.471;
         if (chip == 24) chipGain = 3.387;
         if (chip == 25) chipGain = 3.416;
-        if (chip == 26) chipGain = 3.44;
+        if (chip == 26) chipGain = 3.440;
         if (chip == 27) chipGain = 3.449;
         if (chip == 28) chipGain = 3.483;
         if (chip == 29) chipGain = 3.469;
         if (chip == 30) chipGain = 3.477;
         if (chip == 31) chipGain = 3.457;
-        if (chip == 32) chipGain = 3.43;
+        if (chip == 32) chipGain = 3.430;
         if (chip == 33) chipGain = 3.446;
         if (chip == 34) chipGain = 3.464;
         if (chip == 35) chipGain = 3.483;
@@ -2468,11 +2465,11 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 52) chipGain = 3.535;
         if (chip == 53) chipGain = 3.504;
         if (chip == 54) chipGain = 3.593;
-        if (chip == 55) chipGain = 3.52;
+        if (chip == 55) chipGain = 3.520;
         if (chip == 56) chipGain = 3.597;
         if (chip == 57) chipGain = 3.626;
         if (chip == 58) chipGain = 3.645;
-        if (chip == 59) chipGain = 3.63;
+        if (chip == 59) chipGain = 3.630;
         if (chip == 60) chipGain = 3.597;
         if (chip == 61) chipGain = 3.657;
         if (chip == 62) chipGain = 3.586;
@@ -2512,7 +2509,7 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 96) chipGain = 3.526;
         if (chip == 97) chipGain = 3.484;
         if (chip == 98) chipGain = 3.534;
-        if (chip == 99) chipGain = 3.48;
+        if (chip == 99) chipGain = 3.480;
         if (chip == 100) chipGain = 3.517;
         if (chip == 101) chipGain = 3.456;
         if (chip == 102) chipGain = 3.559;
@@ -2532,8 +2529,8 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 116) chipGain = 3.498;
         if (chip == 117) chipGain = 3.567;
         if (chip == 118) chipGain = 3.585;
-        if (chip == 119) chipGain = 3.54;
-        if (chip == 120) chipGain = 3.5;
+        if (chip == 119) chipGain = 3.540;
+        if (chip == 120) chipGain = 3.500;
         if (chip == 121) chipGain = 3.444;
         if (chip == 122) chipGain = 3.541;
         if (chip == 123) chipGain = 3.578;
@@ -2545,7 +2542,7 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 129) chipGain = 3.535;
         if (chip == 130) chipGain = 3.509;
         if (chip == 131) chipGain = 3.491;
-        if (chip == 132) chipGain = 3.44;
+        if (chip == 132) chipGain = 3.440;
         if (chip == 133) chipGain = 3.365;
         if (chip == 134) chipGain = 3.436;
         if (chip == 135) chipGain = 3.459;
@@ -2600,8 +2597,7 @@ void Splitter::buildTheliHeaderAIRMASS()
     if (!successProcessing) return;
 
     if (instData.name == "NISP@EUCLID" || instData.name == "VIS@EUCLID") {
-        double airmass = 1.0;
-        QString card = "AIRMASS = "+QString::number(airmass, 'f', 4);
+        QString card = "AIRMASS = 1.000";    // Not sure what happens if I set it to zero
         card.resize(80, ' ');
         headerTHELI.append(card);
         return;   // without errors

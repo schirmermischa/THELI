@@ -24,6 +24,7 @@ If not, see https://www.gnu.org/licenses/ .
 
 #include <QObject>
 #include <QProcess>
+#include <QStringList>
 
 class AnetWorker : public Worker
 {
@@ -35,6 +36,7 @@ public:
     QString anetCommand;
     QString anetDirName;
     QProcess *extProcess = nullptr;
+    QStringList failedImages = QStringList();
 
     void abort();  // Currently not used anywhere
 
@@ -47,6 +49,7 @@ private slots:
 
 signals:
     void errorFound();
+    void didNotSolve();
     void messageAvailable(QString message, QString type);
 
 };
