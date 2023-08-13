@@ -111,11 +111,11 @@ void MyImage::filterSourceExtractorCatalog(QString minFWHM, QString maxFlag, QSt
     if (!maxFlag.isEmpty() ) filterString = "FLAGS <= "+ maxFlag;
     if (!minFWHM.isEmpty()) {
         if (filterString.isEmpty()) filterString = "FWHM_IMAGE >= "+minFWHM;
-        else filterString = " && FWHM_IMAGE >= "+minFWHM;
+        else filterString += " && FWHM_IMAGE >= "+minFWHM;
     }
     if (!maxEll.isEmpty()) {
         if (filterString.isEmpty()) filterString = "ELLIPTICITY <= "+maxEll;
-        else filterString = " && ELLIPTICITY <= "+maxEll;
+        else filterString += " && ELLIPTICITY <= "+maxEll;
     }
     if (filterString.isEmpty()) return;
 
