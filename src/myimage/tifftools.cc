@@ -22,6 +22,7 @@ If not, see https://www.gnu.org/licenses/ .
 
 #include "tiffio.h"
 
+// nothing
 #include <QDebug>
 
 void MyImage::toTIFF(int bit, float minthresh, float maxthresh, bool zscaleing, float grey, float gamma)
