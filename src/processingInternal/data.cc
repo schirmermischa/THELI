@@ -447,6 +447,7 @@ bool Data::checkTaskRepeatStatus(QString taskBasename)
     myImageList[instData->validChip][0]->checkTaskRepeatStatus(taskBasename);
     bool imageStatus = myImageList[instData->validChip][0]->isTaskRepeated;
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : myImageList[chip]) {
             if (it->activeState != MyImage::ACTIVE) continue;
             it->checkTaskRepeatStatus(taskBasename);
@@ -473,6 +474,7 @@ bool Data::checkTaskRepeatStatus(QString taskBasename)
     bool success = true;
     if (isTaskRepeated) {
         for (int chip=0; chip<instData->numChips; ++chip) {
+            if (instData->badChips.contains(chip)) continue;
             for (auto &it : myImageList[chip]) {
                 if (it->activeState != MyImage::ACTIVE) continue;
                 // If the image is not in memory, check if it is on disk
@@ -556,6 +558,7 @@ void Data::resetGlobalWeight(QString filter)
     // CHECK: not sure whether i need to exclude badChips here
     if (myImageList.isEmpty()) return;
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         int removeIndex = 0;
         int i = 0;
         bool remove = false;
@@ -579,6 +582,12 @@ void Data::loadCombinedImage(const int chip)
     if (!successProcessing) return;
 
     if (userStop || userKill) return;
+
+    if (instData->badChips.contains(chip)) {
+        combinedImage[chip]->modeDetermined = true;
+        combinedImage[chip]->imageInMemory = true;
+        return;
+    }
 
     if (*verbosity > 0 && !combinedImage.at(chip)->imageInMemory) {
         emit messageAvailable("Chip " + QString::number(chip+1) + " : Loading master "+ subDirName + " ...", "data");
@@ -617,6 +626,7 @@ void Data::checkModeIsPresent()
 
 #pragma omp parallel for num_threads(maxCPU)
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : myImageList[chip]) {
             it->getMode(true);
         }
@@ -630,6 +640,7 @@ void Data::resetSuccessProcessing()
     if (!dataInitialized) return;
 
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : myImageList[chip]) {
             it->successProcessing = true;
         }
@@ -645,6 +656,8 @@ void Data::combineImagesCalib(int chip, float (*combineFunction_ptr) (const QVec
     if (!successProcessing) return;
 
     if (userStop || userKill) return;
+
+    if (instData->badChips.contains(chip)) return;
 
     if (*verbosity > 0) emit messageAvailable(subDirName + " : Combining images for chip "+QString::number(chip+1)+" ...", "data");
 
@@ -823,6 +836,8 @@ void Data::combineImages(const int chip, const QString nlowString, const QString
 {
     if (!successProcessing) return;
     if (userStop || userKill) return;
+    if (instData->badChips.contains(chip)) return;
+
     if (mode == "static" && dataStaticModelDone[chip]) return;
 
     QString rescaled = "";
@@ -1107,10 +1122,9 @@ void Data::combineImages_newParallel(int chip, MyImage *masterCombined, QList<My
 void Data::getModeCombineImages(int chip)
 {
     if (!successProcessing) return;
-
     if (userStop || userKill) return;
-
     if (combinedImage[chip]->modeDetermined) return;
+    if (instData->badChips.contains(chip)) return;
 
     // Get the mean / mode of the combined image
     if (dataType == "BIAS" || dataType == "DARK" || dataType == "FLATOFF") {
@@ -1238,6 +1252,7 @@ QVector<float> Data::getNormalizedRescaleFactors(int chip, QVector<long> &goodIn
 void Data::initGlobalWeight(int chip, Data *flatData, QString filter, bool sameWeight, QString flatMin, QString flatMax)
 {
     if (!successProcessing) return;
+    if (instData->badChips.contains(chip)) return;
 
     //    myImageList[chip].clear();
 
@@ -1320,7 +1335,7 @@ void Data::initGlobalWeight(int chip, Data *flatData, QString filter, bool sameW
 void Data::thresholdGlobalWeight(int chip, const Data *comparisonData, const QString filter, const QString threshMin, const QString threshMax)
 {
     if (!successProcessing) return;
-
+    if (instData->badChips.contains(chip)) return;
     if (comparisonData == nullptr) return;
     if (!comparisonData->successProcessing) return;
     if (threshMin.isEmpty() && threshMax.isEmpty()) return;
@@ -1368,6 +1383,7 @@ void Data::detectDefects(int chip, Data *comparisonData, const QString filter, c
                          const QString defectKernel, const QString defectRowTol, const QString defectColTol, const QString defectClusTol)
 {
     if (!successProcessing) return;
+    if (instData->badChips.contains(chip)) return;
 
     if (sameWeight) return;
     if (defectKernel.isEmpty()) return;
@@ -1455,6 +1471,8 @@ void Data::detectDefects(int chip, Data *comparisonData, const QString filter, c
 
 void Data::applyMask(int chip, QString filter)
 {
+    if (instData->badChips.contains(chip)) return;
+
     for (auto &it: myImageList[chip]) {
         // Only process global weights that match the current science filter
         if (filter == it->filter) {
@@ -1472,6 +1490,7 @@ void Data::applyMask(int chip, QString filter)
 void Data::writeGlobalWeights(int chip, QString filter)
 {
     if (!successProcessing) return;
+    if (instData->badChips.contains(chip)) return;
 
     if (*verbosity > 0) emit messageAvailable("Writing globalweight for chip " + QString::number(chip+1), "data");
 
@@ -1528,7 +1547,6 @@ void Data::writeGlobalWeights(int chip, QString filter)
 void Data::getGainNormalization()
 {
     if (!successProcessing) return;
-
     if (userStop || userKill) return;
 
     // Calculate the gain normalization factor.
@@ -1572,7 +1590,6 @@ void Data::getGainNormalization()
 void Data::protectMemory()
 {
     for (int chip=0; chip<instData->numChips; ++chip) {
-        if (instData->badChips.contains(chip)) continue;
         for (auto &it : myImageList[chip]) {
             it->protectMemory();
         }
@@ -1803,6 +1820,7 @@ void Data::resetObjectMasking()
     // Reset object masks from a potential previous pass
     if (*verbosity > 0) emit messageAvailable("Resetting object masks ...", "data");
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : myImageList[chip]) {
             it->resetObjectMasking();
         }
@@ -1830,6 +1848,7 @@ void Data::populate(QString statusString)
     numImages = 0;
 #pragma omp parallel for num_threads(maxCPU) firstprivate(dirName, subDirName, statusString)
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         QStringList filter;
         filter << "*_"+QString::number(chip+1)+statusString+".fits";
         QStringList fitsFiles = dir.entryList(filter);
@@ -2015,6 +2034,7 @@ bool Data::hasImages()
 void Data::resetProcessbackground()
 {
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : myImageList[chip]) {
             it->resetObjectMasking();
             it->hasBrightStarsChecked = false;
@@ -2031,6 +2051,7 @@ void Data::resetProcessbackground()
 void Data::cleanBackgroundModelStatus()
 {
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : myImageList[chip]) {
             it->resetObjectMasking();
             it->backgroundModelDone = false;
@@ -2047,6 +2068,7 @@ QVector<double> Data::getKeyFromAllImages(const QString key)
     // dumping everything to a double vector
     QVector<double> data;
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : myImageList[chip]) {
             if (!it->metadataTransferred) it->loadHeader();  // needed if data requested immediately after launch
             if (key == "CRVAL1") data << it->wcs->crval[0];
@@ -2170,6 +2192,7 @@ void Data::findOverlappingImages(const MyImage *img, const float tolerance)
     if (!successProcessing) return;
 
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : myImageList[chip]) {
             // If unassigned, check overlap and if positive, assign same group number
             if (it->groupNumber == -1) {
@@ -2496,6 +2519,7 @@ bool Data::hasMatchingPartnerFiles(QString testDirName, QString suffix, bool abo
     QStringList imageList;
     if (suffix == ".scamp") {
         for (int chip=0; chip<instData->numChips; ++chip) {
+            if (instData->badChips.contains(chip)) continue;
             for (auto &it : myImageList[chip]) {
                 if (!imageList.contains(it->rootName)
                         && it->activeState == MyImage::ACTIVE) {
@@ -2506,6 +2530,7 @@ bool Data::hasMatchingPartnerFiles(QString testDirName, QString suffix, bool abo
     }
     else {
         for (int chip=0; chip<instData->numChips; ++chip) {
+            if (instData->badChips.contains(chip)) continue;
             for (auto &it : myImageList[chip]) {
                 if (it->activeState == MyImage::ACTIVE) imageList.append(it->chipName);
             }
@@ -2587,6 +2612,7 @@ bool Data::doesCoaddContainRaDec(const QString &refRA, const QString &refDEC)
     // Start assuming that no chip of a multi-chip camera contains this coordinate. If a single chip does contain it, we can break and exit
     bool containsRADEC = false;
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it : myImageList.at(chip)) {
             if (it->containsRaDec(refRA, refDEC)) {
                 containsRADEC = true;
@@ -2613,6 +2639,7 @@ void Data::deleteMyImageList()
 {
     if (myImageList.isEmpty()) return;
     for (int chip=0; chip<instData->numChips; ++chip) {
+        if (instData->badChips.contains(chip)) continue;
         for (auto &it: myImageList[chip]) {
             delete it;
             it = nullptr;

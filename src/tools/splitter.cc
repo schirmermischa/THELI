@@ -236,7 +236,7 @@ void Splitter::extractImages()
     // adjust progress step size for multi-chip cameras whose detectors are stored in single extension FITS files
     // (i.e. raw data does not come as a MEF but as separate FITS files)
     QStringList instruments = {"Direct_4k_SWOPE@LCO", "FORS1_E2V_2x2@VLT", "FORS2_E2V_2x2@VLT", "FORS2_MIT_1x1@VLT", "FORS2_MIT_2x2@VLT", "FourStar@LCO",
-                               "HSC@SUBARU", "LDSS3_2004-201401@LCO", "LDSS3_from201402@LCO", "NISP@EUCLID",
+                               "HSC@SUBARU", "LDSS3_2004-201401@LCO", "LDSS3_from201402@LCO",
                                "IMACS_F2_200404-2008@LCO", "IMACS_F2_2008-today@LCO", "IMACS_F4_200404-2012@LCO", "IMACS_F4_2012-today@LCO", "IMACS_F4_2012-today_2x2@LCO",
                                "MOIRCS_200406-201006@SUBARU", "MOIRCS_201007-201505@SUBARU", "MOIRCS_201512-today@SUBARU",
                                "SPARTAN@SOAR", "SuprimeCam_200101-200104@SUBARU", "SuprimeCam_200105-200807@SUBARU", "SuprimeCam_200808-201705@SUBARU",
@@ -298,11 +298,21 @@ void Splitter::extractImagesFITS()
     while (rawStatus != END_OF_FILE && successProcessing) {
 
         if (hduType == IMAGE_HDU) {
-            // for MMIRS, NISP, and NOTcam, we only want to keep the first extension
+            // for MMIRS and NOTcam, we only want to keep the first extension
             if (instData.name.contains("MMIRS")
-                    || instData.name.contains("NOTcam")
-                    || instData.name == "NISP@EUCLID") {
+                    || instData.name.contains("NOTcam")) {
                 if (chip >= 1) break;
+            }
+
+            // do we have an "image" (as compared to a data unit that is simply a nullptr, or some data quality extensions)
+            int naxis = -1;
+            int bitpix = 1;
+            fits_get_img_dim(rawFptr, &naxis, &rawStatus);
+            fits_get_img_type(rawFptr, &bitpix, &rawStatus);
+            if (naxis == 0 || naxis == 1 || naxis >= 4 || bitpix == 8) {
+                // Empty or peculiar data units. Continue with the next one
+                fits_movrel_hdu(rawFptr, 1, &hduType, &rawStatus);
+                continue;
             }
 
             // some multi-chip cams (FORS, etc) come with separate FITS files. For them, 'chip' would always be zero,
@@ -311,27 +321,17 @@ void Splitter::extractImagesFITS()
             // same field of view and should be treated as single-chip cameras.
             // Hence this mapping
             int chipMapped = inferChipID(chip) - 1;   // same value as chip for normal 'MEF' files
-
             // For HSC@SUBARU, drop the 8 focus CCDs
             if (instData.name == "HSC@SUBARU" && chipMapped >= 104) break;
             // HSC chips too difficult for astrometry
             // "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,22,23,24,29,30,31,32,37,38,39,40,45,46,47,48,53,54,55,56,61
             // ,62,63,64,69,70,71,72,77,78,79,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104"
 
-            // do we have an "image" (as compared to a data unit that is simply a nullptr)
-            int naxis = -1;
-            fits_get_img_dim(rawFptr, &naxis, &rawStatus);
-            if (naxis == 0 || naxis == 1 || naxis >= 4) {
-                // Empty or peculiar data units. Continue with the next one
-                fits_movrel_hdu(rawFptr, 1, &hduType, &rawStatus);
-                continue;
-            }
-
             if (chipMapped == -1) {
                 emit messageAvailable("Splitter::extractImagesFITS(): Could not infer chip number", "error");
                 emit critical();
                 successProcessing = false;
-                continue;
+                break;
             }
 
             // OK, we have either a 2D image or a cube.
@@ -557,9 +557,10 @@ int Splitter::inferChipID(int chip)
         return chipID;
     }
 
+    /*
     else if (instData.name == "NISP@EUCLID") {
         int value = 0;
-        searchKeyValue(QStringList() << "SCE_POSN", value);    // running from 11 to 44
+        searchKeyValue(QStringList() << "DET_ID", value);    // running from 11 to 44
         if (value == 11) chipID = 1;
         else if (value == 12) chipID = 2;
         else if (value == 13) chipID = 3;
@@ -576,6 +577,158 @@ int Splitter::inferChipID(int chip)
         else if (value == 42) chipID = 14;
         else if (value == 43) chipID = 15;
         else if (value == 44) chipID = 16;
+        return chipID;
+    }
+        */
+
+    else if (instData.name == "VIS@EUCLID") {     // we need this to be robust against turned-off detector units
+        QString value = "";
+        searchKeyValue(QStringList() << "EXTNAME", value);
+        if (value == "1-1.E") chipID = 1;
+        else if (value == "1-1.F") chipID = 2;
+        else if (value == "1-1.G") chipID = 3;
+        else if (value == "1-1.H") chipID = 4;
+        else if (value == "1-2.E") chipID = 5;
+        else if (value == "1-2.F") chipID = 6;
+        else if (value == "1-2.G") chipID = 7;
+        else if (value == "1-2.H") chipID = 8;
+        else if (value == "1-3.E") chipID = 9;
+        else if (value == "1-3.F") chipID = 10;
+        else if (value == "1-3.G") chipID = 11;
+        else if (value == "1-3.H") chipID = 12;
+        else if (value == "2-1.E") chipID = 13;
+        else if (value == "2-1.F") chipID = 14;
+        else if (value == "2-1.G") chipID = 15;
+        else if (value == "2-1.H") chipID = 16;
+        else if (value == "2-2.E") chipID = 17;
+        else if (value == "2-2.F") chipID = 18;
+        else if (value == "2-2.G") chipID = 19;
+        else if (value == "2-2.H") chipID = 20;
+        else if (value == "2-3.E") chipID = 21;
+        else if (value == "2-3.F") chipID = 22;
+        else if (value == "2-3.G") chipID = 23;
+        else if (value == "2-3.H") chipID = 24;
+        else if (value == "3-1.E") chipID = 25;
+        else if (value == "3-1.F") chipID = 26;
+        else if (value == "3-1.G") chipID = 27;
+        else if (value == "3-1.H") chipID = 28;
+        else if (value == "3-2.E") chipID = 29;
+        else if (value == "3-2.F") chipID = 30;
+        else if (value == "3-2.G") chipID = 31;
+        else if (value == "3-2.H") chipID = 32;
+        else if (value == "3-3.E") chipID = 33;
+        else if (value == "3-3.F") chipID = 34;
+        else if (value == "3-3.G") chipID = 35;
+        else if (value == "3-3.H") chipID = 36;
+        else if (value == "4-1.E") chipID = 37;
+        else if (value == "4-1.F") chipID = 38;
+        else if (value == "4-1.G") chipID = 39;
+        else if (value == "4-1.H") chipID = 40;
+        else if (value == "4-2.E") chipID = 41;
+        else if (value == "4-2.F") chipID = 42;
+        else if (value == "4-2.G") chipID = 43;
+        else if (value == "4-2.H") chipID = 44;
+        else if (value == "4-3.E") chipID = 45;
+        else if (value == "4-3.F") chipID = 46;
+        else if (value == "4-3.G") chipID = 47;
+        else if (value == "4-3.H") chipID = 48;
+        else if (value == "5-1.E") chipID = 49;
+        else if (value == "5-1.F") chipID = 50;
+        else if (value == "5-1.G") chipID = 51;
+        else if (value == "5-1.H") chipID = 52;
+        else if (value == "5-2.E") chipID = 53;
+        else if (value == "5-2.F") chipID = 54;
+        else if (value == "5-2.G") chipID = 55;
+        else if (value == "5-2.H") chipID = 56;
+        else if (value == "5-3.E") chipID = 57;
+        else if (value == "5-3.F") chipID = 58;
+        else if (value == "5-3.G") chipID = 59;
+        else if (value == "5-3.H") chipID = 60;
+        else if (value == "6-1.E") chipID = 61;
+        else if (value == "6-1.F") chipID = 62;
+        else if (value == "6-1.G") chipID = 63;
+        else if (value == "6-1.H") chipID = 64;
+        else if (value == "6-2.E") chipID = 65;
+        else if (value == "6-2.F") chipID = 66;
+        else if (value == "6-2.G") chipID = 67;
+        else if (value == "6-2.H") chipID = 68;
+        else if (value == "6-3.E") chipID = 69;
+        else if (value == "6-3.F") chipID = 70;
+        else if (value == "6-3.G") chipID = 71;
+        else if (value == "6-3.H") chipID = 72;
+        else if (value == "1-6.E") chipID = 73;
+        else if (value == "1-6.F") chipID = 74;
+        else if (value == "1-6.G") chipID = 75;
+        else if (value == "1-6.H") chipID = 76;
+        else if (value == "1-5.E") chipID = 77;
+        else if (value == "1-5.F") chipID = 78;
+        else if (value == "1-5.G") chipID = 79;
+        else if (value == "1-5.H") chipID = 80;
+        else if (value == "1-4.E") chipID = 81;
+        else if (value == "1-4.F") chipID = 82;
+        else if (value == "1-4.G") chipID = 83;
+        else if (value == "1-4.H") chipID = 84;
+        else if (value == "2-6.E") chipID = 85;
+        else if (value == "2-6.F") chipID = 86;
+        else if (value == "2-6.G") chipID = 87;
+        else if (value == "2-6.H") chipID = 88;
+        else if (value == "2-5.E") chipID = 89;
+        else if (value == "2-5.F") chipID = 90;
+        else if (value == "2-5.G") chipID = 91;
+        else if (value == "2-5.H") chipID = 92;
+        else if (value == "2-4.E") chipID = 93;
+        else if (value == "2-4.F") chipID = 94;
+        else if (value == "2-4.G") chipID = 95;
+        else if (value == "2-4.H") chipID = 96;
+        else if (value == "3-6.E") chipID = 97;
+        else if (value == "3-6.F") chipID = 98;
+        else if (value == "3-6.G") chipID = 99;
+        else if (value == "3-6.H") chipID = 100;
+        else if (value == "3-5.E") chipID = 101;
+        else if (value == "3-5.F") chipID = 102;
+        else if (value == "3-5.G") chipID = 103;
+        else if (value == "3-5.H") chipID = 104;
+        else if (value == "3-4.E") chipID = 105;
+        else if (value == "3-4.F") chipID = 106;
+        else if (value == "3-4.G") chipID = 107;
+        else if (value == "3-4.H") chipID = 108;
+        else if (value == "4-6.E") chipID = 109;
+        else if (value == "4-6.F") chipID = 110;
+        else if (value == "4-6.G") chipID = 111;
+        else if (value == "4-6.H") chipID = 112;
+        else if (value == "4-5.E") chipID = 113;
+        else if (value == "4-5.F") chipID = 114;
+        else if (value == "4-5.G") chipID = 115;
+        else if (value == "4-5.H") chipID = 116;
+        else if (value == "4-4.E") chipID = 117;
+        else if (value == "4-4.F") chipID = 118;
+        else if (value == "4-4.G") chipID = 119;
+        else if (value == "4-4.H") chipID = 120;
+        else if (value == "5-6.E") chipID = 121;
+        else if (value == "5-6.F") chipID = 122;
+        else if (value == "5-6.G") chipID = 123;
+        else if (value == "5-6.H") chipID = 124;
+        else if (value == "5-5.E") chipID = 125;
+        else if (value == "5-5.F") chipID = 126;
+        else if (value == "5-5.G") chipID = 127;
+        else if (value == "5-5.H") chipID = 128;
+        else if (value == "5-4.E") chipID = 129;
+        else if (value == "5-4.F") chipID = 130;
+        else if (value == "5-4.G") chipID = 131;
+        else if (value == "5-4.H") chipID = 132;
+        else if (value == "6-6.E") chipID = 133;
+        else if (value == "6-6.F") chipID = 134;
+        else if (value == "6-6.G") chipID = 135;
+        else if (value == "6-6.H") chipID = 136;
+        else if (value == "6-5.E") chipID = 137;
+        else if (value == "6-5.F") chipID = 138;
+        else if (value == "6-5.G") chipID = 139;
+        else if (value == "6-5.H") chipID = 140;
+        else if (value == "6-4.E") chipID = 141;
+        else if (value == "6-4.F") chipID = 142;
+        else if (value == "6-4.G") chipID = 143;
+        else if (value == "6-4.H") chipID = 144;
+        qDebug() << value << chipID;
         return chipID;
     }
 
@@ -850,8 +1003,7 @@ void Splitter::getNumberOfAmplifiers()
     }
     // 4 amps per detector (geometric layout doesn't matter here)
     if (instData.name == "MOSAIC-III_4@KPNO_4m"
-            || instData.name == "SAMI_2x2@SOAR"
-            || instData.name == "VIS_merged@EUCLID") {
+            || instData.name == "SAMI_2x2@SOAR") {
         numAmpPerChip = 4;
         rawStatus = 0;
     }
@@ -862,7 +1014,7 @@ void Splitter::getNumberOfAmplifiers()
                          << "GMOS-S-HAM@GEMINI" << "GMOS-S-HAM_1x1@GEMINI" << "GMOS-S-HAM_4x4@GEMINI"
                          << "LRIS_BLUE@KECK" << "LRIS_RED@KECK"
                          << "MOSAIC-II_16@CTIO" << "MOSAIC-III_4@KPNO_4m"
-                         << "PISCO@LCO" << "SAMI_2x2@SOAR" << "SOI@SOAR" << "VIS_merged@EUCLID";
+                         << "PISCO@LCO" << "SAMI_2x2@SOAR" << "SOI@SOAR";
     if (multiChannelMultiExt.contains(instData.name)) ampInSeparateExt = true;
 
     if (numAmpPerChip > 1 && ampInSeparateExt) {
@@ -1022,9 +1174,6 @@ void Splitter::individualFixOutName(const int chipID)
         test = searchKeyValue(QStringList() << "EXP-ID", uniqueID);    // e.g. MCSE00012193
         individualFixDone = true;
     }
-    else if (instData.name.contains("NISP@EUCLID")) {
-        individualFixDone = true;
-    }
     else if (instNameFromData == "GROND_OPT@MPGESO") {
         individualFixDone = true;
     }
@@ -1050,23 +1199,6 @@ void Splitter::individualFixOutName(const int chipID)
                 QDir newDir(newPath);
                 newDir.mkpath(newPath);
                 splitFileName = "!"+newPath+"/"+instData.shortName+"."+filter+"."+dateObsValue+"_"+QString::number(chipID)+"P.fits";
-            }
-            else if (instData.name == "NISP@EUCLID") {
-                QString count;
-                test = searchKeyValue(QStringList() << "ACQ_CNT", count);
-                QString newPath = path;
-                QDir newDir(newPath);
-                newDir.mkpath(newPath);
-                QString tmp = fileName;
-                tmp.remove("A_");
-                tmp.remove("B_");
-                tmp.remove(".lv1");
-                int lastUnderscoreIndex = tmp.lastIndexOf("_");
-                if (lastUnderscoreIndex != -1) {
-                    tmp = tmp.left(lastUnderscoreIndex);
-                }
-                tmp = tmp+"_"+count;
-                splitFileName = "!"+newPath+"/"+instData.shortName+"."+filter+"."+tmp+"_"+QString::number(chipID)+"P.fits";
             }
             else {
                 splitFileName = "!"+path+"/"+instData.shortName+"."+filter+"."+uniqueID+"_"+QString::number(chipID)+"P.fits";

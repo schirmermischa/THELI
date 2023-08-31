@@ -175,8 +175,7 @@ void Controller::finalizeSplitter(Data *data)
 void Controller::uniformMJDOBS(QDir &dir)
 {
     if (instData->name == "VIMOS@VLT"                  // VIMOS has no unique DATE-OBS
-            || instData->name.contains("MOIRCS")       // MOIRCS has no unique DATE-OBS
-            || instData->name == "NISP@EUCLID") {      // NISP has no unique DATE-OBS
+            || instData->name.contains("MOIRCS")) {       // MOIRCS has no unique DATE-OBS
         QString path = dir.absolutePath();
 
         // Look up MJD-OBS etc in the images of chip 1

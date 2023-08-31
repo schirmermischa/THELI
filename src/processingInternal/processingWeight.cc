@@ -257,6 +257,7 @@ void Controller::taskInternalIndividualweight()
             abortProcess = true;
             continue;
         }
+        it->weightModified = false;
         it->initWeightfromGlobalWeight(GLOBALWEIGHTS->myImageList[chip]);   // calls a threadsafe version of MyImage::loadData() to avoid parallel reads of the same globalweight map
         it->thresholdWeight(imageMin, imageMax);
         it->applyPolygons();
@@ -265,8 +266,9 @@ void Controller::taskInternalIndividualweight()
 #pragma omp atomic
         progress += progressHalfStepSize;
         it->cosmicsFilter(aggressiveness);
-        // Must write weights to drive for swarp
-        it->writeWeight(mainDirName+ "/WEIGHTS/" + it->chipName + ".weight.fits");
+        // Must write or link weights to drive for swarp
+        if (it->weightModified) it->writeWeight(mainDirName+ "/WEIGHTS/" + it->chipName + ".weight.fits");
+        else it->linkWeight(mainDirName+"/GLOBALWEIGHTS/globalweight_"+instData->name+"_"+it->filter+"_"+QString::number(chip+1)+".fits", mainDirName+ "/WEIGHTS/" + it->chipName + ".weight.fits");
         it->weightOnDrive = true;
         it->weightName = it->chipName + ".weight";
         it->unprotectMemory();

@@ -1129,7 +1129,7 @@ void Controller::coaddUpdate()
     else {
         // Now we can quit the first coaddition thread (which spawned all the other threads).
         // This will return control to mainGUI() (i.e. enable the start button again)
-        workerThreadPrepare->quit();
+        if (workerThreadPrepare) workerThreadPrepare->quit();
     }
 }
 
@@ -1154,7 +1154,7 @@ void Controller::getMinimumSaturationValue()
 
 void Controller::absZeroPointCloseReceived()
 {
-    workerThreadPrepare->quit();
+    if (workerThreadPrepare) workerThreadPrepare->quit();
 }
 
 // write the initial empty coadd.fits into a coadd.head

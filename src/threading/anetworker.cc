@@ -52,27 +52,33 @@ void AnetWorker::processExternalStdout()
     stdout.replace("\nField", "<br>Field");
     stdout.replace("Hit/miss:   Hit/miss:", "<br>Hit/miss:");
 
+    // Mask output lines that are confusing
+    if (stdout.contains("Field 1 did not solve")) stdout == "";
+    if (stdout.contains("Reading input file")
+            || stdout.contains("Reading sort column")
+            || stdout.contains("Solving")
+            || stdout.contains("Hit/miss")) stdout == "";
     QStringList errors;
     errors << "Did not solve (or no WCS file was written)." << "Error" << "ERROR";
 
     // Highlight a successful solve
     // Sometimes neighboring lines are included in one push to stdout, and then they are colored green as well.
-    //    if (stdout.contains("solved with index theli_mystd.index")) {
-//        emit messageAvailable(stdout.simplified(), "note");
-//        return;
-//    }
-
+    if (stdout.contains("solved with index theli_mystd.index")) {
+        emit messageAvailable(stdout.simplified(), "note");
+        return;
+    }
 
     // And a field that did not solve
     for (auto &error : errors) {
         if (stdout.contains(error)) {
             failedImages.append(stdout.split(" ").at(1));
-//            emit errorFound();
+//            emit errorFound();    // do not abort the run just because of one field that did not solve. There might be more.
             emit didNotSolve();
             emit messageAvailable(stdout.simplified(), "warning");
             break;
         }
     }
+
     emit messageAvailable(stdout.simplified(), "image");
 }
 

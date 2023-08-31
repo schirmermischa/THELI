@@ -270,6 +270,7 @@ public:
     QVector<bool> objectMask;      // Object mask (used for background modeling and sky subtraction)
     bool backgroundPushedDown = false;  // Used to detect whether a backup copy was made already during twopass background correction
     bool globalMaskAvailable = true;    // Unless we load an external image, e.g. for absolute zeropoint
+    bool weightModified = false;   // Identifies if the individual weight is different from the global weight
 
     // Memory stages (to decide what can be deleted and what not)
     bool dataWeight_deletable = false;
@@ -409,6 +410,7 @@ public:
     void initWeightfromGlobalWeight(const QList<MyImage *> &gwList);
     bool isActive();
     void laplaceFilter(QVector<float> &dataFiltered);
+    void linkWeight(QString globalWeightName, QString linkName);
     bool loadData(QString loadFileName = "");
     bool loadDataThreadSafe(QString loadFileName = "");
     void loadDataSection(long xmin, long xmax, long ymin, long ymax, float *dataSect);
@@ -503,8 +505,8 @@ public:
     void writeWeightSmoothed(QString fileName);
     void xtalk(int method, float scale, QString direction = "", int nsection = -1);
     void xy2sky(const double x, const double y, double &alpha, double &delta);
-
     bool isTooBig();
+
 signals:
     void modelUpdateNeeded(QString chipName);
     void messageAvailable(QString message, QString type);

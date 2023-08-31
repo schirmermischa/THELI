@@ -374,6 +374,7 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("NICS@TNG", "");
     instrumentDictionary.insert("NIRC2@KECK", "");
     instrumentDictionary.insert("NIRI@GEMINI", "NIRI");
+    instrumentDictionary.insert("NISP@EUCLID", "NISP");
     instrumentDictionary.insert("NOTcam_highres@NOT", "");
     instrumentDictionary.insert("NOTcam_lowres@NOT", "");
     instrumentDictionary.insert("OASIS4x4@WHT", "");
@@ -414,6 +415,7 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("Tek2K@CTIO", "");
     instrumentDictionary.insert("VIMOS@VLT", "VIMOS");
     instrumentDictionary.insert("VIRCAM@VISTA", "");
+    instrumentDictionary.insert("VIS@EUCLID", "VIS");
     instrumentDictionary.insert("VISIR@VLT", "");
     instrumentDictionary.insert("WFC@INT", "WFC");
     instrumentDictionary.insert("WFC_2x2@INT", "WFC");

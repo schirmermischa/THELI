@@ -111,6 +111,7 @@ void MyImage::thresholdWeight(QString imageMin, QString imageMax)
         if (dataCurrent.at(i) > maxVal) pixel = 0.;
         ++i;
     }
+    weightModified = true;
 }
 
 void MyImage::maskSaturatedPixels(QString tolerance, bool requested)
@@ -126,6 +127,7 @@ void MyImage::maskSaturatedPixels(QString tolerance, bool requested)
         if (dataCurrent.at(i) >= saturationValue*toleranceFloat) pixel = 0.;
         ++i;
     }
+    weightModified = true;
 }
 
 void MyImage::roundEdgeOfWeight(float edge, bool roundEdge)
@@ -163,6 +165,7 @@ void MyImage::applyPolygons()
 
     if (*verbosity > 1) emit messageAvailable(chipName + " : Mask found, applying mask to weight ...", "image");
     addRegionFilesToWeight(naxis1, naxis2, regionFileName, dataWeight);
+    weightModified = true;
 }
 
 void MyImage::freeWeight()
@@ -172,6 +175,7 @@ void MyImage::freeWeight()
         dataWeight.clear();
         dataWeight.squeeze();
         weightInMemory = false;
+        weightModified = false;
     }
     else {
         dataWeight_deletable = true;
@@ -318,6 +322,8 @@ void MyImage::maskBloomingSpike(QString instType, QString range, QString minVal,
     for (long i=0; i<npix2; ++i) {
         dataWeight[pixelcoords2[i]] = 0.;
     }
+
+    weightModified = true;
 
     QString bloomRange = "["+QString::number(long(bloommin))+","+QString::number(long(bloommax))+"]";
     if (*verbosity > 1) emit messageAvailable(chipName + " : Bloomed pixels masked. Dynamic range: "+bloomRange, "image");
@@ -497,4 +503,5 @@ void MyImage::cosmicsFilter(QString aggressiveness)
         if (cosmicsMask[k]) pixel = 0.;
         ++k;
     }
+    weightModified = true;
 }

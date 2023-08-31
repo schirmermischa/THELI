@@ -394,11 +394,11 @@ void MainWindow::on_stopToolButton_clicked()
         }
         mainGUIWorker->resume();
         if (controller->taskBasename == "Astromphotom") {
-            emit messageAvailable("Sending Scamp a kill signal ...", "stop");
-            controller->scampWorker->abort();
-            controller->workerThread->quit();
-            controller->workerThread->wait();
-            emit messageAvailable("Successfully detached from Scamp", "stop");
+                emit messageAvailable("Sending Scamp a kill signal ...", "stop");
+                if (controller->scampWorker) controller->scampWorker->abort();
+                if (controller->workerThread) controller->workerThread->quit();
+                if (controller->workerThread) controller->workerThread->wait();
+                emit messageAvailable("Successfully detached from Scamp", "stop");
         }
         if (controller->taskBasename == "Coaddition") {
             controller->successProcessing = false;   // Must set to false first, to make sure that any subsequent coadd commands exit immediately
@@ -465,16 +465,16 @@ void MainWindow::on_actionKill_triggered()
         message(ui->plainTextEdit, "Kill signal sent, please wait ...", "stop");
         if (controller->taskBasename == "Astromphotom") {
             emit messageAvailable("Sending Scamp a kill signal ...", "stop");
-            controller->scampWorker->abort();
-            controller->workerThread->quit();
-            controller->workerThread->wait();
+            if (controller->scampWorker) controller->scampWorker->abort();
+            if (controller->workerThread) controller->workerThread->quit();
+            if (controller->workerThread) controller->workerThread->wait();
             emit messageAvailable("Successfully detached from Scamp", "stop");
         }
         if (controller->taskBasename == "Coaddition") {
             emit messageAvailable("Sending Swarp a kill signal ...", "stop");
-            controller->swarpWorker->abort();
-            controller->workerThread->quit();
-            controller->workerThread->wait();
+            if (controller->swarpWorker) controller->swarpWorker->abort();
+            if (controller->workerThread) controller->workerThread->quit();
+            if (controller->workerThread) controller->workerThread->wait();
             emit messageAvailable("Successfully detached from Swarp", "stop");
         }
         workerThread->terminate();

@@ -516,6 +516,7 @@ QString findExecutableName(QString program)
             if (commandname.isEmpty()) {
                 QStringList paths;
                 paths << "/usr/local/Astrometry/bin/";
+                paths << "/usr/local/astrometry/bin/";
                 commandname = QStandardPaths::findExecutable(it, paths);
             }
             if (!commandname.isEmpty()) break;
@@ -527,6 +528,7 @@ QString findExecutableName(QString program)
             if (commandname.isEmpty()) {
                 QStringList paths;
                 paths << "/usr/local/Astrometry/bin/";
+                paths << "/usr/local/astrometry/bin/";
                 commandname = QStandardPaths::findExecutable(it, paths);
             }
             if (!commandname.isEmpty()) break;

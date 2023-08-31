@@ -196,7 +196,7 @@ void Controller::taskInternalBinnedpreview()
     QVector< QVector<double>> CDmatrices;
     QVector< QVector<int>> Tmatrices;
     for (int chip=0; chip<instData->numChips; ++chip) {
-        if (!instData->badChips.contains(chip)) {
+        if (!instData->badChips.contains(chip) && !scienceData->myImageList[chip].isEmpty()) {
             scienceData->myImageList[chip][0]->readImage(false);
             QVector<double> CDmatrix = scienceData->myImageList[chip][0]->extractCDmatrix();
             CDmatrices << CDmatrix;
@@ -204,7 +204,7 @@ void Controller::taskInternalBinnedpreview()
         }
         else {
             // a dummy
-            QVector<double> CDmatrix = {-0.001, 0.0, 0.0, 0.0001};
+            QVector<double> CDmatrix = {-0.001, 0.0, 0.0, 0.001};
             CDmatrices << CDmatrix;
             Tmatrices << CDmatrixToTransformationMatrix(CDmatrix, instData->name);
         }

@@ -111,8 +111,7 @@ void Splitter::buildTheliHeaderMJDOBS()
 
     // List of instruments for which MJD-OBS is not reliable and should be constructed from DATE-OBS
     QStringList instruments = {"GSAOI@GEMINI", "GSAOI_CHIP1@GEMINI", "GSAOI_CHIP2@GEMINI", "GSAOI_CHIP3@GEMINI", "GSAOI_CHIP4@GEMINI",
-                               "FLAMINGOS2@GEMINI", "VIS@EUCLID",
-                               "SAMI_2x2@SOAR"          // integer
+                               "FLAMINGOS2@GEMINI", "SAMI_2x2@SOAR"          // integer
                               };
     if (instruments.contains(instData.name)) {
         if (!dateObsValue.isEmpty()) {
@@ -2157,26 +2156,6 @@ bool Splitter::individualFixDATEOBS()
                 emit messageAvailable(fileName + " : Could not determine keyword: DATE-OBS, set to "+dateObsValue, "warning");
                 emit warning();
             }
-        }
-        individualFixDone = true;
-    }
-
-//    if (instData.name == "VIS@EUCLID" || instData.name == "NISP@EUCLID") {
-    if (instData.name == "NISP@EUCLID") {
-        QString dateValue;
-        bool foundDATE = searchKeyValue(QStringList() << "DATE", dateValue);
-        if (foundDATE) dateObsValue = dateValue;
-        else {
-            // Construct a unique dummy DATE-OBS keyword, incremented by 0.1 seconds.
-#pragma omp critical
-            {
-                *dateObsIncrementor += 0.1;
-                QString timeStamp = decimalSecondsToHms(*dateObsIncrementor);
-                dateObsValue = "2020-01-01T"+timeStamp;
-            }
-            emit messageAvailable(fileName + " : Could not determine keyword: DATE-OBS, set to "+dateObsValue, "warning");
-            emit warning();
-
         }
         individualFixDone = true;
     }

@@ -187,7 +187,7 @@ void Controller::scampErrorFoundReceived()
 {
     successProcessing = false;
     criticalReceived();
-    workerThread->quit();
+    if (workerThread) workerThread->quit();
 }
 
 int Controller::getMaxPhotInst()
@@ -229,7 +229,7 @@ void Controller::scampCalcFluxscale()
         successProcessing = false;
         emit messageAvailable("Could not find scamp output headers.", "error");
         criticalReceived();
-        workerThread->quit();
+        if (workerThread) workerThread->quit();
         return;
     }
 
@@ -437,7 +437,7 @@ void Controller::continueWithCopyZeroOrder()
     else {
         monitor->raise();
         successProcessing = false;
-        workerThread->quit();
+        if (workerThread) workerThread->quit();
         successProcessing = true;
     }
 }
@@ -452,7 +452,7 @@ void Controller::copyZeroOrder()
         emit messageAvailable("Could not update images with 0th order WCS solution.<br>The headers/ subdirectory does not exist in<br>"+scampScienceDir, "error");
         successProcessing = false;
         monitor->raise();
-        workerThread->quit();
+        if (workerThread) workerThread->quit();
         successProcessing = true;
         return;
     }
@@ -643,7 +643,7 @@ void Controller::doImageQualityAnalysis()
     // a risk that background galaxies contaminate a global statistical seeing and ellipticity measurement done during 'create source cat'.
     // Same for huge cameras such as DECam, but here simply because the catalog download would take forever.
     if (instData->pixscale > 2.0 || instData->radius > 1.0) {
-        workerThread->quit();
+        if (workerThread) workerThread->quit();
         successProcessing = true;
         return;
     }
@@ -699,7 +699,7 @@ void Controller::doImageQualityAnalysis()
         }
     }
 
-    workerThread->quit();
+    if (workerThread) workerThread->quit();
 
     delete gaiaQuery;
     gaiaQuery = nullptr;
@@ -844,7 +844,7 @@ long Controller::prepareScampCats(Data *scienceData, long &totNumObjects)
     catFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
 
     if (numCat == 0) {
-        emit messageAvailable("No cat/*.scamp catalogs were found matching the exposures in "+scienceDir+"<br>anetyou create the source catalogs?", "error");
+        emit messageAvailable("No cat/*.scamp catalogs were found matching the exposures in "+scienceDir+"<br>Did you create the source catalogs?", "error");
         monitor->raise();
         successProcessing = false;
         return 0;

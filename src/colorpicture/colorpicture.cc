@@ -659,7 +659,6 @@ void ColorPicture::on_broadbandComboBox_currentTextChanged(const QString &arg1)
 
 void ColorPicture::on_abortPushButton_clicked()
 {
-    workerThread->quit();
-    workerThread->wait();
-
+    if (workerThread) workerThread->quit();
+    if (workerThread) workerThread->wait();
 }

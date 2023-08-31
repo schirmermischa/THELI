@@ -127,6 +127,15 @@ void MyImage::writeWeight(QString fileName)
     else weightOnDrive = false;
 }
 
+void MyImage::linkWeight(QString globalWeightName, QString linkName)
+{
+    if (!successProcessing) return;
+
+    bool success = QFile::link(globalWeightName, linkName);
+    if (success) weightOnDrive = true;
+    else weightOnDrive = false;
+}
+
 void MyImage::writeWeightSmoothed(QString fileName)
 {
     if (!successProcessing) return;

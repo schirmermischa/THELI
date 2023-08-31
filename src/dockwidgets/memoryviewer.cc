@@ -78,8 +78,8 @@ MemoryViewer::~MemoryViewer()
     if (workerInit) delete worker;
     */
     if (workerThreadInit) {
-        workerThread->quit();
-        workerThread->wait();
+        if (workerThread) workerThread->quit();
+        if (workerThread) workerThread->wait();
         //        delete workerThread;
     }
 

@@ -614,8 +614,8 @@ void AbsZeroPoint::finishedCalculations()
 void AbsZeroPoint::on_abortPushButton_clicked()
 {
     if (!ui->startPushButton->isEnabled()) {
-        workerThread->quit();
-        workerThread->wait();
+        if (workerThread) workerThread->quit();
+        if (workerThread) workerThread->wait();
         finishedCalculations();
     }
 }
