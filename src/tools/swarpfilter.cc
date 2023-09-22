@@ -29,7 +29,7 @@ If not, see https://www.gnu.org/licenses/ .
 #include <QTextStream>
 
 SwarpFilter::SwarpFilter(QString coadddirname, QString kappaString,
-                         QString clustersizeString, QString borderwidthString,
+                         QString clustersizeString, QString borderwidthString, bool checkflux,
                          int maxCPU, int *verbose)
 {
     // Probably not needed, unless to case distinct linux and mac
@@ -43,6 +43,7 @@ SwarpFilter::SwarpFilter(QString coadddirname, QString kappaString,
     if (!borderwidthString.isEmpty()) maskWidth = borderwidthString.toInt();
     if (!clustersizeString.isEmpty()) clusterSize = clustersizeString.toInt();
     if (clusterSize > 9) clusterSize = 9; // upper limit
+    checkFluxScale = checkflux;
 
     coaddDir.setPath(coaddDirName);
     if (!coaddDir.exists()) {
@@ -188,7 +189,7 @@ void SwarpFilter::getGeometries()
     fluxscale.reserve(num_images);
 
     for (auto &it : images) {
-        if (!it->informSwarpfilter(naxis1tmp, naxis2tmp, crpix1tmp, crpix2tmp, skytmp, fluxscaletmp)) {
+        if (!it->informSwarpfilter(naxis1tmp, naxis2tmp, crpix1tmp, crpix2tmp, skytmp, fluxscaletmp, checkFluxScale)) {
             // TODO: This error does not lead to an abort in the stack of swarp command threads.
             QString message = "SwarpFilter::loadGeometries(): One or more keywords not found in resampled images:\nNAXIS1, NAXIS2, CRPIX1, CRPIX2, SKYVALUE, FLXSCALE";
             emit messageAvailable(message, "error");
@@ -217,6 +218,7 @@ void SwarpFilter::getBlocksize()
 
     // maxmimum memory used: 50% of the available RAM
     blocksize = 0.5 * systemRAM / (coadd_naxis1 * sizeof(float) * num_images * 2);
+    blocksize = 0.1 * systemRAM / (coadd_naxis1 * sizeof(float) * num_images * 2);
     blocksize = blocksize > coadd_naxis2 ? coadd_naxis2 : blocksize;  // upper limit
 
     if (blocksize < 1) {

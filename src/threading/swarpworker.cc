@@ -100,6 +100,7 @@ void SwarpWorker::processExternalStderr()
 
     QStringList errors;
     errors << "Error:";
+    errors << "FATAL ERROR";
     errors << "Null or negative global weighting factor";
     errors << "Not enough memory";
     errors << "Buffer overflow detected";
@@ -107,6 +108,7 @@ void SwarpWorker::processExternalStderr()
     errors << "has flux scale = 0: I will take 1 instead";
     errors << "Could not allocate memory";
     errors << "set to an unknown keyword";
+    errors << "Unknown FITS type in fitswrite()";
 
     QString type = "normal";
     for (auto &warning : warnings) {

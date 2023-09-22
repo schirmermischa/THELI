@@ -34,7 +34,7 @@ class SwarpFilter : public QObject
     Q_OBJECT
 public:
     SwarpFilter(QString coadddirname, QString kappaString, QString clustersizeString,
-                QString borderwidthString, int maxCPU, int *verbose);
+                QString borderwidthString, bool checkflux, int maxCPU, int *verbose);
     ~SwarpFilter();
 
     float *progress = nullptr;
@@ -66,6 +66,7 @@ private:
     long num_images = 0;       // Number of resampled images
     float kappa = 4.0;         // Detection threshold (outliers in units of sigma)
     int clusterSize = 1;       // Minimum size of a cluster of bad pixels to trigger masking
+    bool checkFluxScale = true;  // if RZP is used
     int maskWidth = 0;         // Width of an extra border around a detected bad pixel cluster
     long blocksize = 0;        // Number of lines read at a time
     long chunksize = 0;        // Number of pixels analysed in one step

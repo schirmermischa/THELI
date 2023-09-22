@@ -83,10 +83,10 @@ void Controller::taskInternalCoaddition()
     // if all chips are stacked, make sure the reference point is within the covered area.
     // If selected chips are present, then the user might want the same ref coords for all chip stacks, which might be outside
     if (cdw->ui->COAchipsLineEdit->text().isEmpty()) {
-//        if (!coaddScienceData->doesCoaddContainRaDec(cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text())) {
-//            emit showMessageBox("Controller::POOR_COORD", cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text());
-//            return;
-//        }
+        //        if (!coaddScienceData->doesCoaddContainRaDec(cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text())) {
+        //            emit showMessageBox("Controller::POOR_COORD", cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text());
+        //            return;
+        //        }
     }
 
     //    qDebug() << "taskInternalCoaddition() : " << filterArg;
@@ -273,7 +273,7 @@ void Controller::coaddPrepare(QString filterArg)
     }
 
     // Copy the headers (might be modified), link the images and weights, if they match the filterArg
-    float numexp = 0;
+    coaddNumImages = 0;
     QList<QString> filterNames;
     for (int chip=0; chip<instData->numChips; ++chip) {
         if (!chipList.contains(chip) || instData->badChips.contains(chip)) continue;        // Skip chips that should not be coadded
@@ -293,7 +293,7 @@ void Controller::coaddPrepare(QString filterArg)
                 else coaddPrepareProjectPM(header, headerNewName, refDE, mjdobsZero, it->mjdobs);
                 coaddTexptime += it->exptime;
                 coaddSkyvalue += it->skyValue / it->exptime;
-                ++numexp;
+                ++coaddNumImages;
                 if (!filterNames.contains(it->filter)) filterNames.append(it->filter);
             }
             else {
@@ -305,14 +305,14 @@ void Controller::coaddPrepare(QString filterArg)
                     if (!filterNames.contains(it->filter)) filterNames.append(it->filter);
                     coaddTexptime += it->exptime;
                     coaddSkyvalue += it->skyValue / it->exptime;
-                    ++numexp;
+                    ++coaddNumImages;
                 }
             }
         }
     }
 
     coaddTexptime /= instData->numUsedChips;
-    coaddSkyvalue /= numexp;
+    coaddSkyvalue /= coaddNumImages;
     for (auto &filter : filterNames) {
         coaddFilter.append(filter);
         coaddFilter.append("+");
@@ -322,9 +322,9 @@ void Controller::coaddPrepare(QString filterArg)
 
     // Check if Swarp will open more file handles than the system currently allows
     long maxOpenFiles = sysconf(_SC_OPEN_MAX);
-    if (2*numexp > maxOpenFiles) {
+    if (2*coaddNumImages > maxOpenFiles) {
         successProcessing = false;
-        SwarpReadme *swarpReadme = new SwarpReadme(2*numexp, maxOpenFiles, this);
+        SwarpReadme *swarpReadme = new SwarpReadme(2*coaddNumImages, maxOpenFiles, this);
         swarpReadme->show();
         return;
     }
@@ -597,6 +597,8 @@ void Controller::coaddPrepareBuildSwarpCommand(QString refRA, QString refDE)
     swarpCommand += " -RESAMPLING_TYPE " + cdw->ui->COAkernelComboBox->currentText();
     swarpCommand += coaddSize;
 
+    appendToFile(coaddDirName+"/swarpcommands.txt", swarpCommand);
+
     if (verbosity > 1) emit messageAvailable("Executing the following swarp command :<br><br>"+swarpCommand+"<br><br>in directory: <br><br>"+coaddDirName+"<br>", "info");
     if (verbosity > 1) emit messageAvailable("<br>Swarp output<br>", "ignore");
 }
@@ -611,7 +613,24 @@ void Controller::coaddResampleBuildSwarpCommand(QString imageList, int i)
     if (pixelScale.isEmpty()) pixelScale = QString::number(instData->pixscale, 'f', 9);
 
     QString rescaleWeights = "N";
+
     if (cdw->ui->COArescaleweightsCheckBox->isChecked()) rescaleWeights = "Y";
+
+    // Reset the FLXSCALE keyword if necessary (to the inverse exposure time)
+    if (!cdw->ui->COArzpCheckBox->isChecked()) {
+        if (verbosity > 1) emit messageAvailable("Ignoring scamp flux scaling, resetting the FLXSCALE keyword to 1./EXPTIME)", "warning");
+        QDir coaddDir(coaddDirName);
+        QStringList filter;
+        filter << "*.head";
+        QStringList headerList = coaddDir.entryList(filter);
+        for (auto &it : headerList) {
+            if (it == "coadd.head") continue;
+            QString fitsfile = it;
+            fitsfile.replace(".head", ".fits");
+            double exptime = extractFitsKeywordValue(coaddDirName+"/"+fitsfile, "EXPTIME");
+            replaceLineInFile(coaddDirName+"/"+it, "FLXSCALE", "FLXSCALE = "+QString::number(1./exptime));
+        }
+    }
 
     statusOld = coaddScienceData->processingStatus->statusString;
 
@@ -631,9 +650,15 @@ void Controller::coaddResampleBuildSwarpCommand(QString imageList, int i)
     swarpCommand += " -RESAMPLING_TYPE " + cdw->ui->COAkernelComboBox->currentText();
     swarpCommand += " -COMBINE_TYPE " + cdw->ui->COAcombinetypeComboBox->currentText();
     swarpCommand += " -RESCALE_WEIGHTS " + rescaleWeights;
+    swarpCommand += " -NOPENFILES_MAX " + QString::number(coaddNumImages);
     swarpCommand += " -COPY_KEYWORDS OBJECT,SKYVALUE,EXPTIME,DATE-OBS";
 
     swarpCommands[i] = swarpCommand;
+
+#pragma omp critical
+    {
+        appendToFile(coaddDirName+"/swarpcommands.txt", swarpCommands[i]);
+    }
 
     if (verbosity > 1) emit messageAvailable("Executing the following swarp command :<br><br>"+swarpCommands[i]+"<br><br>in directory: <br><br>"+coaddDirName+"<br>", "info");
     if (verbosity > 1) emit messageAvailable("<br>Swarp output<br>", "ignore");
@@ -648,7 +673,6 @@ void Controller::coaddCoadditionBuildSwarpCommand(QString imageList)
 
     QString rescaleWeights = "N";
     if (cdw->ui->COArescaleweightsCheckBox->isChecked()) rescaleWeights = "Y";
-
     statusOld = coaddScienceData->processingStatus->statusString;
 
     QString swarp = findExecutableName("swarp");
@@ -666,16 +690,19 @@ void Controller::coaddCoadditionBuildSwarpCommand(QString imageList)
     swarpCommand += " -RESAMPLING_TYPE " + cdw->ui->COAkernelComboBox->currentText();
     swarpCommand += " -COMBINE_TYPE " + cdw->ui->COAcombinetypeComboBox->currentText();
     swarpCommand += " -RESCALE_WEIGHTS " + rescaleWeights;
+    swarpCommand += " -NOPENFILES_MAX " + QString::number(coaddNumImages);
     swarpCommand += " -COPY_KEYWORDS OBJECT";
 
-    if (verbosity > 1) emit messageAvailable("Executing the following swarp command :<br><br>"+swarpCommand+"<br><br>in directory: <br><br>"+coaddDirName+"<br>", "info");
+    appendToFile(coaddDirName+"/swarpcommands.txt", swarpCommand);
+
+    if (verbosity > 0) emit messageAvailable("Executing the following swarp command :<br><br>"+swarpCommand+"<br><br>in directory: <br><br>"+coaddDirName+"<br>", "info");
     if (verbosity > 1) emit messageAvailable("<br>Swarp output<br>", "ignore");
 }
 
 void Controller::coaddResample()
 {
     if (!successProcessing) {
-        coaddUpdate();
+        //        if (workerThreadPrepare) workerThreadPrepare->quit();         // crashing sometimes, not sure why; crashes when process is user-aborted
         return;
     }
 
@@ -829,7 +856,7 @@ void Controller::coaddSwarpfilter()
     emit resetProgressBar();
 
     pushBeginMessage("CoaddSwarpFilter", coaddScienceDir);
-    SwarpFilter swarpFilter(coaddDirName, kappa, clustersize, borderwidth, maxCPU, &verbosity);
+    SwarpFilter swarpFilter(coaddDirName, kappa, clustersize, borderwidth, cdw->ui->COArzpCheckBox->isChecked(), maxCPU, &verbosity);
     swarpFilter.progress = &progress;
     connect(&swarpFilter, &SwarpFilter::messageAvailable, monitor, &Monitor::displayMessage);
     connect(&swarpFilter, &SwarpFilter::progressUpdate, mainGUI, &MainWindow::progressUpdateReceived);
@@ -851,11 +878,9 @@ void Controller::coaddSwarpfilter()
 void Controller::coaddCoaddition()
 {
     if (!successProcessing) {
-        coaddUpdate();
+        //        if (workerThreadPrepare) workerThreadPrepare->quit();         // crashing sometimes, not sure why; crashes when process is user-aborted
         return;
     }
-
-    if (!successProcessing) return;
 
     emit resetProgressBar();
 
@@ -945,7 +970,7 @@ void Controller::coaddUpdate()
 {
     if (!successProcessing) {
         //        emit forceFinish();
-        if (workerThreadPrepare) workerThreadPrepare->quit();         // crashing sometimes, not sure why
+        //        if (workerThreadPrepare) workerThreadPrepare->quit();         // crashing sometimes, not sure why
         return;
     }
 
@@ -955,7 +980,12 @@ void Controller::coaddUpdate()
     progress = 0.;
     emit resetProgressBar();
 
+    // Can't process too large images:
+    //    if (isImageTooBig(coaddDirName+"/coadd.fits")) qDebug() << "tooBig";
+    //    else qDebug() << "small";
+
     // cleanup temporary files
+    /*
     QDir coaddDir(coaddDirName);
     QStringList filter = {"listCoadd*", "coadd.head"};
     coaddDir.setNameFilters(filter);
@@ -965,6 +995,7 @@ void Controller::coaddUpdate()
         QFile tmpFile(coaddDirName+"/"+it);
         if (tmpFile.exists()) tmpFile.remove();
     }
+    */
 
     pushBeginMessage("CoaddUpdate", coaddScienceDir);
 
@@ -986,74 +1017,75 @@ void Controller::coaddUpdate()
             coadd->freeAll();
             delete coadd;
             coadd = nullptr;
-            return;
-        }
-        connect(coadd, &MyImage::critical, this, &Controller::criticalReceived);
-        connect(coadd, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
-        connect(coadd, &MyImage::warning, this, &Controller::warningReceived);
-        connect(coadd, &MyImage::setMemoryLock, this, &Controller::setMemoryLockReceived, Qt::DirectConnection);
-        connect(coadd, &MyImage::setWCSLock, this, &Controller::setWCSLockReceived, Qt::DirectConnection);
-        coadd->chipName = "coadd";
-        coadd->setupData(false, false, true);
-        coadd->globalMaskAvailable = false;
-        coadd->objectMaskDone = false;
-        coadd->weightInMemory = false;
-        coadd->weightPath = coaddDirName;
-        coadd->weightName = "coadd";
-        coadd->readWeight();
-        coadd->gain = 1.0;
-        coadd->saturationValue = minCoaddSaturationValue;
-        //        maxVal = maxVec_T(coadd->dataCurrent);
-        float radius = sqrt(coadd->naxis1*coadd->naxis1 + coadd->naxis2*coadd->naxis2) / 2. * coadd->plateScale / 60.;   // in arcmin
-        // Enforce an upper limit to the download catalog (the query also has a built-in limit of # sources < 1e6)
-        if (radius > 60) radius = 60.;
-
-        emit messageAvailable("coadd.fits : Downloading GAIA point sources ...", "image");
-        downloadGaiaCatalog(coaddScienceData, QString::number(radius, 'f', 1)); // Point sources
-
-        // Measure the seeing if we have reference sources
-        if (gaiaQuery->numSources > 0) {
-            emit messageAvailable("coadd.fits : Modeling background ...", "image");
-            coadd->backgroundModel(256, "interpolate");
-            emit messageAvailable("coadd.fits : Detecting sources ...", "image");
-            coadd->segmentImage("10", "3", true, false);
-            coadd->estimateMatchingTolerance();
-
-            ImageQuality *imageQuality = new ImageQuality(instData, mainDirName);
-            imageQuality->matchingTolerance = coadd->matchingTolerance;
-            imageQuality->baseName = "coadd.fits";
-            connect(imageQuality, &ImageQuality::messageAvailable, this, &Controller::messageAvailableReceived);
-            // pass the reference data
-            collectGaiaRaDec(coadd, gaiaQuery->de_out, gaiaQuery->ra_out, imageQuality->refCat);
-            // pass the source data (dec, ra, fwhm, ell on one hand, and mag separately)
-            coadd->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag, 0);
-            // match
-            static_cast<void> (imageQuality->getSeeingFromGaia());
-            //        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: not yet implemented
-            seeing_image = imageQuality->fwhm;                           // in pixel
-            seeing_world = imageQuality->fwhm * coadd->plateScale;       // in pixel
-            if (imageQuality->numSources > 0) {
-                emit messageAvailable("coadd.fits : FWHM = " + QString::number(seeing_world, 'f', 2) + "\"  ("
-                                      + QString::number(seeing_image, 'f', 2) + " pixel)", "image");
-                emit messageAvailable("coadd.fits : Ellipticity = " + QString::number(imageQuality->ellipticity, 'f', 3), "image");
-                //            emit messageAvailable("coadd.fits : # stars used for IQ analysis = " + QString::number(imageQuality->numSources), "image");
-            }
-            else {
-                emit messageAvailable("coadd.fits : FWHM = undetermined", "image");
-                emit messageAvailable("coadd.fits : Ellipticity = undetermined", "image");
-                //            emit messageAvailable("coadd.fits : # stars used for IQ analysis = 0", "image");
-            }
-            if (seeing_image < 2.0 && seeing_image > 0. &&
-                    (cdw->ui->COAkernelComboBox->currentText() == "LANCZOS3" ||
-                     cdw->ui->COAkernelComboBox->currentText() == "LANCZOS4")) {
-                emit messageAvailable("Undersampling detected. The chosen "+cdw->ui->COAkernelComboBox->currentText()
-                                      +" resampling kernel could lead to artifacts in compact sources (stars). In this case, consider the LANCZOS2 kernel.", "warning");
-            }
-            coadd->releaseAllDetectionMemory();
-            coadd->releaseBackgroundMemory("entirely");
         }
         else {
-            emit messageAvailable("Seeing will not be determined because no reference point sources were retrieved.", "warning");
+            connect(coadd, &MyImage::critical, this, &Controller::criticalReceived);
+            connect(coadd, &MyImage::messageAvailable, this, &Controller::messageAvailableReceived);
+            connect(coadd, &MyImage::warning, this, &Controller::warningReceived);
+            connect(coadd, &MyImage::setMemoryLock, this, &Controller::setMemoryLockReceived, Qt::DirectConnection);
+            connect(coadd, &MyImage::setWCSLock, this, &Controller::setWCSLockReceived, Qt::DirectConnection);
+            coadd->chipName = "coadd";
+            coadd->setupData(false, false, true);
+            coadd->globalMaskAvailable = false;
+            coadd->objectMaskDone = false;
+            coadd->weightInMemory = false;
+            coadd->weightPath = coaddDirName;
+            coadd->weightName = "coadd";
+            coadd->readWeight();
+            coadd->gain = 1.0;
+            coadd->saturationValue = minCoaddSaturationValue;
+            //        maxVal = maxVec_T(coadd->dataCurrent);
+            float radius = sqrt(coadd->naxis1*coadd->naxis1 + coadd->naxis2*coadd->naxis2) / 2. * coadd->plateScale / 60.;   // in arcmin
+            // Enforce an upper limit to the download catalog (the query also has a built-in limit of # sources < 1e6)
+            if (radius > 60) radius = 60.;
+
+            emit messageAvailable("coadd.fits : Downloading GAIA point sources ...", "image");
+            downloadGaiaCatalog(coaddScienceData, QString::number(radius, 'f', 1)); // Point sources
+
+            // Measure the seeing if we have reference sources
+            if (gaiaQuery->numSources > 0) {
+                emit messageAvailable("coadd.fits : Modeling background ...", "image");
+                coadd->backgroundModel(256, "interpolate");
+                emit messageAvailable("coadd.fits : Detecting sources ...", "image");
+                coadd->segmentImage("10", "3", true, false);
+                coadd->estimateMatchingTolerance();
+
+                ImageQuality *imageQuality = new ImageQuality(instData, mainDirName);
+                imageQuality->matchingTolerance = coadd->matchingTolerance;
+                imageQuality->baseName = "coadd.fits";
+                connect(imageQuality, &ImageQuality::messageAvailable, this, &Controller::messageAvailableReceived);
+                // pass the reference data
+                collectGaiaRaDec(coadd, gaiaQuery->de_out, gaiaQuery->ra_out, imageQuality->refCat);
+                // pass the source data (dec, ra, fwhm, ell on one hand, and mag separately)
+                coadd->collectSeeingParameters(imageQuality->sourceCat, imageQuality->sourceMag, 0);
+                // match
+                static_cast<void> (imageQuality->getSeeingFromGaia());
+                //        if (!gaia) imageQuality->getSeeingFromRhMag();      TODO: not yet implemented
+                seeing_image = imageQuality->fwhm;                           // in pixel
+                seeing_world = imageQuality->fwhm * coadd->plateScale;       // in pixel
+                if (imageQuality->numSources > 0) {
+                    emit messageAvailable("coadd.fits : FWHM = " + QString::number(seeing_world, 'f', 2) + "\"  ("
+                                          + QString::number(seeing_image, 'f', 2) + " pixel)", "image");
+                    emit messageAvailable("coadd.fits : Ellipticity = " + QString::number(imageQuality->ellipticity, 'f', 3), "image");
+                    //            emit messageAvailable("coadd.fits : # stars used for IQ analysis = " + QString::number(imageQuality->numSources), "image");
+                }
+                else {
+                    emit messageAvailable("coadd.fits : FWHM = undetermined", "image");
+                    emit messageAvailable("coadd.fits : Ellipticity = undetermined", "image");
+                    //            emit messageAvailable("coadd.fits : # stars used for IQ analysis = 0", "image");
+                }
+                if (seeing_image < 2.0 && seeing_image > 0. &&
+                        (cdw->ui->COAkernelComboBox->currentText() == "LANCZOS3" ||
+                         cdw->ui->COAkernelComboBox->currentText() == "LANCZOS4")) {
+                    emit messageAvailable("Undersampling detected. The chosen "+cdw->ui->COAkernelComboBox->currentText()
+                                          +" resampling kernel could lead to artifacts in compact sources (stars). In this case, consider the LANCZOS2 kernel.", "warning");
+                }
+                coadd->releaseAllDetectionMemory();
+                coadd->releaseBackgroundMemory("entirely");
+            }
+            else {
+                emit messageAvailable("Seeing will not be determined because no reference point sources were retrieved.", "warning");
+            }
         }
 
         coadd->freeAll();
@@ -1197,4 +1229,15 @@ void Controller::foldCoaddFits()
     fileOut.setPermissions(QFile::ReadUser | QFile::WriteUser);
 
     fileIn.remove();
+
+    // If the user provided a manual coadd size, then force the CRPIX to be at the image center.
+    // This enables making coadds with exactly the same size and projection, from different sets of images, without having to crop them
+    QString sizex = cdw->ui->COAsizexLineEdit->text();
+    QString sizey = cdw->ui->COAsizeyLineEdit->text();
+    if (!sizex.isEmpty() && !sizey.isEmpty()) {
+        int crpix1 = sizex.toFloat()/2.;
+        int crpix2 = sizey.toFloat()/2.;
+        replaceLineInFile(coaddDirName+"/coadd.head", "CRPIX1", "CRPIX1  = "+QString::number(crpix1));
+        replaceLineInFile(coaddDirName+"/coadd.head", "CRPIX2", "CRPIX2  = "+QString::number(crpix2));
+    }
 }
