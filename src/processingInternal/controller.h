@@ -87,6 +87,7 @@ private:
     FileProgressCounter *numberFileCounter;
     FileProgressCounter *sizeFileCounter;
 
+    long coaddNumImages = 0;
     QString swarpCommand;
     QString coaddDirName;
     QString coaddScienceDir;
@@ -209,9 +210,9 @@ private:
     int getMaxPhotInst();
 //    void provideHeaderInfo(Data *scpublic QMainWindowienceData);
     void buildSourceExtractorCommandOptions();
-    void detectionInternal(Data *scienceData, QString minFWHM, QString maxFlag);
+    void detectionInternal(Data *scienceData, QString minFWHM, QString maxFlag, QString maxEll);
     void detectionSourceExtractor(Data *scienceData, QString minFWHM, QString maxFlag, QString maxEll);
-    void mergeInternal(Data *scienceData, QString minFWHM, QString maxFlag);
+    void mergeInternal(Data *scienceData, QString minFWHM, QString maxFlag, QString maxEll);
     void mergeSourceExtractor(Data *scienceData);
     void populateHeaderDictionary();
     void populateFilterDictionary();
@@ -226,6 +227,7 @@ private:
     long getNumObjectsSourceExtractorCat(QString cat);
     void emitSourceCountMessage(long &nobj, QString baseName);
     void printCfitsioError(QString funcName, int status);
+    void printCfitsioWarning(QString funcName, int status);
     void updateImageAndData(MyImage *image, Data *data);
     void maskObjectsInSkyImagesPass1(const int chip, Data *skyData, Data *scienceData, const bool twoPass, const QString dt,
                                      const QString dmin, const bool convolution, const QString expFactor);
@@ -482,6 +484,7 @@ public:
     bool isMainDirHome();
     void populateInstrumentDictionary();
 
+    bool isImageTooBig(QString name);
 signals:
     void loadViewer(QString dirname, QString filter, QString mode);
     void messageAvailable(QString message, QString type);

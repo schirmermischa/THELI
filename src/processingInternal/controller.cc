@@ -1167,6 +1167,36 @@ void Controller::printCfitsioError(QString funcName, int status)
     }
 }
 
+bool Controller::isImageTooBig(QString name)
+{
+    fitsfile *fptr = nullptr;
+    int status = 0;
+    if (name.isNull() || name.isEmpty()) {
+        status = 1;
+        emit messageAvailable(QString(__func__) + ": file name empty or not initialized!", "warning");
+        return false;
+    }
+    long naxis1 = 0;
+    long naxis2 = 0;
+    fits_open_file(&fptr, name.toUtf8().data(), READWRITE, &status);
+    fits_update_key_lng(fptr, "NAXIS1", naxis1, NULL, &status);
+    fits_update_key_lng(fptr, "NAXIS2", naxis2, NULL, &status);
+    fits_close_file(fptr, &status);
+
+    printCfitsioError(__func__, status);
+    if  (naxis1*naxis2 > pow(2,29)) return false;
+    else return true;
+}
+
+void Controller::printCfitsioWarning(QString funcName, int status)
+{
+    if (status) {
+        CfitsioErrorCodes *errorCodes = new CfitsioErrorCodes(this);
+        emit messageAvailable("Controller::"+funcName+":<br>" + errorCodes->errorKeyMap.value(status), "warning");
+        warningReceived();
+    }
+}
+
 // Cannot be done above when data classes are defined (because memoryviewer has not been declared in mainwindow.cc when the controller is defined.
 void Controller::connectDataWithMemoryViewer()
 {

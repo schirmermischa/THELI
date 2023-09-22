@@ -106,6 +106,9 @@ MyImage::MyImage(QString fullPathName, const QVector<bool> &mask, int *verbose, 
     rootName.truncate(rootName.lastIndexOf('_'));
     chipName = rootName+"_"+QString::number(chipNumber);
 
+    if (rootName.isEmpty()) rootName = baseName;
+    if (chipName.isEmpty()) chipName = baseName;
+
     weightName = baseName+".weight";
 
     if (globalMask.isEmpty()) globalMaskAvailable = false;
@@ -190,6 +193,7 @@ bool MyImage::isTooBig()
 {
     // QVector can only hold 2^29 elements
     if  (naxis1*naxis2 > pow(2,29)) {
+        successProcessing = false;
         emit messageAvailable("Image has more than 2^29 elements and cannot be analysed within THELI.", "image");
         return true;
     }
@@ -552,6 +556,7 @@ void MyImage::updateMode()
     if (!successProcessing) return;
 
     // Force an update of the mode
+
     skyValue = modeMask(dataCurrent, "stable", globalMask)[0];
     modeDetermined = true;
     QString skyvalue = "SKYVALUE= "+QString::number(skyValue);

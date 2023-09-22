@@ -46,7 +46,7 @@ void MyImage::readFILTER(QString loadFileName)
 }
 
 // Extract the NAXIS1, NAXIS2, CRPIX1, CRPIX2, SKYVALUE and FLXSCALE keywords from a yet unopened (resampled) FITS file for swarpfilter()
-bool MyImage::informSwarpfilter(long &naxis1, long &naxis2, double &crpix1, double &crpix2, double &sky, double &fluxscale)
+bool MyImage::informSwarpfilter(long &naxis1, long &naxis2, double &crpix1, double &crpix2, double &sky, double &fluxscale, bool checkFluxScale)
 {
     QString loadFileName = path + "/" + name;
     int status = 0;
@@ -56,7 +56,8 @@ bool MyImage::informSwarpfilter(long &naxis1, long &naxis2, double &crpix1, doub
     fits_read_key_dbl(fptr, "CRPIX2", &crpix2, NULL, &status);
     fits_read_key_lng(fptr, "NAXIS1", &naxis1, NULL, &status);
     fits_read_key_lng(fptr, "NAXIS2", &naxis2, NULL, &status);
-    fits_read_key_dbl(fptr, "FLXSCALE", &fluxscale, NULL, &status);
+    if (checkFluxScale) fits_read_key_dbl(fptr, "FLXSCALE", &fluxscale, NULL, &status);
+    else fluxscale = 1.0;
 
     // get the sky value from the MyImage if not present in the header of the FITS file
     // (in case the user did not run the calibration step)
@@ -392,6 +393,8 @@ void MyImage::initTHELIheader(int *status)
 
     filter = filter.simplified();
     dim = naxis1*naxis2;
+    isTooBig();
+
     if (skyValue != -1e9) modeDetermined = true;
     else modeDetermined = false;
 

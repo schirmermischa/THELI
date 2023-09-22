@@ -108,7 +108,7 @@ Data::Data(const instrumentDataType *instrumentData, Mask *detectorMask, QString
             // The list is fully populated, even for chips the user might decide not to use
             myImageList[chip].clear(); // in case we run globalweights several times
             QStringList filter;
-            filter << "globalweight*_"+QString::number(chip+1)+".fits";
+            filter << "globalweight_"+instData->name+"*_"+QString::number(chip+1)+".fits";
             QStringList fitsFiles = dir.entryList(filter);
             for (auto &it : fitsFiles) {
                 MyImage *myImage = new MyImage(dirName, it, "", chip+1, mask->globalMask[chip], verbosity);

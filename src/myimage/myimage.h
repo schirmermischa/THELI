@@ -357,7 +357,7 @@ public:
     //  void subtractPolynomialSkyFit(gsl_vector *c, int order);
     void add(float value);
     void addExludedRegionToMask(long imin, long imax, long jmin, long jmax);
-    void appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_string, QString maxFlag_string, bool empty = false);
+    void appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_string, QString maxFlag_string, QString maxEll_string, bool empty = false);
     void appendToScampCatalogSourceExtractor(fitsfile *fptr);
     void applyBackgroundModel(const MyImage *backgroundImage, QString mode, bool rescaleFlag);
     void applyMask();
@@ -404,7 +404,7 @@ public:
     void getMode(bool determineMode);
     double getPlateScale();
     void illuminationCorrection(int chip, QString thelidir, QString instName, QString filter);
-    bool informSwarpfilter(long &naxis1, long &naxis2, double &crpix1, double &crpix2, double &sky, double &fluxscale);
+    bool informSwarpfilter(long &naxis1, long &naxis2, double &crpix1, double &crpix2, double &sky, double &fluxscale, bool checkFluxScale);
     void initFITS(fitsfile **fptr, QString loadFileName, int *status);
     void initWCS();
     void initWeightfromGlobalWeight(const QList<MyImage *> &gwList);
@@ -493,7 +493,7 @@ public:
     void updateHeaderSaturation();
     void updateZeroOrderOnDrive(QString updateMode);
     void writeBackgroundModel();
-    void writeCatalog(QString minFWHM_string, QString maxFlag_string);
+    void writeCatalog(QString minFWHM_string, QString maxFlag_string, QString maxEll_string);
     void writeConstSkyImage(float constValue);
     void writeImage(QString fileName = "", QString filter = "", float exptime = -1.0, bool addGain = false);
     void writeImageTIFF(QString fileName = "", QString filter = "", float exptime = -1.0, bool addGain = false);
@@ -513,6 +513,7 @@ signals:
     void setMemoryLock(bool locked);
     void setWCSLock(bool locked);
     void critical();
+    void imageTooBig();
     void warning();
     void errorOccurred();
     void WCSupdated();

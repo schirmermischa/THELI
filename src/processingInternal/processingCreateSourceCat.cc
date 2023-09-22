@@ -83,10 +83,10 @@ void Controller::taskInternalCreatesourcecat()
 
     // INTERNAL
     if (cdw->ui->CSCMethodComboBox->currentText() == "THELI") {
-        detectionInternal(scienceData, minFWHM, maxFlag);
+        detectionInternal(scienceData, minFWHM, maxFlag, maxEll);
         emit resetProgressBar();
         progressStepSize = 100. / float(scienceData->exposureList.length());
-        mergeInternal(scienceData, minFWHM, maxFlag);
+        mergeInternal(scienceData, minFWHM, maxFlag, maxEll);
     }
 
     // EXTERNAL (SourceExtractor)
@@ -98,6 +98,7 @@ void Controller::taskInternalCreatesourcecat()
     }
 
     checkSuccessProcessing(scienceData);
+
     satisfyMaxMemorySetting();
 
     if (successProcessing) {
@@ -106,7 +107,7 @@ void Controller::taskInternalCreatesourcecat()
     }
 }
 
-void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString maxFlag)
+void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString maxFlag, QString maxEll)
 {
     // Parameters for source detection
     QString DT = cdw->ui->CSCDTLineEdit->text();
@@ -171,7 +172,7 @@ void Controller::detectionInternal(Data *scienceData, QString minFWHM, QString m
         it->releaseBackgroundMemory();
         it->releaseDetectionPixelMemory();
         it->calcMedianSeeingEllipticity();   // Also propagate to FITS header if file is on drive
-        it->writeCatalog(minFWHM, maxFlag);  // filters out objects that don't match flag or fwhm
+        it->writeCatalog(minFWHM, maxFlag, maxEll);  // filters out objects that don't match flag or fwhm
         it->unprotectMemory();
         if (minimizeMemoryUsage) {
             it->freeAll();
@@ -355,7 +356,7 @@ void Controller::flagLowDetectionImages(Data *scienceData, long &numExpRejected,
     }
 }
 
-void Controller::mergeInternal(Data *scienceData, QString minFWHM, QString maxFlag)
+void Controller::mergeInternal(Data *scienceData, QString minFWHM, QString maxFlag, QString maxEll)
 {
     scienceData->populateExposureList();
     emit messageAvailable("Merging source catalogs ...", "controller");
@@ -383,7 +384,7 @@ void Controller::mergeInternal(Data *scienceData, QString minFWHM, QString maxFl
         for (auto &it : scienceData->exposureList[i]) {
             // Exclude inactive exposures
 //            if (!it->isActive()) continue;
-            it->appendToScampCatalogInternal(fptr, minFWHM, maxFlag);
+            it->appendToScampCatalogInternal(fptr, minFWHM, maxFlag, maxEll);
             ++counter;
         }
         //        if (counter != instData->numChips) {
@@ -458,7 +459,7 @@ void Controller::buildSourceExtractorCommandOptions()
     sourceExtractorCommandOptions += " -FILTER "          + getUserParamCheckBox(cdw->ui->CSCconvolutionCheckBox);
     sourceExtractorCommandOptions += " -DEBLEND_MINCONT " + getUserParamLineEdit(cdw->ui->CSCmincontLineEdit);
     sourceExtractorCommandOptions += " -SATUR_LEVEL "     + getUserParamLineEdit(cdw->ui->CSCsaturationLineEdit);
-    sourceExtractorCommandOptions += " -CATALOG_TYPE FITS_LDAC";
+    sourceExtractorCommandOptions += " -CATALOG_TYPE FITS_LDAC ";
     sourceExtractorCommandOptions += " -WEIGHT_TYPE MAP_WEIGHT ";
     sourceExtractorCommandOptions += " -PIXEL_SCALE 0.0 ";
 
