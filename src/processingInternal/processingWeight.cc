@@ -77,16 +77,19 @@ void Controller::taskInternalGlobalweight()
     if (scienceData->myImageList[instData->validChip].isEmpty()) scienceData->populate(scienceData->processingStatus->statusString);
 
     // Get the filter name, first exposure in SCIENCE (assuming same filter for all exposures)
-    QString filter = "";
+    QStringList filterList;
+    QString filter;
     for (auto &it : scienceData->myImageList[instData->validChip]) {
         if (!it->filter.isEmpty()) {
             filter = it->filter;
-            break;
+            if (!filterList.contains(filter)) filterList.append(filter);
         }
         else {
             it->readFILTER();
             filter = it->filter;
-            if (!filter.isEmpty()) break;
+            if (!filter.isEmpty()) {
+                if (!filterList.contains(filter)) filterList.append(filter);
+            }
         }
     }
 
@@ -107,7 +110,9 @@ void Controller::taskInternalGlobalweight()
     }
     else {
         // remove the globalweight for the present filter only, in this science directory (and then re-create it)
-        GLOBALWEIGHTS->resetGlobalWeight(filter);
+        for (auto &it: filterList) {
+            GLOBALWEIGHTS->resetGlobalWeight(it);
+        }
     }
 
     bool sameWeight = cdw->ui->CGWsameweightCheckBox->isChecked();
@@ -147,17 +152,20 @@ void Controller::taskInternalGlobalweight()
 
         // not sure why i had this in a critical section. libwcs not being threadsafe i think.
         // should be fixed now that the MyImage::initWCS is always called inside a omp critical section
-//#pragma omp critical
-//        {
-            if (biasData != nullptr) biasData->loadCombinedImage(chip);  // skipped if already in memory
-            if (flatData != nullptr) flatData->loadCombinedImage(chip);  // skipped if already in memory
-//        }
+        //#pragma omp critical
+        //        {
+        if (biasData != nullptr) biasData->loadCombinedImage(chip);  // skipped if already in memory
+        if (flatData != nullptr) flatData->loadCombinedImage(chip);  // skipped if already in memory
+        //        }
 
-        GLOBALWEIGHTS->initGlobalWeight(chip, flatData, filter, sameWeight, flatMin, flatMax);
-        GLOBALWEIGHTS->thresholdGlobalWeight(chip, biasData, filter, threshMin, threshMax);
-        GLOBALWEIGHTS->detectDefects(chip, flatData, filter, sameWeight, defectKernel, defectRowTol, defectColTol, defectClusTol);
-        GLOBALWEIGHTS->applyMask(chip, filter);
-        GLOBALWEIGHTS->writeGlobalWeights(chip, filter);
+        for (auto &it: filterList) {
+            GLOBALWEIGHTS->initGlobalWeight(chip, flatData, it, sameWeight, flatMin, flatMax);
+            GLOBALWEIGHTS->thresholdGlobalWeight(chip, biasData, it, threshMin, threshMax);
+            GLOBALWEIGHTS->detectDefects(chip, flatData, it, sameWeight, defectKernel, defectRowTol, defectColTol, defectClusTol);
+            GLOBALWEIGHTS->applyMask(chip, it);
+            GLOBALWEIGHTS->writeGlobalWeights(chip, it);
+        }
+
         if (biasData != nullptr) biasData->unprotectMemory(chip);
         if (flatData != nullptr) flatData->unprotectMemory(chip);
         GLOBALWEIGHTS->myImageList[chip][0]->unprotectMemory();   // List with one entry per chip, only
@@ -257,10 +265,13 @@ void Controller::taskInternalIndividualweight()
             abortProcess = true;
             continue;
         }
+
         it->weightModified = false;
         it->initWeightfromGlobalWeight(GLOBALWEIGHTS->myImageList[chip]);   // calls a threadsafe version of MyImage::loadData() to avoid parallel reads of the same globalweight map
+
         it->thresholdWeight(imageMin, imageMax);
         it->applyPolygons();
+
         it->maskSaturatedPixels(cdw->ui->CIWsaturationLineEdit->text(), cdw->ui->CIWmasksaturationCheckBox->isChecked());
         it->maskBloomingSpike(instType, range, minVal, cdw->ui->CIWmaskbloomingCheckBox->isChecked());
 #pragma omp atomic

@@ -315,12 +315,15 @@ void Splitter::extractImagesFITS()
                 continue;
             }
 
+            headerTHELI.clear();
+            readExtHeader();
+
             // some multi-chip cams (FORS, etc) come with separate FITS files. For them, 'chip' would always be zero,
             // and thus the correct overscan regions etc not identified correctly.
             // Others such as GROND image simultaneously in different bandpasses on multiple detectors, but they show the
             // same field of view and should be treated as single-chip cameras.
             // Hence this mapping
-            int chipMapped = inferChipID(chip) - 1;   // same value as chip for normal 'MEF' files
+            int chipMapped = inferChipID(chip) - 1;   // same value as chip for normal 'MEF' files; requires readExtheader(), for Euclid.
             // For HSC@SUBARU, drop the 8 focus CCDs
             if (instData.name == "HSC@SUBARU" && chipMapped >= 104) break;
             // HSC chips too difficult for astrometry
@@ -333,7 +336,6 @@ void Splitter::extractImagesFITS()
                 successProcessing = false;
                 break;
             }
-
             // OK, we have either a 2D image or a cube.
 
             // Saturation handling
@@ -342,8 +344,6 @@ void Splitter::extractImagesFITS()
             if (userSaturationValue != 0) saturationValue = userSaturationValue;
 
             // Build the header. Must clear before processing new chip
-            headerTHELI.clear();
-            readExtHeader();
             if (!isDetectorAlive(chipMapped)) {
                 fits_movrel_hdu(rawFptr, 1, &hduType, &rawStatus);
                 ++chip;
@@ -419,7 +419,7 @@ void Splitter::extractImagesFITS()
                     convertToElectrons(chipMapped);
                     applyMask(chipMapped);
                     writeImage(chipMapped);
-                    //   initMyImage(chip);
+                    //   initMyImage(chip);16
                     // TODO: how is the exposure time defined for these data? Probably requires individual solution
 
 
@@ -557,33 +557,34 @@ int Splitter::inferChipID(int chip)
         return chipID;
     }
 
-    /*
-    else if (instData.name == "NISP@EUCLID") {
-        int value = 0;
-        searchKeyValue(QStringList() << "DET_ID", value);    // running from 11 to 44
-        if (value == 11) chipID = 1;
-        else if (value == 12) chipID = 2;
-        else if (value == 13) chipID = 3;
-        else if (value == 14) chipID = 4;
-        else if (value == 21) chipID = 5;
-        else if (value == 22) chipID = 6;
-        else if (value == 23) chipID = 7;
-        else if (value == 24) chipID = 8;
-        else if (value == 31) chipID = 9;
-        else if (value == 32) chipID = 10;
-        else if (value == 33) chipID = 11;
-        else if (value == 34) chipID = 12;
-        else if (value == 41) chipID = 13;
-        else if (value == 42) chipID = 14;
-        else if (value == 43) chipID = 15;
-        else if (value == 44) chipID = 16;
-        return chipID;
-    }
-        */
-
-    else if (instData.name == "VIS@EUCLID") {     // we need this to be robust against turned-off detector units
+    else if (instData.name == "NISP@EUCLID" || instData.name == "NISP_JCC@EUCLID") {
         QString value = "";
-        searchKeyValue(QStringList() << "EXTNAME", value);
+        // can't use searchKeyValue(), as that internal makes a relative HDU offset if a key is not found
+        searchKeyInHeaderValue(QStringList() << "EXTNAME", extHeader, value);
+        if (value == "DET11.SCI") chipID = 1;
+        else if (value == "DET12.SCI") chipID = 2;
+        else if (value == "DET13.SCI") chipID = 3;
+        else if (value == "DET14.SCI") chipID = 4;
+        else if (value == "DET21.SCI") chipID = 5;
+        else if (value == "DET22.SCI") chipID = 6;
+        else if (value == "DET23.SCI") chipID = 7;
+        else if (value == "DET24.SCI") chipID = 8;
+        else if (value == "DET31.SCI") chipID = 9;
+        else if (value == "DET32.SCI") chipID = 10;
+        else if (value == "DET33.SCI") chipID = 11;
+        else if (value == "DET34.SCI") chipID = 12;
+        else if (value == "DET41.SCI") chipID = 13;
+        else if (value == "DET42.SCI") chipID = 14;
+        else if (value == "DET43.SCI") chipID = 15;
+        else if (value == "DET44.SCI") chipID = 16;
+        if (value.isEmpty()) return 0;
+        else return chipID;
+    }
+
+    else if (instData.name == "VIS@EUCLID" || instData.name == "VIS_JCC@EUCLID") {     // we need this to be robust against turned-off detector units
+        QString value = "";
+        // can't use searchKeyValue(), as that internal makes a relative HDU offset if a key is not found
+        searchKeyInHeaderValue(QStringList() << "EXTNAME", extHeader, value);
         if (value == "1-1.E") chipID = 1;
         else if (value == "1-1.F") chipID = 2;
         else if (value == "1-1.G") chipID = 3;
@@ -728,8 +729,8 @@ int Splitter::inferChipID(int chip)
         else if (value == "6-4.F") chipID = 142;
         else if (value == "6-4.G") chipID = 143;
         else if (value == "6-4.H") chipID = 144;
-        qDebug() << value << chipID;
-        return chipID;
+        if (value.isEmpty()) return 0;
+        else return chipID;
     }
 
     else if (instData.name.contains("IMACS")) {
@@ -1147,6 +1148,7 @@ void Splitter::writeImage(int chipMapped)
     }
     // Update the SATURATE keyword
     fits_update_key_flt(fptr, "SATURATE", saturationValue, 6, nullptr, &status);
+    fits_update_key_str(fptr, "ORIGIN", fileName.toUtf8().data(), nullptr, &status);
     fits_close_file(fptr, &status);
 
     delete [] array;
@@ -1283,6 +1285,7 @@ bool Splitter::individualFixWriteImage(int chipMapped)
             // Update the filter keyword with the polarization angle
             QString newFilter = filter+"_"+channelID;
             fits_update_key_str(fptr, "FILTER", newFilter.toUtf8().data(), nullptr, &status);
+            fits_update_key_str(fptr, "ORIGIN", fileName.toUtf8().data(), nullptr, &status);
             fits_close_file(fptr, &status);
 
             delete [] array;
@@ -1361,6 +1364,7 @@ bool Splitter::individualFixWriteImage(int chipMapped)
             // Update the filter keyword with the polarization angle
             QString newFilter = channelID;
             fits_update_key_str(fptr, "FILTER", newFilter.toUtf8().data(), nullptr, &status);
+            fits_update_key_str(fptr, "ORIGIN", fileName.toUtf8().data(), nullptr, &status);
             // Update the gain
             fits_update_key_flt(fptr, "GAINORIG", gain, 6, nullptr, &status);
 

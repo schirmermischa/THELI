@@ -70,7 +70,7 @@ void Mask::initMasks()
             long n = instData->sizex[chip];
             long m = instData->sizey[chip];
             if (n != n_ref || m != m_ref) {
-                qDebug() << "QDEBUG: Mask::Mask(): Error: chip geometries must be identical for all chips for a global mask.";
+                qDebug() << QString(__func__) + " Error: chip geometries must be identical for all chips for a global mask.";
                 break;
             }
             isChipMasked[chip] = true;

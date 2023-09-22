@@ -89,6 +89,7 @@ public:
     QVector<bool> G2type;
     QVector<float> mag1err_out;
     QVector<float> mag2err_out;
+    QVector<float> mag3err_out;
 
     void initAstromQuery();
     void doBrightStarQueryFromWeb();

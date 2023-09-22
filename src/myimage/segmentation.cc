@@ -70,6 +70,7 @@ void MyImage::segmentImage(const QString DTstring, const QString DMINstring, con
     if (skySigma < 0.) {
         emit messageAvailable("MyImage::segmentImage(): sky noise not yet estimated, re-computing", "warning");
         emit critical();
+
         skySigma = modeMask(dataCurrent, "stable", QVector<bool>())[1];
     }
 
@@ -618,7 +619,7 @@ void MyImage::releaseDetectionPixelMemory()
     emit setMemoryLock(false);
 }
 
-void MyImage::writeCatalog(QString minFWHM_string, QString maxFlag_string)
+void MyImage::writeCatalog(QString minFWHM_string, QString maxFlag_string, QString maxEll_string)
 {
     QString outpath = path+"/cat/iview/";
     QDir outdir(outpath);
@@ -626,7 +627,9 @@ void MyImage::writeCatalog(QString minFWHM_string, QString maxFlag_string)
 
     float minFWHM = minFWHM_string.toFloat();
     float maxFlag = maxFlag_string.toFloat();
+    float maxEll = maxEll_string.toFloat();
     if (maxFlag_string.isEmpty()) maxFlag = 100;
+    if (maxEll_string.isEmpty()) maxEll = 0.7;
 
     // Write iview catalog
     QFile file(path+"/cat/iview/"+chipName+".iview");
@@ -636,8 +639,8 @@ void MyImage::writeCatalog(QString minFWHM_string, QString maxFlag_string)
             outputStream.setRealNumberPrecision(9);
             if (3.*object->AWIN >= minFWHM
                     && object->FLAGS <= maxFlag
-                    && object->FLUX_AUTO > 0.
-                    && object->ELLIPTICITY < 0.6) {
+                    && object->ELLIPTICITY <= maxEll
+                    && object->FLUX_AUTO > 0.) {
                 // MUST APPLY ORIGIN OFFSET CORRECTION (+1), because calculations were done starting counting at 0 (in FITS files we start at 1)
                 outputStream << object->XWIN + 1. << " "
                              << object->YWIN + 1. << " "
@@ -666,7 +669,10 @@ void MyImage::writeCatalog(QString minFWHM_string, QString maxFlag_string)
     long numSources = objectList.length();
     long numSourcesRetained = 0.;
     for (long i=0; i<numSources; ++i) {
-        if (3.*objectList[i]->AWIN >= minFWHM && objectList[i]->FLAGS <= maxFlag && objectList[i]->FLUX_AUTO > 0.) {
+        if (3.*objectList[i]->AWIN >= minFWHM
+                && objectList[i]->FLAGS <= maxFlag
+                && objectList[i]->ELLIPTICITY <= maxEll
+                && objectList[i]->FLUX_AUTO > 0.) {
             ++numSourcesRetained;
         }
     }
@@ -677,7 +683,10 @@ void MyImage::writeCatalog(QString minFWHM_string, QString maxFlag_string)
     float mag_arr[nrows];
     long k = 0;
     for (long i=0; i<numSources; ++i) {
-        if (3.*objectList[i]->AWIN >= minFWHM && objectList[i]->FLAGS <= maxFlag && objectList[i]->FLUX_AUTO > 0.) {
+        if (3.*objectList[i]->AWIN >= minFWHM
+                && objectList[i]->FLAGS <= maxFlag
+                && objectList[i]->ELLIPTICITY <= maxEll
+                && objectList[i]->FLUX_AUTO > 0.) {
             // MUST APPLY ORIGIN OFFSET CORRECTION (+1), because calculations were done starting counting at 0 (in FITS files we start at 1)
             x_arr[k] = objectList[i]->XWIN + 1.;
             y_arr[k] = objectList[i]->YWIN + 1.;
@@ -717,11 +726,13 @@ void MyImage::makeXcorrData()
 }
 
 // Appends a new binary table to an already opened FITS file (handled by Controller class)
-void MyImage::appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_string, QString maxFlag_string, bool empty)
+void MyImage::appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_string, QString maxFlag_string, QString maxEll_string, bool empty)
 {
     float minFWHM = minFWHM_string.toFloat();
     float maxFlag = maxFlag_string.toFloat();
+    float maxEll = maxEll_string.toFloat();
     if (maxFlag_string.isEmpty()) maxFlag = 100;
+    if (maxEll_string.isEmpty()) maxEll = 0.7;
     if (minFWHM_string.isEmpty()) minFWHM = 0.01;
 
     // STEP 1: LDAC_IMHEAD table, containing the FITS header
@@ -789,7 +800,10 @@ void MyImage::appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_strin
 //    if (empty) numSources = 0;        // empty table for deactivated images
     long numSourcesRetained = 0;
     for (long i=0; i<numSources; ++i) {
-        if (3.*objectList[i]->AWIN >= minFWHM && objectList[i]->FLAGS <= maxFlag && objectList[i]->FLUX_AUTO > 0.) {
+        if (3.*objectList[i]->AWIN >= minFWHM
+                && objectList[i]->FLAGS <= maxFlag
+                && objectList[i]->ELLIPTICITY <= maxEll
+                && objectList[i]->FLUX_AUTO > 0.) {
             ++numSourcesRetained;
         }
     }
@@ -812,7 +826,10 @@ void MyImage::appendToScampCatalogInternal(fitsfile *fptr, QString minFWHM_strin
 
     long k = 0;
     for (long i=0; i<numSources; ++i) {
-        if (3.*objectList[i]->AWIN >= minFWHM && objectList[i]->FLAGS <= maxFlag && objectList[i]->FLUX_AUTO > 0.) {
+        if (3.*objectList[i]->AWIN >= minFWHM
+                && objectList[i]->FLAGS <= maxFlag
+                && objectList[i]->ELLIPTICITY <= maxEll
+                && objectList[i]->FLUX_AUTO > 0.) {
             // MUST APPLY ORIGIN OFFSET CORRECTION (+1), because calculations were done starting counting at 0 (in FITS files we start at 1)
             xwin_arr[k] = objectList[i]->XWIN + 1.;
             ywin_arr[k] = objectList[i]->YWIN + 1.;

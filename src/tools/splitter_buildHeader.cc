@@ -205,10 +205,10 @@ void Splitter::WCSbuildCRPIX(int chip)
         searchKeyCRVAL("CRPIX1", headerDictionary.value("CRPIX1"), headerWCS);
         searchKeyCRVAL("CRPIX2", headerDictionary.value("CRPIX2"), headerWCS);
     }
-//    if (instData.name == "VIS@EUCLID") {
-//        searchKeyCRVAL("CRPIX1", headerDictionary.value("CRPIX1"), headerWCS);
-//        searchKeyCRVAL("CRPIX2", headerDictionary.value("CRPIX2"), headerWCS);
-//    }
+    //    if (instData.name == "VIS@EUCLID") {
+    //        searchKeyCRVAL("CRPIX1", headerDictionary.value("CRPIX1"), headerWCS);
+    //        searchKeyCRVAL("CRPIX2", headerDictionary.value("CRPIX2"), headerWCS);
+    //    }
     else {
         // CRPIXi: Rely on instrument.ini (Todo: scan .ahead files directly for multi-chip cameras)
         QString crpix1_card = "CRPIX1  = "+QString::number(instData.crpix1[chip]);
@@ -527,7 +527,7 @@ bool Splitter::individualFixEQUINOX()
         individualFixDone = true;
     }
 
-    if (instData.name == "VIS@EUCLID") {
+    if (instData.name == "VIS@EUCLID" || instData.name == "VIS_JCC@EUCLID") {
         equinoxCard = equinoxCard = "EQUINOX = 2000.0";
         individualFixDone = true;
     }
@@ -920,7 +920,7 @@ bool Splitter::individualFixCDmatrix(int chip)
         }
         individualFixDone = true;
     }
-    if (instData.name == "VIS@EUCLID") {
+    if (instData.name == "VIS@EUCLID" || instData.name == "VIS_JCC@EUCLID") {
         if (chip == 0) {
             cd11_card = "CD1_1   =   1.485336085825E-05";
             cd12_card = "CD1_2   =   2.373020263256E-05";
@@ -1804,15 +1804,104 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
         individualFixDone = true;
     }
-    if (instData.name == "NISP@EUCLID") {     // NISP has no CD matrix in the header
-        cd11 = instData.pixscale / 3600.;
-        cd12 = 0.0;
-        cd21 = 0.0;
-        cd22 = instData.pixscale / 3600.;
-        cd11_card = "CD1_1   =  "+QString::number(cd11, 'g', 6);
-        cd12_card = "CD1_2   =  "+QString::number(cd12, 'g', 6);
-        cd21_card = "CD2_1   =  "+QString::number(cd21, 'g', 6);
-        cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
+    if (instData.name == "NISP@EUCLID" || instData.name == "NISP_JCC@EUCLID") {     // NISP has no CD matrix in the header
+        if (chip == 0) {
+            cd11_card = "CD1_1   =  -5.886422865036E-05";
+            cd12_card = "CD1_2   =  -5.743639424946E-05";
+            cd21_card = "CD2_1   =  5.788921377473E-05";
+            cd22_card = "CD2_2   =  -5.887302780080E-05";
+        }
+        if (chip == 1) {
+            cd11_card = "CD1_1   =  -5.914966392140E-05";
+            cd12_card = "CD1_2   =  -5.759149759629E-05";
+            cd21_card = "CD2_1   =  5.776736334384E-05";
+            cd22_card = "CD2_2   =  -5.913068518893E-05";
+        }
+        if (chip == 2) {
+            cd11_card = "CD1_1   =  5.935736419562E-05";
+            cd12_card = "CD1_2   =  5.752797005926E-05";
+            cd21_card = "CD2_1   =  -5.756251582627E-05";
+            cd22_card = "CD2_2   =  5.920571505390E-05";
+        }
+        if (chip == 3) {
+            cd11_card = "CD1_1   =  5.951153395316E-05";
+            cd12_card = "CD1_2   =  5.725374562834E-05";
+            cd21_card = "CD2_1   =  -5.728508415452E-05";
+            cd22_card = "CD2_2   =  5.906814963917E-05";
+        }
+        if (chip == 4) {
+            cd11_card = "CD1_1   =  -5.922555543981E-05";
+            cd12_card = "CD1_2   =  -5.763869498892E-05";
+            cd21_card = "CD2_1   =  5.797721341433E-05";
+            cd22_card = "CD2_2   =  -5.894532691269E-05";
+        }
+        if (chip == 5) {
+            cd11_card = "CD1_1   =  -5.941123531160E-05";
+            cd12_card = "CD1_2   =  -5.773464398630E-05";
+            cd21_card = "CD2_1   =  5.792775654037E-05";
+            cd22_card = "CD2_2   =  -5.924661198980E-05";
+        }
+        if (chip == 6) {
+            cd11_card = "CD1_1   =  5.951571922974E-05";
+            cd12_card = "CD1_2   =  5.766240197977E-05";
+            cd21_card = "CD2_1   =  -5.782596634915E-05";
+            cd22_card = "CD2_2   =  5.932992255598E-05";
+        }
+        if (chip == 7) {
+            cd11_card = "CD1_1   =  5.955186774092E-05";
+            cd12_card = "CD1_2   =  5.735834523100E-05";
+            cd21_card = "CD2_1   =  -5.763875899209E-05";
+            cd22_card = "CD2_2   =  5.919899220225E-05";
+        }
+        if (chip == 8) {
+            cd11_card = "CD1_1   =  -5.932573993181E-05";
+            cd12_card = "CD1_2   =  -5.785754646444E-05";
+            cd21_card = "CD2_1   =  5.796015804982E-05";
+            cd22_card = "CD2_2   =  -5.887891455138E-05";
+        }
+        if (chip == 9) {
+            cd11_card = "CD1_1   =  -5.951467201240E-05";
+            cd12_card = "CD1_2   =  -5.782821161523E-05";
+            cd21_card = "CD2_1   =  5.791087236789E-05";
+            cd22_card = "CD2_2   =  -5.932487090136E-05";
+        }
+        if (chip == 10) {
+            cd11_card = "CD1_1   =  5.957632227151E-05";
+            cd12_card = "CD1_2   =  5.763989746900E-05";
+            cd21_card = "CD2_1   =  -5.783209380794E-05";
+            cd22_card = "CD2_2   =  5.950631652612E-05";
+        }
+        if (chip == 11) {
+            cd11_card = "CD1_1   =  5.949725970344E-05";
+            cd12_card = "CD1_2   =  5.734021781623E-05";
+            cd21_card = "CD2_1   =  -5.777658591941E-05";
+            cd22_card = "CD2_2   =  5.938342280809E-05";
+        }
+        if (chip == 12) {
+            cd11_card = "CD1_1   =  -5.938955059245E-05";
+            cd12_card = "CD1_2   =  -5.784928501429E-05";
+            cd21_card = "CD2_1   =  5.761353212784E-05";
+            cd22_card = "CD2_2   =  -5.892635069251E-05";
+        }
+        if (chip == 13) {
+            cd11_card = "CD1_1   =  -5.938694355029E-05";
+            cd12_card = "CD1_2   =  -5.789368665162E-05";
+            cd21_card = "CD2_1   =  5.776226919165E-05";
+            cd22_card = "CD2_2   =  -5.930369256560E-05";
+        }
+        if (chip == 14) {
+            cd11_card = "CD1_1   =  5.934932476071E-05";
+            cd12_card = "CD1_2   =  5.771632641403E-05";
+            cd21_card = "CD2_1   =  -5.780014521852E-05";
+            cd22_card = "CD2_2   =  5.947635061551E-05";
+        }
+        if (chip == 15) {
+            cd11_card = "CD1_1   =  5.935256738574E-05";
+            cd12_card = "CD1_2   =  5.724101286139E-05";
+            cd21_card = "CD2_1   =  -5.768322818501E-05";
+            cd22_card = "CD2_2   =  5.956870310124E-05";
+        }
+
         individualFixDone = true;
     }
     if (instData.name.contains("IMACS_F2")) {     // IMACS has no CD matrix in the header
@@ -2224,7 +2313,7 @@ bool Splitter::individualFixGAIN(int chip)
         chipGain = 5.3;
         individualFixDone = true;
     }
-    if (instData.name == "NISP@EUCLID") {
+    if (instData.name == "NISP@EUCLID" || instData.name == "NISP_JCC@EUCLID") {
         chipGain = 2.0;
         individualFixDone = true;
     }
@@ -2388,7 +2477,7 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 15) {searchKeyValue(QStringList() << "GAIN16", chipGain); chipGain /= 0.9660;}
         individualFixDone = true;
     }
-    else if (instData.name == "VIS@EUCLID") {
+    else if (instData.name == "VIS@EUCLID" || instData.name == "VIS_JCC@EUCLID") {
         if (chip == 0) chipGain = 3.559;
         if (chip == 1) chipGain = 3.556;
         if (chip == 2) chipGain = 3.537;
@@ -2575,7 +2664,7 @@ void Splitter::buildTheliHeaderAIRMASS()
 {
     if (!successProcessing) return;
 
-    if (instData.name == "NISP@EUCLID" || instData.name == "VIS@EUCLID") {
+    if (instData.name == "NISP@EUCLID" || instData.name == "NISP_JCC@EUCLID" || instData.name == "VIS@EUCLID" || instData.name == "VIS_JCC@EUCLID") {
         QString card = "AIRMASS = 1.000";    // Not sure what happens if I set it to zero
         card.resize(80, ' ');
         headerTHELI.append(card);
@@ -2711,7 +2800,7 @@ bool Splitter::individualFixFILTER(int chip)
         individualFixDone = true;
     }
 
-    if (instData.name == "VIS@EUCLID") {
+    if (instData.name == "VIS@EUCLID" || instData.name == "VIS_JCC@EUCLID") {
         filter = "IE";
         filterCard = "FILTER  = '"+filter+"'";
         individualFixDone = true;
@@ -2729,7 +2818,7 @@ bool Splitter::individualFixFILTER(int chip)
         individualFixDone = true;
     }
 
-    if (instData.name == "NISP@EUCLID") {
+    if (instData.name == "NISP@EUCLID" || instData.name == "NISP_JCC@EUCLID") {
         QString fpos = "";
         QString gpos = "";
         searchKeyValue(QStringList() << "FWA_POS", fpos);

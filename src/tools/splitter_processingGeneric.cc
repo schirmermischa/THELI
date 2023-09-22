@@ -509,7 +509,7 @@ void Splitter::convertToElectrons(int chip)
 
     saturationValue *= gainForSaturation;
 
-    if (instData.name != "NISP@EUCLID") {
+    if (instData.name != "NISP@EUCLID" && instData.name != "NISP_JCC@EUCLID") {
         for (auto &pixel : dataCurrent) {
             pixel *= gain[chip];
         }

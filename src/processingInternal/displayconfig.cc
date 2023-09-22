@@ -335,6 +335,7 @@ void Controller::pushConfigCoadd()
     config += "Sky projection  = " + cdw->ui->COAprojectionComboBox->currentText() + "<br>";
     config += "Celestial type  = " + cdw->ui->COAcelestialtypeComboBox->currentText() + "<br>";
     config += "Rescale weights = " + boolToString(cdw->ui->COArescaleweightsCheckBox->isChecked()) + "<br>";
+    config += "Apply fluxscale = " + boolToString(cdw->ui->COArzpCheckBox->isChecked()) + "<br>";
     config += "Outlier thresh  = " + cdw->ui->COAoutthreshLineEdit->text() + "<br>";
     config += "Outlier numpix  = " + cdw->ui->COAoutsizeLineEdit->text() + "<br>";
     config += "Outlier border  = " + cdw->ui->COAoutborderLineEdit->text() + "<br>";

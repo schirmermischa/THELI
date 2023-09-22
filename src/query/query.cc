@@ -338,6 +338,7 @@ void Query::buildQuerySyntaxPhotom()
     if (refcatName.contains("2MASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=2MASS-PSC ");
     else if (refcatName.contains("VHS")) queryCommand.append("-out=RAJ2000 -out=DEJ2000 -source=II/367/vhs_dr5 ");
     else if (refcatName.contains("APASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=II/336 ");
+    else if (refcatName.contains("GAIA")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=I/355/gaiadr3");
     else if (refcatName.contains("UKIDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=II/319 ");
     else if (refcatName.contains("SDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=V/147 ");
     else if (refcatName.contains("PANSTARRS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=II/349/ps1 ");
@@ -423,6 +424,10 @@ QString Query::filterStringToVizierName(QString filter)
     if (refcatName.contains("APASS") && filter == "g") return "g\\'mag";
     if (refcatName.contains("APASS") && filter == "r") return "r\\'mag";
     if (refcatName.contains("APASS") && filter == "i") return "i\\'mag";
+
+    if (refcatName.contains("GAIA") && filter == "G") return "Gmag";
+    if (refcatName.contains("GAIA") && filter == "BP") return "BPmag";
+    if (refcatName.contains("GAIA") && filter == "RP") return "RPmag";
 
     if (refcatName.contains("SDSS") && filter == "u") return "umag";
     if (refcatName.contains("SDSS") && filter == "g") return "gmag";
@@ -1412,7 +1417,6 @@ void Query::writeAstromANET()
     fits_close_file(fptr, &status);
 
     printCfitsioError(__func__, status);
-
     // STEP 2: build the anet index
 
     // The diameter of one chip in arcmin
@@ -1428,15 +1432,17 @@ void Query::writeAstromANET()
 
     filename1 = outpath+"/theli_mystd_anet.cat"; // without the exclamation mark
     QString filename2 = outpath + "/theli_mystd.index";
-    QString buildIndexCommand = "build-astrometry-index ";
-    QString anetCheck = QStandardPaths::findExecutable("build-astrometry-index");
-    if (anetCheck.isEmpty()) return;
 
-    buildIndexCommand.append("-i "+filename1+" ");
-    buildIndexCommand.append("-o "+filename2+" ");
-    buildIndexCommand.append("-E -M -S MAG -j 0.1 -I 1 ");
-    buildIndexCommand.append("-t "+outpath+" ");
-    buildIndexCommand.append("-P "+QString::number(scaleNumber));
+    QString buildIndexCommand = findExecutableName("build-astrometry-index");
+    if (buildIndexCommand.isEmpty()) {
+        emit messageAvailable("Query::writeAstromANET(): Could not find build-astrometry-index command in your PATH", "warning");
+        return;
+    }
+    buildIndexCommand.append(" -i "+filename1);
+    buildIndexCommand.append(" -o "+filename2);
+    buildIndexCommand.append(" -E -M -S MAG -j 0.1 -I 1");
+    buildIndexCommand.append(" -t "+outpath);
+    buildIndexCommand.append(" -P "+QString::number(scaleNumber));
 
     runCommand(buildIndexCommand);
     QFile file(filename2);

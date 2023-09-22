@@ -51,13 +51,13 @@ void AnetWorker::processExternalStdout()
     stdout.replace(" Field", "<br>Field");
     stdout.replace("\nField", "<br>Field");
     stdout.replace("Hit/miss:   Hit/miss:", "<br>Hit/miss:");
+//    stdout.replace("Field 1 did not solve (index theli_mystd.index, field objects 1-10","");
+//    stdout.replace("Field 1 did not solve", "");
+//    stdout.replace("Solving...", "");
+//    stdout.replace("Reading sort column \"MAG\" Sorting sort column mmapping input file Copying table header. Writing row 0 Done", "");
+//    stdout.replace("(index theli_mystd.index","");
+//    stdout.replace(", field objects 1-10","");
 
-    // Mask output lines that are confusing
-    if (stdout.contains("Field 1 did not solve")) stdout == "";
-    if (stdout.contains("Reading input file")
-            || stdout.contains("Reading sort column")
-            || stdout.contains("Solving")
-            || stdout.contains("Hit/miss")) stdout == "";
     QStringList errors;
     errors << "Did not solve (or no WCS file was written)." << "Error" << "ERROR";
 
