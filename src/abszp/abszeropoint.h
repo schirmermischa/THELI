@@ -121,8 +121,10 @@ private:
     QVector<double> deRefCat;
     QVector<float> mag1RefCat;
     QVector<float> mag2RefCat;
+    QVector<float> mag3RefCat;
     QVector<float> mag1errRefCat;
     QVector<float> mag2errRefCat;
+    QVector<float> mag3errRefCat;
     long numRefSources = 0;
 
     double refCatUpperMagLimit = 40.;

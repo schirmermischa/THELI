@@ -408,8 +408,20 @@ void AbsZeroPoint::queryRefCat()
     query->refcatName = ui->zpRefcatComboBox->currentText();
     QString filter1 = ui->zpFilterComboBox->currentText();
     QString filter2 = ui->zpColorComboBox->currentText().remove('-').remove(filter1);
-    query->refcatFilter1 = filter1;
-    query->refcatFilter2 = filter2;
+    QString filter3 = "";
+    // For Gaia we enforce to always use BP-RP as colour
+    if (query->refcatName.contains("GAIA")) {
+        filter1 = "G";
+        filter2 = "BP";
+        filter3 = "RP";
+        query->refcatFilter1 = filter1;
+        query->refcatFilter2 = filter2;
+        query->refcatFilter3 = filter3;
+    }
+    else {
+        query->refcatFilter1 = filter1;
+        query->refcatFilter2 = filter2;
+    }
     query->doPhotomQueryFromWeb();
 
     raRefCat.swap(query->ra_out);
@@ -418,6 +430,11 @@ void AbsZeroPoint::queryRefCat()
     mag2RefCat.swap(query->mag2_out);
     mag1errRefCat.swap(query->mag1err_out);
     mag2errRefCat.swap(query->mag2err_out);
+    if (query->refcatName.contains("GAIA")) {
+        mag3RefCat.swap(query->mag3_out);
+        mag3errRefCat.swap(query->mag3err_out);
+    }
+
     numRefSources = query->numSources;
 
     // Conversion to AB mag if not yet done
@@ -434,6 +451,26 @@ void AbsZeroPoint::queryRefCat()
 
         for (auto &mag : mag1RefCat) mag += corr1;
         for (auto &mag : mag2RefCat) mag += corr2;
+    }
+    // Convert Gaia mags to AB mags
+    // https://gea.esac.esa.int/archive/documentation/GEDR3/Data_processing/chap_cu5pho/cu5pho_sec_photProc/cu5pho_ssec_photCal.html
+    if (query->refcatName.contains("GAIA")) {
+        float corr1 = 0.;
+        float corr2 = 0.;
+        float corr3 = 0.;
+        if (filter1 == "G") corr1 = 0.1136;
+        else if (filter1 == "BP") corr1 = 0.0155;
+        else if (filter1 == "RP") corr1 = 0.3561;
+        if (filter2 == "G") corr2 = 0.1136;
+        else if (filter2 == "BP") corr2 = 0.0155;
+        else if (filter2 == "RP") corr2 = 0.3561;
+        if (filter3 == "G") corr3 = 0.1136;
+        else if (filter3 == "BP") corr3 = 0.0155;
+        else if (filter3 == "RP") corr3 = 0.3561;
+
+        for (auto &mag : mag1RefCat) mag += corr1;
+        for (auto &mag : mag2RefCat) mag += corr2;
+        for (auto &mag : mag3RefCat) mag += corr3;
     }
     // Convert 2MASS VEGA mags to AB mags
     // http://www.astronomy.ohio-state.edu/~martini/usefuldata.html
@@ -539,6 +576,7 @@ void AbsZeroPoint::writeAbsPhotRefcat()
     outcat_iview_matched.setPermissions(QFile::ReadUser | QFile::WriteUser);
 }
 
+// Not yet developed for Gaia
 void AbsZeroPoint::buildAbsPhot()
 {
     QString apertures = ui->zpApertureLineEdit->text();
@@ -644,6 +682,10 @@ void AbsZeroPoint::on_zpRefcatComboBox_currentTextChanged(const QString &arg1)
         fill_combobox(ui->zpFilterComboBox, "g r i z");
         fill_combobox(ui->zpColorComboBox, "g-r g-i r-i i-z");
     }
+    if (arg1.contains("GAIA")) {
+        fill_combobox(ui->zpFilterComboBox, "G");
+        fill_combobox(ui->zpColorComboBox, "BP-RP");
+    }
     if (arg1.contains("PANSTARRS")) {
         fill_combobox(ui->zpFilterComboBox, "g r i z y");
         fill_combobox(ui->zpColorComboBox, "g-r g-i r-i i-z z-y");
@@ -735,6 +777,9 @@ void AbsZeroPoint::on_zpExportPushButton_clicked()
 
 void AbsZeroPoint::on_zpFilterComboBox_currentTextChanged(const QString &arg1)
 {
+    // Leave the colour combobox unchanged for Gaia. We always use BP-RP.
+    if (ui->zpRefcatComboBox->currentText().contains("GAIA")) return;
+
     // Mask color terms that do not contain the primary filter:
     const QStandardItemModel* model = dynamic_cast< QStandardItemModel * >( ui->zpColorComboBox->model() );
     int length = ui->zpColorComboBox->count();
@@ -1150,6 +1195,9 @@ void AbsZeroPoint::updateCoaddHeader()
     else if (ui->zpRefcatComboBox->currentText().contains("APASS")) {
         fits_update_key_str(fptr, "ZPD_SYST", "ABmag", "Mag. system (B and V VEGA mags converted to AB)", &status);
     }
+    else if (ui->zpRefcatComboBox->currentText().contains("GAIA")) {
+        fits_update_key_str(fptr, "ZPD_SYST", "ABmag", "Mag. system (Gaia mags converted to AB)", &status);
+    }
     else {
         fits_update_key_str(fptr, "ZPD_SYST", "ABmag", "Magnitude system", &status);
     }
@@ -1189,6 +1237,9 @@ void AbsZeroPoint::updateCoaddHeader()
     }
     else if (ui->zpRefcatComboBox->currentText().contains("APASS")) {
         ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag' (B and V VEGA mags converted to AB mag)</tt>");
+    }
+    else if (ui->zpRefcatComboBox->currentText().contains("GAIA")) {
+        ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag' (Gaia mags converted to AB mag)</tt>");
     }
     else if (ui->zpRefcatComboBox->currentText().contains("VHS")) {
         ui->zpPlainTextEdit->appendHtml("<tt>ZPD_SYST= 'ABmag' (converted from VEGA mags)</tt>");
