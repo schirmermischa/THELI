@@ -428,6 +428,7 @@ void ConfDockWidget::loadDefaults()
         ui->COAprojectionComboBox->setCurrentIndex(0);
         ui->COAraLineEdit->clear();
         ui->COArescaleweightsCheckBox->setChecked(false);
+        ui->COArzpCheckBox->setChecked(false);
         ui->COAsizexLineEdit->clear();
         ui->COAsizeyLineEdit->clear();
         ui->COAskypaLineEdit->clear();

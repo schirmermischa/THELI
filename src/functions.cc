@@ -85,6 +85,79 @@ QString get_fileparameter(QFile *file, QString parametername, QString warn)
     return "";
 }
 
+void appendToFile(QString path, QString string)
+{
+    if (path.isEmpty()) return;
+
+    QFile file(path);
+
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
+        qDebug() << __func__ << file.fileName() << file.errorString();
+        return;
+    }
+
+    QTextStream in(&file);
+    in << string << "\n";
+    file.close();
+    file.setPermissions(QFile::ReadUser | QFile::WriteUser);
+}
+
+void replaceLineInFile(const QString& filePath, const QString& searchString, const QString& replacementLine)
+{
+    QFile file(filePath);
+
+    if (!file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+        qDebug() << __func__ << "Failed to open file " << file.errorString();
+        return;
+    }
+
+    QTextStream in(&file);
+    QStringList lines;
+
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+
+        if (line.contains(searchString)) {
+            lines << replacementLine;
+        } else {
+            lines << line;
+        }
+    }
+
+    file.resize(0);  // Clear the file content.
+
+    QTextStream out(&file);
+    for (const QString& line : lines) {
+        out << line << '\n';
+    }
+
+    file.close();
+}
+
+double extractFitsKeywordValue(const QString& filePath, const QString& keyword)
+{
+    fitsfile *fitsFile;
+    int status = 0;
+
+    if (fits_open_file(&fitsFile, filePath.toLocal8Bit().constData(), READONLY, &status)) {
+        fits_report_error(stderr, status);
+        return -1.0;
+    }
+
+    double extractedValue = 0.0;
+
+    fits_read_key(fitsFile, TDOUBLE, keyword.toLocal8Bit().constData(), &extractedValue, NULL, &status);
+
+    fits_close_file(fitsFile, &status);
+
+    if (status) {
+        fits_report_error(stderr, status);
+        return -1.0;
+    }
+
+    return extractedValue;
+}
+
 /*
 // same as above, but for .head files with additional (undesired) comment strings, and a card length of 8 chars
 QString get_fileHeaderParameter(QFile *file, QString parametername)

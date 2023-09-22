@@ -259,6 +259,12 @@ void Controller::populateFilterDictionary()
     filterDictionary.insert("HSC-r2", "r");
     filterDictionary.insert("HSC-i2", "i");
     filterDictionary.insert("HSC-Y", "Y");
+    // OMEGACAM
+    filterDictionary.insert("u_SDSS", "u");
+    filterDictionary.insert("g_SDSS", "g");
+    filterDictionary.insert("r_SDSS", "r");
+    filterDictionary.insert("i_SDSS", "i");
+    filterDictionary.insert("z_SDSS", "z");
 //    filterDictionary.insert(, );
 }
 

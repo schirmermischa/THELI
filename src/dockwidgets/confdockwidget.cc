@@ -620,6 +620,7 @@ void ConfDockWidget::on_COAskypaPushButton_clicked()
         dir.setNameFilters(filter2);
         dir.setSorting(QDir::Name);
         list = dir.entryList();
+        qDebug() << "Q7";
         if (list.isEmpty()) return;
         sub = ".sub";
     }
