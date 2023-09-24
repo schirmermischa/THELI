@@ -628,7 +628,7 @@ void Controller::coaddResampleBuildSwarpCommand(QString imageList, int i)
             QString fitsfile = it;
             fitsfile.replace(".head", ".fits");
             double exptime = extractFitsKeywordValue(coaddDirName+"/"+fitsfile, "EXPTIME");
-            replaceLineInFile(coaddDirName+"/"+it, "FLXSCALE", "FLXSCALE = "+QString::number(1./exptime));
+            replaceLineInFile(coaddDirName+"/"+it, "FLXSCALE", "FLXSCALE= "+QString::number(1./exptime));
         }
     }
 
