@@ -106,6 +106,7 @@ private:
     void stackfilter_rejectminmax(const QVector<float> &gooddata, float &meanval, float &rmsval);
     void updateBadPixelIndex(const QVector<std::pair<long, long> > bpp);
     void writeWeight();
+    void stackfilter_MAD(const QVector<float> &gooddata, float &meanval, float &rmsval);
 };
 
 #endif // SWARPFILTER_H

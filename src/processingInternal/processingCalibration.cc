@@ -563,7 +563,7 @@ void Controller::taskInternalProcessscience()
     numProcessedImages.fill(0, instData->numChips);
 
     // Release as much memory as maximally necessary
-    float nimg;
+    float nimg = 0;
     if (instData->bayer.isEmpty()) nimg = 4;  // old, new, bias, flat
     else nimg = 6;  // old, 3 new, bias, flat
 

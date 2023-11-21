@@ -46,7 +46,7 @@ void Controller::populateHeaderDictionary()
     headerDictionary.insert("DATE-OBS", {"DATE-OBS", "DATEOBS", "DATE_OBS", "DATE_BEG", "DATE", "UTSHUT", "TIME"});
     headerDictionary.insert("MJD-OBS", {"MJD-OBS", "MJD_OBS"});
     headerDictionary.insert("NAMPS", {"NAMPS"});
-    headerDictionary.insert("GAIN", {"EGAIN", "GAIN", "HIERARCH ESO DET CHIP GAIN", "HIERARCH ESO DET OUT1 CONAD",
+    headerDictionary.insert("GAIN", {"EGAIN", "ELECGAIN", "GAIN", "HIERARCH ESO DET CHIP GAIN", "HIERARCH ESO DET OUT1 CONAD",
                                      "HIERARCH ESO DET OUT-1 ADU"});  // careful with gain and inverse gain!
     headerDictionary.insert("FILTER", {"FILTER", "FILTER1", "FILTER2", "FILTER3", "FILTER01", "FILTER02", "FILTER03", "FILTERID",
                                        "FILT1", "FILT2", "FILTERS", "FILTNAME", "SUBSET",

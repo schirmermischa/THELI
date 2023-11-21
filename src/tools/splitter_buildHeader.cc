@@ -775,6 +775,13 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  0.0";
         individualFixDone = true;
     }
+    if (instData.name == "Omega2000@CAHA") {
+        cd11_card = "CD1_1   =  -0.000124639";
+        cd12_card = "CD1_2   =  0.0";
+        cd21_card = "CD2_1   =  0.0";
+        cd22_card = "CD2_2   =  0.000124639";
+        individualFixDone = true;
+    }
     if (instData.name == "SITe3_SWOPE@LCO") {
         cd11_card = "CD1_1   =  -1.2083e-4";
         cd12_card = "CD1_2   =  0.0";
@@ -2311,6 +2318,10 @@ bool Splitter::individualFixGAIN(int chip)
     }
     if (instData.name == "SOFI@NTT") {           // https://www.eso.org/sci/facilities/lasilla/instruments/sofi/inst/setup/Detector_characteristic.html
         chipGain = 5.3;
+        individualFixDone = true;
+    }
+    if (instData.name == "Lukas@IAS") {
+        chipGain = 0.34;
         individualFixDone = true;
     }
     if (instData.name == "NISP@EUCLID" || instData.name == "NISP_JCC@EUCLID") {

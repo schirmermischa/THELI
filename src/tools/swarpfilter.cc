@@ -492,7 +492,7 @@ void SwarpFilter::identify_bad_pixels(const QVector<float> &gooddata, const QVec
     else if (ngoodweight <= 4) {
         stackfilter_rejectmax(gooddata, mean, rms);
         if (rms > 0.) {
-            mean /= ngoodweight - 1;
+            mean /= (ngoodweight - 1);
             rms = sqrt(((ngoodweight - 1) / (ngoodweight - 2)) * (rms / (ngoodweight - 1) - mean * mean));
             thresh = 6. * kappa / ngoodweight * rms;
         }
@@ -501,15 +501,17 @@ void SwarpFilter::identify_bad_pixels(const QVector<float> &gooddata, const QVec
 
     // 5 or more pixels in the stack: reject min and max pixel
     else {
-        stackfilter_rejectminmax(gooddata, mean, rms);
-        if (rms > 0.) {
-            mean /= ngoodweight - 2;
-            rms = sqrt(((ngoodweight - 2) / (ngoodweight - 3)) * (rms / (ngoodweight - 2) - mean * mean));
+        stackfilter_MAD(gooddata, mean, rms);
+        thresh = kappa * rms;
+//        stackfilter_rejectminmax(gooddata, mean, rms);
+//        if (rms > 0.) {
+//            mean /= (ngoodweight - 2);
+//            rms = sqrt(((ngoodweight - 2) / (ngoodweight - 3)) * (rms / (ngoodweight - 2) - mean * mean));
             // adaptive rms threshold
-            if (ngoodweight < 6) thresh = 6. * kappa / ngoodweight * rms;
-            else thresh = kappa * rms;
-        }
-        else return;  // no rejection of bad pixels
+//            if (ngoodweight < 6) thresh = 6. * kappa / ngoodweight * rms;
+//            else thresh = kappa * rms;
+//        }
+//        else return;  // no rejection of bad pixels
     }
 
     if (ngoodweight > 2) {
@@ -578,6 +580,24 @@ void SwarpFilter::stackfilter_rejectminmax(const QVector<float> &gooddata, float
 
     meanval -= (minval + maxval);
     rmsval -= (minval*minval + maxval*maxval);
+}
+
+//***************************************************************************************
+// ID the min and max values in the stack, reject them, and calculate meansq and rmssq
+//***************************************************************************************
+void SwarpFilter::stackfilter_MAD(const QVector<float> &gooddata, float &meanval, float &rmsval)
+{
+    if (!successProcessing) return;
+
+    rmsval = 1.486*madMask_T(gooddata);
+    QVector<bool> mask = QVector<bool>(gooddata.length(), false);
+    float med = straightMedian_T(gooddata);
+    long i = 0;
+    for (auto &it : gooddata) {
+        if (fabs(it-med) > 3.0*rmsval) mask[i] = true;
+        ++i;
+    }
+    meanval = medianMask_T(gooddata, mask);
 }
 
 //**************************************************************

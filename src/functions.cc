@@ -938,6 +938,10 @@ QString hmsToDecimal(QString hms)
     double hh = list.at(0).toDouble();
     double mm = list.at(1).toDouble();
     double ss = list.at(2).toDouble();
+    if (list.length() != 3) {
+        qDebug() << "Invalid format for the RA string.";
+        return "0.0";
+    }
     mm /= 60.;
     ss /= 3600.;
     double decimal = 15.*(hh+mm+ss);
@@ -949,6 +953,10 @@ QString dmsToDecimal(QString dms)
     dms = dms.simplified();
     dms = dms.replace(' ',':');
     QStringList list = dms.split(':');
+    if (list.length() != 3) {
+        qDebug() << "Invalid format for the Dec string.";
+        return "0.0";
+    }
     double dd = list.at(0).toDouble();
     double mm = list.at(1).toDouble();
     double ss = list.at(2).toDouble();
