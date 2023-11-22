@@ -132,6 +132,7 @@ void ProcessingStatus::statusToBoolean(QString status)
     if (status.contains("D")) Starflat = true;
     if (status.contains("S")) Skysub = true;
 
+    // WARNING: This signal is not connected anywhere!
     emit processingStatusChanged();
 }
 
@@ -165,9 +166,11 @@ void ProcessingStatus::inferStatusFromFilenames()
             joined.append(it+" ");
         }
         joined = joined.simplified();
-        emit messageAvailable("ProcessingStatus::inferStatus(): Could not infer unambiguous processing status from the FITS file names in "
-                              + dirName + ".<br>The following statuses were identified: "+ joined
-                              + "<br>Cleanup the directory manually to establish a consistent status. Restart required.", "error");
+        QString message = "Could not infer unambiguous processing status from the FITS file names in "
+                + dirName + ".<br>The following statuses were identified: "+ joined
+                + "<br>Cleanup the directory manually to establish a consistent status. Restart required.";
+        qDebug() << message;
+        emit messageAvailable(QString(__func__)+message, "error");  // For some reason this signal is never received by the controller, even though 'Data' re-emits it.
         emit critical();
         statusString = "";
     }

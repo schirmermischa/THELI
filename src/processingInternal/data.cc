@@ -80,6 +80,9 @@ Data::Data(const instrumentDataType *instrumentData, Mask *detectorMask, QString
 
     // Get the recorded processing status from the .processingStatus file (if any)
     processingStatus = new ProcessingStatus(dirName, this);
+//    connect(processingStatus, &ProcessingStatus::processingStatusChanged, mainGUI, &MainWindow::statusChangedReceived);
+    connect(processingStatus, &ProcessingStatus::messageAvailable, this, &Data::pushMessageAvailable);
+    connect(processingStatus, &ProcessingStatus::critical, this, &Data::pushCritical);
     processingStatus->readFromDrive();
 
     QString backupStatus = processingStatus->statusString;
