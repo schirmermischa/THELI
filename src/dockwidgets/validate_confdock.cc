@@ -126,6 +126,8 @@ void ConfDockWidget::validate()
     ui->COApmdecLineEdit->setValidator( validator_float );
     ui->COApmraLineEdit->setValidator( validator_float );
     ui->COAraLineEdit->setValidator( validator_ra );
+    ui->COAminMJDOBSLineEdit->setValidator( validator_float_pos );
+    ui->COAmaxMJDOBSLineEdit->setValidator( validator_float_pos );
     ui->COAsizexLineEdit->setValidator( validator_int_pos );
     ui->COAsizeyLineEdit->setValidator( validator_int_pos );
     ui->COAskypaLineEdit->setValidator( validator_float );
@@ -252,6 +254,8 @@ void ConfDockWidget::connect_validators()
     connect(ui->COApmdecLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->COApmraLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->COAraLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
+    connect(ui->COAminMJDOBSLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
+    connect(ui->COAmaxMJDOBSLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->COAsizexLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->COAsizeyLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);
     connect(ui->COAskypaLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::validate);

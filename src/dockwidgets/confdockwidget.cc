@@ -147,6 +147,10 @@ void ConfDockWidget::establish_connections()
     connect(ui->ARCwebRadioButton, &QRadioButton::clicked, this, &ConfDockWidget::updateARCdisplay);
     connect(ui->ARCimageRadioButton, &QRadioButton::clicked, this, &ConfDockWidget::updateARCdisplay);
 
+    connect(ui->COAchipsLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::update_COA_uniqueID);
+    connect(ui->COAminMJDOBSLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::update_COA_uniqueID);
+    connect(ui->COAmaxMJDOBSLineEdit, &QLineEdit::textChanged, this, &ConfDockWidget::update_COA_uniqueID);
+
     // TODO: must activate
     // Connect StandardStar solution PushButtons with iView
     for (auto &it : APIstdPushButtonList) {
@@ -1256,4 +1260,34 @@ void ConfDockWidget::on_ASTviewCheckPlotsPushButton_clicked()
         msgBox.addButton(tr("OK"), QMessageBox::YesRole);
         msgBox.exec();
     }
+}
+
+void ConfDockWidget::update_COA_uniqueID()
+{
+    QString uniqueID = "";
+    QString chipID = ui->COAchipsLineEdit->text().simplified();
+    QString minMJD = ui->COAminMJDOBSLineEdit->text().simplified();
+    QString maxMJD = ui->COAmaxMJDOBSLineEdit->text().simplified();
+    chipID.replace(",","-");
+    chipID.replace(" ","-");
+    chipID.replace("--","-");
+    bool added = false;
+    if (!chipID.isEmpty()) {
+        chipID = "chip-"+chipID;
+        uniqueID.append(chipID);
+        added = true;
+    }
+    if (!minMJD.isEmpty()) {
+        minMJD = "min"+minMJD;
+        if (added) uniqueID.append("_"+minMJD);
+        else uniqueID.append(minMJD);
+        added = true;
+    }
+    if (!maxMJD.isEmpty()) {
+        maxMJD = "max"+maxMJD;
+        if (added) uniqueID.append("_"+maxMJD);
+        else uniqueID.append(maxMJD);
+    }
+
+    ui->COAuniqueidLineEdit->setText(uniqueID);
 }

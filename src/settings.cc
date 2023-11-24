@@ -220,6 +220,8 @@ int MainWindow::writeGUISettings()
     settings.setValue("COAraLineEdit", cdw->ui->COAraLineEdit->text());
     settings.setValue("COArescaleweightsCheckBox", cdw->ui->COArescaleweightsCheckBox->isChecked());
     settings.setValue("COArzpCheckBox", cdw->ui->COArzpCheckBox->isChecked());
+    settings.setValue("COAminMJDOBSLineEdit", cdw->ui->COAminMJDOBSLineEdit->text());
+    settings.setValue("COAmaxMJDOBSLineEdit", cdw->ui->COAmaxMJDOBSLineEdit->text());
     settings.setValue("COAsizexLineEdit", cdw->ui->COAsizexLineEdit->text());
     settings.setValue("COAsizeyLineEdit", cdw->ui->COAsizeyLineEdit->text());
     settings.setValue("COAskypaLineEdit", cdw->ui->COAskypaLineEdit->text());
@@ -482,6 +484,8 @@ int MainWindow::readGUISettings(QString projectname)
     cdw->ui->COAraLineEdit->setText(settings.value("COAraLineEdit").toString());
     cdw->ui->COArescaleweightsCheckBox->setChecked(settings.value("COArescaleweightsCheckBox").toBool());
     cdw->ui->COArzpCheckBox->setChecked(settings.value("COArzpCheckBox").toBool());
+    cdw->ui->COAminMJDOBSLineEdit->setText(settings.value("COAminMJDOBSLineEdit").toString());
+    cdw->ui->COAmaxMJDOBSLineEdit->setText(settings.value("COAmaxMJDOBSLineEdit").toString());
     cdw->ui->COAsizexLineEdit->setText(settings.value("COAsizexLineEdit").toString());
     cdw->ui->COAsizeyLineEdit->setText(settings.value("COAsizeyLineEdit").toString());
     cdw->ui->COAskypaLineEdit->setText(settings.value("COAskypaLineEdit").toString());

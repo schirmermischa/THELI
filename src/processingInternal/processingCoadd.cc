@@ -77,7 +77,6 @@ void Controller::taskInternalCoaddition()
     if (!coaddUniqueID.isEmpty()) coaddSubDir.append("_"+coaddUniqueID);
     coaddDirName = mainDirName + "/" + coaddScienceDir + "/" + coaddSubDir;
     QString headerDirName = mainDirName + "/" + coaddScienceDir + "/headers/";
-
     if (!coaddScienceData->hasMatchingPartnerFiles(headerDirName, ".head")) return;
 
     // if all chips are stacked, make sure the reference point is within the covered area.
@@ -236,34 +235,52 @@ void Controller::coaddPrepare(QString filterArg)
     progress = 30.;
     //    emit progressUpdate(progress);
 
-    // For proper motion correction we need the MJD-OBS of the first exposure, taken from the first valid chip
     // We also want accurate start and end DATE-OBS keywords.
+    // Initialise user-defined MJD-OBS thresholds
+    bool mjd_minconstraint = false;
+    bool mjd_maxconstraint = false;
+    if (!cdw->ui->COAminMJDOBSLineEdit->text().isEmpty()) mjd_minconstraint = true;
+    if (!cdw->ui->COAmaxMJDOBSLineEdit->text().isEmpty()) mjd_maxconstraint = true;
+    double minMJD = 1.e6;  // Long enough for a few generations
+    double maxMJD = 0.;    // Always safe
+    mjdStart = 1.e6;       // Long enough for a few generations
+    mjdEnd = 0.;           // Always safe
+    if (mjd_minconstraint) minMJD = cdw->ui->COAminMJDOBSLineEdit->text().toDouble();
+    if (mjd_maxconstraint) maxMJD = cdw->ui->COAmaxMJDOBSLineEdit->text().toDouble();
+
+    // We first need to collect the MJD-OBS values of all exposures that will be coadded.
+    // This loop is similar to the one below, but below we need the MJD-OBS info already.
     QVector<double> mjdobsData;
-    minDateObs = coaddScienceData->myImageList[instData->validChip][0]->dateobs;
-    maxDateObs = coaddScienceData->myImageList[instData->validChip][0]->dateobs;
-    mjdStart = coaddScienceData->myImageList[instData->validChip][0]->mjdobs;
-    mjdEnd = coaddScienceData->myImageList[instData->validChip][0]->mjdobs;
     float lastExpTime = 0.; // to be added to DATE-OBS of the last exposure
-    for (auto &it : coaddScienceData->myImageList[instData->validChip]) {
-        if (!it->successProcessing) continue;
-        if (it->activeState != MyImage::ACTIVE) continue;
-        it->loadHeader();
-        mjdobsData.append(it->mjdobs);
-        if (it->mjdobs <= mjdStart) {
-            mjdStart = it->mjdobs;
-            minDateObs = it->dateobs;
-        }
-        if (it->mjdobs >= mjdEnd) {
-            mjdEnd = it->mjdobs;
-            maxDateObs = it->dateobs;
-            lastExpTime = it->exptime;
+    for (int chip=0; chip<instData->numChips; ++chip) {
+        if (!chipList.contains(chip) || instData->badChips.contains(chip)) continue;        // Skip chips that should not be coadded
+        for (auto &it : coaddScienceData->myImageList[chip]) {
+            if (!it->successProcessing) continue;
+            if (it->activeState != MyImage::ACTIVE) continue;
+            it->loadHeader();
+            if (it->mjdobs < minMJD || it->mjdobs > maxMJD) continue;
+            if (filterArg == "all" ||
+                    (filterArg != "all" && it->filter == filterArg)) {
+                // Update begin and end values for MJD-OBS and DATE-OBS
+                if (it->mjdobs < mjdStart) {
+                    mjdStart = it->mjdobs;
+                    minDateObs = it->dateobs;
+                }
+                if (it->mjdobs > mjdEnd) {
+                    mjdEnd = it->mjdobs;
+                    maxDateObs = it->dateobs;
+                    lastExpTime = it->exptime;
+                }
+                if (it->mjdobs >= minMJD && it->mjdobs <= maxMJD) mjdobsData.append(it->mjdobs);
+            }
         }
     }
-    double mjdobsZero = minVec_T(mjdobsData);
-    //    mjdStart = mjdobsZero;
-    //    mjdEnd = maxVec_T(mjdobsData) + lastExpTime / 86400.;
     mjdEnd += lastExpTime / 86400.;
     mjdMedian = straightMedian_T(mjdobsData, 0, false);
+    double mjdobsZero = minVec_T(mjdobsData);      // will be 0. if vector is empty
+
+    // For proper motion correction we need to make sure that there are MJD-OBS data present
+    // The list will be updated further below, depending on MJD-OBS filtering.
     bool doPMupdate = false;
     if (!cdw->ui->COApmraLineEdit->text().isEmpty() && !cdw->ui->COApmdecLineEdit->text().isEmpty()) doPMupdate = true;
     if (mjdobsZero == 0. && doPMupdate) {
@@ -272,7 +289,7 @@ void Controller::coaddPrepare(QString filterArg)
         return;
     }
 
-    // Copy the headers (might be modified), link the images and weights, if they match the filterArg
+    // Now copy the headers (might be modified), link the images and weights, if they match the filterArg and MJD-OBS criteria
     coaddNumImages = 0;
     QList<QString> filterNames;
     for (int chip=0; chip<instData->numChips; ++chip) {
@@ -281,32 +298,22 @@ void Controller::coaddPrepare(QString filterArg)
             if (!it->successProcessing) continue;
             if (it->activeState != MyImage::ACTIVE) continue;
             it->loadHeader();
+            if (it->mjdobs < minMJD || it->mjdobs > maxMJD) continue;
             QFile image(it->path + "/" + it->baseName + ".fits");
             QFile weight(it->weightPath + "/" + it->weightName + ".fits");
             if (!edgeSmooth.isEmpty()) weight.setFileName(it->weightPath + "/" + it->weightName + "smooth.fits");
             QString headerNewName = coaddDirName+"/" + it->baseName + ".head";
             QFile header(it->path + "/headers/" + it->chipName + ".head");
-            if (filterArg == "all") {
+            if (filterArg == "all" ||
+                    (filterArg != "all" && it->filter == filterArg)) {
                 image.link(coaddDirName+"/" + it->baseName + ".fits");
                 weight.link(coaddDirName+"/" + it->baseName + ".weight.fits");
                 if (!doPMupdate) header.copy(headerNewName);
                 else coaddPrepareProjectPM(header, headerNewName, refDE, mjdobsZero, it->mjdobs);
+                if (!filterNames.contains(it->filter)) filterNames.append(it->filter);
                 coaddTexptime += it->exptime;
                 coaddSkyvalue += it->skyValue / it->exptime;
                 ++coaddNumImages;
-                if (!filterNames.contains(it->filter)) filterNames.append(it->filter);
-            }
-            else {
-                if (it->filter == filterArg) {
-                    image.link(coaddDirName+"/" + it->baseName + ".fits");
-                    weight.link(coaddDirName+"/" + it->baseName + ".weight.fits");
-                    if (!doPMupdate) header.copy(coaddDirName+"/" + it->baseName + ".head");
-                    else coaddPrepareProjectPM(header, headerNewName, refDE, mjdobsZero, it->mjdobs);
-                    if (!filterNames.contains(it->filter)) filterNames.append(it->filter);
-                    coaddTexptime += it->exptime;
-                    coaddSkyvalue += it->skyValue / it->exptime;
-                    ++coaddNumImages;
-                }
             }
         }
     }

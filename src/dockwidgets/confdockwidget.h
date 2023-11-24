@@ -103,10 +103,9 @@ private slots:
     void switch_static_dynamic();
     void toggle_icons_xtalkToolButtons();
     void updateConfPageLabel();
-
     void on_nonlinearityCheckBox_clicked();
-
     void on_ASTviewCheckPlotsPushButton_clicked();
+    void update_COA_uniqueID();
 
 public slots:
     void loadDefaults();

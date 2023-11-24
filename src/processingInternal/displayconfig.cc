@@ -341,6 +341,8 @@ void Controller::pushConfigCoadd()
     config += "Outlier border  = " + cdw->ui->COAoutborderLineEdit->text() + "<br>";
     config += "Identifier      = " + cdw->ui->COAuniqueidLineEdit->text() + "<br>";
     config += "Coadd chips     = " + cdw->ui->COAchipsLineEdit->text() + "<br>";
+    config += "Min MJDOBS      = " + cdw->ui->COAminMJDOBSLineEdit->text() + "<br>";
+    config += "Max MJDOBS      = " + cdw->ui->COAmaxMJDOBSLineEdit->text() + "<br>";
     config += "Edge smoothing  = " + cdw->ui->COAedgesmoothingLineEdit->text() + "<br>";;
     config += "NAXIS1          = " + cdw->ui->COAsizexLineEdit->text() + "<br>";;
     config += "NAXIS2          = " + cdw->ui->COAsizeyLineEdit->text() + "<br>";;
