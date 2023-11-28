@@ -598,6 +598,15 @@ bool Splitter::individualFixCRVAL()
         crval2_card = "CRVAL2  = "+crval2;
         individualFixDone = true;
     }
+    if (instData.name == "Omega2000@CAHA") {
+        searchKeyValue(QStringList() << "RA", crval1);    // CRVAL1/2 is sometimes set to 1.0
+        searchKeyValue(QStringList() << "DEC", crval2);
+        if (crval1.contains(":")) crval1 = hmsToDecimal(crval1);
+        if (crval2.contains(":")) crval2 = dmsToDecimal(crval2);
+        crval1_card = "CRVAL1  = "+crval1;
+        crval2_card = "CRVAL2  = "+crval2;
+        individualFixDone = true;
+    }
 
     if (individualFixDone) {
         crval1_card.resize(80, ' ');

@@ -386,6 +386,7 @@ void Controller::populateInstrumentDictionary()
     instrumentDictionary.insert("OASIS4x4@WHT", "");
     instrumentDictionary.insert("OASIS@WHT", "");
     instrumentDictionary.insert("OMEGACAM@VST", "OMEGACAM");
+    instrumentDictionary.insert("Omega2000@CAHA", "Omega2000");
     instrumentDictionary.insert("OSIRIS@GTC", "");
     instrumentDictionary.insert("OSIRIS_F3@SOAR", "");
     instrumentDictionary.insert("OSIRIS_F7@SOAR", "");
