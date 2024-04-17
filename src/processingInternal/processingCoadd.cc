@@ -241,10 +241,10 @@ void Controller::coaddPrepare(QString filterArg)
     bool mjd_maxconstraint = false;
     if (!cdw->ui->COAminMJDOBSLineEdit->text().isEmpty()) mjd_minconstraint = true;
     if (!cdw->ui->COAmaxMJDOBSLineEdit->text().isEmpty()) mjd_maxconstraint = true;
-    double minMJD = 1.e6;  // Long enough for a few generations
-    double maxMJD = 0.;    // Always safe
-    mjdStart = 1.e6;       // Long enough for a few generations
-    mjdEnd = 0.;           // Always safe
+    double minMJD = 0.;    // Always safe
+    double maxMJD = 1.e6;  // Large enough for a few generations of astronomers to come
+    mjdStart = 1.e6;       // Actual MJD start in the data to be coadded
+    mjdEnd = 0.;           // Actual MJD end in the data to be coadded
     if (mjd_minconstraint) minMJD = cdw->ui->COAminMJDOBSLineEdit->text().toDouble();
     if (mjd_maxconstraint) maxMJD = cdw->ui->COAmaxMJDOBSLineEdit->text().toDouble();
 

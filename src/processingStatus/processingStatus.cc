@@ -169,7 +169,9 @@ void ProcessingStatus::inferStatusFromFilenames()
         QString message = "Could not infer unambiguous processing status from the FITS file names in "
                 + dirName + ".<br>The following statuses were identified: "+ joined
                 + "<br>Cleanup the directory manually to establish a consistent status. Restart required.";
-        qDebug() << message;
+//        qDebug() << message;
+
+        // THIS NEEDS FIXING. Even if the message is triggered upon launching a new project, it does not appear to be a problem.
         emit messageAvailable(QString(__func__)+message, "error");  // For some reason this signal is never received by the controller, even though 'Data' re-emits it.
         emit critical();
         statusString = "";
