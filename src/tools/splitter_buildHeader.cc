@@ -201,11 +201,11 @@ void Splitter::WCSbuildCRPIX(int chip)
     QStringList headerWCS;
 
     // Use dedicated lookup
-    if (instData.name == "HSC@SUBARU") {
+    if (instData.name == "HSC@SUBARU" || instData.name == "NISP_LE2@EUCLID" || instData.name == "VIS_LE2@EUCLID") {
         searchKeyCRVAL("CRPIX1", headerDictionary.value("CRPIX1"), headerWCS);
         searchKeyCRVAL("CRPIX2", headerDictionary.value("CRPIX2"), headerWCS);
     }
-    //    if (instData.name == "VIS@EUCLID") {
+    //    if (instData.name == "VIS_LE1@EUCLID") {
     //        searchKeyCRVAL("CRPIX1", headerDictionary.value("CRPIX1"), headerWCS);
     //        searchKeyCRVAL("CRPIX2", headerDictionary.value("CRPIX2"), headerWCS);
     //    }
@@ -527,7 +527,7 @@ bool Splitter::individualFixEQUINOX()
         individualFixDone = true;
     }
 
-    if (instData.name == "VIS@EUCLID" || instData.name == "VIS_JCC@EUCLID") {
+    if (instData.name == "VIS_LE1@EUCLID" || instData.name == "VIS_ERO@EUCLID") {
         equinoxCard = equinoxCard = "EQUINOX = 2000.0";
         individualFixDone = true;
     }
@@ -936,7 +936,7 @@ bool Splitter::individualFixCDmatrix(int chip)
         }
         individualFixDone = true;
     }
-    if (instData.name == "VIS@EUCLID" || instData.name == "VIS_JCC@EUCLID") {
+    if (instData.name == "VIS_LE1@EUCLID" || instData.name == "VIS_ERO@EUCLID") {
         if (chip == 0) {
             cd11_card = "CD1_1   =   1.485336085825E-05";
             cd12_card = "CD1_2   =   2.373020263256E-05";
@@ -1820,7 +1820,7 @@ bool Splitter::individualFixCDmatrix(int chip)
         cd22_card = "CD2_2   =  "+QString::number(cd22, 'g', 6);
         individualFixDone = true;
     }
-    if (instData.name == "NISP@EUCLID" || instData.name == "NISP_JCC@EUCLID") {     // NISP has no CD matrix in the header
+    if (instData.name == "NISP_LE1@EUCLID" || instData.name == "NISP_ERO@EUCLID") {     // NISP has no CD matrix in the header
         if (chip == 0) {
             cd11_card = "CD1_1   =  -5.886422865036E-05";
             cd12_card = "CD1_2   =  -5.743639424946E-05";
@@ -2333,7 +2333,7 @@ bool Splitter::individualFixGAIN(int chip)
         chipGain = 0.34;
         individualFixDone = true;
     }
-    if (instData.name == "NISP@EUCLID" || instData.name == "NISP_JCC@EUCLID") {
+    if (instData.name == "NISP_LE1@EUCLID" || instData.name == "NISP_ERO@EUCLID") {
         chipGain = 2.0;
         individualFixDone = true;
     }
@@ -2497,7 +2497,7 @@ bool Splitter::individualFixGAIN(int chip)
         if (chip == 15) {searchKeyValue(QStringList() << "GAIN16", chipGain); chipGain /= 0.9660;}
         individualFixDone = true;
     }
-    else if (instData.name == "VIS@EUCLID" || instData.name == "VIS_JCC@EUCLID") {
+    else if (instData.name == "VIS_LE1@EUCLID" || instData.name == "VIS_ERO@EUCLID") {
         if (chip == 0) chipGain = 3.559;
         if (chip == 1) chipGain = 3.556;
         if (chip == 2) chipGain = 3.537;
@@ -2684,7 +2684,7 @@ void Splitter::buildTheliHeaderAIRMASS()
 {
     if (!successProcessing) return;
 
-    if (instData.name == "NISP@EUCLID" || instData.name == "NISP_JCC@EUCLID" || instData.name == "VIS@EUCLID" || instData.name == "VIS_JCC@EUCLID") {
+    if (instData.name.contains("EUCLID")) {
         QString card = "AIRMASS = 1.000";    // Not sure what happens if I set it to zero
         card.resize(80, ' ');
         headerTHELI.append(card);
@@ -2820,7 +2820,7 @@ bool Splitter::individualFixFILTER(int chip)
         individualFixDone = true;
     }
 
-    if (instData.name == "VIS@EUCLID" || instData.name == "VIS_JCC@EUCLID") {
+    if (instData.name == "VIS_LE1@EUCLID" || instData.name == "VIS_LE2@EUCLID" || instData.name == "VIS_ERO@EUCLID") {
         filter = "IE";
         filterCard = "FILTER  = '"+filter+"'";
         individualFixDone = true;
@@ -2838,7 +2838,7 @@ bool Splitter::individualFixFILTER(int chip)
         individualFixDone = true;
     }
 
-    if (instData.name == "NISP@EUCLID" || instData.name == "NISP_JCC@EUCLID") {
+    if (instData.name == "NISP_LE1@EUCLID" || instData.name == "NISP_LE2@EUCLID" || instData.name == "NISP_ERO@EUCLID") {
         QString fpos = "";
         QString gpos = "";
         searchKeyValue(QStringList() << "FWA_POS", fpos);

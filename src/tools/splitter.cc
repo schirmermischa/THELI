@@ -315,6 +315,18 @@ void Splitter::extractImagesFITS()
                 continue;
             }
 
+            if (instData.name == "NISP_LE2@EUCLID" || instData.name == "VIS_LE2@EUCLID") {
+                char extnamechar[FLEN_VALUE];  // To store EXTNAME keyword value
+                fits_read_key(rawFptr, TSTRING, "EXTNAME", extnamechar, NULL, &rawStatus);
+                QString extname(extnamechar);
+                if (!extname.contains("SCI")) {
+                    // Not a science extension
+                    fits_movrel_hdu(rawFptr, 1, &hduType, &rawStatus);
+                    continue;
+                }
+            }
+
+
             headerTHELI.clear();
             readExtHeader();
 
@@ -557,7 +569,7 @@ int Splitter::inferChipID(int chip)
         return chipID;
     }
 
-    else if (instData.name == "NISP@EUCLID" || instData.name == "NISP_JCC@EUCLID") {
+    else if (instData.name == "NISP_LE1@EUCLID" || instData.name == "NISP_ERO@EUCLID") {
         QString value = "";
         // can't use searchKeyValue(), as that internal makes a relative HDU offset if a key is not found
         searchKeyInHeaderValue(QStringList() << "EXTNAME", extHeader, value);
@@ -581,7 +593,7 @@ int Splitter::inferChipID(int chip)
         else return chipID;
     }
 
-    else if (instData.name == "VIS@EUCLID" || instData.name == "VIS_JCC@EUCLID") {     // we need this to be robust against turned-off detector units
+    else if (instData.name == "VIS_LE1@EUCLID" || instData.name == "VIS_ERO@EUCLID") {     // we need this to be robust against turned-off detector units
         QString value = "";
         // can't use searchKeyValue(), as that internal makes a relative HDU offset if a key is not found
         searchKeyInHeaderValue(QStringList() << "EXTNAME", extHeader, value);
