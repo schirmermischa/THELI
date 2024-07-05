@@ -39,11 +39,12 @@ Query::Query(int *verbose)
     // Initialization
     initEnvironment(thelidir, userdir);
 
-//    QSettings settings("THELI", "PREFERENCES");
-//    QString server = settings.value("prefServerComboBox").toString();
-//    downloadServer = translateServer(server);
+    //    QSettings settings("THELI", "PREFERENCES");
+    //    QString server = settings.value("prefServerComboBox").toString();
+    //    downloadServer = translateServer(server);
 
     pythonExecutable = findExecutableName("python");
+    curlExecutable = findExecutableName("curl");
 
     // reserve 1MB for the downloaded catalog
     byteArray.reserve(1e6);
@@ -157,7 +158,10 @@ void Query::getCatalogSearchRadiusAstrom()
     }
     double crval1_radius = 60. * (crval1_max - crval1_min) * 0.5 * cos(delta*rad); // in [arcmin]
 
-    if (!radius_manual.isEmpty()) radius_string = radius_manual;
+    if (!radius_manual.isEmpty()) {
+        if (refcatName.contains("PANSTARRS")) radius_string = QString::number(radius_manual.toFloat()/60., 'f', 6);
+        else radius_string = radius_manual;
+    }
     else {
         // Include a 10% safety margin in the search radius
         radius = 1.1*sqrt(crval1_radius*crval1_radius + crval2_radius*crval2_radius);
@@ -171,7 +175,8 @@ void Query::getCatalogSearchRadiusAstrom()
             qDebug() << "RA corner vertices" << corners_crval1;
             qDebug() << "DEC corner vertices" << corners_crval2;
         }
-        radius_string = QString::number(radius, 'f', 3);
+        if (refcatName.contains("PANSTARRS")) radius /= 60.;   // MAST query is in degrees
+        radius_string = QString::number(radius, 'f', 6);
     }
 }
 
@@ -189,7 +194,8 @@ void Query::getCatalogSearchLocationPhotom()
     // Convert to string (because we pass this to 'vizquery'
     alpha_string = QString::number(photomImage->alpha_ctr, 'f', 6);
     delta_string = QString::number(photomImage->delta_ctr, 'f', 6);
-    radius_string = QString::number(radius, 'f', 3);
+    if (refcatName.contains("PANSTARRS")) radius /= 60.;
+    radius_string = QString::number(radius, 'f', 6);
 }
 
 void Query::getCatalogSearchLocationColorCalib()
@@ -205,7 +211,8 @@ void Query::getCatalogSearchLocationColorCalib()
     // Convert to string (because we pass this to 'vizquery'
     alpha_string = QString::number(photomImage->alpha_ctr, 'f', 6);
     delta_string = QString::number(photomImage->delta_ctr, 'f', 6);
-    radius_string = QString::number(radius, 'f', 3);
+    if (refcatName.contains("PANSTARRS")) radius /= 60.;
+    radius_string = QString::number(radius, 'f', 6);
 }
 
 void Query::getMedianEpoch()
@@ -290,22 +297,34 @@ void Query::buildQuerySyntaxAstrom()
 {
     if (!successProcessing) return;
 
-    // Vizier queries
-    queryCommand = pythonExecutable + " " + thelidir+"/python/vizquery.py ";
-    queryCommand.append("-mime=tsv -out.max=170000 ");        // TODO: More than ~170000 crashes writeAstromScamp(), for unknown reasons
-    //        queryCommand.append("-site="+downloadServer+" ");
-    queryCommand.append("-c.rm="+radius_string+" ");
-    queryCommand.append("-c='"+alpha_string+delta_string+"' ");
+    if (!refcatName.contains("PANSTARRS")) {
+        // Vizier queries
+        queryCommand = pythonExecutable + " " + thelidir+"/python/vizquery.py ";
+        queryCommand.append("-mime=tsv -out.max=170000 ");        // TODO: More than ~170000 crashes writeAstromScamp(), for unknown reasons
+        //        queryCommand.append("-site="+downloadServer+" ");
+        queryCommand.append("-c.rm="+radius_string+" ");
+        queryCommand.append("-c='"+alpha_string+delta_string+"' ");
 
-    if (refcatName.contains("ASCC")) queryCommand.append("-out=_RAJ -out=_DEJ -source=I/280B -out=Vmag Vmag=0.."+magLimit_string);
-    else if (refcatName.contains("TYC"))  queryCommand.append("-out=_RAJ -out=_DEJ -source=TYC/tyc_main -out=Vmag Vmag=0.."+magLimit_string);
-    else if (refcatName.contains("2MASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=2MASS-PSC -out='Jmag,Hmag,Kmag' Hmag=0.."+magLimit_string);
-    else if (refcatName.contains("UCAC")) queryCommand.append("-out=RAgaia -out=DEgaia -source=I/340 -out='Gmag,RMag' -out=pmRA -out=pmDE Rmag=0.."+magLimit_string);
-    else if (refcatName.contains("GAIA")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=I/355/gaiadr3 -out=Gmag -out=pmRA -out=pmDE Gmag=0.."+magLimit_string);
-    else if (refcatName.contains("SDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=V/147 -out=gmag,rmag,imag rmag=0.."+magLimit_string);
-    else if (refcatName.contains("PANSTARRS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=II/349/ps1 -out=gmag,rmag,imag rmag=0.."+magLimit_string);
-    else if (refcatName.contains("VHS")) queryCommand.append("-out=RAJ2000 -out=DEJ2000 -source=II/359/vhs_dr4 -out=Jap4,Hap4,Ksap4 Jap4=0.."+magLimit_string);
-    else if (refcatName.contains("SKYMAPPER")) queryCommand.append("-out=RAICRS -out=DEICRS -source=II/358/smss -out=gPSF,rPSF,iPSF rPSF=0.."+magLimit_string);
+        if (refcatName.contains("ASCC")) queryCommand.append("-out=_RAJ -out=_DEJ -source=I/280B -out=Vmag Vmag=0.."+magLimit_string);
+        else if (refcatName.contains("TYC"))  queryCommand.append("-out=_RAJ -out=_DEJ -source=TYC/tyc_main -out=Vmag Vmag=0.."+magLimit_string);
+        else if (refcatName.contains("2MASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=2MASS-PSC -out='Jmag,Hmag,Kmag' Hmag=0.."+magLimit_string);
+        else if (refcatName.contains("UCAC")) queryCommand.append("-out=RAgaia -out=DEgaia -source=I/340 -out='Gmag,RMag' -out=pmRA -out=pmDE Rmag=0.."+magLimit_string);
+        else if (refcatName.contains("GAIA")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=I/355/gaiadr3 -out=Gmag -out=pmRA -out=pmDE Gmag=0.."+magLimit_string);
+        else if (refcatName.contains("SDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=V/147 -out=gmag,rmag,imag rmag=0.."+magLimit_string);
+        else if (refcatName.contains("VHS")) queryCommand.append("-out=RAJ2000 -out=DEJ2000 -source=II/359/vhs_dr4 -out=Jap4,Hap4,Ksap4 Jap4=0.."+magLimit_string);
+        else if (refcatName.contains("SKYMAPPER")) queryCommand.append("-out=RAICRS -out=DEICRS -source=II/358/smss -out=gPSF,rPSF,iPSF rPSF=0.."+magLimit_string);
+    }
+    else {
+        // Querying MAST Panstarrs-DR2
+        delta_string.remove("+");  // MAST queries don't like explicit "+" signs for the declination
+        queryCommand = curlExecutable + " 'https://catalogs.mast.stsci.edu/api/v0.1/panstarrs/dr2/stack.csv?";
+        queryCommand.append("ra="+alpha_string+"&");
+        queryCommand.append("dec="+delta_string+"&");
+        queryCommand.append("radius="+radius_string+"&");
+        queryCommand.append("pagesize=170000&");
+        queryCommand.append("iPSFMag.lte"+magLimit_string+"&");
+        queryCommand.append("columns=%5BobjID%2CraMean%2CdecMean%2CgPSFMag%2CrPSFMag%2CiPSFMag%2CzPSFMag%2CyPSFMag'");
+    }
 }
 
 void Query::buildQuerySyntaxGaia()
@@ -326,26 +345,38 @@ void Query::buildQuerySyntaxPhotom()
 
     // Vizier queries
 
-    queryCommand = pythonExecutable + " " + thelidir+"/python/vizquery.py ";
-    queryCommand.append("-mime=tsv -out.max=1000000 ");
-    //        queryCommand.append("-site="+downloadServer+" ");
-    queryCommand.append("-c.rm="+radius_string+" ");
-    queryCommand.append("-c='"+alpha_string+delta_string+"' ");
+    if (!refcatName.contains("PANSTARRS")) {
+        queryCommand = pythonExecutable + " " + thelidir+"/python/vizquery.py ";
+        queryCommand.append("-mime=tsv -out.max=1000000 ");
+        //        queryCommand.append("-site="+downloadServer+" ");
+        queryCommand.append("-c.rm="+radius_string+" ");
+        queryCommand.append("-c='"+alpha_string+delta_string+"' ");
 
-    QString filter1 = filterStringToVizierName(refcatFilter1);
-    QString filter2 = filterStringToVizierName(refcatFilter2);
+        QString filter1 = filterStringToVizierName(refcatFilter1);
+        QString filter2 = filterStringToVizierName(refcatFilter2);
 
-    if (refcatName.contains("2MASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=2MASS-PSC ");
-    else if (refcatName.contains("VHS")) queryCommand.append("-out=RAJ2000 -out=DEJ2000 -source=II/367/vhs_dr5 ");
-    else if (refcatName.contains("APASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=II/336 ");
-    else if (refcatName.contains("GAIA")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=I/355/gaiadr3");
-    else if (refcatName.contains("UKIDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=II/319 ");
-    else if (refcatName.contains("SDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=V/147 ");
-    else if (refcatName.contains("PANSTARRS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=II/349/ps1 ");
-    else if (refcatName.contains("SKYMAPPER")) queryCommand.append("-out=RAICRS -out=DEICRS -source=II/358/smss ");
-    else if (refcatName.contains("ATLAS-REFCAT2")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=J/ApJ/867/105 ");
+        if (refcatName.contains("2MASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=2MASS-PSC ");
+        else if (refcatName.contains("VHS")) queryCommand.append("-out=RAJ2000 -out=DEJ2000 -source=II/367/vhs_dr5 ");
+        else if (refcatName.contains("APASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=II/336 ");
+        else if (refcatName.contains("GAIA")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=I/355/gaiadr3");
+        else if (refcatName.contains("UKIDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=II/319 ");
+        else if (refcatName.contains("SDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=V/154/sdss16 ");
+        else if (refcatName.contains("SKYMAPPER")) queryCommand.append("-out=RAICRS -out=DEICRS -source=II/379/smssdr4 ");
+        else if (refcatName.contains("ATLAS-REFCAT2")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=J/ApJ/867/105 ");
 
-    queryCommand.append("-out=" + filter1 + " -out=" + filter2 + " -out=e_" + filter1 + " -out=e_" + filter2);    //  mags and their errors
+        queryCommand.append("-out=" + filter1 + " -out=" + filter2 + " -out=e_" + filter1 + " -out=e_" + filter2);    //  mags and their errors
+    }
+    else {
+        // Querying MAST Panstarrs-DR2
+        delta_string.remove("+");  // MAST queries don't like explicit "+" signs for the declination
+        queryCommand = curlExecutable + " 'https://catalogs.mast.stsci.edu/api/v0.1/panstarrs/dr2/stack.csv?";
+        queryCommand.append("ra="+alpha_string+"&");
+        queryCommand.append("dec="+delta_string+"&");
+        queryCommand.append("radius="+radius_string+"&");
+        queryCommand.append("pagesize=1000000&");
+        queryCommand.append("columns=%5BobjID%2CraMean%2CdecMean%2CgPSFMag%2CrPSFMag%2CiPSFMag%2CzPSFMag%2CyPSFMag'");
+    }
+
 }
 
 void Query::buildQuerySyntaxColorCalib()
@@ -354,10 +385,22 @@ void Query::buildQuerySyntaxColorCalib()
 
     // Vizier queries
 
-    queryCommand = pythonExecutable + " " + thelidir+"/python/vizquery.py ";
-    queryCommand.append("-mime=tsv -out.max=1000000 ");
-    queryCommand.append("-c.rm="+radius_string+" ");
-    queryCommand.append("-c='"+alpha_string+delta_string+"' ");
+    if (!refcatName.contains("PANSTARRS")) {
+        queryCommand = pythonExecutable + " " + thelidir+"/python/vizquery.py ";
+        queryCommand.append("-mime=tsv -out.max=1000000 ");
+        queryCommand.append("-c.rm="+radius_string+" ");
+        queryCommand.append("-c='"+alpha_string+delta_string+"' ");
+    }
+    else {
+        delta_string.remove("+");  // MAST queries don't like explicit "+" signs for the declination
+        queryCommand = curlExecutable + " 'https://catalogs.mast.stsci.edu/api/v0.1/panstarrs/dr2/stack.csv?";
+        queryCommand.append("ra="+alpha_string+"&");
+        queryCommand.append("dec="+delta_string+"&");
+        queryCommand.append("radius="+radius_string+"&");
+        queryCommand.append("pagesize=1000000&");
+        queryCommand.append("columns=%5BobjID%2CraMean%2CdecMean%2CgPSFMag%2CrPSFMag%2CiPSFMag%2CzPSFMag%2CyPSFMag'");
+        return;
+    }
 
     // Using max 5 filters to identify G2 type stars
     QString filter1;
@@ -387,13 +430,6 @@ void Query::buildQuerySyntaxColorCalib()
         filter4 = filterStringToVizierName("r");
         filter5 = filterStringToVizierName("i");
     }
-    if (refcatName.contains("PANSTARRS")) {
-        filter1 = filterStringToVizierName("g");
-        filter2 = filterStringToVizierName("r");
-        filter3 = filterStringToVizierName("i");
-        filter4 = filterStringToVizierName("z");
-        filter5 = "";
-    }
     if (refcatName.contains("ATLAS-REFCAT2")) {
         filter1 = filterStringToVizierName("g");
         filter2 = filterStringToVizierName("r");
@@ -403,9 +439,8 @@ void Query::buildQuerySyntaxColorCalib()
     }
 
     if (refcatName.contains("APASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=II/336 ");
-    else if (refcatName.contains("SDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=V/147 ");
-    else if (refcatName.contains("PANSTARRS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=II/349/ps1 ");
-    else if (refcatName.contains("SKYMAPPER")) queryCommand.append("-out=RAICRS -out=DEICRS -source=II/358/smss ");
+    else if (refcatName.contains("SDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=V/154/sdss16 ");
+    else if (refcatName.contains("SKYMAPPER")) queryCommand.append("-out=RAICRS -out=DEICRS -source=II/379/smssdr4 ");
     else if (refcatName.contains("ATLAS-REFCAT2")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=J/ApJ/867/105 ");
 
     queryCommand.append("-out=" + filter1
@@ -442,11 +477,11 @@ QString Query::filterStringToVizierName(QString filter)
     if (refcatName.contains("SKYMAPPER") && filter == "i") return "iPSF";
     if (refcatName.contains("SKYMAPPER") && filter == "z") return "zPSF";
 
-    if (refcatName.contains("PANSTARRS") && filter == "g") return "gmag";
-    if (refcatName.contains("PANSTARRS") && filter == "r") return "rmag";
-    if (refcatName.contains("PANSTARRS") && filter == "i") return "imag";
-    if (refcatName.contains("PANSTARRS") && filter == "z") return "zmag";
-    if (refcatName.contains("PANSTARRS") && filter == "y") return "ymag";
+    if (refcatName.contains("PANSTARRS") && filter == "g") return "gPSFMag";
+    if (refcatName.contains("PANSTARRS") && filter == "r") return "rPSFMag";
+    if (refcatName.contains("PANSTARRS") && filter == "i") return "iPSFMag";
+    if (refcatName.contains("PANSTARRS") && filter == "z") return "zPSFMag";
+    if (refcatName.contains("PANSTARRS") && filter == "y") return "yPSFMag";
 
     if (refcatName.contains("ATLAS-REFCAT2") && filter == "g") return "gmag";
     if (refcatName.contains("ATLAS-REFCAT2") && filter == "r") return "rmag";
@@ -644,7 +679,11 @@ void Query::processAstromCatalog()
                 || line.contains("Content-Type")
                 || line.contains("Content-Disposition")
                 || line.contains("DocumentRef")
-                || line.contains("---")) continue;
+                || line.contains("objID")  // MAST Queries
+                || line.contains("Total")  // MAST Queries
+                || line.contains("Fail")   // MAST Queries
+                || line.contains("-999.0")   // MAST Queries
+                || line.contains("--")) continue;
         QString result = extractRaDecMagAstrom(line);  // also prepares scamp and anet
         if (!result.isEmpty()) {
             stream_iview << result << "\n";
@@ -701,7 +740,11 @@ void Query::processGaiaCatalog()
                 || line.contains("Content-Type")
                 || line.contains("Content-Disposition")
                 || line.contains("DocumentRef")
-                || line.contains("---")) continue;
+                || line.contains("objID")  // MAST Queries
+                || line.contains("Total")  // MAST Queries
+                || line.contains("Fail")   // MAST Queries
+                || line.contains("-999.0")   // MAST Queries
+                || line.contains("--")) continue;
         QString result = extractRaDecGaia(line);         // includes point source filtering
         if (!result.isEmpty()) {
             stream_iview << result << "\n";
@@ -744,7 +787,11 @@ void Query::processBrightStarCatalog()
                 || line.contains("Content-Type")
                 || line.contains("Content-Disposition")
                 || line.contains("DocumentRef")
-                || line.contains("---")) continue;
+                || line.contains("objID")  // MAST Queries
+                || line.contains("Total")  // MAST Queries
+                || line.contains("Fail")   // MAST Queries
+                || line.contains("-999.0")   // MAST Queries
+                || line.contains("--")) continue;
         QString result = extractRaDecMagAstrom(line);
         if (!result.isEmpty()) ++numSources;
         ++i;
@@ -788,7 +835,11 @@ void Query::processPhotomCatalog()
                 || line.contains("Content-Type")
                 || line.contains("Content-Disposition")
                 || line.contains("DocumentRef")
-                || line.contains("---")) continue;
+                || line.contains("objID")  // MAST Queries
+                || line.contains("Total")  // MAST Queries
+                || line.contains("Fail")   // MAST Queries
+                || line.contains("-999.0")   // MAST Queries
+                || line.contains("--")) continue;
         QString result = extractRaDecMagPhotom(line);
         if (!result.isEmpty()) {
             stream_iview << result << "\n";
@@ -837,7 +888,11 @@ void Query::processColorCalibCatalog()
                 || line.contains("Content-Type")
                 || line.contains("Content-Disposition")
                 || line.contains("DocumentRef")
-                || line.contains("---")) continue;
+                || line.contains("objID")  // MAST Queries
+                || line.contains("Total")  // MAST Queries
+                || line.contains("Fail")   // MAST Queries
+                || line.contains("-999.0")   // MAST Queries
+                || line.contains("--")) continue;
         QString result = extractRaDecMagColorCalib(line);
         if (!result.isEmpty()) {
             stream_iview << result << "\n";
@@ -1024,16 +1079,24 @@ QString Query::extractRaDecMagAstrom(QString &line)
     if (!successProcessing) return "";
 
     // 'line' contains RA, DEC, and an arbitrary number of magnitudes (which we average)
-    // Fields are separated by semi-colons
+    // Fields are separated by tabs (vizquery) or commas (MAST queries)
     QString result = "";
     //    line = line.simplified();
-    QStringList list = line.split('\t');
+    QString splitchar = "";
+    int offset = 0;   // needed because MAST queries insert the objID and I don't know how to turn that off.
+    if (!refcatName.contains("PANSTARRS")) splitchar = '\t';
+    else {
+        splitchar = ',';
+        offset = 1;
+    }
+    QStringList list = line.split(splitchar);
+
     int length = list.length();
     if (refcatName.contains("GAIA") && length < 5) return result;
     if (!refcatName.contains("GAIA") && length < 3) return result;
 
-    QString ra = list[0].simplified();
-    QString dec = list[1].simplified();
+    QString ra = list[0+offset].simplified();
+    QString dec = list[1+offset].simplified();
     if (ra.isEmpty()) return "";
     QVector<float> magnitudes;
     magLimit = magLimit_string.toFloat();
@@ -1041,7 +1104,7 @@ QString Query::extractRaDecMagAstrom(QString &line)
     // without proper motions
     if (!refcatName.contains("GAIA")
             && !refcatName.contains("UCAC")) {
-        for (int i=2; i<length; ++i) {
+        for (int i=2+offset; i<length; ++i) {
             QString mag = list[i].simplified();
             if (!mag.isEmpty()) magnitudes << mag.toFloat();
         }
@@ -1195,8 +1258,7 @@ QString Query::extractRaDecMagColorCalib(QString &line)
     QString mag3 = list[4].simplified();
     QString mag4 = list[5].simplified();
     QString mag5;
-    if (refcatName.contains("PANSTARRS") ||
-            refcatName.contains("ATLAS-REFCAT2")) mag5 = mag1;      // these two contain only 4 mags
+    if (refcatName.contains("ATLAS-REFCAT2")) mag5 = mag1;      // contains only 4 mags
     else {
         if (list.length() == 7) mag5 = list[6].simplified();
         else {

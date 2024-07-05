@@ -472,7 +472,7 @@
        <number>1</number>
       </property>
       <property name="currentIndex">
-       <number>8</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="HDUpage">
        <layout class="QGridLayout" name="gridLayout_31">
@@ -22367,7 +22367,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                    </item>
                    <item>
                     <property name="text">
-                     <string>PANSTARRS-DR1</string>
+                     <string>PANSTARRS-DR2</string>
                     </property>
                    </item>
                    <item>
@@ -22377,7 +22377,7 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
                    </item>
                    <item>
                     <property name="text">
-                     <string>SKYMAPPER-DR1</string>
+                     <string>SKYMAPPER-DR4</string>
                     </property>
                    </item>
                    <item>

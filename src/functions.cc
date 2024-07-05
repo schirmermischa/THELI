@@ -563,6 +563,7 @@ QString findExecutableName(QString program)
     QStringList anetlist1 = {"solve-field"};
     QStringList anetlist2 = {"build-astrometry-index"};
     QStringList pythonlist = {"python3", "python"};
+    QStringList curllist = {"curl"};
 
     QString commandname = "";
     if (program == "source-extractor") {
@@ -609,6 +610,14 @@ QString findExecutableName(QString program)
     }
     else if (program == "python") {
         for (auto &it : pythonlist) {
+            commandname = QStandardPaths::findExecutable(it);
+            if (!commandname.isEmpty()) {
+                break;
+            }
+        }
+    }
+    else if (program == "curl") {
+        for (auto &it : curllist) {
             commandname = QStandardPaths::findExecutable(it);
             if (!commandname.isEmpty()) {
                 break;

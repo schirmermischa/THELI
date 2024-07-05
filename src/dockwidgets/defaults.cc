@@ -46,6 +46,8 @@ void ConfDockWidget::populateDefaultMap()
     defaultMap.insert("ARCraLineEdit", "");
     defaultMap.insert("ARCradiusLineEdit", "");
     defaultMap.insert("ARCmaxpmLineEdit", "");
+    defaultMap.insert("ARCpmRALineEdit","");
+    defaultMap.insert("ARCpmDECLineEdit","");
     defaultMap.insert("ASTanetpixscaleLineEdit", "1.05");
     defaultMap.insert("ASTastrefweightLineEdit", "1.0");
     defaultMap.insert("ASTastrinstrukeyLineEdit", "FILTER");

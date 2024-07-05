@@ -115,6 +115,7 @@ private:
     QString userdir;
     QString instrument_dir;
     QString pythonExecutable = "";
+    QString curlExecutable = "";
 
     // The location and radius for the search, and their string representations
     double alpha = 0.;

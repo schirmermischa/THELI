@@ -82,10 +82,10 @@ void Controller::taskInternalCoaddition()
     // if all chips are stacked, make sure the reference point is within the covered area.
     // If selected chips are present, then the user might want the same ref coords for all chip stacks, which might be outside
     if (cdw->ui->COAchipsLineEdit->text().isEmpty()) {
-        //        if (!coaddScienceData->doesCoaddContainRaDec(cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text())) {
-        //            emit showMessageBox("Controller::POOR_COORD", cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text());
-        //            return;
-        //        }
+        if (!coaddScienceData->doesCoaddContainRaDec(cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text())) {
+            emit showMessageBox("Controller::POOR_COORD", cdw->ui->COAraLineEdit->text(), cdw->ui->COAdecLineEdit->text());
+            return;
+        }
     }
 
     //    qDebug() << "taskInternalCoaddition() : " << filterArg;
