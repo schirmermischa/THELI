@@ -887,6 +887,7 @@ void AbsZeroPoint::showData(QCPAbstractPlottable *plottable, int dataIndex)
     if (plottable->parentLayerable()->objectName() == "aperRect") {
         absPhot->ZPSelected = QString::number(absPhot->qv_ZP[dataIndex], 'f', 3);
         absPhot->ZPerrSelected = QString::number(absPhot->qv_ZPerr[dataIndex], 'f', 3);
+        absPhot->Aperture = QString::number(absPhot->qv_apertures[dataIndex], 'f', 3);
         absPhot->Color1Selected = QString::number(absPhot->fitParams[1], 'f', 4);
         absPhot->Color2Selected = QString::number(absPhot->fitParams[2], 'f', 4);
         absPhot->Color3Selected = QString::number(absPhot->fitParams[3], 'f', 4);
@@ -1179,6 +1180,7 @@ void AbsZeroPoint::updateCoaddHeader()
     fits_update_key_flt(fptr, "ZPD", absPhot->ZPSelected.toFloat(), 6, "Photometric ZP in ZPD_FILT", &status);
     fits_update_key_flt(fptr, "ZPD_ERR", absPhot->ZPerrSelected.toFloat(), 6, "Error of ZPD", &status);
     fits_update_key_str(fptr, "ZPD_FILT", ui->zpFilterComboBox->currentText().toUtf8().data(), "Filter for ZPD", &status);
+    fits_update_key_flt(fptr, "ZPD_APER", absPhot->Aperture.toFloat(), 6, "Aperture diameter [pixel]", &status);
     fits_update_key_flt(fptr, "ZPD_C1", absPhot->Color1Selected.toFloat(), 6, "Linear color term in ZPD_SURV", &status);
     fits_update_key_flt(fptr, "ZPD_C2", absPhot->Color2Selected.toFloat(), 6, "Quadratic color term in ZPD_SURV", &status);
     fits_update_key_flt(fptr, "ZPD_C3", absPhot->Color3Selected.toFloat(), 6, "Cubic color term in ZPD_SURV", &status);
@@ -1220,6 +1222,7 @@ void AbsZeroPoint::updateCoaddHeader()
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= "+absPhot->ZPSelected+"</tt>");
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_ERR&nbsp;= "+absPhot->ZPerrSelected+"</tt>");
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_FILT= '"+ui->zpFilterComboBox->currentText()+"'</tt>");
+    ui->zpPlainTextEdit->appendHtml("<tt>ZPD_APER= "+absPhot->Aperture+"</tt>");
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_C1&nbsp;&nbsp;= "+absPhot->Color1Selected+"</tt>");
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_C2&nbsp;&nbsp;= "+absPhot->Color2Selected+"</tt>");
     ui->zpPlainTextEdit->appendHtml("<tt>ZPD_C3&nbsp;&nbsp;= "+absPhot->Color3Selected+"</tt>");

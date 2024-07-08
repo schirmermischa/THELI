@@ -71,6 +71,7 @@ public:
 
     QString ZPSelected;
     QString ZPerrSelected;
+    QString Aperture;
     QString Color1Selected;
     QString Color2Selected;
     QString Color3Selected;

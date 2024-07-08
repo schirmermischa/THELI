@@ -310,9 +310,9 @@ void Query::buildQuerySyntaxAstrom()
         else if (refcatName.contains("2MASS")) queryCommand.append("-out=_RAJ -out=_DEJ -source=2MASS-PSC -out='Jmag,Hmag,Kmag' Hmag=0.."+magLimit_string);
         else if (refcatName.contains("UCAC")) queryCommand.append("-out=RAgaia -out=DEgaia -source=I/340 -out='Gmag,RMag' -out=pmRA -out=pmDE Rmag=0.."+magLimit_string);
         else if (refcatName.contains("GAIA")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=I/355/gaiadr3 -out=Gmag -out=pmRA -out=pmDE Gmag=0.."+magLimit_string);
-        else if (refcatName.contains("SDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=V/147 -out=gmag,rmag,imag rmag=0.."+magLimit_string);
+        else if (refcatName.contains("SDSS")) queryCommand.append("-out=RA_ICRS -out=DE_ICRS -source=V/154/sdss16 -out=gmag,rmag,imag rmag=0.."+magLimit_string);
         else if (refcatName.contains("VHS")) queryCommand.append("-out=RAJ2000 -out=DEJ2000 -source=II/359/vhs_dr4 -out=Jap4,Hap4,Ksap4 Jap4=0.."+magLimit_string);
-        else if (refcatName.contains("SKYMAPPER")) queryCommand.append("-out=RAICRS -out=DEICRS -source=II/358/smss -out=gPSF,rPSF,iPSF rPSF=0.."+magLimit_string);
+        else if (refcatName.contains("SKYMAPPER")) queryCommand.append("-out=RAICRS -out=DEICRS -source=II/379/smssdr4 -out=gPSF,rPSF,iPSF rPSF=0.."+magLimit_string);
     }
     else {
         // Querying MAST Panstarrs-DR2
