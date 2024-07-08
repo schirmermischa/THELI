@@ -393,14 +393,14 @@ QVector<double> Splitter::CDfromCDELT()
     bool pc21test = searchKeyValue(headerDictionary.value("PC2_1"), pc21);
     bool pc22test = searchKeyValue(headerDictionary.value("PC2_2"), pc22);
     bool pctest = true;
-    pctest = pc11test & pc12test & pc21test & pc22test;
+    pctest = pc11test && pc12test && pc21test && pc22test;
     if (!pctest) {
         // check for really old convention
         pc11test = searchKeyValue(headerDictionary.value("PC001001"), pc11);
         pc12test = searchKeyValue(headerDictionary.value("PC001002"), pc12);
         pc21test = searchKeyValue(headerDictionary.value("PC002001"), pc21);
         pc22test = searchKeyValue(headerDictionary.value("PC002002"), pc22);
-        pctest = pc11test & pc12test & pc21test & pc22test;
+        pctest = pc11test && pc12test && pc21test && pc22test;
     }
 
     // Only if no CD matrix information is present in the raw FITS headers:

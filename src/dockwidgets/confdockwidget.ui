@@ -472,7 +472,7 @@
        <number>1</number>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>8</number>
       </property>
       <widget class="QWidget" name="HDUpage">
        <layout class="QGridLayout" name="gridLayout_31">
@@ -32678,22 +32678,6 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
           <property name="verticalSpacing">
            <number>0</number>
           </property>
-          <item row="0" column="0">
-           <widget class="QLabel" name="confsubtitleCoadd4Label">
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="autoFillBackground">
-             <bool>true</bool>
-            </property>
-            <property name="text">
-             <string>(4) Setup</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="0" colspan="2">
            <widget class="QFrame" name="confCoadd4Frame">
             <property name="palette">
@@ -34367,6 +34351,22 @@ color: rgb(100, 230, 230);background-color: rgb(58, 78, 98);
              </size>
             </property>
            </spacer>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="confsubtitleCoadd4Label">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>(4) Setup</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>

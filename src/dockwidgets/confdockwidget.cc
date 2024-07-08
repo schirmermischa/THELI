@@ -76,6 +76,7 @@ void ConfDockWidget::initConfDockWidget()
     ui->xtalk_row_2x2ToolButton->setIcon(QIcon(":/icons/xtalk_row_2x2.png"));
 
     ui->skyReadmePushButton->hide();
+    ui->COAhistogramMJDOBSPushButton->hide();
 
     // update the collapse direction icon
     QString colldir = ui->COCdirectionComboBox->currentText();
